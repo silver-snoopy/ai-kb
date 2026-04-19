@@ -116,14 +116,16 @@ export class BossFightScene extends Phaser.Scene {
     // --- Hero sprite (left) ---
     this.heroSprite = this.add.image(120, 330, 'hero').setScale(3);
 
-    // Hero HP hearts below sprite
-    this.heroHpText = this.add.text(120, 410, '', {
-      fontSize: '14px', color: '#8bc34a', fontFamily: 'monospace',
+    // Hero HP hearts below sprite. Slightly smaller than before so the
+    // label stack under the hero is a compact 2-line group.
+    this.heroHpText = this.add.text(120, 405, '', {
+      fontSize: '12px', color: '#8bc34a', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    // Hero name label
-    this.add.text(120, 430, 'WARLOCK', {
-      fontSize: '11px', color: '#a0a0b0', fontFamily: 'monospace',
+    // Hero name label \u2014 intentionally tiny so it reads as a subtitle
+    // rather than competing with the HP text above it.
+    this.add.text(120, 420, 'WARLOCK', {
+      fontSize: '9px', color: '#808090', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
     // --- Boss sprite (right) ---
@@ -131,9 +133,10 @@ export class BossFightScene extends Phaser.Scene {
     const bossTexKey = this.textures.exists(bossKey) ? bossKey : 'hero';
     this.bossSprite = this.add.image(840, 330, bossTexKey).setScale(4);
 
-    // Boss HP hearts below boss sprite
-    this.bossHpText = this.add.text(840, 410, '', {
-      fontSize: '14px', color: '#ff6b6b', fontFamily: 'monospace',
+    // Boss HP hearts below boss sprite \u2014 match the hero HP scale so both
+    // sides read as symmetric status lines.
+    this.bossHpText = this.add.text(840, 405, '', {
+      fontSize: '12px', color: '#ff6b6b', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
     // Taunt text below boss
@@ -143,14 +146,20 @@ export class BossFightScene extends Phaser.Scene {
     }).setOrigin(0.5, 0);
 
     // --- Option buttons ---
+    // Boxes are wider (900 vs old 820) and text is smaller (13 vs 15)
+    // with wordWrap, so answers up to ~110 monospace chars fit on one
+    // line; only truly long answers wrap to 2 lines and are still
+    // readable inside the 32-tall box. Row pitch is kept at 35px so the
+    // spellbook at y=610 still has room beneath.
     const optLetters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
     optLetters.forEach((letter, idx) => {
       const y = 470 + idx * 35;
-      const btn = this.add.rectangle(480, y, 820, 32, 0x1a1a2a);
+      const btn = this.add.rectangle(480, y, 900, 32, 0x1a1a2a);
       btn.setStrokeStyle(2, 0x4a4a6a);
       btn.setInteractive({ useHandCursor: true });
-      const txt = this.add.text(100, y, '', {
-        fontSize: '15px', color: '#d0d0da', fontFamily: 'monospace',
+      const txt = this.add.text(50, y, '', {
+        fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
+        wordWrap: { width: 870, useAdvancedWrap: true },
       }).setOrigin(0, 0.5);
       this.optionTexts.push(txt);
       btn.on('pointerdown', () => this.submit(letter));

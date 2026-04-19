@@ -36,11 +36,13 @@ export interface Backdrop {
 const TILE_DISPLAY_SCALE = 2;
 
 // Backdrop band placement. The top wall band sits above the question bubble,
-// the floor band sits under the hero/boss sprite ground plane.
-const WALL_BAND_Y = 100;   // center of the 160-tall wall band (y=20..180)
-const WALL_BAND_HEIGHT = 160;
-const FLOOR_BAND_Y = 520;  // center of the 240-tall floor band (y=400..640)
-const FLOOR_BAND_HEIGHT = 240;
+// the floor band sits under the hero/boss sprite ground plane. The top 70px
+// is intentionally left clear so the boss-name text has an uncluttered
+// banner strip above the wall pattern.
+const WALL_BAND_Y = 140;   // center of the 140-tall wall band (y=70..210)
+const WALL_BAND_HEIGHT = 140;
+const FLOOR_BAND_Y = 540;  // center of the 200-tall floor band (y=440..640)
+const FLOOR_BAND_HEIGHT = 200;
 
 export const BACKDROPS: Record<string, Backdrop> = {
   'the-orchestrator': {
