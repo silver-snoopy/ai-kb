@@ -50,6 +50,15 @@ function normalize(raw: RawDomainsJson): QuestionsJson {
     else questionsByDomain.set(rq.domain, [q]);
   }
 
+  // Warn (don't throw) on orphaned questions — tolerable for in-progress data
+  // but worth surfacing so build-questions.mjs bugs don't hide.
+  for (const rq of raw.questions) {
+    if (!(rq.domain in raw.domains)) {
+      // eslint-disable-next-line no-console
+      console.warn(`[questionLoader] Question ${rq.id} references unknown domain "${rq.domain}"; it will not appear in any domain bucket`);
+    }
+  }
+
   const domains: DomainData[] = Object.entries(raw.domains).map(([id, meta]) => ({
     id,
     name: meta.name,
@@ -76,6 +85,9 @@ export function pickQuestionsForFight(
   n: number,
   rng: () => number = Math.random,
 ): Question[] {
+  if (pool.length === 0) {
+    throw new Error(`pickQuestionsForFight: pool is empty; cannot pick ${n} questions`);
+  }
   if (pool.length < n) {
     const padded: Question[] = [];
     while (padded.length < n) padded.push(...pool);
