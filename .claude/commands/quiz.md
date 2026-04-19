@@ -13,6 +13,7 @@ Default count: 10. Topic is optional (if absent, quiz the whole domain).
 
 1. Parse `$ARGUMENTS`. Require `<cert-id>` and `<domain-id>`. Parse optional `<topic>` and `--count N` (default 10).
 2. Load via `obsidian-mcp`: `CLAUDE.md`, `certs/<cert-id>/meta.yaml`, all files under `certs/<cert-id>/<domain-id>/`.
+2a. Read `certs/<cert-id>/_docs-map.yaml` to identify relevant official Anthropic docs URLs for the requested domain. Use `WebFetch` to pull the top 2-3 most relevant URLs for this topic (judge relevance from title field + topic arg). Add them to the quiz-grounding context.
 3. Generate N questions grounded in the loaded notes. Mix:
    - Multiple-choice (4 options)
    - "Which of these is WRONG?" negatives

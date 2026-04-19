@@ -21,6 +21,7 @@ Modes:
    - All files under `certs/<cert-id>/<domain-id>/`
    - Any `concepts/*/*.md` referenced in those files' frontmatter `links:`
    - (On Max plan, load generously — context is not a constraint.)
+2a. Read `certs/<cert-id>/_docs-map.yaml` to identify relevant official Anthropic docs URLs for the requested domain. Use `WebFetch` to pull the top 2-3 most relevant URLs for this topic (judge relevance from title field + topic arg). Add them to the tutoring context.
 3. Announce the session:
    ```
    📚 Tutor session — <cert-name> · Domain: <domain-name> · Topic: <topic> · Mode: <mode>

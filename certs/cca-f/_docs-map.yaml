@@ -1,0 +1,55 @@
+# Per-domain Anthropic documentation URLs for /tutor and /quiz to consult on-demand via WebFetch.
+# Not pre-ingested into the vault (docs update frequently; always fetch fresh).
+
+cert_id: cca-f
+
+domains:
+  domain-1-agentic:
+    - title: Agent SDK overview
+      url: https://docs.anthropic.com/en/docs/build-with-claude/agents
+    - title: Claude Managed Agents
+      url: https://docs.anthropic.com/en/docs/managed-agents/overview
+    - title: Tool use (agentic loop control)
+      url: https://docs.anthropic.com/en/docs/build-with-claude/tool-use
+    - title: Messages API (stop_reason)
+      url: https://docs.anthropic.com/en/api/messages
+
+  domain-2-mcp:
+    - title: MCP architecture
+      url: https://modelcontextprotocol.io/docs/concepts/architecture
+    - title: MCP tools
+      url: https://modelcontextprotocol.io/docs/concepts/tools
+    - title: Tool use + tool_choice
+      url: https://docs.anthropic.com/en/docs/build-with-claude/tool-use
+    - title: Claude Code MCP integration
+      url: https://docs.anthropic.com/en/docs/claude-code/mcp
+
+  domain-3-claude-code:
+    - title: Claude Code overview
+      url: https://docs.anthropic.com/en/docs/claude-code/overview
+    - title: Settings + CLAUDE.md hierarchy
+      url: https://docs.anthropic.com/en/docs/claude-code/settings
+    - title: Slash commands
+      url: https://docs.anthropic.com/en/docs/claude-code/slash-commands
+    - title: Hooks
+      url: https://docs.anthropic.com/en/docs/claude-code/hooks
+    - title: Skills + plan mode
+      url: https://docs.anthropic.com/en/docs/claude-code/skills
+
+  domain-4-prompt-engineering:
+    - title: Prompt engineering overview
+      url: https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview
+    - title: Use XML tags
+      url: https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags
+    - title: Few-shot examples
+      url: https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting
+    - title: Structured output / JSON mode
+      url: https://docs.anthropic.com/en/docs/build-with-claude/tool-use
+
+  domain-5-context:
+    - title: Context windows
+      url: https://docs.anthropic.com/en/docs/build-with-claude/context-windows
+    - title: Prompt caching
+      url: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+    - title: Handling stop reasons
+      url: https://docs.anthropic.com/en/docs/build-with-claude/working-with-messages
