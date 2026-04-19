@@ -1,0 +1,20 @@
+{
+  "$schema": "https://claude.com/schemas/settings.json",
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "obsidian-mcp", "C:/projects/ai-kb"]
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "WebFetch",
+      "mcp__obsidian__*"
+    ]
+  }
+}
