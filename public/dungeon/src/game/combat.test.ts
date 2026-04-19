@@ -90,4 +90,20 @@ describe('combat', () => {
     resolveAnswer(state, 'A');
     expect(isHeroDead(state)).toBe(true);
   });
+
+  it('pendingPrimer is consumed after question resolution', () => {
+    const state = initCombat({ heroMaxHp: 3, bossMaxHp: 5 });
+    state.currentQuestion = dummyQuestion;
+    state.pendingPrimer = 'a primer payload';
+    resolveAnswer(state, 'B');
+    expect(state.pendingPrimer).toBeNull();
+  });
+
+  it('pendingRetake is consumed after question resolution', () => {
+    const state = initCombat({ heroMaxHp: 3, bossMaxHp: 5 });
+    state.currentQuestion = dummyQuestion;
+    state.pendingRetake = true;
+    resolveAnswer(state, 'B');
+    expect(state.pendingRetake).toBe(false);
+  });
 });
