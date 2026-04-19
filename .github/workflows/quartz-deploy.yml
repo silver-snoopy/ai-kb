@@ -19,7 +19,10 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  # Cancel in-flight builds when a newer push arrives — prevents multiple
+  # stacked artifacts colliding at the deploy step (actions/deploy-pages@v4
+  # fails when it finds more than one github-pages artifact in a run group).
+  cancel-in-progress: true
 
 jobs:
   build:
