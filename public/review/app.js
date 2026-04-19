@@ -1,16 +1,18 @@
 // public/review/app.js
-// Dark-theme SRS flashcard app (SM-2-lite).
-// State lives in localStorage under key 'srs-state'.
-// Modes: 'landing' | 'reviewing' | 'done' | 'empty'.
+// SM-2-lite spaced-repetition flashcards. States: 'landing' | 'card' | 'done'
+//
+// Storage (localStorage key 'srs-state'):
+//   { version: 1, cards: { [qid]: { ease, interval, reps, due, last_rating, last_reviewed_at } } }
+//
+// "Mastered" = reps >= 3 AND last_rating in ['good','easy'].
 
 const app = document.getElementById('app');
 const STORAGE_KEY = 'srs-state';
 
 let data = null;
-let session = null;      // { cards: [...], current: 0, revealed: false, ratings: [] }
-let keyHandler = null;   // global keydown binding; cleared on re-render
+let session = null; // { cards, current, initialLength, revealed, reviewedIds, mastersDuringSession }
 
-// ---------- bootstrap ----------
+// ---------- data load ----------
 
 async function load() {
   try {
@@ -19,151 +21,73 @@ async function load() {
     data = await res.json();
     renderLanding();
   } catch (e) {
-    app.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">&#x26A0;</div>
+    app.innerHTML = `<section class="empty">
       <h2>Could not load question bank</h2>
-      <p>Expected <code>../questions.json</code> to exist.</p>
-      <p class="error-detail">${escapeHtml(e.message)}</p>
-    </div>`;
+      <p>Expected <code>../questions.json</code> to exist. Run <code>node scripts/build-questions.mjs</code> from the vault root to regenerate.</p>
+      <p class="text-soft">${escapeHtml(e.message)}</p>
+    </section>`;
   }
 }
 
-// ---------- SRS state helpers ----------
+// ---------- SRS state ----------
 
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { version: 1, cards: {} };
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || !parsed.cards) {
-      return { version: 1, cards: {} };
+    if (parsed && typeof parsed === 'object' && parsed.cards && typeof parsed.cards === 'object') {
+      return { version: parsed.version || 1, cards: parsed.cards };
     }
-    return parsed;
-  } catch {
-    return { version: 1, cards: {} };
-  }
+  } catch { /* corrupt — reset */ }
+  return { version: 1, cards: {} };
 }
 
 function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
 }
 
 function todayUtcIso() {
-  // 'YYYY-MM-DD' in UTC
   return new Date().toISOString().slice(0, 10);
 }
 
 function addDaysUtcIso(isoDate, days) {
   const d = new Date(isoDate + 'T00:00:00Z');
-  d.setUTCDate(d.getUTCDate() + days);
+  d.setUTCDate(d.getUTCDate() + Math.max(0, Math.round(days)));
   return d.toISOString().slice(0, 10);
 }
 
-function isDue(card) {
-  if (!card) return true; // new cards are always due
-  return card.due <= todayUtcIso();
-}
-
-function isMastered(card) {
-  if (!card) return false;
-  return card.reps >= 3 && (card.last_rating === 'good' || card.last_rating === 'easy');
-}
-
-// ---------- stats ----------
-
-function computeStats(state) {
+function applyRating(questionId, rating) {
+  const state = loadState();
   const today = todayUtcIso();
-  let total = data.questions.length;
-  let dueToday = 0;
-  let newCount = 0;
-  let reviewedToday = 0;
-  let mastered = 0;
-
-  for (const q of data.questions) {
-    const card = state.cards[q.id];
-    if (!card) {
-      newCount++;
-      dueToday++;
-      continue;
-    }
-    if (card.due <= today) dueToday++;
-    if (card.last_reviewed_at && card.last_reviewed_at.slice(0, 10) === today) reviewedToday++;
-    if (isMastered(card)) mastered++;
-  }
-  return { total, dueToday, newCount, reviewedToday, mastered };
-}
-
-// ---------- build session queue ----------
-
-function buildQueue(state) {
-  const today = todayUtcIso();
-  const due = [];
-  for (const q of data.questions) {
-    const card = state.cards[q.id];
-    if (!card || card.due <= today) {
-      due.push(q);
-    }
-  }
-  return shuffle(due);
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// ---------- SM-2-lite rating ----------
-
-function applyRating(state, questionId, rating) {
-  const existing = state.cards[questionId];
-  const prev = existing || {
-    ease: 2.5,
-    interval: 0,
-    reps: 0,
-    due: todayUtcIso(),
-    last_rating: null,
-    last_reviewed_at: null,
-  };
   const nowIso = new Date().toISOString();
-  const today = todayUtcIso();
-
-  let ease = prev.ease;
-  let interval = prev.interval;
-  let reps = prev.reps;
-  let dueIn; // days from today
+  const prev = state.cards[questionId] || { ease: 2.5, interval: 0, reps: 0, due: today };
+  let { ease, interval, reps } = prev;
+  let dueIn;
 
   switch (rating) {
     case 'again':
-      // Reset: card is "not yet successfully reviewed." Next Good/Easy reseeds
-      // interval from 4d. Session handler re-queues it immediately for re-drill.
       ease = Math.max(1.3, ease - 0.2);
       reps = 0;
       interval = 0;
-      dueIn = 0; // due today
+      dueIn = 0;
       break;
     case 'hard':
-      // interval * 1.2, min 1d; ease unchanged; reps++
       interval = Math.max(1, Math.round((interval || 1) * 1.2));
       reps = reps + 1;
       dueIn = interval;
       break;
     case 'good': {
-      // first time: seed 4d; otherwise interval * ease
-      const nextInterval = (interval === 0) ? 4 : Math.round(interval * ease);
-      interval = Math.max(1, nextInterval);
+      const next = (interval === 0) ? 4 : Math.max(1, Math.round(interval * ease));
+      interval = next;
       reps = reps + 1;
       dueIn = interval;
       break;
     }
     case 'easy': {
       const base = (interval === 0) ? 4 : interval;
-      const nextInterval = Math.round(base * ease * 1.3);
-      interval = Math.max(1, nextInterval);
       ease = Math.min(3.0, ease + 0.15);
+      interval = Math.max(1, Math.round(base * ease * 1.3));
       reps = reps + 1;
       dueIn = interval;
       break;
@@ -173,31 +97,19 @@ function applyRating(state, questionId, rating) {
   }
 
   ease = Math.max(1.3, Math.min(3.0, ease));
-
   const due = rating === 'again' ? today : addDaysUtcIso(today, dueIn);
 
-  state.cards[questionId] = {
-    ease,
-    interval,
-    reps,
-    due,
-    last_rating: rating,
-    last_reviewed_at: nowIso,
-  };
+  state.cards[questionId] = { ease, interval, reps, due, last_rating: rating, last_reviewed_at: nowIso };
+  saveState(state);
   return state.cards[questionId];
 }
 
-// Preview the real interval this rating would produce for this specific card,
-// without mutating state. Mirrors the math in applyRating so the button label
-// matches what actually gets scheduled.
 function previewIntervalLabel(rating, cardState) {
   const prev = cardState || { ease: 2.5, interval: 0, reps: 0 };
-  let ease = prev.ease;
-  let interval = prev.interval;
+  let { ease, interval } = prev;
   let days;
   switch (rating) {
-    case 'again':
-      return '<1d';
+    case 'again': return '<1d';
     case 'hard':
       days = Math.max(1, Math.round((interval || 1) * 1.2));
       break;
@@ -210,8 +122,7 @@ function previewIntervalLabel(rating, cardState) {
       days = Math.max(1, Math.round(base * nextEase * 1.3));
       break;
     }
-    default:
-      return '';
+    default: return '';
   }
   return fmtDays(days);
 }
@@ -223,179 +134,232 @@ function fmtDays(d) {
   return Math.max(1, Math.round(d / 365)) + 'y';
 }
 
-// ---------- rendering: landing ----------
+function isDueToday(card) {
+  if (!card) return true;
+  return card.due <= todayUtcIso();
+}
+
+function isMastered(card) {
+  if (!card) return false;
+  return card.reps >= 3 && (card.last_rating === 'good' || card.last_rating === 'easy');
+}
+
+function computeStats(state) {
+  const today = todayUtcIso();
+  let total = data.questions.length;
+  let dueToday = 0, newCount = 0, reviewedToday = 0, mastered = 0;
+  for (const q of data.questions) {
+    const card = state.cards[q.id];
+    if (!card) { newCount++; dueToday++; continue; }
+    if (card.due <= today) dueToday++;
+    if (card.last_reviewed_at && card.last_reviewed_at.slice(0, 10) === today) reviewedToday++;
+    if (isMastered(card)) mastered++;
+  }
+  return { total, dueToday, newCount, reviewedToday, mastered };
+}
+
+// ---------- landing ----------
 
 function renderLanding() {
   clearKeyHandler();
   const state = loadState();
   const stats = computeStats(state);
-  const hasDue = stats.dueToday > 0;
 
-  const statCard = (label, value, cls = '') => `
-    <div class="stat-card ${cls}">
-      <div class="stat-value">${value}</div>
-      <div class="stat-label">${label}</div>
+  const statCell = (value, label, mod = '') => `
+    <div class="stat ${mod}">
+      <p class="stat__value">${value}</p>
+      <p class="stat__label">${label}</p>
     </div>
   `;
 
-  app.innerHTML = `
-    <section class="stat-grid">
-      ${statCard('Total', stats.total)}
-      ${statCard('Due Today', stats.dueToday, hasDue ? 'highlight' : '')}
-      ${statCard('New', stats.newCount)}
-      ${statCard('Reviewed', stats.reviewedToday)}
-      ${statCard('Mastered', stats.mastered, stats.mastered > 0 ? 'mastered' : '')}
-    </section>
+  const strip = `
+    <div class="stat-strip" role="group" aria-label="Review statistics">
+      ${statCell(stats.total, 'Total')}
+      ${statCell(stats.dueToday, 'Due', stats.dueToday > 0 ? 'stat--accent' : '')}
+      ${statCell(stats.newCount, 'New')}
+      ${statCell(stats.reviewedToday, 'Today')}
+      ${statCell(stats.mastered, 'Mastered', stats.mastered > 0 ? 'stat--success' : '')}
+    </div>
+  `;
 
-    <section class="landing-card">
-      ${hasDue
-        ? `<h2>${stats.dueToday} card${stats.dueToday === 1 ? '' : 's'} ready for review</h2>
-           <p>${stats.newCount > 0 ? `${stats.newCount} new &middot; ` : ''}${stats.dueToday - stats.newCount} returning</p>
-           <button class="btn-primary" id="start-btn">Start Review &rarr;</button>
-           <div class="landing-meta">Use <span class="kbd-inline">Space</span> to reveal, <span class="kbd-inline">1&ndash;4</span> to rate.</div>`
-        : `<h2>All caught up</h2>
-           <p>Nothing due today. Come back tomorrow &mdash; or practice some questions in the meantime.</p>
-           <button class="btn-primary" id="start-btn" disabled>Start Review &rarr;</button>
-           <div class="nav-bar" style="margin-top: 24px;">
-             <a href="../practice/" class="btn-secondary" style="text-decoration: none; display: inline-block;">Go to Practice &rarr;</a>
-           </div>`
-      }
+  const body = stats.dueToday > 0
+    ? `<div class="queue-cta">
+         <div class="queue-cta__copy">
+           <h2><span class="mono">${stats.dueToday}</span> card${stats.dueToday === 1 ? '' : 's'} in the queue</h2>
+           <p><span class="mono">${stats.newCount}</span> new &middot; <span class="mono">${stats.dueToday - stats.newCount}</span> returning for another pass.</p>
+         </div>
+         <div class="queue-cta__action">
+           <button class="btn btn--primary btn--lg" id="start-btn">Begin review</button>
+           <span class="queue-cta__hint">Space reveals &middot; 1&ndash;4 rates</span>
+         </div>
+       </div>`
+    : `<div class="all-caught-up">
+         <h2>Nothing due today.</h2>
+         <p>Come back tomorrow, or drill wrong answers in <a href="../practice/">Practice</a> to surface new cards.</p>
+         <a href="../practice/" class="btn btn--secondary">Open practice</a>
+       </div>`;
+
+  app.innerHTML = `
+    <section class="landing">
+      <div>
+        <h2 class="section-label">Today</h2>
+        ${strip}
+      </div>
+      ${body}
     </section>
   `;
 
-  const btn = app.querySelector('#start-btn');
-  if (btn && hasDue) {
-    btn.addEventListener('click', startSession);
-  }
+  const startBtn = app.querySelector('#start-btn');
+  startBtn?.addEventListener('click', startSession);
+  startBtn?.focus();
+
+  setKeyHandler(e => {
+    if (startBtn && !startBtn.disabled && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      startSession();
+    }
+  });
 }
 
-// ---------- rendering: session ----------
+// ---------- session ----------
+
+function pickQueue() {
+  const state = loadState();
+  const due = data.questions.filter(q => isDueToday(state.cards[q.id]));
+  // Shuffle
+  const a = [...due];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function startSession() {
-  const state = loadState();
-  const queue = buildQueue(state);
-  if (queue.length === 0) {
-    renderLanding();
-    return;
-  }
+  const queue = pickQueue();
+  if (!queue.length) { renderLanding(); return; }
   session = {
     cards: queue,
     current: 0,
-    revealed: false,
     initialLength: queue.length,
-    ratingsCount: 0,
+    revealed: false,
+    reviewedIds: new Set(),
   };
   renderCard();
 }
 
 function renderCard() {
   if (!session || session.current >= session.cards.length) {
-    renderDone();
+    renderSessionDone();
     return;
   }
   const q = session.cards[session.current];
-  const domain = data.domains[q.domain] || { num: '?', name: q.domain, color: '#999' };
+  const meta = data.domains[q.domain] || { num: '?', name: q.domain };
   const total = session.initialLength;
-  const shown = session.current + 1;
-  const progress = Math.min(100, (session.current / total) * 100);
+  const shown = Math.min(session.current + 1, total);
+  const progressPct = Math.min(100, (session.current / total) * 100);
 
   const cardState = loadState().cards[q.id] || null;
   const revealedBlock = session.revealed ? renderRevealed(q, cardState) : renderHint();
 
   app.innerHTML = `
-    <div class="review-progress">
-      <div class="progress-header">
-        <span>Card ${Math.min(shown, total)} of ${total}</span>
-        <button class="btn-link" id="abandon-btn">End session</button>
+    <div class="session-progress">
+      <div class="session-head">
+        <span class="tracker">Card <span class="mono">${shown}</span> / <span class="mono">${total}</span></span>
+        <button class="btn btn--ghost" id="abandon-btn">End session</button>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progress}%"></div>
-      </div>
+      <div class="progress"><div class="progress__fill" style="width: ${progressPct}%"></div></div>
     </div>
 
-    <section class="flashcard">
-      <div class="card-meta">
-        <span class="domain-badge" style="--chip-accent: ${domain.color}">
-          <span class="chip-dot"></span> Domain ${domain.num} &middot; ${escapeHtml(domain.name)}
+    <article class="flashcard">
+      <header class="flashcard__meta">
+        <span class="mono-badge" data-domain="${escapeAttr(q.domain)}">
+          <span class="mono-badge__dot"></span>
+          <span>D${meta.num} &middot; ${escapeHtml(meta.name)}</span>
         </span>
-      </div>
-      <div class="card-stem">${formatStem(q.stem)}</div>
+      </header>
+      <p class="flashcard__stem">${formatStem(q.stem)}</p>
       ${revealedBlock}
-    </section>
+    </article>
   `;
 
-  if (session.revealed) {
-    wireRatingButtons();
-  } else {
-    const hint = app.querySelector('#reveal-hint');
-    if (hint) hint.addEventListener('click', reveal);
-  }
-
   app.querySelector('#abandon-btn')?.addEventListener('click', () => {
-    if (confirm('End this review session? Progress so far will be saved.')) {
+    if (confirm('End this session and return to the queue view?')) {
       session = null;
       renderLanding();
     }
   });
 
-  bindKeys();
+  if (session.revealed) {
+    app.querySelectorAll('.rating-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleRating(btn.dataset.rating));
+    });
+    // focus first rating button
+    app.querySelector('.rating-btn')?.focus();
+  } else {
+    const prompt = app.querySelector('.reveal-prompt');
+    prompt?.addEventListener('click', reveal);
+    prompt?.focus();
+  }
+
+  setKeyHandler(e => {
+    if (!session.revealed) {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); reveal(); }
+      return;
+    }
+    const idx = ['1', '2', '3', '4'].indexOf(e.key);
+    if (idx !== -1) {
+      const ratings = ['again', 'hard', 'good', 'easy'];
+      handleRating(ratings[idx]);
+    }
+  });
 }
 
 function renderHint() {
   return `
-    <div class="reveal-hint" id="reveal-hint">
+    <button type="button" class="reveal-prompt" aria-label="Reveal answer">
       Click or press <span class="kbd">Space</span> to reveal answer
-    </div>
+    </button>
   `;
 }
 
 function renderRevealed(q, cardState) {
-  const correctLetter = q.correct;
-  const idx = ['A', 'B', 'C', 'D'].indexOf(correctLetter);
-  const correctText = q.options_array?.[idx] ?? q.options?.[correctLetter] ?? '';
-  const sourceNote = q['source-note'];
+  const idx = ['A', 'B', 'C', 'D'].indexOf(q.correct);
+  const correctText = q.options_array?.[idx] ?? q.options?.[q.correct] ?? '';
+  const src = q['source-note'];
 
-  const ratingBtn = (rating, label, kbd) => `
-    <button class="rating-btn ${rating}" data-rating="${rating}">
-      <span class="rating-name">${label}</span>
-      <span class="rating-interval">${previewIntervalLabel(rating, cardState)}</span>
-      <span class="rating-kbd">${kbd}</span>
+  const rating = (r, label, kbd) => `
+    <button class="rating-btn" data-rating="${r}" type="button">
+      <span class="rating-btn__name">${label}</span>
+      <span class="rating-btn__interval">${previewIntervalLabel(r, cardState)}</span>
+      <span class="rating-btn__kbd">${kbd}</span>
     </button>
   `;
 
   return `
-    <div class="answer-block">
-      <div class="correct-answer">
-        <span class="correct-letter">${correctLetter}</span>
-        <span class="correct-text">${escapeHtml(correctText)}</span>
+    <section class="reveal" aria-live="polite">
+      <div class="reveal__answer">
+        <span class="reveal__letter">${q.correct}</span>
+        <span class="reveal__text">${escapeHtml(correctText)}</span>
       </div>
 
       ${q.explanation ? `
-        <div class="explanation">
-          <div class="explanation-label">Why</div>
-          <div class="explanation-body">${formatExplanation(q.explanation)}</div>
+        <div class="reveal__why">
+          <p class="reveal__why-label">Why</p>
+          <div class="reveal__body">${formatProse(q.explanation)}</div>
         </div>
       ` : ''}
 
-      ${sourceNote ? `
-        <div class="source-cite">Source: <code>${escapeHtml(sourceNote)}</code></div>
-      ` : ''}
+      ${src ? `<p class="reveal__source">${escapeHtml(src)}</p>` : ''}
 
-      <div class="rating-label">How well did you know this?</div>
-      <div class="rating-row">
-        ${ratingBtn('again', 'Again', '1')}
-        ${ratingBtn('hard', 'Hard', '2')}
-        ${ratingBtn('good', 'Good', '3')}
-        ${ratingBtn('easy', 'Easy', '4')}
+      <div class="rating-row" role="group" aria-label="Rate how well you knew this">
+        ${rating('again', 'Again', '1')}
+        ${rating('hard',  'Hard',  '2')}
+        ${rating('good',  'Good',  '3')}
+        ${rating('easy',  'Easy',  '4')}
       </div>
-    </div>
+    </section>
   `;
-}
-
-function wireRatingButtons() {
-  app.querySelectorAll('.rating-btn').forEach(btn => {
-    btn.addEventListener('click', () => rateCurrent(btn.dataset.rating));
-  });
 }
 
 function reveal() {
@@ -404,108 +368,68 @@ function reveal() {
   renderCard();
 }
 
-function rateCurrent(rating) {
+function handleRating(rating) {
   if (!session || !session.revealed) return;
-  if (!['again', 'hard', 'good', 'easy'].includes(rating)) return;
-
   const q = session.cards[session.current];
-  const state = loadState();
-  applyRating(state, q.id, rating);
-  saveState(state);
-  session.ratingsCount++;
-
-  // If user rated 'again', re-queue the card at the end of this session for instant re-drill.
+  applyRating(q.id, rating);
+  session.reviewedIds.add(q.id);
   if (rating === 'again') {
+    // Re-queue at the end of the current session for immediate re-drill (Anki-style).
     session.cards.push(q);
   }
-
   session.current++;
   session.revealed = false;
-
-  if (session.current >= session.cards.length) {
-    renderDone();
-  } else {
-    renderCard();
-  }
+  renderCard();
 }
 
-// ---------- rendering: done ----------
+// ---------- session done ----------
 
-function renderDone() {
+function renderSessionDone() {
   clearKeyHandler();
   const state = loadState();
   const stats = computeStats(state);
-  const reviewed = session ? session.ratingsCount : 0;
+  const reviewedCount = session?.reviewedIds.size || 0;
   session = null;
 
   app.innerHTML = `
-    <section class="done-hero">
-      <div class="empty-icon" style="font-size: 48px; margin-bottom: 12px;">&#x2728;</div>
-      <h2>Session complete</h2>
-      <p>You reviewed ${reviewed} card${reviewed === 1 ? '' : 's'}. Your SRS state has been saved locally.</p>
-      <div class="done-stats">
-        <div class="done-stat">
-          <div class="done-stat-value">${stats.dueToday}</div>
-          <div class="done-stat-label">Still Due</div>
-        </div>
-        <div class="done-stat">
-          <div class="done-stat-value">${stats.reviewedToday}</div>
-          <div class="done-stat-label">Reviewed Today</div>
-        </div>
-        <div class="done-stat">
-          <div class="done-stat-value">${stats.mastered}</div>
-          <div class="done-stat-label">Mastered</div>
-        </div>
-      </div>
-      <div class="nav-bar">
+    <section class="session-done">
+      <h2>Session complete.</h2>
+      <p><span class="mono">${reviewedCount}</span> card${reviewedCount === 1 ? '' : 's'} reviewed &middot;
+         <span class="mono">${stats.dueToday}</span> still due &middot;
+         <span class="mono">${stats.mastered}</span> mastered.</p>
+      <div class="session-done__actions">
         ${stats.dueToday > 0
-          ? `<button class="btn-primary" id="continue-btn">Continue &rarr;</button>`
-          : ''}
-        <a href="../practice/" class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center;">Go to Practice</a>
-        <button class="btn-secondary" id="back-btn">Back to Dashboard</button>
+          ? `<button class="btn btn--primary" id="continue-btn">Continue</button>`
+          : `<button class="btn btn--primary" id="home-btn">Back to overview</button>`}
+        <a class="btn btn--secondary" href="../practice/">Switch to practice</a>
       </div>
     </section>
   `;
 
   app.querySelector('#continue-btn')?.addEventListener('click', startSession);
-  app.querySelector('#back-btn')?.addEventListener('click', renderLanding);
+  app.querySelector('#home-btn')?.addEventListener('click', renderLanding);
+  (app.querySelector('#continue-btn') || app.querySelector('#home-btn'))?.focus();
 }
 
-// ---------- keyboard ----------
+// ---------- keyboard handler lifecycle ----------
+
+let _keyHandler = null;
+
+function setKeyHandler(fn) {
+  clearKeyHandler();
+  _keyHandler = (e) => {
+    if (e.target?.matches('input, textarea, [contenteditable]')) return;
+    fn(e);
+  };
+  document.addEventListener('keydown', _keyHandler);
+}
 
 function clearKeyHandler() {
-  if (keyHandler) {
-    document.removeEventListener('keydown', keyHandler);
-    keyHandler = null;
-  }
+  if (_keyHandler) document.removeEventListener('keydown', _keyHandler);
+  _keyHandler = null;
 }
 
-function bindKeys() {
-  clearKeyHandler();
-  keyHandler = (e) => {
-    if (!session) return;
-    // ignore if user is typing in an input/textarea
-    const tag = (e.target && e.target.tagName) || '';
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
-
-    if (!session.revealed) {
-      if (e.code === 'Space' || e.key === ' ') {
-        e.preventDefault();
-        reveal();
-      }
-      return;
-    }
-    // revealed: 1/2/3/4
-    const map = { '1': 'again', '2': 'hard', '3': 'good', '4': 'easy' };
-    if (map[e.key]) {
-      e.preventDefault();
-      rateCurrent(map[e.key]);
-    }
-  };
-  document.addEventListener('keydown', keyHandler);
-}
-
-// ---------- util ----------
+// ---------- text formatting ----------
 
 function escapeHtml(s) {
   return String(s ?? '')
@@ -516,13 +440,15 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+function escapeAttr(s) { return escapeHtml(s); }
+
 function formatStem(stem) {
-  return escapeHtml(stem).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+  return escapeHtml(stem).replace(/\n\n+/g, '</p><p class="flashcard__stem">').replace(/\n/g, '<br>');
 }
 
-function formatExplanation(expl) {
-  if (!expl) return '';
-  const safe = escapeHtml(expl).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+function formatProse(text) {
+  if (!text) return '';
+  const safe = escapeHtml(text).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
   return `<p>${safe}</p>`;
 }
 

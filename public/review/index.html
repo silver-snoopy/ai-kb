@@ -3,43 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Review · AI Cert KB</title>
+  <title>Review &middot; AI Cert KB</title>
+  <link rel="stylesheet" href="../tokens.css">
   <link rel="stylesheet" href="style.css">
+  <script src="../theme-toggle.js"></script>
 </head>
 <body>
   <header class="site-header">
-    <div class="container header-inner">
+    <div class="container site-header__inner">
       <a href="../" class="brand">
-        <span class="brand-icon">&#x2728;</span>
-        AI Cert KB
+        <span class="brand__mark">AI&middot;KB</span>
+        <span>Study surface</span>
       </a>
       <nav class="site-nav">
         <a href="../practice/">Practice</a>
-        <a href="../review/" class="active">Review</a>
+        <a href="../review/" class="is-active" aria-current="page">Review</a>
         <a href="../../">Vault</a>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">
+          <svg data-icon="moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M13 9.5A5.5 5.5 0 1 1 6.5 3a4.5 4.5 0 0 0 6.5 6.5Z"/>
+          </svg>
+          <svg data-icon="sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <circle cx="8" cy="8" r="3"/>
+            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.4 1.4M11.55 11.55l1.4 1.4M3.05 12.95l1.4-1.4M11.55 4.45l1.4-1.4"/>
+          </svg>
+        </button>
       </nav>
     </div>
   </header>
 
-  <main class="container main-content">
-    <nav class="breadcrumb">
-      <a href="../">Home</a>
-      <span class="sep">&rsaquo;</span>
-      <span>Daily Review</span>
-    </nav>
+  <main class="container main" id="main">
+    <section class="page-header">
+      <p class="page-header__eyebrow">Review &middot; Spaced repetition</p>
+      <h1>Return to what you almost remember.</h1>
+      <p class="page-header__lead">Cards you miss come back sooner. Cards you know well fade to the horizon. All state lives in your browser.</p>
+    </section>
 
-    <header class="page-header">
-      <h1>Daily <span class="accent">Review</span></h1>
-      <p class="subtitle">Spaced-repetition flashcards for long-term retention. Cards you find harder come back sooner; cards you master fade into the background. Your SRS state is stored locally in this browser.</p>
-    </header>
-
-    <div id="app"></div>
+    <div id="app" aria-live="polite"></div>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <span>&copy; 2026 AI Cert KB &mdash; Personal study vault</span>
-      <span>Powered by the Karpathy LLM Wiki pattern</span>
+    <div class="container site-footer__inner">
+      <span class="mono">ai-kb &middot; review</span>
+      <span>Space reveals &middot; 1&ndash;4 rates</span>
     </div>
   </footer>
 

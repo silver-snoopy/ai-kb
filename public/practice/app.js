@@ -1,12 +1,13 @@
 // public/practice/app.js
-// MCQ practice quiz powered by vault question blocks.
-// State: 'setup' | 'quiz' | 'results'
+// MCQ practice quiz. States: 'setup' | 'quiz' | 'results'
 
 const app = document.getElementById('app');
 
 let data = null;
 let selectedDomains = new Set(); // empty = all
-let quiz = null; // { questions: [], current: 0, answers: [], startedAt }
+let quiz = null; // { questions, current, answers, startedAt }
+
+// ---------- data load ----------
 
 async function load() {
   try {
@@ -15,103 +16,90 @@ async function load() {
     data = await res.json();
     renderSetup();
   } catch (e) {
-    app.innerHTML = `<div class="empty-state">
+    app.innerHTML = `<section class="empty">
       <h2>Could not load question bank</h2>
       <p>Expected <code>../questions.json</code> to exist. Run <code>node scripts/build-questions.mjs</code> from the vault root to regenerate.</p>
-      <p class="error-detail">${e.message}</p>
-    </div>`;
+      <p class="text-soft">${escapeHtml(e.message)}</p>
+    </section>`;
   }
 }
 
-// ---------- SETUP SCREEN ----------
+// ---------- setup screen ----------
 
 function filteredQuestions() {
   if (!selectedDomains.size) return data.questions;
   return data.questions.filter(q => selectedDomains.has(q.domain));
 }
 
+function domainNumber(slug) {
+  const m = data.domains[slug];
+  return m ? `D${m.num}` : '?';
+}
+
 function renderSetup() {
-  const total = data.total;
-  const byDomain = data.by_domain;
-  const domains = data.domains;
-
+  clearKeyHandler();
   const count = filteredQuestions().length;
+  const sessionLen = Math.min(count, 25);
 
-  const chipHtml = [
-    `<button class="chip ${selectedDomains.size === 0 ? 'active' : ''}" data-domain="">All Domains (${total})</button>`,
-    ...Object.entries(domains).map(([slug, meta]) => {
-      const n = byDomain[slug] || 0;
-      if (n === 0) return '';
-      const active = selectedDomains.has(slug) ? 'active' : '';
-      return `<button class="chip ${active}" data-domain="${slug}" style="--chip-accent: ${meta.color}">
-        <span class="chip-dot"></span>
-        ${escapeHtml(meta.name)} (${n})
+  const allActive = selectedDomains.size === 0 ? 'is-active' : '';
+  const allChip = `<button class="filter-chip ${allActive}" data-domain="">
+    <span>All domains</span>
+    <span class="filter-chip__count">${data.total}</span>
+  </button>`;
+
+  const domainChips = Object.entries(data.domains)
+    .filter(([slug]) => (data.by_domain[slug] || 0) > 0)
+    .map(([slug, meta]) => {
+      const n = data.by_domain[slug];
+      const active = selectedDomains.has(slug) ? 'is-active' : '';
+      return `<button class="filter-chip ${active}" data-domain="${slug}">
+        <span class="filter-chip__dot"></span>
+        <span>${escapeHtml(meta.name)}</span>
+        <span class="filter-chip__count">${n}</span>
       </button>`;
-    }).join('')
-  ].join('');
+    }).join('');
 
   app.innerHTML = `
-    <section class="setup-card">
-      <div class="filter-section">
-        <label class="filter-label">Filter by Domain</label>
-        <div class="chip-row" id="chip-row">${chipHtml}</div>
+    <section class="setup">
+      <div>
+        <h2 class="section-label">Filter</h2>
+        <div class="filter-chips" role="group" aria-label="Domain filter">
+          ${allChip}
+          ${domainChips}
+        </div>
       </div>
-      <div class="start-bar">
-        <span class="selection-count"><strong>${count}</strong> questions selected</span>
-        <button class="btn-primary" id="start-btn" ${count ? '' : 'disabled'}>Start Quiz \u2192</button>
-      </div>
-    </section>
 
-    <section class="info-grid">
-      <a href="../review/" class="info-card">
-        <span class="info-icon">\ud83c\udf93</span>
-        <div>
-          <h3>Daily Review</h3>
-          <p>Practise flashcards using spaced repetition. Cards you find harder appear more often.</p>
-        </div>
-      </a>
-      <a href="../../certs/cca-f/README.html" class="info-card">
-        <span class="info-icon">\ud83d\udcda</span>
-        <div>
-          <h3>Deep Dive Into Domains</h3>
-          <p>Detailed breakdowns of all 5 exam domains with subdomain checklists and anti-patterns.</p>
-        </div>
-      </a>
-      <a href="../../certs/cca-f/_scenarios.html" class="info-card">
-        <span class="info-icon">\ud83c\udfaf</span>
-        <div>
-          <h3>Exam Scenarios</h3>
-          <p>Deep-dive scenarios showing CORRECT vs. ANTI-PATTERN architectural decisions.</p>
-        </div>
-      </a>
-      <a href="../../certs/cca-f/_quick-reference.html" class="info-card">
-        <span class="info-icon">\u26a1</span>
-        <div>
-          <h3>Quick Reference</h3>
-          <p>Consolidated cheat sheet of decision rules and exam traps by domain.</p>
-        </div>
-      </a>
+      <div class="session-setup">
+        <p class="session-summary">
+          <span class="mono">${count}</span> question${count === 1 ? '' : 's'} in pool &middot;
+          session of <span class="mono">${sessionLen}</span>
+        </p>
+        <button class="btn btn--primary btn--lg" id="start-btn" ${count ? '' : 'disabled'}>
+          Begin session
+        </button>
+      </div>
     </section>
   `;
 
-  // wire up chips
-  app.querySelectorAll('.chip').forEach(chip => {
+  app.querySelectorAll('.filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const d = chip.dataset.domain;
-      if (d === '') {
-        selectedDomains.clear();
-      } else {
-        if (selectedDomains.has(d)) selectedDomains.delete(d);
-        else selectedDomains.add(d);
-      }
+      if (d === '') selectedDomains.clear();
+      else selectedDomains.has(d) ? selectedDomains.delete(d) : selectedDomains.add(d);
       renderSetup();
     });
   });
 
-  app.querySelector('#start-btn').addEventListener('click', startQuiz);
+  const startBtn = app.querySelector('#start-btn');
+  startBtn?.addEventListener('click', startQuiz);
+  startBtn?.focus();
+
+  setKeyHandler(e => {
+    if (e.key === 'Enter' && !startBtn?.disabled) { startQuiz(); }
+  });
 }
 
-// ---------- QUIZ ENGINE ----------
+// ---------- quiz engine ----------
 
 function shuffle(arr) {
   const a = [...arr];
@@ -124,6 +112,7 @@ function shuffle(arr) {
 
 function startQuiz() {
   const pool = filteredQuestions();
+  if (!pool.length) return;
   const picked = shuffle(pool).slice(0, Math.min(pool.length, 25));
   quiz = {
     questions: picked,
@@ -137,68 +126,71 @@ function startQuiz() {
 function renderQuestion() {
   const q = quiz.questions[quiz.current];
   const total = quiz.questions.length;
-  const domain = data.domains[q.domain] || { num: '?', name: q.domain, color: '#999' };
-  const progress = ((quiz.current) / total) * 100;
-  const given = quiz.answers[quiz.current]; // null | 'A'|'B'|'C'|'D'
+  const meta = data.domains[q.domain] || { num: '?', name: q.domain };
+  const progressPct = (quiz.current / total) * 100;
+  const given = quiz.answers[quiz.current];
   const correct = q.correct;
   const revealed = given !== null;
 
-  const opts = ['A', 'B', 'C', 'D'].map((letter, i) => {
-    const text = q.options_array?.[i] ?? q.options?.[letter] ?? '';
-    if (!text) return '';
+  const options = ['A', 'B', 'C', 'D'].map((letter, i) => {
+    const text = q.options_array?.[i] ?? q.options?.[letter];
+    if (text == null || text === '') return '';
     let cls = 'option';
     if (revealed) {
-      if (letter === correct) cls += ' correct';
-      else if (letter === given) cls += ' wrong';
-      else cls += ' muted';
+      if (letter === correct) cls += ' is-correct';
+      else if (letter === given) cls += ' is-wrong';
+      else cls += ' is-muted';
     }
-    return `<button class="${cls}" data-letter="${letter}" ${revealed ? 'disabled' : ''}>
-      <span class="option-letter">${letter}</span>
-      <span class="option-text">${escapeHtml(text)}</span>
-    </button>`;
+    return `<li>
+      <button class="${cls}" data-letter="${letter}" ${revealed ? 'disabled' : ''}>
+        <span class="option__letter">${letter}</span>
+        <span class="option__text">${escapeHtml(text)}</span>
+      </button>
+    </li>`;
   }).join('');
 
-  const explHtml = revealed ? `
-    <div class="explanation ${given === correct ? 'correct' : 'wrong'}">
-      <div class="explanation-header">
-        ${given === correct ? '\u2713 Correct' : '\u2717 Incorrect \u2014 correct answer was ' + correct}
-      </div>
-      <div class="explanation-body">${formatExplanation(q.explanation)}</div>
-      ${q['source-note'] ? `<div class="source-cite">Source: <code>${escapeHtml(q['source-note'])}</code></div>` : ''}
+  const verdict = revealed ? `
+    <div class="verdict ${given === correct ? 'verdict--correct' : 'verdict--wrong'}">
+      <p class="verdict__label">
+        ${given === correct
+          ? 'Correct'
+          : `Incorrect &middot; answer is ${correct}`}
+      </p>
+      ${q.explanation ? `<div class="verdict__body">${formatProse(q.explanation)}</div>` : ''}
+      ${q['source-note'] ? `<p class="verdict__source">${escapeHtml(q['source-note'])}</p>` : ''}
     </div>
   ` : '';
 
-  const nextBtn = revealed ? `
-    <div class="nav-bar">
-      <button class="btn-primary" id="next-btn">
-        ${quiz.current + 1 < total ? 'Next Question \u2192' : 'See Results \u2192'}
+  const footer = revealed ? `
+    <div class="quiz-foot">
+      <button class="btn btn--primary" id="next-btn">
+        ${quiz.current + 1 < total ? 'Next question' : 'See results'}
       </button>
     </div>
   ` : '';
 
   app.innerHTML = `
     <div class="quiz-progress">
-      <div class="progress-header">
-        <span>Question ${quiz.current + 1} of ${total}</span>
-        <button class="btn-link" id="abandon-btn">End quiz</button>
+      <div class="quiz-head">
+        <span class="tracker">Q <span class="mono">${quiz.current + 1}</span> / <span class="mono">${total}</span></span>
+        <button class="btn btn--ghost" id="abandon-btn">End session</button>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progress}%"></div>
-      </div>
+      <div class="progress"><div class="progress__fill" style="width: ${progressPct}%"></div></div>
     </div>
 
-    <section class="question-card">
-      <div class="question-meta">
-        <span class="domain-badge" style="--chip-accent: ${domain.color}">
-          <span class="chip-dot"></span> Domain ${domain.num} \u00b7 ${escapeHtml(domain.name)}
+    <article class="question">
+      <header class="question__meta">
+        <span class="mono-badge" data-domain="${escapeAttr(q.domain)}">
+          <span class="mono-badge__dot"></span>
+          <span>${escapeHtml(domainNumber(q.domain))} &middot; ${escapeHtml(meta.name)}</span>
         </span>
-      </div>
-      <div class="question-stem">${formatStem(q.stem)}</div>
-      <div class="options">${opts}</div>
-      ${explHtml}
-    </section>
+      </header>
+      <p class="question__stem">${formatStem(q.stem)}</p>
+      <ol class="options" role="radiogroup" aria-label="Options">${options}</ol>
+      ${verdict}
+    </article>
 
-    ${nextBtn}
+    ${footer}
   `;
 
   app.querySelectorAll('.option').forEach(btn => {
@@ -209,25 +201,42 @@ function renderQuestion() {
     });
   });
   app.querySelector('#abandon-btn')?.addEventListener('click', () => {
-    if (confirm('End the quiz and see your current score?')) renderResults();
+    if (confirm('End the session now and see results?')) renderResults();
   });
-  app.querySelector('#next-btn')?.addEventListener('click', () => {
-    if (quiz.current + 1 < total) {
-      quiz.current++;
-      renderQuestion();
-    } else {
-      renderResults();
+  const nextBtn = app.querySelector('#next-btn');
+  nextBtn?.addEventListener('click', advance);
+  (revealed ? nextBtn : app.querySelector('.option'))?.focus();
+
+  setKeyHandler(e => {
+    if (!revealed) {
+      const idx = ['1', '2', '3', '4'].indexOf(e.key);
+      if (idx !== -1) {
+        const letter = ['A', 'B', 'C', 'D'][idx];
+        const btn = app.querySelector(`.option[data-letter="${letter}"]`);
+        btn && btn.click();
+      }
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      advance();
     }
   });
 }
 
-// ---------- RESULTS ----------
+function advance() {
+  const total = quiz.questions.length;
+  if (quiz.current + 1 < total) { quiz.current++; renderQuestion(); }
+  else { renderResults(); }
+}
+
+// ---------- results ----------
 
 function renderResults() {
+  clearKeyHandler();
   const answered = quiz.answers.map((a, i) => ({ q: quiz.questions[i], given: a }));
   const correctCount = answered.filter(x => x.given === x.q.correct).length;
   const total = answered.length;
   const pct = Math.round((correctCount / total) * 100);
+  const pass = pct >= 72;
 
   // per-domain breakdown
   const perDomain = {};
@@ -238,7 +247,7 @@ function renderResults() {
     if (given === q.correct) perDomain[slug].correct++;
   }
 
-  // save wrong answers to localStorage weakness queue
+  // save wrongs to localStorage weakness queue (with try/catch)
   const wrong = answered.filter(x => x.given !== null && x.given !== x.q.correct);
   let existing = [];
   try {
@@ -248,7 +257,7 @@ function renderResults() {
       if (Array.isArray(parsed)) existing = parsed;
     }
   } catch (e) {
-    console.warn('weakness-queue in localStorage was corrupt; starting fresh.', e);
+    console.warn('weakness-queue was corrupt; starting fresh.', e);
   }
   const merged = [...existing];
   for (const { q, given } of wrong) {
@@ -263,53 +272,55 @@ function renderResults() {
       });
     }
   }
-  localStorage.setItem('weakness-queue', JSON.stringify(merged));
+  try { localStorage.setItem('weakness-queue', JSON.stringify(merged)); } catch { /* ignore */ }
 
-  const domainRows = Object.entries(perDomain)
+  const rows = Object.entries(perDomain)
     .sort(([a], [b]) => (data.domains[a]?.num ?? 99) - (data.domains[b]?.num ?? 99))
     .map(([slug, { correct, total: t }]) => {
-      const meta = data.domains[slug] || { name: slug, color: '#999' };
+      const meta = data.domains[slug] || { name: slug, num: '?' };
       const p = Math.round((correct / t) * 100);
       return `<div class="domain-row">
-        <span class="domain-label">
-          <span class="chip-dot" style="background: ${meta.color}"></span>
-          ${escapeHtml(meta.name)}
-        </span>
-        <span class="domain-score">${correct}/${t} <span class="muted">(${p}%)</span></span>
+        <dt class="mono-badge" data-domain="${escapeAttr(slug)}">
+          <span class="mono-badge__dot"></span>
+          <span>${escapeHtml(domainNumber(slug))}</span>
+        </dt>
+        <dd class="domain-row__name">${escapeHtml(meta.name)}</dd>
+        <dd class="domain-row__score">${correct} / ${t}</dd>
+        <dd class="domain-row__pct">${p}%</dd>
       </div>`;
     }).join('');
 
-  const pass = pct >= 72;
-
   app.innerHTML = `
-    <section class="results-card">
-      <div class="score-hero ${pass ? 'pass' : 'fail'}">
-        <div class="score-big">${pct}<span>%</span></div>
-        <div class="score-sub">
-          <strong>${correctCount} of ${total}</strong> correct \u2014
-          <span class="score-verdict">${pass ? 'PASS' : 'BELOW PASSING (72%)'}</span>
-        </div>
+    <section class="results">
+      <div class="score">
+        <p class="score__eyebrow">Session complete</p>
+        <h2 class="score__main">
+          <span class="score__pct">${pct}<span class="text-soft">%</span></span>
+          <span class="score__verdict ${pass ? 'score__verdict--pass' : 'score__verdict--fail'}">${pass ? 'Pass' : 'Below threshold'}</span>
+        </h2>
+        <p class="score__sub"><span class="mono">${correctCount}</span> of <span class="mono">${total}</span> correct &middot; passing threshold <span class="mono">72%</span></p>
       </div>
 
-      <h3>Per-domain breakdown</h3>
-      <div class="domain-list">${domainRows}</div>
+      <h3 class="section-label">Per-domain</h3>
+      <dl class="domain-table">${rows}</dl>
 
       ${wrong.length ? `
-        <div class="weakness-saved">
-          \u2713 Saved ${wrong.length} wrong answer${wrong.length === 1 ? '' : 's'} to your weakness queue (stored locally; ${merged.length} total).
-        </div>
+        <p class="weakness">
+          Saved <span class="mono">${wrong.length}</span> wrong answer${wrong.length === 1 ? '' : 's'} to the local weakness queue
+          &middot; <span class="mono">${merged.length}</span> total.
+        </p>
       ` : ''}
 
-      <div class="actions">
-        <button class="btn-primary" id="retry-btn">Try another quiz \u2192</button>
-        <button class="btn-secondary" id="review-wrong-btn" ${wrong.length ? '' : 'disabled'}>
-          Review wrong answers
+      <div class="results-actions">
+        <button class="btn btn--primary" id="retry-btn">Another session</button>
+        <button class="btn btn--secondary" id="review-wrong-btn" ${wrong.length ? '' : 'disabled'}>
+          Drill wrong answers
         </button>
       </div>
     </section>
   `;
 
-  app.querySelector('#retry-btn').addEventListener('click', renderSetup);
+  app.querySelector('#retry-btn')?.addEventListener('click', renderSetup);
   app.querySelector('#review-wrong-btn')?.addEventListener('click', () => {
     if (!wrong.length) return;
     quiz = {
@@ -320,9 +331,28 @@ function renderResults() {
     };
     renderQuestion();
   });
+  app.querySelector('#retry-btn')?.focus();
 }
 
-// ---------- UTIL ----------
+// ---------- keyboard handler lifecycle ----------
+
+let _keyHandler = null;
+
+function setKeyHandler(fn) {
+  clearKeyHandler();
+  _keyHandler = (e) => {
+    if (e.target?.matches('input, textarea, [contenteditable]')) return;
+    fn(e);
+  };
+  document.addEventListener('keydown', _keyHandler);
+}
+
+function clearKeyHandler() {
+  if (_keyHandler) document.removeEventListener('keydown', _keyHandler);
+  _keyHandler = null;
+}
+
+// ---------- text formatting ----------
 
 function escapeHtml(s) {
   return String(s ?? '')
@@ -333,13 +363,15 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+function escapeAttr(s) { return escapeHtml(s); }
+
 function formatStem(stem) {
-  return escapeHtml(stem).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+  return escapeHtml(stem).replace(/\n\n+/g, '</p><p class="question__stem">').replace(/\n/g, '<br>');
 }
 
-function formatExplanation(expl) {
-  if (!expl) return '';
-  const safe = escapeHtml(expl).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+function formatProse(text) {
+  if (!text) return '';
+  const safe = escapeHtml(text).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
   return `<p>${safe}</p>`;
 }
 
