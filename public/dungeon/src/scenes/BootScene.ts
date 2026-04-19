@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { loadQuestionsJson } from '../data/questionLoader';
 import { loadSaveState, initSaveState, saveSaveState } from '../game/saveState';
 import type { QuestionsJson } from '../types';
+import { fadeToScene } from '../ui/transitions';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -89,7 +90,7 @@ export class BootScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       this.time.delayedCall(1000, () => {
-        this.scene.start('HubScene');
+        fadeToScene(this, 'HubScene');
       });
     } catch (e: unknown) {
       this.add.text(480, 400, `ERROR: ${(e as Error).message}`, {

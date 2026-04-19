@@ -5,6 +5,7 @@ import type { Campaign } from '../game/dungeon';
 import type { RunMode, SaveStateV1, SpellId } from '../types';
 import { SPELLS } from '../config';
 import { mountAudioToggles } from '../ui/audioToggles';
+import { fadeIn, fadeToScene } from '../ui/transitions';
 
 function nextModeFor(save: SaveStateV1): RunMode {
   // Determine the next unplayed tier from unlocked_spells.
@@ -34,6 +35,7 @@ export class HubScene extends Phaser.Scene {
   }
 
   create(): void {
+    fadeIn(this);
     const save: SaveStateV1 = this.registry.get('saveState');
 
     // Audio mute toggles (top-right). Hub has no BGM so only SFX mute is
@@ -82,15 +84,33 @@ export class HubScene extends Phaser.Scene {
       }).setOrigin(0.5);
     }
 
-    // Debug button kept for testing
-    const debugBtn = this.add.rectangle(480, 440, 400, 50, 0x1b2d4e);
-    debugBtn.setStrokeStyle(2, 0x6a7aa4);
-    debugBtn.setInteractive({ useHandCursor: true });
-    this.add.text(480, 440, '(debug) Fight Orchestrator only', {
-      fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace',
+    // Debug boss-preview row \u2014 each button jumps straight to the named
+    // boss's fight in isolated mode so the design of each room can be
+    // eyeballed without playing a full campaign.
+    this.add.text(480, 420, '(debug) preview boss rooms', {
+      fontSize: '12px', color: '#808090', fontFamily: 'monospace', fontStyle: 'italic',
     }).setOrigin(0.5);
-    debugBtn.on('pointerdown', () => {
-      this.scene.start('BossFightScene', { bossId: 'the-orchestrator', mode, isolated: true });
+
+    const debugBosses: Array<{ id: string; label: string }> = [
+      { id: 'the-orchestrator',  label: 'Orch.' },
+      { id: 'the-compiler-king', label: 'Comp-K' },
+      { id: 'the-grammarian',    label: 'Gram.' },
+      { id: 'the-tool-smith',    label: 'Tool-S' },
+      { id: 'the-memory-kraken', label: 'Kraken' },
+    ];
+    debugBosses.forEach((b, idx) => {
+      // 5 buttons at 150 wide, 175px-apart centers, centered around x=480.
+      const x = 130 + idx * 175;
+      const y = 465;
+      const btn = this.add.rectangle(x, y, 150, 38, 0x1b2d4e);
+      btn.setStrokeStyle(2, 0x6a7aa4);
+      btn.setInteractive({ useHandCursor: true });
+      this.add.text(x, y, b.label, {
+        fontSize: '14px', color: '#d0d0da', fontFamily: 'monospace',
+      }).setOrigin(0.5);
+      btn.on('pointerdown', () => {
+        fadeToScene(this, 'BossFightScene', { bossId: b.id, mode, isolated: true });
+      });
     });
   }
 
@@ -125,6 +145,6 @@ export class HubScene extends Phaser.Scene {
       final_hero_hp: 3,
     });
 
-    this.scene.start('BossFightScene', { bossId: campaign.bossOrder[0], mode, isolated: false });
+    fadeToScene(this, 'BossFightScene', { bossId: campaign.bossOrder[0], mode, isolated: false });
   }
 }

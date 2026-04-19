@@ -11,6 +11,7 @@ import { advanceFloor, isCampaignComplete } from '../game/dungeon';
 import { ProceduralBGM } from '../audio/bgm';
 import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { renderBackdrop } from './backdrops';
+import { fadeIn, fadeToScene } from '../ui/transitions';
 
 interface BossFightData {
   bossId: string;
@@ -79,6 +80,7 @@ export class BossFightScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor(this.boss.environmentColor);
+    fadeIn(this);
 
     // Per-boss backdrop (wall + floor bands + themed props). Must render
     // before everything else so it sits at the bottom of the z-stack.
@@ -461,7 +463,7 @@ export class BossFightScene extends Phaser.Scene {
     sessionLog.final_hero_hp = 0;
     this.input.once('pointerdown', () => {
       if (sessionLog.questions.length > 0) downloadSessionLog(sessionLog);
-      this.scene.start('HubScene');
+      fadeToScene(this, 'HubScene');
     });
   }
 
@@ -471,7 +473,7 @@ export class BossFightScene extends Phaser.Scene {
     sessionLog.bosses_defeated.push(this.boss.id);
 
     if (this.isolated || !campaign) {
-      this.scene.start('HubScene');
+      fadeToScene(this, 'HubScene');
       return;
     }
 
@@ -482,10 +484,10 @@ export class BossFightScene extends Phaser.Scene {
       sessionLog.result = 'victory';
       sessionLog.ended_at = new Date().toISOString();
       sessionLog.final_hero_hp = this.state.heroHp;
-      this.scene.start('CampaignCompleteScene');
+      fadeToScene(this, 'CampaignCompleteScene');
     } else {
       const nextBossId = campaign.bossOrder[campaign.floorsCleared]!;
-      this.scene.start('InterstitialScene', {
+      fadeToScene(this, 'InterstitialScene', {
         previousBossId: this.boss.id,
         nextBossId,
         mode: campaign.mode,
@@ -501,7 +503,7 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private showResult(kind: 'victory' | 'death' | 'draw'): void {
-    if (this.isolated) this.scene.start('HubScene');
+    if (this.isolated) fadeToScene(this, 'HubScene');
     else this.onHeroDead();
   }
 }

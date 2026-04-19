@@ -97,6 +97,10 @@ export const BACKDROPS: Record<string, Backdrop> = {
   },
 };
 
+// The torch tile index in Kenney Tiny Dungeon. Handled specially so it
+// flickers \u2014 readable as a flame source rather than a static sconce.
+const TORCH_TILE = 30;
+
 /**
  * Render the backdrop for a boss into the scene. Must be called BEFORE any
  * other scene elements are added so it sits at the bottom of the z-stack.
@@ -121,8 +125,41 @@ export function renderBackdrop(scene: Phaser.Scene, bossId: string): void {
   );
   floor.setTileScale(TILE_DISPLAY_SCALE);
 
-  // Props on top of the floor/wall.
+  // Props on top of the floor/wall. Torches get a flame-wobble tween;
+  // other props stay static.
   for (const p of bg.props) {
-    scene.add.image(p.x, p.y, 'td-tiles', p.tile).setScale(TILE_DISPLAY_SCALE);
+    const img = scene.add.image(p.x, p.y, 'td-tiles', p.tile).setScale(TILE_DISPLAY_SCALE);
+    if (p.tile === TORCH_TILE) {
+      // Three overlapping tweens produce a credible flame flicker:
+      //  - vertical scale wobble (~5%) = flame stretch/squash
+      //  - subtle alpha dip = brightness modulation
+      //  - tiny y jitter = heat wave shimmer
+      // Different durations + 'Sine.easeInOut' easing prevent a
+      // perceptible rhythm (would feel mechanical if phase-locked).
+      scene.tweens.add({
+        targets: img,
+        scaleY: TILE_DISPLAY_SCALE * 1.08,
+        duration: 140,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+      scene.tweens.add({
+        targets: img,
+        alpha: 0.82,
+        duration: 190,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+      scene.tweens.add({
+        targets: img,
+        y: p.y - 2,
+        duration: 110,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
   }
 }

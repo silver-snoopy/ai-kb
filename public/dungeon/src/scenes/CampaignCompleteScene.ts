@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { recordCampaignVictory, saveSaveState } from '../game/saveState';
 import { downloadSessionLog } from '../game/sessionExport';
 import type { RunMode, SaveStateV1, SessionLog } from '../types';
+import { fadeIn, fadeToScene } from '../ui/transitions';
 
 export class CampaignCompleteScene extends Phaser.Scene {
   constructor() {
@@ -10,6 +11,7 @@ export class CampaignCompleteScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor(0x2d1b4e);
+    fadeIn(this);
 
     const sessionLog: SessionLog = this.registry.get('sessionLog');
     const save: SaveStateV1 = this.registry.get('saveState');
@@ -84,7 +86,7 @@ export class CampaignCompleteScene extends Phaser.Scene {
       fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    const goHome = () => this.scene.start('HubScene');
+    const goHome = (): void => fadeToScene(this, 'HubScene');
     this.input.keyboard?.once('keydown-SPACE', goHome);
     this.input.keyboard?.once('keydown-ENTER', goHome);
   }

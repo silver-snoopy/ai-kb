@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BOSSES } from '../config';
 import type { Question, QuestionsJson, RunMode, BossDefinition } from '../types';
+import { fadeIn, fadeToScene } from '../ui/transitions';
 
 interface InterstitialData {
   previousBossId: string;
@@ -46,6 +47,7 @@ export class InterstitialScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor(0x0a0a14);
+    fadeIn(this);
 
     this.titleText = this.add.text(480, 80, '', {
       fontSize: '28px', color: '#f5e4b3', fontFamily: 'monospace',
@@ -202,7 +204,7 @@ export class InterstitialScene extends Phaser.Scene {
     } else if (this.beat === 'recall-answered') {
       this.renderPrimer();
     } else if (this.beat === 'primer') {
-      this.scene.start('BossFightScene', {
+      fadeToScene(this, 'BossFightScene', {
         bossId: this.nextBoss.id,
         mode: this.mode,
         isolated: false,
