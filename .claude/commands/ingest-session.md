@@ -13,7 +13,9 @@ The file's shape is `SessionLog` (see `public/dungeon/src/types.ts`):
 {
   schema_version: 1,
   cert_id, mode,
-  started_at, ended_at, result,
+  started_at,
+  ended_at,   // string timestamp when session ends; null for in-progress or quit-without-save
+  result,     // 'victory' | 'death' | 'quit'; null for in-progress sessions
   bosses_defeated: [...],
   spells_cast: [...],
   questions: [{ question_id, domain, was_correct, time_elapsed_ms, flagged_for_review }],

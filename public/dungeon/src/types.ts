@@ -74,8 +74,8 @@ export interface SessionLog {
   cert_id: string;
   mode: RunMode;
   started_at: string;
-  ended_at: string;
-  result: 'victory' | 'death' | 'quit';
+  ended_at: string | null;  // null while session is in-progress or quit without saving
+  result: 'victory' | 'death' | 'quit' | null;  // null until session ends
   bosses_defeated: string[];
   spells_cast: SpellId[];
   questions: Array<{

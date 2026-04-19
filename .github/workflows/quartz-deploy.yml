@@ -59,9 +59,29 @@ jobs:
         working-directory: public/dungeon
         run: npm run build
 
-      - name: Merge game dist into Quartz output
+      - name: Copy static apps into Quartz output
+        # public/ at repo root contains the vanilla JS practice + review apps and
+        # the generated questions.json. Merge them into quartz/public/ so GitHub
+        # Pages serves /practice/, /review/, /index.html, /questions.json alongside
+        # the Quartz-rendered vault pages.
+        # NOTE: this also copies public/dungeon/ (Vite source) — the game dist
+        # merge step below immediately wipes and replaces quartz/public/dungeon/
+        # with the compiled bundle, so the source copy never survives to production.
         run: |
           set -e
+          cp -r public/. quartz/public/
+          test -f quartz/public/questions.json
+          test -f quartz/public/practice/index.html
+          test -f quartz/public/review/index.html
+          ls -la quartz/public/practice quartz/public/review quartz/public/questions.json
+
+      - name: Merge game dist into Quartz output
+        # Runs AFTER the static overlay so the compiled bundle overwrites the Vite
+        # source public/dungeon/ that was copied above. The rm -rf guarantees no
+        # stale source files (e.g. index.html pointing at /src/main.ts) survive.
+        run: |
+          set -e
+          rm -rf quartz/public/dungeon
           mkdir -p quartz/public/dungeon
           cp -r public/dungeon/dist/. quartz/public/dungeon/
           # Overlay freshly built questions.json from the vault so the game
@@ -71,19 +91,8 @@ jobs:
           cp public/questions.json quartz/public/dungeon/data/questions.json
           echo "Game deployed to /dungeon/. Contents:"
           ls quartz/public/dungeon/ | head -20
-
-      - name: Copy static apps into Quartz output
-        # public/ at repo root contains the vanilla JS practice + review apps and
-        # the generated questions.json. Merge them into quartz/public/ so GitHub
-        # Pages serves /practice/, /review/, /index.html, /questions.json alongside
-        # the Quartz-rendered vault pages.
-        run: |
-          set -e
-          cp -r public/. quartz/public/
-          test -f quartz/public/questions.json
-          test -f quartz/public/practice/index.html
-          test -f quartz/public/review/index.html
-          ls -la quartz/public/practice quartz/public/review quartz/public/questions.json
+          test -f quartz/public/dungeon/index.html || { echo "FAIL: game index.html missing"; exit 1; }
+          test -f quartz/public/dungeon/data/questions.json || { echo "FAIL: questions.json missing"; exit 1; }
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
