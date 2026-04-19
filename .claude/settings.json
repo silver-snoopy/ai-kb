@@ -1,5 +1,5 @@
 {
-  "$schema": "https://claude.com/schemas/settings.json",
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "mcpServers": {
     "obsidian": {
       "command": "npx",
@@ -14,6 +14,9 @@
       "Bash(npm:*)",
       "Bash(npx:*)",
       "WebFetch",
+      "WebFetch(domain:claude.com)",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:anthropic.com)",
       "mcp__obsidian__*"
     ]
   }
