@@ -455,7 +455,7 @@ export class BossFightScene extends Phaser.Scene {
       ease: 'Cubic.easeIn',
     });
 
-    this.questionText.setText(`💀 YOU DIED\n\nThe ${this.boss.name} claims another scholar.\n\n(click to return to Hub)`);
+    this.questionText.setText(`💀 YOU DIED\n\n${this.boss.name} claims another scholar.\n\n(click to return to Hub)`);
     this.optionTexts.forEach(t => t.setText(''));
     const sessionLog: SessionLog = this.registry.get('sessionLog');
     sessionLog.result = 'death';

@@ -112,6 +112,25 @@ export class HubScene extends Phaser.Scene {
         fadeToScene(this, 'BossFightScene', { bossId: b.id, mode, isolated: true });
       });
     });
+
+    // Debug: preview the 3-beat interstitial (narrative \u2192 recall \u2192 primer).
+    // Hardcodes Orchestrator \u2192 Compiler-King so the recall step has real
+    // domain-1 content to pull from; flagged isolated so the follow-up
+    // BossFight doesn't try to read a non-existent campaign.
+    const interBtn = this.add.rectangle(480, 525, 320, 34, 0x2d1b4e);
+    interBtn.setStrokeStyle(2, 0x7a6aa4);
+    interBtn.setInteractive({ useHandCursor: true });
+    this.add.text(480, 525, '(debug) preview interstitial', {
+      fontSize: '12px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
+    }).setOrigin(0.5);
+    interBtn.on('pointerdown', () => {
+      fadeToScene(this, 'InterstitialScene', {
+        previousBossId: 'the-orchestrator',
+        nextBossId: 'the-compiler-king',
+        mode,
+        nextBossIsolated: true,
+      });
+    });
   }
 
   private beginCampaign(mode: RunMode): void {

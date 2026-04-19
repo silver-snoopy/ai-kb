@@ -7,6 +7,10 @@ interface InterstitialData {
   previousBossId: string;
   nextBossId: string;
   mode: RunMode;
+  // If true, the follow-up BossFight runs in isolated (debug) mode \u2014
+  // used by the Hub's "preview interstitial" button so the next boss
+  // doesn't try to read a non-existent campaign from the registry.
+  nextBossIsolated?: boolean;
 }
 
 type Beat = 'narrative' | 'recall' | 'recall-answered' | 'primer';
@@ -15,6 +19,7 @@ export class InterstitialScene extends Phaser.Scene {
   private previousBoss!: BossDefinition;
   private nextBoss!: BossDefinition;
   private mode!: RunMode;
+  private nextBossIsolated = false;
   private beat: Beat = 'narrative';
   private recallQuestion: Question | null = null;
 
@@ -37,6 +42,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.previousBoss = prev;
     this.nextBoss = next;
     this.mode = data.mode;
+    this.nextBossIsolated = data.nextBossIsolated ?? false;
     this.beat = 'narrative';
 
     const qs: QuestionsJson = this.registry.get('questions');
@@ -109,9 +115,9 @@ export class InterstitialScene extends Phaser.Scene {
     this.beat = 'narrative';
     this.titleText.setText('✨ Descent');
     this.bodyText.setText(
-      `You descended from the ${this.previousBoss.name}'s lair.\n\n` +
-      `Ahead: the ${this.nextBoss.theme.toLowerCase()}.\n\n` +
-      `The ${this.nextBoss.name} awaits.`,
+      `You descended from ${this.previousBoss.name}'s lair.\n\n` +
+      `Ahead: ${this.nextBoss.theme.toLowerCase()}.\n\n` +
+      `${this.nextBoss.name} awaits.`,
     );
     this.optionTexts.forEach(t => t.setText(''));
     this.hintText.setText('(press Space / Enter / click to continue)');
@@ -152,7 +158,7 @@ export class InterstitialScene extends Phaser.Scene {
     const q = this.recallQuestion;
     this.titleText.setText('📚 Recall');
     this.bodyText.setText(
-      `From your victory over the ${this.previousBoss.name}:\n\n${q.stem}`,
+      `From your victory over ${this.previousBoss.name}:\n\n${q.stem}`,
     );
     const letters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
     this.optionTexts.forEach((t, i) => {
@@ -177,7 +183,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.beat = 'primer';
     this.titleText.setText('📖 Primer');
     this.bodyText.setText(
-      `The ${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\n` +
+      `${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\n` +
       `Its domain: ${this.nextBoss.domain}.\n\n` +
       `Gather yourself — your next trial begins on the next keypress.`,
     );
@@ -207,7 +213,7 @@ export class InterstitialScene extends Phaser.Scene {
       fadeToScene(this, 'BossFightScene', {
         bossId: this.nextBoss.id,
         mode: this.mode,
-        isolated: false,
+        isolated: this.nextBossIsolated,
       });
     }
     // If beat === 'recall' (not answered yet): ignore pointer. User must pick A-D.
