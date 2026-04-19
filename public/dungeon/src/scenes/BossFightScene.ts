@@ -47,6 +47,7 @@ export class BossFightScene extends Phaser.Scene {
 
   private acceptingInput = false;
   private currentQuestionIdx = 0;
+  private lastPhaseEmitted: 66 | 33 | 10 | null = null;
 
   constructor() {
     super({ key: 'BossFightScene' });
@@ -78,6 +79,8 @@ export class BossFightScene extends Phaser.Scene {
     } else {
       this.spellbook = this.registry.get('spellbook');
     }
+
+    this.lastPhaseEmitted = null;
   }
 
   create(): void {
@@ -246,6 +249,8 @@ export class BossFightScene extends Phaser.Scene {
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });
 
+    this.events.emit('battle-start', { bossId: this.boss.id });
+
     this.nextQuestion();
   }
 
@@ -271,6 +276,7 @@ export class BossFightScene extends Phaser.Scene {
     try {
       castSpell(spell, this.spellbook, this.state);
       sessionLog.spells_cast.push(spell);
+      this.events.emit('spell-cast', { spellId: spell, bossId: this.boss.id });
 
       // Spell cast animation + SFX
       this.sound.play('sfx-spell', { volume: 0.5 });
@@ -376,6 +382,20 @@ export class BossFightScene extends Phaser.Scene {
         bossHpPct: this.state.bossHp / this.state.bossMaxHp,
         bossMaxHp: this.state.bossMaxHp,
       });
+      // Emit phase-crossed if HP% just crossed a threshold on this hit.
+      // Iterate lowest threshold first: a big hit from 70% → 5% must fire phase-10, not phase-66.
+      // Spec §7 edge case: "Multiple thresholds crossed in one hit → fire highest priority (lowest %) only."
+      const hpPct = this.state.bossHp / this.state.bossMaxHp;
+      const thresholds: Array<10 | 33 | 66> = [10, 33, 66];
+      for (const t of thresholds) {
+        const tRatio = t / 100;
+        const notYetEmitted = this.lastPhaseEmitted === null || this.lastPhaseEmitted > t;
+        if (hpPct <= tRatio && notYetEmitted) {
+          this.events.emit('boss-phase-crossed', { threshold: t, bossId: this.boss.id });
+          this.lastPhaseEmitted = t;
+          break;  // lowest crossed threshold wins; skip remaining higher thresholds
+        }
+      }
       this.bossSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.bossSprite.clearTint());
       this.floatDamage(this.bossSprite.x, this.bossSprite.y - 40, `-${result.damageDealt}`, '#ff6b6b');
@@ -438,6 +458,7 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private onBossDefeated(): void {
+    this.events.emit('boss-defeated', { bossId: this.boss.id });
     // Boss defeated animation + SFX
     this.sound.play('sfx-victory', { volume: 0.6 });
     this.tweens.add({
@@ -464,6 +485,7 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private onHeroDead(): void {
+    this.events.emit('hero-defeated', { bossId: this.boss.id });
     // Hero death animation + SFX
     this.sound.play('sfx-death', { volume: 0.7 });
     this.tweens.add({
