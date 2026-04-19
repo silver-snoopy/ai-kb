@@ -41,8 +41,10 @@ const TILE_DISPLAY_SCALE = 2;
 // banner strip above the wall pattern.
 const WALL_BAND_Y = 140;   // center of the 140-tall wall band (y=70..210)
 const WALL_BAND_HEIGHT = 140;
-const FLOOR_BAND_Y = 540;  // center of the 200-tall floor band (y=440..640)
-const FLOOR_BAND_HEIGHT = 200;
+// Canvas grew 640\u2192720. Floor band extends to the new canvas bottom so the
+// extra space doesn't leave a black strip under the floor tiles.
+const FLOOR_BAND_Y = 580;  // center of the 280-tall floor band (y=440..720)
+const FLOOR_BAND_HEIGHT = 280;
 
 export const BACKDROPS: Record<string, Backdrop> = {
   'the-orchestrator': {

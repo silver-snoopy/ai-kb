@@ -169,13 +169,22 @@ export class BossFightScene extends Phaser.Scene {
       this.input.keyboard?.on(`keydown-${idx + 1}`, () => this.submit(letter));
     });
 
-    // --- Spellbook UI (3×2 grid) ---
+    // --- Spellbook UI (3\u00D72 grid) ---
+    // Each button carries its own dark background panel + padding so the
+    // labels stay readable against the tiled floor backdrop. Active
+    // spells tint amber (reads as "charged"); unavailable ones fade to
+    // dim grey.
     const spellIds: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot', 'focus'];
     spellIds.forEach((id, idx) => {
       const x = 100 + (idx % 3) * 280;
-      const y = 610 + Math.floor(idx / 3) * 25;
+      // Two rows at y=650 and y=682, panels ~26 tall. Canvas is now 720
+      // tall so spells sit with ~50px breathing room below the option row
+      // (y=575) and the last row's bottom lands at y=708 \u2014 comfortably
+      // above the 720 canvas floor.
+      const y = 650 + Math.floor(idx / 3) * 32;
       const btn = this.add.text(x, y, '', {
-        fontSize: '13px', color: '#a0a0b0', fontFamily: 'monospace',
+        fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
+        backgroundColor: '#1a1a2a', padding: { x: 8, y: 4 },
       });
       btn.setInteractive({ useHandCursor: true });
       btn.on('pointerdown', () => this.tryCast(id));
@@ -232,7 +241,9 @@ export class BossFightScene extends Phaser.Scene {
       const charges = this.spellbook[id] ?? 0;
       const active = charges > 0;
       btn.setText(`[${def.name}] x${charges}`);
-      btn.setColor(active ? '#c0c0d0' : '#505060');
+      // Active = amber (reads as "charged"), inactive = dim grey so the
+      // labels are visible but clearly un-castable.
+      btn.setColor(active ? '#ffca28' : '#5a5a6a');
     });
   }
 

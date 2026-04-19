@@ -27,6 +27,7 @@ export class InterstitialScene extends Phaser.Scene {
   private bodyText!: Phaser.GameObjects.Text;
   private hintText!: Phaser.GameObjects.Text;
   private optionTexts: Phaser.GameObjects.Text[] = [];
+  private optionPanels: Phaser.GameObjects.Rectangle[] = [];
 
   // Preview sprite tracking — destroyed + recreated on each beat
   private previewImage: Phaser.GameObjects.Image | null = null;
@@ -59,16 +60,27 @@ export class InterstitialScene extends Phaser.Scene {
       fontSize: '28px', color: '#f5e4b3', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    this.bodyText = this.add.text(480, 200, '', {
-      fontSize: '18px', color: '#e0e0ea', fontFamily: 'monospace',
-      wordWrap: { width: 860 }, align: 'center',
+    // Body text \u2014 shrunk from 18 to 16 and word-wrap widened so long
+    // recall stems use the full scene width without clipping.
+    this.bodyText = this.add.text(480, 170, '', {
+      fontSize: '16px', color: '#e0e0ea', fontFamily: 'monospace',
+      wordWrap: { width: 900, useAdvancedWrap: true }, align: 'center',
     }).setOrigin(0.5, 0);
 
+    // Options \u2014 now with a dark panel behind each row + wordWrap so long
+    // answers don't run past the canvas right edge. 48px row pitch so a
+    // 2-line wrap still fits inside its panel without bleeding into the
+    // next row.
     const optLetters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
     optLetters.forEach((letter, idx) => {
-      const y = 400 + idx * 40;
-      const txt = this.add.text(100, y, '', {
-        fontSize: '15px', color: '#d0d0da', fontFamily: 'monospace',
+      const y = 395 + idx * 48;
+      const panel = this.add.rectangle(480, y, 900, 44, 0x1a1a2a);
+      panel.setStrokeStyle(1, 0x3a3a4a);
+      panel.setVisible(false);  // only shown on the recall beat
+      this.optionPanels.push(panel);
+      const txt = this.add.text(50, y, '', {
+        fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
+        wordWrap: { width: 870, useAdvancedWrap: true },
       }).setOrigin(0, 0.5);
       this.optionTexts.push(txt);
       this.input.keyboard?.on(`keydown-${letter}`, () => this.onRecallChoice(letter));
@@ -120,6 +132,7 @@ export class InterstitialScene extends Phaser.Scene {
       `${this.nextBoss.name} awaits.`,
     );
     this.optionTexts.forEach(t => t.setText(''));
+    this.optionPanels.forEach(p => p.setVisible(false));
     this.hintText.setText('(press Space / Enter / click to continue)');
 
     // Show previous boss sprite fading out
@@ -142,12 +155,14 @@ export class InterstitialScene extends Phaser.Scene {
       return;
     }
 
-    // Show previous boss sprite in upper corner as visual reminder
-    const img = this.addBossPreview(this.previousBoss.id, 840, 200, 3, 0.8);
+    // Show previous boss sprite inline with the Recall title so it reads
+    // as a caption badge next to the heading rather than a floating
+    // thumbnail in the corner.
+    const img = this.addBossPreview(this.previousBoss.id, 660, 82, 2.5, 0.9);
     if (img) {
       this.tweens.add({
         targets: img,
-        y: '+=4',
+        y: '+=3',
         duration: 1600,
         yoyo: true,
         repeat: -1,
@@ -165,6 +180,7 @@ export class InterstitialScene extends Phaser.Scene {
       const letter = letters[i]!;
       t.setText(`${letter}) ${q.options[letter]}`);
     });
+    this.optionPanels.forEach(p => p.setVisible(true));
     this.hintText.setText('(press A/B/C/D or 1-4 to answer — no HP penalty, this is review only)');
   }
 
@@ -176,6 +192,7 @@ export class InterstitialScene extends Phaser.Scene {
     const prefix = correct ? '✓ Correct' : `✗ Incorrect. Correct: ${q.correct}`;
     this.bodyText.setText(`${prefix}\n\n${q.explanation}`);
     this.optionTexts.forEach(t => t.setText(''));
+    this.optionPanels.forEach(p => p.setVisible(false));
     this.hintText.setText('(press Space / Enter / click to continue)');
   }
 
@@ -188,6 +205,7 @@ export class InterstitialScene extends Phaser.Scene {
       `Gather yourself — your next trial begins on the next keypress.`,
     );
     this.optionTexts.forEach(t => t.setText(''));
+    this.optionPanels.forEach(p => p.setVisible(false));
     this.hintText.setText('(press Space / Enter / click to begin the fight)');
 
     // Show incoming boss sprite with idle bob
