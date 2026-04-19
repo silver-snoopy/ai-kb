@@ -1,0 +1,20 @@
+id: cca-f
+name: Claude Certified Architect — Foundations
+provider: Anthropic
+target_date: 2026-05-31
+exam:
+  question_count: 60
+  time_limit_minutes: 120
+  passing_score: 720
+  scale_max: 1000
+  format: scenario-based-mcq
+  cost_usd: 99
+domains:
+  - { id: domain-1-agentic, name: "Agentic Architecture & Orchestration", weight: 0.27 }
+  - { id: domain-2-claude-code, name: "Claude Code Configuration & Workflows", weight: 0.20 }
+  - { id: domain-3-prompt-engineering, name: "Prompt Engineering & Structured Output", weight: 0.20 }
+  - { id: domain-4-mcp, name: "Tool Design & MCP Integration", weight: 0.18 }
+  - { id: domain-5-context, name: "Context Management & Reliability", weight: 0.15 }
+resources:
+  - { name: "Anthropic Academy", url: "https://anthropic.skilljar.com", priority: primary }
+  - { name: "Official cert landing page", url: "https://claudecertifications.com/", priority: secondary }
