@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { recordCampaignVictory, saveSaveState } from '../game/saveState';
+import { downloadSessionLog } from '../game/sessionExport';
 import type { RunMode, SaveStateV1, SessionLog } from '../types';
 
 export class CampaignCompleteScene extends Phaser.Scene {
@@ -67,12 +68,23 @@ export class CampaignCompleteScene extends Phaser.Scene {
       }).setOrigin(0.5);
     }
 
-    this.add.text(480, 580, '(press Space / Enter / click to return to Hub)', {
+    // Download session-log button (click-only; doesn't consume the "back" input)
+    const dlBtn = this.add.rectangle(480, 540, 340, 40, 0x1b2d4e);
+    dlBtn.setStrokeStyle(2, 0x6a7aa4);
+    dlBtn.setInteractive({ useHandCursor: true });
+    this.add.text(480, 540, '\u2B07 Download session log (JSON)', {
+      fontSize: '15px', color: '#d0d0da', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+    dlBtn.on('pointerdown', (_: unknown, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+      event.stopPropagation();
+      downloadSessionLog(sessionLog);
+    });
+
+    this.add.text(480, 590, '(press Space / Enter to return to Hub)', {
       fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
     const goHome = () => this.scene.start('HubScene');
-    this.input.once('pointerdown', goHome);
     this.input.keyboard?.once('keydown-SPACE', goHome);
     this.input.keyboard?.once('keydown-ENTER', goHome);
   }

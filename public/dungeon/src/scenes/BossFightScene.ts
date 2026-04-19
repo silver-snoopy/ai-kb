@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BOSSES, GAME_CONFIG, SPELLS } from '../config';
+import { downloadSessionLog } from '../game/sessionExport';
 import { initCombat, resolveAnswer, isBossDefeated, isHeroDead } from '../game/combat';
 import { pickQuestionsForFight } from '../data/questionLoader';
 import { canCast, castSpell, createSpellbook, grantBossDefeatReward } from '../game/spellbook';
@@ -273,7 +274,10 @@ export class BossFightScene extends Phaser.Scene {
     sessionLog.result = 'death';
     sessionLog.ended_at = new Date().toISOString();
     sessionLog.final_hero_hp = 0;
-    this.input.once('pointerdown', () => this.scene.start('HubScene'));
+    this.input.once('pointerdown', () => {
+      if (sessionLog.questions.length > 0) downloadSessionLog(sessionLog);
+      this.scene.start('HubScene');
+    });
   }
 
   private onFightEnd(kind: 'victory'): void {
