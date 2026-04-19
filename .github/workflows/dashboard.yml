@@ -1,0 +1,57 @@
+name: Regenerate dashboard.md
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Only trigger when something that affects the dashboard changes.
+      - 'certs/**/meta.yaml'
+      - 'certs/**/domain-*/**.md'
+      - 'certs/**/mock-exams/**.md'
+      - 'certs/**/weakness-queue.md'
+      - 'scripts/dashboard.mjs'
+      - 'scripts/package.json'
+      - 'scripts/package-lock.json'
+      - '.github/workflows/dashboard.yml'
+      # Explicitly DO NOT include: dashboard.md itself (loop prevention)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install deps
+        working-directory: scripts
+        run: npm ci
+
+      - name: Regenerate dashboard
+        run: node scripts/dashboard.mjs
+
+      - name: Commit if changed
+        run: |
+          if [ -z "$(git status --porcelain dashboard.md)" ]; then
+            echo "dashboard.md unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dashboard.md
+          git commit -m "chore: regenerate dashboard.md [skip ci]"
+          git push
