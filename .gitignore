@@ -21,3 +21,8 @@ desktop.ini
 .env.*
 *.key
 *.pem
+
+# Session-local artifacts (not committed; used during development only)
+.scratch/
+.playwright-mcp/
+.superpowers/
