@@ -12,6 +12,7 @@ import { ProceduralBGM } from '../audio/bgm';
 import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { renderBackdrop } from './backdrops';
 import { fadeIn, fadeToScene } from '../ui/transitions';
+import { attachRectHover, attachTextHover } from '../ui/buttonHover';
 
 interface BossFightData {
   bossId: string;
@@ -159,6 +160,10 @@ export class BossFightScene extends Phaser.Scene {
       const btn = this.add.rectangle(480, y, 900, 32, 0x1a1a2a);
       btn.setStrokeStyle(2, 0x4a4a6a);
       btn.setInteractive({ useHandCursor: true });
+      attachRectHover(btn,
+        { fill: 0x1a1a2a, stroke: 0x4a4a6a },
+        { fill: 0x2a2a3a, stroke: 0x8b8bc4 },
+      );
       const txt = this.add.text(50, y, '', {
         fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
         wordWrap: { width: 870, useAdvancedWrap: true },
@@ -187,6 +192,13 @@ export class BossFightScene extends Phaser.Scene {
         backgroundColor: '#1a1a2a', padding: { x: 8, y: 4 },
       });
       btn.setInteractive({ useHandCursor: true });
+      // Hover feedback: brighter bg + text color when castable. Inactive
+      // (0 charges) spells stay dim \u2014 attachTextHover's predicate gates it.
+      attachTextHover(btn,
+        { bg: '#1a1a2a', color: '#ffca28' },
+        { bg: '#3a2f10', color: '#ffe070' },
+        () => (this.spellbook[id] ?? 0) > 0,
+      );
       btn.on('pointerdown', () => this.tryCast(id));
       this.spellButtons.push(btn);
     });

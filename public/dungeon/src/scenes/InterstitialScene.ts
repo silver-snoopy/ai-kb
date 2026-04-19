@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { BOSSES } from '../config';
 import type { Question, QuestionsJson, RunMode, BossDefinition } from '../types';
 import { fadeIn, fadeToScene } from '../ui/transitions';
+import { attachRectHover } from '../ui/buttonHover';
 
 interface InterstitialData {
   previousBossId: string;
@@ -28,6 +29,13 @@ export class InterstitialScene extends Phaser.Scene {
   private hintText!: Phaser.GameObjects.Text;
   private optionTexts: Phaser.GameObjects.Text[] = [];
   private optionPanels: Phaser.GameObjects.Rectangle[] = [];
+
+  // Phaser fires per-object pointerdown before the global scene
+  // pointerdown in the same frame. When the user clicks a recall panel,
+  // onRecallChoice transitions beat \u2014 but the global onPointer then sees
+  // the new beat and would advance again in the same click. This flag
+  // swallows that one extra global click.
+  private recallJustAnswered = false;
 
   // Preview sprite tracking — destroyed + recreated on each beat
   private previewImage: Phaser.GameObjects.Image | null = null;
@@ -77,6 +85,16 @@ export class InterstitialScene extends Phaser.Scene {
       const panel = this.add.rectangle(480, y, 900, 44, 0x1a1a2a);
       panel.setStrokeStyle(1, 0x3a3a4a);
       panel.setVisible(false);  // only shown on the recall beat
+      panel.setInteractive({ useHandCursor: true });
+      // Hover feedback so the recall panel behaves like the combat
+      // options \u2014 brighten on cursor enter, restore on leave.
+      attachRectHover(panel,
+        { fill: 0x1a1a2a, stroke: 0x3a3a4a },
+        { fill: 0x2a2a3a, stroke: 0x8b8bc4 },
+        1,
+      );
+      // Click also answers the recall, matching the keyboard path.
+      panel.on('pointerdown', () => this.onRecallChoice(letter));
       this.optionPanels.push(panel);
       const txt = this.add.text(50, y, '', {
         fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
@@ -187,6 +205,7 @@ export class InterstitialScene extends Phaser.Scene {
   private onRecallChoice(choice: 'A' | 'B' | 'C' | 'D'): void {
     if (this.beat !== 'recall' || !this.recallQuestion) return;
     this.beat = 'recall-answered';
+    this.recallJustAnswered = true;
     const q = this.recallQuestion;
     const correct = choice === q.correct;
     const prefix = correct ? '✓ Correct' : `✗ Incorrect. Correct: ${q.correct}`;
@@ -223,6 +242,13 @@ export class InterstitialScene extends Phaser.Scene {
   }
 
   private onPointer(): void {
+    if (this.recallJustAnswered) {
+      // Swallow the global pointerdown that fires in the same frame as
+      // the panel's pointerdown when the user just clicked a recall
+      // option. Next click advances to primer normally.
+      this.recallJustAnswered = false;
+      return;
+    }
     if (this.beat === 'narrative') {
       this.renderRecall();
     } else if (this.beat === 'recall-answered') {

@@ -6,6 +6,7 @@ import type { RunMode, SaveStateV1, SpellId } from '../types';
 import { SPELLS } from '../config';
 import { mountAudioToggles } from '../ui/audioToggles';
 import { fadeIn, fadeToScene } from '../ui/transitions';
+import { attachRectHover } from '../ui/buttonHover';
 
 function nextModeFor(save: SaveStateV1): RunMode {
   // Determine the next unplayed tier from unlocked_spells.
@@ -67,6 +68,11 @@ export class HubScene extends Phaser.Scene {
     const newBtn = this.add.rectangle(480, 230, 500, 80, 0x2d1b4e);
     newBtn.setStrokeStyle(3, 0x8b7cc4);
     newBtn.setInteractive({ useHandCursor: true });
+    attachRectHover(newBtn,
+      { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
+      { fill: 0x4a2d7a, stroke: 0xc4a0ff },
+      3,
+    );
     this.add.text(480, 230, beginLabel, {
       fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
     }).setOrigin(0.5);
@@ -105,6 +111,10 @@ export class HubScene extends Phaser.Scene {
       const btn = this.add.rectangle(x, y, 150, 38, 0x1b2d4e);
       btn.setStrokeStyle(2, 0x6a7aa4);
       btn.setInteractive({ useHandCursor: true });
+      attachRectHover(btn,
+        { fill: 0x1b2d4e, stroke: 0x6a7aa4 },
+        { fill: 0x2d4a7a, stroke: 0xa0b4e0 },
+      );
       this.add.text(x, y, b.label, {
         fontSize: '14px', color: '#d0d0da', fontFamily: 'monospace',
       }).setOrigin(0.5);
@@ -120,6 +130,10 @@ export class HubScene extends Phaser.Scene {
     const interBtn = this.add.rectangle(480, 525, 320, 34, 0x2d1b4e);
     interBtn.setStrokeStyle(2, 0x7a6aa4);
     interBtn.setInteractive({ useHandCursor: true });
+    attachRectHover(interBtn,
+      { fill: 0x2d1b4e, stroke: 0x7a6aa4 },
+      { fill: 0x4a2d7a, stroke: 0xc4a0ff },
+    );
     this.add.text(480, 525, '(debug) preview interstitial', {
       fontSize: '12px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
     }).setOrigin(0.5);
