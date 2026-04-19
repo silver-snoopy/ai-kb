@@ -14,6 +14,10 @@ import { renderBackdrop } from './backdrops';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
 import { installFeelPack } from '../feel/install';
+import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
+import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
+import { LinePool } from '../ui/narrator/linePool';
+import { NARRATOR_LINES } from '../ui/narrator/lines';
 
 interface BossFightData {
   bossId: string;
@@ -48,6 +52,9 @@ export class BossFightScene extends Phaser.Scene {
   private acceptingInput = false;
   private currentQuestionIdx = 0;
   private lastPhaseEmitted: 66 | 33 | 10 | null = null;
+
+  private narratorOverlay!: NarratorOverlay;
+  private narratorDispatcher!: NarratorDispatcher;
 
   constructor() {
     super({ key: 'BossFightScene' });
@@ -249,6 +256,15 @@ export class BossFightScene extends Phaser.Scene {
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });
 
+    // Install narrator — creates overlay + dispatcher wiring the 7 semantic events to narrator lines.
+    const linePool = new LinePool(NARRATOR_LINES);
+    this.narratorOverlay = new NarratorOverlay(this);
+    this.narratorDispatcher = new NarratorDispatcher(this.events, linePool, this.narratorOverlay);
+    this.events.once('shutdown', () => {
+      this.narratorDispatcher.destroy();
+      this.narratorOverlay.destroy();
+    });
+
     this.events.emit('battle-start', { bossId: this.boss.id });
 
     this.nextQuestion();
@@ -427,7 +443,9 @@ export class BossFightScene extends Phaser.Scene {
       return;
     }
 
-    this.time.delayedCall(600, () => this.advanceOrEnd());
+    const narratorDelay = this.narratorOverlay?.pendingDelayMs() ?? 0;
+    const totalDelay = Math.max(600, narratorDelay + 200);  // 200ms buffer after narrator clears
+    this.time.delayedCall(totalDelay, () => this.advanceOrEnd());
   }
 
   private floatDamage(x: number, y: number, text: string, color: string): void {
