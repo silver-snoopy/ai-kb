@@ -13,6 +13,7 @@ import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { renderBackdrop } from './backdrops';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
+import { installFeelPack } from '../feel/install';
 
 interface BossFightData {
   bossId: string;
@@ -241,6 +242,9 @@ export class BossFightScene extends Phaser.Scene {
         else this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
       },
     });
+
+    // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
+    installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });
 
     this.nextQuestion();
   }
