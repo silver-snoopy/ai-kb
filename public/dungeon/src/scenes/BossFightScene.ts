@@ -296,7 +296,11 @@ export class BossFightScene extends Phaser.Scene {
       this.scene.start('CampaignCompleteScene');
     } else {
       const nextBossId = campaign.bossOrder[campaign.floorsCleared]!;
-      this.scene.start('BossFightScene', { bossId: nextBossId, mode: campaign.mode, isolated: false });
+      this.scene.start('InterstitialScene', {
+        previousBossId: this.boss.id,
+        nextBossId,
+        mode: campaign.mode,
+      });
     }
   }
 
