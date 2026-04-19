@@ -1,0 +1,23 @@
+# Node / Quartz / dashboard script
+node_modules/
+*.log
+coverage/
+.vitest-cache/
+quartz/public/
+quartz/.quartz-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Obsidian
+.obsidian/workspace*
+.obsidian/cache
+.obsidian/app.json
+
+# Secrets (belt & braces — shouldn't exist here anyway)
+.env
+.env.*
+*.key
+*.pem
