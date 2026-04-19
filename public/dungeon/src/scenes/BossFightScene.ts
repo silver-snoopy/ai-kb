@@ -91,6 +91,13 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Phaser reuses scene instances on re-entry (scene.start reruns init+create
+    // on the same instance). Class-field arrays persist across runs and would
+    // otherwise accumulate references to destroyed GameObjects, causing a
+    // `setText → drawImage on null canvas` crash in showCurrentQuestion. Reset.
+    this.optionTexts = [];
+    this.spellButtons = [];
+
     this.cameras.main.setBackgroundColor(this.boss.environmentColor);
     fadeIn(this);
 
