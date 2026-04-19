@@ -355,8 +355,9 @@ All Feel Pack modules subscribe to `answer-correct` and `answer-wrong` events. T
 
 **Spec:**
 
-- On `answer-correct`: boss sprite tweens `x → x - 12` over 120ms (boss knocked left, away from hero), then tweens back to origin over 200ms.
-- On `answer-wrong`: hero sprite tweens `x → x + 12` over 120ms, then back.
+- Layout note: hero at x=120 (canvas left), boss at x=840 (canvas right). "Knocked away from attacker" means: boss moves right (+x), hero moves left (-x).
+- On `answer-correct`: boss sprite tweens `x → x + 12` over 120ms (boss knocked right, away from hero), then tweens back to origin over 200ms.
+- On `answer-wrong`: hero sprite tweens `x → x - 12` over 120ms (hero knocked left, away from boss), then back.
 - If a stagger-back tween is active on the target: cancel, snap to origin, restart.
 
 ### 5.5 ambientDust.ts
@@ -430,16 +431,16 @@ All added to `public/dungeon/src/**/*.test.ts` alongside the existing 39 passing
 - Intensity increases with damage
 - `answer-wrong` uses fixed mild shake
 
-**`feel/squashStretch.test.ts`** (~3 cases):
+**`feel/squashStretch.test.ts`** (3 cases):
 
-- Applies tween to boss on correct, hero on wrong
-- Active tween is cancelled+restarted on new trigger (no stacking)
-- Returns sprite to origin scale after yoyo completes
+- Exports expected scale + duration constants
+- Applies tween to boss on correct, hero on wrong (via `killTweensOf` call assertions)
+- Cancels in-flight tween before starting a new one on the same target (no stacking)
 
-**`feel/ambientDust.test.ts`** (~2 cases):
+**`feel/ambientDust.test.ts`** (2 cases):
 
-- Emitter registered during BossFight active
-- Paused by hitStop (integration smoke)
+- Exports expected particle tuning constants (counts, intervals, lifetimes)
+- Emitter registered on install; disposer destroys it (hitStop integration deferred to manual browser verification since it requires full Phaser runtime)
 
 **`feel/feelPackDoesNotMutateDamage.test.ts`** (1 case, R6 regression):
 
@@ -448,7 +449,7 @@ All added to `public/dungeon/src/**/*.test.ts` alongside the existing 39 passing
 
 ### 6.2 Preserved tests
 
-All 39 existing tests must still pass unchanged. CI assertion: `npm test` returns green with 39 + ~31 new = ~70 passing.
+All 39 existing tests must still pass unchanged. CI assertion: `npm test` returns green with 39 + ~32 new = ~71 passing.
 
 ### 6.3 Manual verification (playwright smoke)
 
@@ -462,7 +463,7 @@ Existing smoke test is extended: after fight starts, assert narrator overlay con
 |---|---|
 | Boss defeated on same hit that crosses phase-10 | Fire `boss-defeated` line (higher priority), drop `phase-10` |
 | Multiple phase thresholds crossed in one hit (e.g., 66% → 25% skipping 33%) | Fire highest priority only (10%), skip others |
-| Narrator showing when question transitions in | `hide(abort=true)` — narrator fast-fades over 200ms, question appears on schedule |
+| Narrator showing when question would transition in | Next-question `delayedCall` extends to `max(600, narrator.pendingDelayMs() + 200)`. Narrator finishes its hold + fade-out, THEN next question loads. For phase-crossing moments (3 per fight), this adds up to ~2.5s of theatre. `hide(abort=true)` is reserved for emergency preemption when a higher-priority narrator line needs to displace a lower one mid-show. |
 | Narrator showing when boss dies | `boss-defeated` preempts any current line |
 | Spell cast during narrator showing | Dropped (spell-cast is lowest priority); the mechanical effect still applies |
 | Debug mode preview (Hub "fight Orchestrator only") | Narrator fires normally — same event bus |
