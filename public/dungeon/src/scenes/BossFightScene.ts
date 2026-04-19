@@ -367,6 +367,11 @@ export class BossFightScene extends Phaser.Scene {
     if (result.wasCorrect) {
       // Boss takes damage
       this.sound.play('sfx-hit-boss', { volume: 0.6 });
+      this.events.emit('answer-correct', {
+        damage: result.damageDealt,
+        bossHpPct: this.state.bossHp / this.state.bossMaxHp,
+        bossMaxHp: this.state.bossMaxHp,
+      });
       this.tweens.add({
         targets: this.bossSprite,
         x: this.bossSprite.x + 12,
@@ -380,6 +385,7 @@ export class BossFightScene extends Phaser.Scene {
     } else {
       // Hero takes damage
       this.sound.play('sfx-hit-hero', { volume: 0.5 });
+      this.events.emit('answer-wrong', { heroHpRemaining: this.state.heroHp });
       this.tweens.add({
         targets: this.heroSprite,
         x: this.heroSprite.x - 10,
