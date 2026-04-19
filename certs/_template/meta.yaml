@@ -1,0 +1,18 @@
+# TEMPLATE — copy this folder to certs/<new-cert-id>/ and fill in values
+
+id: <cert-id>                    # filesystem-safe, e.g., "cca-professional"
+name: <Human Readable Name>
+provider: <Anthropic | Microsoft | AWS | ...>
+target_date: <YYYY-MM-DD>        # user's target exam date
+exam:
+  question_count: <int>
+  time_limit_minutes: <int>
+  passing_score: <int>
+  scale_max: <int>
+  format: <scenario-based-mcq | mixed | ...>
+  cost_usd: <int>
+domains:
+  - { id: <domain-id>, name: "<Human name>", weight: <0.0–1.0> }
+  # weights must sum to 1.0
+resources:
+  - { name: "<Resource name>", url: "<URL>", priority: primary }
