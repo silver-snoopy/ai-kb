@@ -9,11 +9,11 @@ export type Trigger =
   | 'filler';
 
 export type BossId =
-  | 'orchestrator'
-  | 'compiler-king'
-  | 'grammarian'
-  | 'tool-smith'
-  | 'memory-kraken';
+  | 'the-orchestrator'
+  | 'the-compiler-king'
+  | 'the-grammarian'
+  | 'the-tool-smith'
+  | 'the-memory-kraken';
 
 export interface NarratorLine {
   readonly text: string;

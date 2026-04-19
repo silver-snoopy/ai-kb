@@ -5,11 +5,11 @@ import { LinePool } from './linePool';
 import type { NarratorLine } from './types';
 
 const SAMPLE_LINES: NarratorLine[] = [
-  { text: 'bs-orc', trigger: 'battle-start', bossId: 'orchestrator' },
-  { text: 'p66-orc', trigger: 'phase-66', bossId: 'orchestrator' },
-  { text: 'p33-orc', trigger: 'phase-33', bossId: 'orchestrator' },
-  { text: 'p10-orc', trigger: 'phase-10', bossId: 'orchestrator' },
-  { text: 'def-orc', trigger: 'boss-defeated', bossId: 'orchestrator' },
+  { text: 'bs-orc', trigger: 'battle-start', bossId: 'the-orchestrator' },
+  { text: 'p66-orc', trigger: 'phase-66', bossId: 'the-orchestrator' },
+  { text: 'p33-orc', trigger: 'phase-33', bossId: 'the-orchestrator' },
+  { text: 'p10-orc', trigger: 'phase-10', bossId: 'the-orchestrator' },
+  { text: 'def-orc', trigger: 'boss-defeated', bossId: 'the-orchestrator' },
   { text: 'sc-gen', trigger: 'spell-cast' },
   { text: 'hd-gen', trigger: 'hero-defeated' },
 ];
@@ -45,7 +45,7 @@ describe('NarratorDispatcher', () => {
     const pool = new LinePool(SAMPLE_LINES);
     const { overlay, calls } = makeMockOverlay();
     const d = new NarratorDispatcher(emitter as any, pool, overlay as any);
-    emitter.emit('battle-start', { bossId: 'orchestrator' });
+    emitter.emit('battle-start', { bossId: 'the-orchestrator' });
     expect(calls.some(c => c.method === 'show' && c.args[0] === 'bs-orc')).toBe(true);
     d.destroy();
   });
@@ -55,7 +55,7 @@ describe('NarratorDispatcher', () => {
     const pool = new LinePool(SAMPLE_LINES);
     const { overlay, calls } = makeMockOverlay();
     new NarratorDispatcher(emitter as any, pool, overlay as any);
-    emitter.emit('boss-phase-crossed', { threshold: 66, bossId: 'orchestrator' });
+    emitter.emit('boss-phase-crossed', { threshold: 66, bossId: 'the-orchestrator' });
     expect(calls.find(c => c.method === 'show')!.args[0]).toBe('p66-orc');
   });
 
@@ -64,8 +64,8 @@ describe('NarratorDispatcher', () => {
     const pool = new LinePool(SAMPLE_LINES);
     const { overlay, calls } = makeMockOverlay();
     new NarratorDispatcher(emitter as any, pool, overlay as any);
-    emitter.emit('spell-cast', { spellId: 'echo', bossId: 'orchestrator' });
-    emitter.emit('boss-defeated', { bossId: 'orchestrator' });
+    emitter.emit('spell-cast', { spellId: 'echo', bossId: 'the-orchestrator' });
+    emitter.emit('boss-defeated', { bossId: 'the-orchestrator' });
     // overlay.show was called twice; second call had higher priority (7 > 1)
     const shows = calls.filter(c => c.method === 'show');
     expect(shows).toHaveLength(2);

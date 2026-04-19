@@ -7,18 +7,18 @@ const L = (text: string, trigger: NarratorLine['trigger'], bossId?: NarratorLine
 
 describe('LinePool', () => {
   it('returns a line matching the trigger', () => {
-    const pool = new LinePool([L('A', 'battle-start', 'orchestrator'), L('B', 'phase-66', 'orchestrator')]);
-    expect(pool.pick('battle-start', 'orchestrator')).toBe('A');
+    const pool = new LinePool([L('A', 'battle-start', 'the-orchestrator'), L('B', 'phase-66', 'the-orchestrator')]);
+    expect(pool.pick('battle-start', 'the-orchestrator')).toBe('A');
   });
 
   it('prefers boss-specific over generic when both exist', () => {
-    const pool = new LinePool([L('generic', 'filler'), L('specific', 'battle-start', 'orchestrator')]);
-    expect(pool.pick('battle-start', 'orchestrator')).toBe('specific');
+    const pool = new LinePool([L('generic', 'filler'), L('specific', 'battle-start', 'the-orchestrator')]);
+    expect(pool.pick('battle-start', 'the-orchestrator')).toBe('specific');
   });
 
   it('falls back to generic when no boss-specific exists', () => {
     const pool = new LinePool([L('A', 'spell-cast'), L('B', 'spell-cast')]);
-    const picked = pool.pick('spell-cast', 'orchestrator');
+    const picked = pool.pick('spell-cast', 'the-orchestrator');
     expect(['A', 'B']).toContain(picked);
   });
 
@@ -39,7 +39,7 @@ describe('LinePool', () => {
 
   it('falls back to filler when pool truly empty for trigger+boss', () => {
     const pool = new LinePool([L('generic-filler', 'filler')]);
-    const picked = pool.pick('spell-cast', 'orchestrator');
+    const picked = pool.pick('spell-cast', 'the-orchestrator');
     expect(picked).toBe('generic-filler');
   });
 

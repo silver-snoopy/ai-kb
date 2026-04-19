@@ -19,4 +19,9 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [BootScene, HubScene, BossFightScene, InterstitialScene, CampaignCompleteScene],
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
+// Dev-only expose for Playwright smoke tests; tree-shaken in production builds.
+if (import.meta.env.DEV) {
+  (window as unknown as { __STC_GAME__: Phaser.Game }).__STC_GAME__ = game;
+}

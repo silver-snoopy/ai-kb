@@ -12,7 +12,7 @@ describe('narrator lines pool', () => {
   });
 
   it('each of 5 bosses has exactly 5 boss-specific lines', () => {
-    const bosses = ['orchestrator', 'compiler-king', 'grammarian', 'tool-smith', 'memory-kraken'] as const;
+    const bosses = ['the-orchestrator', 'the-compiler-king', 'the-grammarian', 'the-tool-smith', 'the-memory-kraken'] as const;
     for (const b of bosses) {
       const count = NARRATOR_LINES.filter(l => l.bossId === b).length;
       expect({ boss: b, count }).toEqual({ boss: b, count: 5 });
@@ -20,7 +20,7 @@ describe('narrator lines pool', () => {
   });
 
   it('every boss-specific line covers the 5 expected triggers exactly once', () => {
-    const bosses = ['orchestrator', 'compiler-king', 'grammarian', 'tool-smith', 'memory-kraken'] as const;
+    const bosses = ['the-orchestrator', 'the-compiler-king', 'the-grammarian', 'the-tool-smith', 'the-memory-kraken'] as const;
     const expectedTriggers = ['battle-start', 'phase-66', 'phase-33', 'phase-10', 'boss-defeated'] as const;
     for (const b of bosses) {
       const triggers = NARRATOR_LINES.filter(l => l.bossId === b).map(l => l.trigger).sort();
