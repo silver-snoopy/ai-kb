@@ -2,9 +2,14 @@ import Phaser from 'phaser';
 import type { Priority } from './types';
 
 export const OVERLAY_FADE_IN_MS = 300;
-export const OVERLAY_HOLD_MS = 2500;
+export const OVERLAY_HOLD_MS = 5500;
 export const OVERLAY_FADE_OUT_MS = 400;
 export const OVERLAY_ABORT_FADE_MS = 200;
+
+// Center-Y of the narrator strip on canvas.
+// Question bubble occupies y=130..330; HP hearts at y=405; options start y=470.
+// y=400 sits in the quiet central band below the bubble and above the options row.
+const OVERLAY_CENTER_Y = 400;
 
 export function computeHoldMs(): number {
   return OVERLAY_FADE_IN_MS + OVERLAY_HOLD_MS + OVERLAY_FADE_OUT_MS;
@@ -30,8 +35,8 @@ export class NarratorOverlay {
 
   private build(): void {
     const cx = 480;
-    const cy = 220;
-    const width = 800;
+    const cy = OVERLAY_CENTER_Y;
+    const width = 600;
     const height = 56;
 
     this.container = this.scene.add.container(cx, cy);
@@ -66,11 +71,11 @@ export class NarratorOverlay {
     this.textObj.setText(line);
     this.container.setVisible(true);
     this.container.setAlpha(0);
-    this.container.y = 220 + 10;
+    this.container.y = OVERLAY_CENTER_Y + 10;
     this.activeTween = this.scene.tweens.add({
       targets: this.container,
       alpha: 1,
-      y: 220,
+      y: OVERLAY_CENTER_Y,
       duration: OVERLAY_FADE_IN_MS,
       ease: 'Sine.easeOut',
     });
@@ -86,7 +91,7 @@ export class NarratorOverlay {
     this.scene.tweens.add({
       targets: this.container,
       alpha: 0,
-      y: 220 - 8,
+      y: OVERLAY_CENTER_Y - 8,
       duration,
       ease: 'Sine.easeIn',
       onComplete: () => {
