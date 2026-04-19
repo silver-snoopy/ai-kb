@@ -223,7 +223,7 @@ export const NARRATOR_LINES: readonly NarratorLine[] = [
   { trigger: 'boss-defeated', bossId: 'orchestrator',
     text: 'The final measure resolves in silence. The orchestrator bows, and is gone.' },
 
-  // — Compiler-King (5 lines) — TBD during implementation, sketched here:
+  // — Compiler-King (5 lines) —
   { trigger: 'battle-start', bossId: 'compiler-king',
     text: 'The forge-king hammers iron into argument. The heat rises.' },
   { trigger: 'phase-66', bossId: 'compiler-king',
