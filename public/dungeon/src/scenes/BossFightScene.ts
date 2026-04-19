@@ -327,11 +327,21 @@ export class BossFightScene extends Phaser.Scene {
     }
 
     if (!result.wasCorrect) {
-      this.questionText.setText(
-        `✗ Incorrect. Correct: ${result.correctAnswer}\n\n${result.explanation}\n\n(click to continue)`,
-      );
+      // Keep the bubble message short; push the full explanation into the
+      // (now-empty) option-area below so long explanations don't overflow.
+      // Hide the spellbook row too so the explanation has room to breathe.
+      this.questionText.setText(`\u2717 Incorrect. Correct: ${result.correctAnswer}`);
       this.optionTexts.forEach(t => t.setText(''));
-      this.input.once('pointerdown', () => this.advanceOrEnd());
+      this.spellButtons.forEach(b => b.setVisible(false));
+      const explain = this.add.text(480, 440, `${result.explanation}\n\n(click to continue)`, {
+        fontSize: '13px', color: '#e8e0d0', fontFamily: 'monospace',
+        wordWrap: { width: 880 }, align: 'center',
+      }).setOrigin(0.5, 0);
+      this.input.once('pointerdown', () => {
+        explain.destroy();
+        this.spellButtons.forEach(b => b.setVisible(true));
+        this.advanceOrEnd();
+      });
       return;
     }
 
