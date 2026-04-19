@@ -18,13 +18,26 @@
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
 
-const USER_ID = process.env.CERTSAFARI_USER_ID || process.argv[2];
-if (!USER_ID) {
-  console.error('Usage: CERTSAFARI_USER_ID=<uid> node extract-certsafari.mjs');
-  console.error('  OR:  node extract-certsafari.mjs <uid>');
-  process.exit(1);
+// Parse --domain <slug> from argv. Positional arg (if any and not a flag)
+// stays compatible with the legacy `node extract-certsafari.mjs <uid>` form.
+const argv = process.argv.slice(2);
+let cliDomain = null;
+const positional = [];
+for (let i = 0; i < argv.length; i++) {
+  const a = argv[i];
+  if (a === '--domain') { cliDomain = argv[++i]; continue; }
+  if (a.startsWith('--domain=')) { cliDomain = a.slice('--domain='.length); continue; }
+  positional.push(a);
 }
+
+// user_id is just a client-side session tracker on CertSafari's side — it does
+// NOT gate the 150/day per-IP quota. Auto-generating one per run keeps session
+// history clean and lets the user rotate VPN exits without needing to carry a
+// fresh UUID through shell env.
+const USER_ID = process.env.CERTSAFARI_USER_ID || positional[0] || randomUUID();
+console.log(`Using user_id: ${USER_ID}`);
 
 const BASE = 'https://www.certsafari.com';
 // CertSafari's API rejects requests lacking browser-like Origin/Referer/UA
@@ -189,7 +202,19 @@ async function main() {
   for (const q of existing) existingByDomain[q._domain_slug] = (existingByDomain[q._domain_slug] || 0) + 1;
   if (existing.length) console.log(`Resume mode: ${existing.length} questions already collected — ${JSON.stringify(existingByDomain)}`);
 
-  for (const d of DOMAINS) {
+  // With --domain, process just that one (lets user rotate VPN per domain
+  // to spread across IP quotas). Without it, iterate all five as before.
+  const selected = cliDomain
+    ? DOMAINS.filter(d => d.id === cliDomain)
+    : DOMAINS;
+  if (cliDomain && selected.length === 0) {
+    const valid = DOMAINS.map(d => d.id).join(', ');
+    console.error(`Unknown --domain "${cliDomain}". Valid: ${valid}`);
+    process.exit(1);
+  }
+  if (cliDomain) console.log(`Single-domain mode: ${cliDomain}`);
+
+  for (const d of selected) {
     const already = existingByDomain[d.id] || 0;
     if (already >= d.count) {
       console.log(`\u2192 ${d.name}: ${already}/${d.count} already cached, skipping`);
@@ -201,7 +226,7 @@ async function main() {
     } catch (e) {
       console.error(`Domain ${d.id} failed: ${e.message}`);
     }
-    await sleep(COOLDOWN_MS);
+    if (selected.length > 1) await sleep(COOLDOWN_MS);
   }
 
   const all = Array.from(byId.values());
