@@ -115,7 +115,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.hintText.setText('(press Space / Enter / click to continue)');
 
     // Show previous boss sprite fading out
-    const img = this.addBossPreview(this.previousBoss.id, 480, 400, 6, 1);
+    const img = this.addBossPreview(this.previousBoss.id, 480, 400, 4, 1);
     if (img) {
       this.tweens.add({
         targets: img,
@@ -135,7 +135,7 @@ export class InterstitialScene extends Phaser.Scene {
     }
 
     // Show previous boss sprite in upper corner as visual reminder
-    const img = this.addBossPreview(this.previousBoss.id, 840, 200, 5, 0.8);
+    const img = this.addBossPreview(this.previousBoss.id, 840, 200, 3, 0.8);
     if (img) {
       this.tweens.add({
         targets: img,
@@ -183,7 +183,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.hintText.setText('(press Space / Enter / click to begin the fight)');
 
     // Show incoming boss sprite with idle bob
-    const img = this.addBossPreview(this.nextBoss.id, 480, 300, 6, 0.85);
+    const img = this.addBossPreview(this.nextBoss.id, 480, 300, 4, 0.85);
     if (img) {
       this.tweens.add({
         targets: img,

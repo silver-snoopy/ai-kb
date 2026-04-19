@@ -4,6 +4,7 @@ import { createSpellbook } from '../game/spellbook';
 import type { Campaign } from '../game/dungeon';
 import type { RunMode, SaveStateV1, SpellId } from '../types';
 import { SPELLS } from '../config';
+import { mountAudioToggles } from '../ui/audioToggles';
 
 function nextModeFor(save: SaveStateV1): RunMode {
   // Determine the next unplayed tier from unlocked_spells.
@@ -34,6 +35,11 @@ export class HubScene extends Phaser.Scene {
 
   create(): void {
     const save: SaveStateV1 = this.registry.get('saveState');
+
+    // Audio mute toggles (top-right). Hub has no BGM so only SFX mute is
+    // functionally relevant here, but the BGM toggle is still shown so
+    // the user can pre-mute before entering a boss fight.
+    mountAudioToggles(this);
 
     this.add.text(480, 50, '\uD83C\uDFF0 Gates of the Archive', {
       fontSize: '36px', color: '#e0e0ea', fontFamily: 'monospace',

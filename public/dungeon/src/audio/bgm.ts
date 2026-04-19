@@ -1,71 +1,87 @@
-// Procedural 8-bit-style BGM per boss, generated at runtime via the Web Audio
-// oscillators that Phaser's sound system already owns. Five distinct ostinatos
-// keyed to each boss's theme. No asset dependency — keeps the game at 0 MB of
-// music files while still delivering per-boss musical identity.
+// Atmospheric procedural BGM — one ambient bed per boss. Two layers:
+//   1. A sustained drone on the root (sine wave, slow LFO breathing) so the
+//      track feels continuous — the pad that fills silence.
+//   2. A slow melodic walk (~1s-1.6s per note) with triangle/sawtooth wave,
+//      soft attack + long decay so each note reads as a "bell" rather than
+//      a rhythmic pulse.
 //
-// Playback is single-track square-wave arpeggio at low volume (0.04 gain) to
-// sit well under the SFX. Start called once per boss fight; stop called on
-// scene shutdown. Safe against missing AudioContext (no-op).
+// Shipped at master gain 0.035 so it sits far under SFX + voice. The player
+// can toggle-off via a separate mute control (Step 3) — this module just
+// exposes start/stop.
 
 type PhaserSoundManager = { context?: AudioContext };
 
 interface BossTrack {
   root: number;      // Hz of note 0 of the scale
-  seq: number[];     // semitone offsets from root
-  tempoMs: number;   // interval between notes
+  seq: number[];     // semitone offsets from root for the slow walk
+  tempoMs: number;   // interval between melodic notes
   wave: OscillatorType;
+  droneWave: OscillatorType;
+  droneGain: number; // sustained level of the pad layer
 }
 
-// Frequencies chosen to feel on-theme: lower roots = menacing; higher = airy.
+// Each track designed to be heard-but-ignorable during question-reading.
+// Tempos are 3-4x slower than the original arcade arpeggios.
 const TRACKS: Record<string, BossTrack> = {
   'the-orchestrator': {
-    // A2-based, minor 6-note walk. Marching, inevitable.
+    // A2 minor walk — a slow processional beneath a court-hall drone.
     root: 110,
     seq: [0, 3, 7, 10, 7, 3],
-    tempoMs: 320,
-    wave: 'square',
+    tempoMs: 1400,
+    wave: 'triangle',
+    droneWave: 'sine',
+    droneGain: 0.012,
   },
   'the-compiler-king': {
-    // C3-based pentatonic; sounds like a forge-beat.
+    // C3 pentatonic — distant forge-bells.
     root: 130.81,
     seq: [0, 5, 7, 12, 7, 5],
-    tempoMs: 280,
-    wave: 'square',
+    tempoMs: 1200,
+    wave: 'triangle',
+    droneWave: 'sine',
+    droneGain: 0.010,
   },
   'the-grammarian': {
-    // D3 Dorian drift; spectral, reading-by-candle feel.
+    // D3 Dorian drift — candlelit library, barely-there motion.
     root: 146.83,
     seq: [0, 2, 5, 7, 5, 2],
-    tempoMs: 360,
+    tempoMs: 1600,
     wave: 'triangle',
+    droneWave: 'sine',
+    droneGain: 0.012,
   },
   'the-tool-smith': {
-    // G2 blues-ish riff, hammery.
+    // G2 blues — slow hammery rings, not a rhythm.
     root: 98,
     seq: [0, 5, 3, 5, 7, 5],
-    tempoMs: 300,
-    wave: 'square',
+    tempoMs: 1300,
+    wave: 'triangle',
+    droneWave: 'sine',
+    droneGain: 0.012,
   },
   'the-memory-kraken': {
-    // F2 chromatic drone, submerged.
+    // F2 chromatic — submerged, buzzy. Keep the sawtooth for the texture.
     root: 87.31,
     seq: [0, 1, 3, 1, 5, 3],
-    tempoMs: 400,
+    tempoMs: 1800,
     wave: 'sawtooth',
+    droneWave: 'sine',
+    droneGain: 0.014,
   },
 };
+
+const MASTER_GAIN = 0.035;
 
 export class ProceduralBGM {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private droneOsc: OscillatorNode | null = null;
+  private droneGain: GainNode | null = null;
+  private droneLFO: OscillatorNode | null = null;
+  private droneLFOGain: GainNode | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
   private step = 0;
 
-  /**
-   * Start looping the BGM for a boss. Pass in Phaser's sound manager so we
-   * borrow its AudioContext — avoids creating a second context that would
-   * need its own user-gesture unlock.
-   */
   start(bossId: string, sound: PhaserSoundManager): void {
     this.stop();
     const ctx = sound.context;
@@ -75,10 +91,29 @@ export class ProceduralBGM {
 
     this.ctx = ctx;
     this.masterGain = ctx.createGain();
-    this.masterGain.gain.value = 0.04;
+    this.masterGain.gain.value = MASTER_GAIN;
     this.masterGain.connect(ctx.destination);
     this.step = 0;
 
+    // --- Drone layer ---
+    // Sustained root note; gain is modulated by a slow LFO so the pad feels
+    // like it's breathing (0.08 Hz = ~7.5s per cycle).
+    this.droneOsc = ctx.createOscillator();
+    this.droneOsc.type = track.droneWave;
+    this.droneOsc.frequency.value = track.root / 2; // octave down for depth
+    this.droneGain = ctx.createGain();
+    this.droneGain.gain.value = track.droneGain;
+    this.droneLFO = ctx.createOscillator();
+    this.droneLFO.type = 'sine';
+    this.droneLFO.frequency.value = 0.08;
+    this.droneLFOGain = ctx.createGain();
+    this.droneLFOGain.gain.value = track.droneGain * 0.4; // LFO modulation depth
+    this.droneLFO.connect(this.droneLFOGain).connect(this.droneGain.gain);
+    this.droneOsc.connect(this.droneGain).connect(this.masterGain);
+    this.droneOsc.start();
+    this.droneLFO.start();
+
+    // --- Melodic walk ---
     const playNote = (): void => {
       const cx = this.ctx;
       const mg = this.masterGain;
@@ -90,12 +125,14 @@ export class ProceduralBGM {
       osc.type = track.wave;
       osc.frequency.value = freq;
       const now = cx.currentTime;
+      // Soft attack (80ms), long decay (90% of step duration) so the note
+      // feels like a bell rather than a rhythmic pulse.
       g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(1.0, now + 0.015);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + track.tempoMs / 1000 * 0.9);
+      g.gain.exponentialRampToValueAtTime(0.5, now + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + (track.tempoMs / 1000) * 0.9);
       osc.connect(g).connect(mg);
       osc.start(now);
-      osc.stop(now + track.tempoMs / 1000);
+      osc.stop(now + (track.tempoMs / 1000));
       this.step = (this.step + 1) % track.seq.length;
     };
 
@@ -107,13 +144,29 @@ export class ProceduralBGM {
       clearInterval(this.timer);
       this.timer = null;
     }
-    if (this.masterGain && this.ctx) {
-      // Fade out master gain to avoid clicks
-      this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
-      this.masterGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.1);
-      const g = this.masterGain;
-      setTimeout(() => g.disconnect(), 150);
+    const cx = this.ctx;
+    const mg = this.masterGain;
+    // Fade master to 0, then disconnect everything, to avoid clicks.
+    if (cx && mg) {
+      mg.gain.cancelScheduledValues(cx.currentTime);
+      mg.gain.linearRampToValueAtTime(0, cx.currentTime + 0.15);
     }
+    const toStop: Array<OscillatorNode | null> = [this.droneOsc, this.droneLFO];
+    const stopAt = cx ? cx.currentTime + 0.2 : 0;
+    for (const o of toStop) {
+      if (o) {
+        try { o.stop(stopAt); } catch { /* already stopped */ }
+      }
+    }
+    setTimeout(() => {
+      mg?.disconnect();
+      this.droneGain?.disconnect();
+      this.droneLFOGain?.disconnect();
+    }, 250);
+    this.droneOsc = null;
+    this.droneLFO = null;
+    this.droneGain = null;
+    this.droneLFOGain = null;
     this.masterGain = null;
     this.ctx = null;
   }

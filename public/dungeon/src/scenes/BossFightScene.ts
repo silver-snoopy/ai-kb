@@ -9,6 +9,7 @@ import type { BossDefinition, CombatState, Question, QuestionsJson, RunMode, Ses
 import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
 import { ProceduralBGM } from '../audio/bgm';
+import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 
 interface BossFightData {
   bossId: string;
@@ -108,7 +109,7 @@ export class BossFightScene extends Phaser.Scene {
     }).setOrigin(0.5, 0);
 
     // --- Hero sprite (left) ---
-    this.heroSprite = this.add.image(120, 330, 'hero').setScale(6);
+    this.heroSprite = this.add.image(120, 330, 'hero').setScale(3);
 
     // Hero HP hearts below sprite
     this.heroHpText = this.add.text(120, 410, '', {
@@ -123,7 +124,7 @@ export class BossFightScene extends Phaser.Scene {
     // --- Boss sprite (right) ---
     const bossKey = `boss-${this.boss.id}`;
     const bossTexKey = this.textures.exists(bossKey) ? bossKey : 'hero';
-    this.bossSprite = this.add.image(840, 330, bossTexKey).setScale(6);
+    this.bossSprite = this.add.image(840, 330, bossTexKey).setScale(4);
 
     // Boss HP hearts below boss sprite
     this.bossHpText = this.add.text(840, 410, '', {
@@ -186,10 +187,23 @@ export class BossFightScene extends Phaser.Scene {
 
     // Procedural BGM tied to boss id \u2014 stops on scene shutdown.
     // Phaser's sound system already handled the user-gesture unlock, so
-    // its AudioContext is ready to accept scheduled notes here.
-    this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
+    // its AudioContext is ready to accept scheduled notes here. Respect
+    // the user's BGM mute preference.
+    if (!this.registry.get(REGISTRY_BGM_MUTED)) {
+      this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
+    }
     this.events.once('shutdown', () => this.bgm.stop());
     this.events.once('destroy', () => this.bgm.stop());
+
+    // Mute toggles (top-right). onBgmToggle starts/stops our procedural
+    // BGM as the user flips the control; SFX mute flows through Phaser's
+    // sound manager automatically.
+    mountAudioToggles(this, {
+      onBgmToggle: (muted) => {
+        if (muted) this.bgm.stop();
+        else this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
+      },
+    });
 
     this.nextQuestion();
   }
@@ -219,7 +233,7 @@ export class BossFightScene extends Phaser.Scene {
       this.sound.play('sfx-spell', { volume: 0.5 });
       this.tweens.add({
         targets: this.heroSprite,
-        scale: 7,
+        scale: 4,
         duration: 120,
         yoyo: true,
         ease: 'Sine.easeInOut',
