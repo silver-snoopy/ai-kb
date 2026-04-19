@@ -2,14 +2,15 @@ import Phaser from 'phaser';
 import type { Priority } from './types';
 
 export const OVERLAY_FADE_IN_MS = 300;
-export const OVERLAY_HOLD_MS = 5500;
+export const OVERLAY_HOLD_MS = 7500;
 export const OVERLAY_FADE_OUT_MS = 400;
 export const OVERLAY_ABORT_FADE_MS = 200;
 
 // Center-Y of the narrator strip on canvas.
-// Question bubble occupies y=130..330; HP hearts at y=405; options start y=470.
-// y=400 sits in the quiet central band below the bubble and above the options row.
-const OVERLAY_CENTER_Y = 400;
+// Question bubble occupies y=130..330; sprite bottoms ≈ y=362; HP hearts at
+// y=405; options start y=470. y=375 sits in the breathing space above the
+// HP label row so the narrator reads as "inside" the scene with the sprites.
+const OVERLAY_CENTER_Y = 375;
 
 export function computeHoldMs(): number {
   return OVERLAY_FADE_IN_MS + OVERLAY_HOLD_MS + OVERLAY_FADE_OUT_MS;
