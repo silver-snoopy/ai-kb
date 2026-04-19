@@ -46,8 +46,8 @@ const DOMAINS = [
   { name: 'Domain 4: Prompt Engineering & Structured Output', count: 72, id: 'domain-3-prompt-engineering' },
   { name: 'Domain 5: Context Management & Reliability',       count: 72, id: 'domain-5-context' },
 ];
-const PACING_MS = 500;
-const COOLDOWN_MS = 2000;
+const PACING_MS = 2500;      // ~24 req/min — stays under the per-minute limit
+const COOLDOWN_MS = 30_000;  // 30s between domains so we don't stack bursts
 const RATE_LIMIT_BACKOFF_MS = 65_000; // full per-minute window reset
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -83,7 +83,18 @@ async function getNextQuestion(quizId) {
     headers: HEADERS,
     body: JSON.stringify({ quiz_id: quizId }),
   });
-  if (res.status === 429) { const err = new Error('questions 429'); err.rateLimited = true; throw err; }
+  if (res.status === 429) {
+    const body = await res.text();
+    // The API has TWO distinct 429 modes:
+    //   - "Per-minute request limit ... exceeded" -> transient, worth a 65s cooldown
+    //   - "Daily rate limit (150 questions) for this IP exceeded" -> the whole
+    //     IP is cut off until the daily window rolls over; retrying is futile
+    //     and would waste hours of wall time.
+    const err = new Error(`questions 429: ${body.slice(0, 160)}`);
+    if (/Daily rate limit/i.test(body)) err.dailyLimit = true;
+    else err.rateLimited = true;
+    throw err;
+  }
   if (!res.ok) throw new Error(`questions failed (${res.status})`);
   return res.json();
 }
@@ -113,6 +124,10 @@ async function extractDomain(d) {
       }
       process.stdout.write(`  ${collected.size}/${expectedIds.size} (attempts: ${attempts})\r`);
     } catch (e) {
+      if (e.dailyLimit) {
+        console.error(`\n  DAILY RATE LIMIT hit \u2014 aborting (retry tomorrow): ${e.message}`);
+        throw e; // bubble up to main() so the whole run exits cleanly
+      }
       if (e.rateLimited) {
         console.error(`\n  ${e.message} \u2014 cooling for ${RATE_LIMIT_BACKOFF_MS / 1000}s`);
         await sleep(RATE_LIMIT_BACKOFF_MS);
