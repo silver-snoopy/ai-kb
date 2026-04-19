@@ -17,8 +17,8 @@ describe('ambientDust', () => {
   it('registers particle emitter and returns disposer that destroys it', () => {
     const emitter = new Phaser.Events.EventEmitter();
     const destroySpy = vi.fn();
-    const particleEmitter = { setDepth: vi.fn(() => particleEmitter), destroy: destroySpy };
-    const graphicsStub = {
+    const particleEmitter: any = { setDepth: vi.fn(() => particleEmitter), destroy: destroySpy };
+    const graphicsStub: any = {
       fillStyle: vi.fn(() => graphicsStub),
       fillRect: vi.fn(() => graphicsStub),
       generateTexture: vi.fn(),
