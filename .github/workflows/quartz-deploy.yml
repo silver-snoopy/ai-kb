@@ -1,0 +1,60 @@
+name: Deploy Quartz site
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'dashboard.md'          # avoid loop with dashboard workflow
+      - '_lint/**'
+      - '.github/**'
+      - 'docs/**'
+      - 'raw/**'                # Quartz ignores these anyway
+      - 'MEMORY.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Quartz deps
+        working-directory: quartz
+        run: npm ci
+
+      - name: Build site
+        working-directory: quartz
+        run: npm run build:vault   # defined in quartz/package.json (Task 4.1 step 4)
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: quartz/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
