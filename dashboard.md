@@ -1,6 +1,6 @@
 # 📊 AI Cert KB Dashboard
 
-_Last updated: 2026-04-19T08:19:34.498Z (auto — do not edit by hand)_
+_Last updated: 2026-04-19T14:59:46.128Z (auto — do not edit by hand)_
 
 ## 🎯 **Claude Certified Architect — Foundations** — 42 days to exam (target: 2026-05-31)
 
@@ -9,9 +9,9 @@ _Last updated: 2026-04-19T08:19:34.498Z (auto — do not edit by hand)_
 | Domain | Weight | Notes | Cards | Status |
 |---|---:|---:|---:|:---:|
 | Agentic Architecture & Orchestration | 27% | 4 | — | 🟢 (4/5 target) |
-| Claude Code Configuration & Workflows | 20% | 3 | — | 🟡 (3/4 target) |
+| Claude Code Configuration & Workflows | 20% | 4 | — | 🟢 (4/4 target) |
 | Prompt Engineering & Structured Output | 20% | 3 | — | 🟡 (3/4 target) |
-| Tool Design & MCP Integration | 18% | 3 | — | 🟡 (3/4 target) |
+| Tool Design & MCP Integration | 18% | 4 | — | 🟢 (4/4 target) |
 | Context Management & Reliability | 15% | 3 | — | 🟢 (3/3 target) |
 
 _Weakness queue for cca-f: 0 unchecked / 0 total_
