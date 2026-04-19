@@ -44,3 +44,6 @@ skills-lock.json
 
 # Slay the Cert — raw asset ZIPs staged for extraction (Session 4)
 public/dungeon/public/assets/_dropzone/*.zip
+
+# Git worktrees (isolated workspaces for feature branches)
+.worktrees/
