@@ -1,0 +1,947 @@
+{
+  "built_at": "2026-04-19T11:08:29.502Z",
+  "total": 41,
+  "by_domain": {
+    "domain-1-agentic": 31,
+    "domain-2-claude-code": 4,
+    "domain-3-prompt-engineering": 2,
+    "domain-4-mcp": 2,
+    "domain-5-context": 2
+  },
+  "domains": {
+    "domain-1-agentic": {
+      "num": 1,
+      "name": "Agentic Architecture & Orchestration",
+      "weight": 0.27,
+      "color": "#f39c4a"
+    },
+    "domain-2-claude-code": {
+      "num": 2,
+      "name": "Claude Code Configuration & Workflows",
+      "weight": 0.2,
+      "color": "#a87cf0"
+    },
+    "domain-3-prompt-engineering": {
+      "num": 3,
+      "name": "Prompt Engineering & Structured Output",
+      "weight": 0.2,
+      "color": "#5db5f0"
+    },
+    "domain-4-mcp": {
+      "num": 4,
+      "name": "Tool Design & MCP Integration",
+      "weight": 0.18,
+      "color": "#5ad1a0"
+    },
+    "domain-5-context": {
+      "num": 5,
+      "name": "Context Management & Reliability",
+      "weight": 0.15,
+      "color": "#e85d75"
+    }
+  },
+  "questions": [
+    {
+      "id": "certsafari-domain-1-agentic-001",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial agent is comparing two stocks. Claude returns a `stop_reason` of `tool_use` and includes two separate `get_stock_price` tool use blocks in the `content` array. The developer's loop extracts the first tool use, executes it, and sends back a single `tool_result`. Claude repeatedly asks for the second stock's price in subsequent turns. How should the loop be redesigned?\n",
+      "options": {
+        "A": "The loop should execute the first tool, send the result, and wait for Claude to request the second tool in the next turn to maintain sequential processing.",
+        "B": "The loop must iterate through all `tool_use` blocks, execute them, and append a single `user` message containing multiple `tool_result` blocks matching each `tool_use_id`.",
+        "C": "The loop must execute all `tool_use` blocks and append multiple `user` messages to the history, creating one distinct message for each `tool_result`.",
+        "D": "The developer should set the `tool_choice` parameter to `disable_parallel` to prevent Claude from returning multiple tool use blocks in a single response."
+      },
+      "correct": "B",
+      "explanation": "A: This approach is inefficient and incorrect for the Anthropic Messages API. If Claude requests multiple tools in a single turn, it expects the results for all of them in the next response. Forcing sequential processing leads to redundant turns and context window bloat.\nB: Correct. Claude is capable of parallel tool use. When the model returns multiple `tool_use` blocks in the `content` array, the developer must process every block and return a single `user` message containing a `tool_result` for each corresponding `tool_use_id`. This satisfies the model's requests in one turn.\nC: While sending multiple user messages might be supported by some chat interfaces, the official Anthropic SDK and API pattern is to provide all results from a single turn's tool requests within the same `user` role message. Creating distinct messages is non-standard and complicates conversation history.\nD: There is no `disable_parallel` parameter within the `tool_choice` object for the Anthropic API. Furthermore, restricting the model's ability to reason in parallel would decrease the efficiency of the agentic system.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24170)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "The loop should execute the first tool, send the result, and wait for Claude to request the second tool in the next turn to maintain sequential processing.",
+        "The loop must iterate through all `tool_use` blocks, execute them, and append a single `user` message containing multiple `tool_result` blocks matching each `tool_use_id`.",
+        "The loop must execute all `tool_use` blocks and append multiple `user` messages to the history, creating one distinct message for each `tool_result`.",
+        "The developer should set the `tool_choice` parameter to `disable_parallel` to prevent Claude from returning multiple tool use blocks in a single response."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-002",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A developer is using an agentic tool with Claude to troubleshoot a bug in a session named `payment-bug`. After several turns of investigation, the developer modifies the file `stripe_handler.ts` locally to fix a logic error. Which action is the most efficient way to continue the session while ensuring the model is aware of the code changes?\n",
+      "options": {
+        "A": "Start a completely new session, as any changes to previously analyzed files render the entire session context permanently invalid.",
+        "B": "Run `--resume payment-bug` and immediately inform Claude that `stripe_handler.ts` has been modified, requesting a targeted re-analysis of that specific file.",
+        "C": "Run `--resume payment-bug` and ask Claude to proceed; Claude's background file-watching tools will automatically detect the changes.",
+        "D": "Use `fork_session` to create a new branch, which automatically forces Claude to re-read all files in the repository."
+      },
+      "correct": "B",
+      "explanation": "A: Starting a completely new session is inefficient as it discards the troubleshooting progress and context already established. Agentic workflows are designed to handle updates without requiring a full restart of the conversational history.\nB: Running `--resume` and explicitly notifying Claude of the specific file change is the most efficient workflow. This allows the model to retain the established context and history while specifically updating its internal state for the modified file, which aligns with best practices for targeted resumption.\nC: While some specialized environments might have file-watching, standard agentic interfaces typically require explicit instructions to re-read or re-analyze a file changed on disk. Relying on passive detection risks the model using stale data from its previous context window.\nD: The `fork_session` command is intended for creating divergent conversational branches for experimentation or 'what-if' scenarios. It does not inherently trigger a full repository re-scan or an automatic refresh of all local files.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24231)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Start a completely new session, as any changes to previously analyzed files render the entire session context permanently invalid.",
+        "Run `--resume payment-bug` and immediately inform Claude that `stripe_handler.ts` has been modified, requesting a targeted re-analysis of that specific file.",
+        "Run `--resume payment-bug` and ask Claude to proceed; Claude's background file-watching tools will automatically detect the changes.",
+        "Use `fork_session` to create a new branch, which automatically forces Claude to re-read all files in the repository."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-003",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A marketing agent uses a `send_sms` tool connected to a third-party API. The API strictly limits requests to 10 per minute. If the agent exceeds this, the API bans the account for 24 hours. The agent sometimes generates a loop of rapid tool calls, risking a ban. How can you protect the API account using Anthropic's tool use features?\n",
+      "options": {
+        "A": "Add a system prompt instruction: 'Do not call `send_sms` more than 10 times per minute. Keep track of your calls.'",
+        "B": "Implement a `PreToolCall` hook that checks a local token bucket rate limiter. If the limit is reached, the hook blocks the execution and returns a simulated tool result telling the model to wait.",
+        "C": "Implement a `PostToolCall` hook that checks the API's response headers for rate limit warnings and tells the model to sleep.",
+        "D": "Configure the orchestrator to automatically terminate the agent session if it detects more than 10 tool calls in a single turn."
+      },
+      "correct": "B",
+      "explanation": "A: Incorrect. While system prompts can guide the model's behavior, they are not a reliable enforcement mechanism for strict, hard limits. The model may fail to adhere to the instruction, especially in complex scenarios or loops, leaving the API account vulnerable to being banned.\nB: Correct. According to documentation, hooks can be used for enforcement to intercept AI behavior and block non-compliant actions before they occur. A `PreToolCall` hook runs before the tool is executed, making it the ideal place to implement a preventative, client-side rate limiter like a token bucket. Blocking the call and informing the model allows for graceful handling without risking the API account.\nC: Incorrect. A `PostToolCall` hook executes *after* the API call has already been made. This approach is reactive, not preventative. By the time this hook runs, the call that exceeds the rate limit may have already been sent, resulting in an immediate account ban. This method cannot prevent the ban from happening.\nD: Incorrect. This is a blunt and disruptive approach. It terminates the entire session, leading to a poor user experience and loss of context. A `PreToolCall` hook provides a much more granular and graceful solution by managing the rate of calls without ending the user's task.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=32816)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Add a system prompt instruction: 'Do not call `send_sms` more than 10 times per minute. Keep track of your calls.'",
+        "Implement a `PreToolCall` hook that checks a local token bucket rate limiter. If the limit is reached, the hook blocks the execution and returns a simulated tool result telling the model to wait.",
+        "Implement a `PostToolCall` hook that checks the API's response headers for rate limit warnings and tells the model to sleep.",
+        "Configure the orchestrator to automatically terminate the agent session if it detects more than 10 tool calls in a single turn."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-004",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A developer is building an autonomous research agent. To determine when the agent has finished its research, the developer's code checks if the assistant's response contains the phrase 'Research complete:'. If this phrase is found, the agent's main loop terminates. What is the architectural assessment of this approach?\n",
+      "options": {
+        "A": "This is a best practice, provided the system prompt strongly enforces the exact phrasing of 'Research complete:' using XML tags.",
+        "B": "This is an anti-pattern because it relies on parsing non-deterministic natural language for control flow. The developer should instead instruct the model to call a specific tool, such as `research_complete()`, to signal task completion.",
+        "C": "This is an anti-pattern; the developer should instead evaluate if `stop_reason` equals `end_turn` to safely and deterministically terminate the loop.",
+        "D": "This is an anti-pattern; the developer should instead check for a specific `stop_sequence` like `</research_complete>` in the API request."
+      },
+      "correct": "B",
+      "explanation": "A: Incorrect. This is an anti-pattern. While strong prompting and XML tags can increase the likelihood of the model producing the desired phrase, it does not guarantee it. Relying on parsing a model's non-deterministic natural language output for critical control flow is unreliable and can lead to unpredictable behavior.\nB: Correct. This approach is an anti-pattern. According to Anthropic's best practices, critical control flow should be managed by deterministic rules, not by parsing non-deterministic model output. The recommended approach is to use Tool Use (also known as function calling), instructing the model to call a specific tool like `research_complete()` to provide a structured, reliable signal that the task is finished.\nC: Incorrect. The `stop_reason` of `end_turn` indicates that the model completed its turn of generation naturally. In a multi-step agentic workflow, research may require many turns. Terminating the loop on the first `end_turn` would prematurely stop the agent before its overall task is complete.\nD: Incorrect. While using a `stop_sequence` is more deterministic than parsing a natural language phrase, it is not the recommended architectural pattern for this use case. Tool Use is superior because it provides a structured way for the model to signal completion and can include structured data in its response (e.g., a summary or list of sources). Tool Use is the preferred method for managing agentic control flow.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=32835)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "This is a best practice, provided the system prompt strongly enforces the exact phrasing of 'Research complete:' using XML tags.",
+        "This is an anti-pattern because it relies on parsing non-deterministic natural language for control flow. The developer should instead instruct the model to call a specific tool, such as `research_complete()`, to signal task completion.",
+        "This is an anti-pattern; the developer should instead evaluate if `stop_reason` equals `end_turn` to safely and deterministically terminate the loop.",
+        "This is an anti-pattern; the developer should instead check for a specific `stop_sequence` like `</research_complete>` in the API request."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-005",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A developer is using a Claude-powered agent to assist in migrating a legacy monolithic application to a microservices architecture. The developer has already used Claude to analyze the existing repository and identify potential service boundaries. Now, the developer wants to compare two different migration paths: one focusing on AWS Lambda for serverless execution and another focusing on Amazon ECS for containerized execution. What is the most efficient architectural approach to handle this exploration using session management features?\n",
+      "options": {
+        "A": "Use `fork_session` twice from the current state to create two independent branches for parallel exploration of the Lambda and ECS approaches.",
+        "B": "Start two completely new sessions and ask Claude to re-analyze the repository from scratch in each, focusing on the respective target architectures.",
+        "C": "Resume the current session, ask for the Lambda architecture, then use `--clear-context` and ask for the ECS architecture.",
+        "D": "Export the current session's chat history, manually split it into two files, and import them into two new sessions."
+      },
+      "correct": "A",
+      "explanation": "A: Forking is the designated mechanism for session branching in agentic workflows. By forking twice from the point where the repository analysis is already complete, the developer creates two independent parallel threads. This preserves the shared context of the code analysis (saving tokens and time) while allowing distinct exploration paths for Lambda and ECS without context bleed.\nB: While starting from scratch ensures complete isolation, it is architecturally inefficient for large contexts like a code repository. This approach requires the model to re-analyze the entire codebase for each session, leading to higher token consumption and increased latency compared to leveraging existing session states through forking.\nC: Using a single session sequentially is problematic because the model's responses for the second architecture (ECS) would be influenced by the previous discussion about Lambda. Furthermore, clearing context usually removes the base repository analysis that both approaches require, forcing an inefficient restart.\nD: Manual management of chat history files is cumbersome and error-prone. It bypasses the native session management and forking capabilities designed into agentic frameworks, which are specifically meant to handle state divergence programmatically and efficiently.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24230)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Use `fork_session` twice from the current state to create two independent branches for parallel exploration of the Lambda and ECS approaches.",
+        "Start two completely new sessions and ask Claude to re-analyze the repository from scratch in each, focusing on the respective target architectures.",
+        "Resume the current session, ask for the Lambda architecture, then use `--clear-context` and ask for the ECS architecture.",
+        "Export the current session's chat history, manually split it into two files, and import them into two new sessions."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-006",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "When managing an agentic session for system administration tasks, why might an architect avoid resuming a session that has been inactive for a significant period (e.g., 24 hours) using only the existing conversation history?\n",
+      "options": {
+        "A": "Because Claude has a hard-coded time limit of 24 hours for any continuous session.",
+        "B": "Because resuming with stale tool results (like outdated df -h or ls outputs) will confuse the agent and lead to incorrect diagnoses.",
+        "C": "Because the --resume command does not support sessions that utilize external SSH tools.",
+        "D": "Because fork_session is the only supported method for continuing multi-day administrative tasks."
+      },
+      "correct": "B",
+      "explanation": "A: Claude does not have a universal hard-coded 24-hour continuous session limit. Session lifetimes are typically determined by the hosting platform, API configuration, or the specific orchestration implementation rather than an intrinsic model constraint.\nB: Resuming a session with stale tool outputs (e.g., disk usage or directory listings from 24 hours ago) can mislead the agent. The environment may have changed significantly, and the model might make incorrect decisions based on artifacts that no longer reflect the current system state. Proper resumption workflows should re-run tools or validate the state to avoid acting on stale information.\nC: The ability to resume sessions using SSH tools is a function of the orchestration layer and tool integration. There is no inherent restriction in Claude or standard agentic patterns that prevents resuming such sessions, provided the state and connectivity are managed correctly by the developer.\nD: While fork_session is a valuable pattern for branching tasks or parallel exploration, it is not the only supported method for long-running tasks. Other strategies include session checkpoints, context injection, and explicitly re-validating environment state upon resumption.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24235)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Because Claude has a hard-coded time limit of 24 hours for any continuous session.",
+        "Because resuming with stale tool results (like outdated df -h or ls outputs) will confuse the agent and lead to incorrect diagnoses.",
+        "Because the --resume command does not support sessions that utilize external SSH tools.",
+        "Because fork_session is the only supported method for continuing multi-day administrative tasks."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-007",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A customer support system categorizes incoming tickets into 5 distinct buckets, extracts the customer ID, and formats a JSON response. The engineering team initially implemented this using dynamic adaptive decomposition, allowing the agent to reason about how to process each ticket. However, latency and API costs are unacceptably high. What is the best architectural change?\n",
+      "options": {
+        "A": "Keep the dynamic adaptive decomposition but switch to a smaller, faster model.",
+        "B": "Switch to a fixed sequential pipeline (prompt chaining) because the task is a predictable, multi-aspect review.",
+        "C": "Switch to a map-reduce pattern to process the ticket categorization and extraction in parallel.",
+        "D": "Implement an adaptive investigation plan to only extract the customer ID if the ticket is marked as urgent."
+      },
+      "correct": "B",
+      "explanation": "A: While switching to a smaller model may reduce cost per token, it does not address the architectural overhead of dynamic adaptive decomposition. The 'reasoning loop' used in dynamic planning still requires multiple LLM calls to decide how to process the task, which is redundant for a predictable workflow.\nB: A fixed sequential pipeline (prompt chaining) is the most efficient pattern for tasks that are deterministic and follow a predictable sequence of steps (categorize -> extract -> format). By removing the planning and reasoning overhead of an agentic loop, latency and API costs are significantly reduced without sacrificing accuracy.\nC: Map-reduce is designed for parallelizing large datasets or long documents. For a single ticket involving simple categorization and extraction, the coordination and aggregation overhead of map-reduce would likely increase complexity and latency compared to a simple chain.\nD: Implementing an adaptive investigation plan adds conditional logic that complicates the system rather than simplifying it. Furthermore, skipping customer ID extraction based on urgency risks producing incomplete data for downstream processes and does not solve the root cause of the high orchestration costs.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23987)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Keep the dynamic adaptive decomposition but switch to a smaller, faster model.",
+        "Switch to a fixed sequential pipeline (prompt chaining) because the task is a predictable, multi-aspect review.",
+        "Switch to a map-reduce pattern to process the ticket categorization and extraction in parallel.",
+        "Implement an adaptive investigation plan to only extract the customer ID if the ticket is marked as urgent."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-008",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial analysis system extracts quarterly earnings data using a 'DataMiner' subagent and generates a chart using a 'Grapher' subagent. When the DataMiner passes its findings back to the coordinator as a conversational summary, and the coordinator passes that summary to the Grapher, the Grapher frequently plots incorrect numbers or mislabels axes. What is the most robust architectural solution to this context passing issue?\n",
+      "options": {
+        "A": "Instruct the DataMiner to output its findings as a structured CSV or JSON array, and have the coordinator pass this exact structured output in the prompt to the Grapher subagent.",
+        "B": "Configure the Grapher subagent's AgentDefinition to use a lower temperature setting to prevent the hallucination of numbers during chart generation.",
+        "C": "Use fork-based session management to allow the Grapher to iteratively query the DataMiner in a private thread until the chart is correct.",
+        "D": "Add a DataValidation tool to the coordinator to check the Grapher's output against the DataMiner's summary before presenting it to the user."
+      },
+      "correct": "A",
+      "explanation": "A: Instructing the DataMiner to output its findings as a structured CSV or JSON array ensures that exact, machine-readable numeric and field semantics are preserved. This eliminates the ambiguity introduced by free-form conversational summaries, allowing the Grapher to process concrete values and labels directly. This is the most robust way to maintain data integrity across subagent boundaries.\nB: While lowering the temperature can reduce model sampling noise and randomness, it does not solve the underlying issue of data loss or ambiguity caused by the unstructured nature of the input text. If the source context is a vague summary, the model will still struggle to reconstruct precise data points regardless of temperature settings.\nC: Fork-based session management and iterative querying between agents introduce significant architectural complexity, latency, and tight coupling. While this might allow the Grapher to ask for clarification, it is far less efficient than simply passing a well-formatted, complete data object in the initial invocation.\nD: A DataValidation tool is a reactive measure that detects errors after they occur. While useful for quality assurance, it does not fix the root cause of the context-passing problem. A robust architecture should prioritize high-fidelity data transmission to prevent errors from occurring in the first place.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24059)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Instruct the DataMiner to output its findings as a structured CSV or JSON array, and have the coordinator pass this exact structured output in the prompt to the Grapher subagent.",
+        "Configure the Grapher subagent's AgentDefinition to use a lower temperature setting to prevent the hallucination of numbers during chart generation.",
+        "Use fork-based session management to allow the Grapher to iteratively query the DataMiner in a private thread until the chart is correct.",
+        "Add a DataValidation tool to the coordinator to check the Grapher's output against the DataMiner's summary before presenting it to the user."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-009",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An autonomous DevOps agent attempts to restart a server using a `restart_instance` tool. The tool execution fails because the instance ID provided by Claude is invalid. The developer wants Claude to autonomously realize the mistake, analyze the error, and try a different instance ID. How should the agentic loop handle this failure?\n",
+      "options": {
+        "A": "Terminate the agentic loop, return the error to the user, and prompt the user to provide the correct instance ID manually.",
+        "B": "Append a `tool_result` block to the conversation history containing the error message and set `is_error: true`, then continue the loop.",
+        "C": "Delete the assistant's invalid `tool_use` message from the conversation history and resend the original prompt with a warning appended.",
+        "D": "Modify the system prompt dynamically to include the error message and restart the entire conversation thread from the beginning."
+      },
+      "correct": "B",
+      "explanation": "A: Terminating the loop and requesting manual input prevents the agent from performing autonomous diagnosis or recovery. This approach forces human intervention for recoverable errors and disrupts the flow of an agentic architecture.\nB: According to Anthropic's tool-use specifications, the correct way to handle a tool failure is to append a `tool_result` block with the error message and set `is_error: true`. This provides Claude with structured context about the failure, enabling it to analyze the mistake and choose an alternative action or instance ID in the next iteration.\nC: Deleting the previous `tool_use` message removes the provenance of the failure. Without the history of the failed attempt, Claude cannot learn from the mistake and may repeat the same error. Maintaining the full conversation history is essential for iterative reasoning.\nD: Modifying the system prompt and restarting the conversation is an inefficient and heavy-handed approach. It discards useful execution history and state, making debugging harder and potentially causing the model to lose track of the original objective.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24169)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Terminate the agentic loop, return the error to the user, and prompt the user to provide the correct instance ID manually.",
+        "Append a `tool_result` block to the conversation history containing the error message and set `is_error: true`, then continue the loop.",
+        "Delete the assistant's invalid `tool_use` message from the conversation history and resend the original prompt with a warning appended.",
+        "Modify the system prompt dynamically to include the error message and restart the entire conversation thread from the beginning."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-010",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A market intelligence platform uses a multi-agent system to research competitors. The Coordinator assigns the broad task \"Research Competitor X's new product launch\" to three identical Analyst subagents. The final synthesized report contains highly repetitive information, as all three subagents independently scraped the same press releases and news articles. How should the Coordinator be reconfigured to minimize this duplication?\n",
+      "options": {
+        "A": "Implement a semantic deduplication script on the final output before presenting it to the user.",
+        "B": "Partition the research scope by having the Coordinator assign distinct source types (e.g., social media, financial filings, press releases) or specific subtopics to each subagent.",
+        "C": "Force the subagents to communicate directly with one another in real-time to coordinate which URLs they are currently visiting.",
+        "D": "Reduce the number of Analyst subagents to one, relying on a larger context window to handle the entire research task naturally."
+      },
+      "correct": "B",
+      "explanation": "A: While post-processing deduplication reduces visible repetition for the end user, it fails to address the underlying inefficiency of the system. The subagents still waste computational resources and API calls performing redundant scraping and analysis.\nB: Partitioning the research scope is the most effective architectural fix. By assigning specific source types (e.g., filings vs. social media) or specific subtopics to different subagents, the Coordinator ensures complementary coverage, maximizes the use of parallel processing, and avoids the duplication of effort at the source.\nC: Introducing direct peer-to-peer communication increases system complexity, latency, and coupling. In a coordinator-subagent architecture, coordination is more robustly and simply handled by the Coordinator through structured task decomposition rather than real-time synchronization between subagents.\nD: Reducing the system to a single agent eliminates duplication but sacrifices the benefits of parallelism and specialization. Multi-agent systems are designed to scale coverage and throughput, which is better achieved through role differentiation than consolidation.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24005)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Implement a semantic deduplication script on the final output before presenting it to the user.",
+        "Partition the research scope by having the Coordinator assign distinct source types (e.g., social media, financial filings, press releases) or specific subtopics to each subagent.",
+        "Force the subagents to communicate directly with one another in real-time to coordinate which URLs they are currently visiting.",
+        "Reduce the number of Analyst subagents to one, relying on a larger context window to handle the entire research task naturally."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-011",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A telecommunications customer asks a support bot: 'Why is my bill so high this month, and can I upgrade to the premium plan?' To ensure low latency and high accuracy, how should the architect design the workflow for this multi-concern request?\n",
+      "options": {
+        "A": "Process the request sequentially: first resolve the billing issue, then handle the upgrade, to avoid confusing the model's context window.",
+        "B": "Prompt the main agent to use the check_bill and upgrade_plan tools in a single turn, relying on the LLM's internal parallel tool calling capabilities without shared context.",
+        "C": "Use a router to decompose the request into 'billing' and 'upgrade' tasks, dispatch them to parallel sub-agents with shared user context, and use a synthesizer agent to merge the results.",
+        "D": "Send the raw prompt to two separate agents simultaneously and concatenate their raw text responses with a newline character before sending to the user."
+      },
+      "correct": "C",
+      "explanation": "A: Sequential processing increases end-to-end latency by forcing the user to wait for each task to complete one after the other. It fails to utilize parallelization for independent concerns, leading to a suboptimal user experience.\nB: While LLMs can perform parallel tool calling, relying solely on internal coordination for complex business logic lacks deterministic orchestration and robust state management. This approach risks context contention and makes it difficult to enforce specific SLAs or policies for each distinct task.\nC: The router-orchestrator pattern is the most effective for multi-intent requests. Decomposing the prompt into specialized tasks allows for parallel execution (minimizing latency) and high domain-specific accuracy. Using shared context and a synthesizer ensures the final response is coherent, consistent, and addresses all user concerns accurately.\nD: Naive concatenation of raw text from multiple agents ignores the need for reconciliation and synthesis. This often results in redundant information, contradictory statements, or a disjointed tone, which reduces the overall accuracy and trustworthiness of the bot.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24075)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Process the request sequentially: first resolve the billing issue, then handle the upgrade, to avoid confusing the model's context window.",
+        "Prompt the main agent to use the check_bill and upgrade_plan tools in a single turn, relying on the LLM's internal parallel tool calling capabilities without shared context.",
+        "Use a router to decompose the request into 'billing' and 'upgrade' tasks, dispatch them to parallel sub-agents with shared user context, and use a synthesizer agent to merge the results.",
+        "Send the raw prompt to two separate agents simultaneously and concatenate their raw text responses with a newline character before sending to the user."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-012",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An insurance claims bot is designed to issue payouts. The prompt states: 'Only issue payout if claim_status is APPROVED'. Despite this, it occasionally issues payouts for PENDING claims. To achieve a zero failure rate for this deterministic compliance requirement, what architectural change is required?\n",
+      "options": {
+        "A": "Implement a self-correction loop where the bot double-checks its own work before finalizing the payout.",
+        "B": "Remove the `issue_payout` tool from the LLM entirely. Instead, have the LLM call an `approve_claim` tool, and let the backend application logic deterministically trigger the payout system based on the claim status.",
+        "C": "Rely on prompt-based guidance but switch to a more capable model like Claude 3.5 Sonnet to achieve 100% deterministic compliance.",
+        "D": "Add a mandatory user confirmation step where the user must type 'I agree' before the bot can call the payout tool."
+      },
+      "correct": "B",
+      "explanation": "A: Implementing a self-correction loop keeps the decision and enforcement inside the LLM's non-deterministic behavior. While self-checking can reduce errors, it cannot guarantee a zero failure rate as the model may hallucinate that it followed the rules even when it did not.\nB: This is the 'Enforcement' or 'Hard Guardrail' pattern. By moving the sensitive action (payout) to the backend application logic, you ensure that compliance rules are executed by deterministic code rather than probabilistic model logic. The LLM acts as the orchestrator, but the authoritative system of record enforces the business rules.\nC: Upgrading to a more capable model like Claude 3.5 Sonnet improves performance and instruction following, but no LLM is 100% deterministic. Critical compliance requirements should never rely solely on model capability if a deterministic programmatic alternative exists.\nD: Adding a user confirmation step (Human-in-the-loop) adds friction and a safety layer, but it does not address the architectural flaw. Users can make mistakes or be social-engineered, and the final execution still relies on the LLM's non-deterministic decision to call the tool.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24094)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Implement a self-correction loop where the bot double-checks its own work before finalizing the payout.",
+        "Remove the `issue_payout` tool from the LLM entirely. Instead, have the LLM call an `approve_claim` tool, and let the backend application logic deterministically trigger the payout system based on the claim status.",
+        "Rely on prompt-based guidance but switch to a more capable model like Claude 3.5 Sonnet to achieve 100% deterministic compliance.",
+        "Add a mandatory user confirmation step where the user must type 'I agree' before the bot can call the payout tool."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-013",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An architect is designing an agentic system to add comprehensive unit tests to a massive, undocumented legacy codebase. The task is highly open-ended, and the dependencies between modules are unknown. What is the optimal decomposition strategy for this workflow?\n",
+      "options": {
+        "A": "Implement a fixed prompt chain that iterates through the repository alphabetically, writing tests for each file.",
+        "B": "First map the codebase structure, identify high-impact areas, and create a prioritized plan that adapts as dependencies are discovered.",
+        "C": "Use a single prompt with the maximum context window to read all files and output all tests in one pass.",
+        "D": "Deploy parallel agents to write tests for all files simultaneously, then use a map-reduce chain to merge them."
+      },
+      "correct": "B",
+      "explanation": "A: Implementing a fixed prompt chain that iterates alphabetically is brittle and ignores actual code structure or dependency relationships. This approach is rigid and fails to adapt when complex cross-file dependencies are encountered, likely leading to low-quality tests or system failure.\nB: This strategy uses a discovery-driven approach suitable for open-ended tasks with unknown dependencies. By mapping the codebase and identifying high-impact areas first, the system can prioritize critical modules and refine its strategy as it learns more about the codebase's interdependencies, allowing for efficient and accurate decomposition of a massive task.\nC: Attempting to process an entire massive codebase in a single context window is impractical due to token limits and the high risk of hallucination or detail loss. This method lacks the iterative discovery needed for undocumented code and usually results in shallow or incorrect outputs.\nD: While parallelization increases throughput, deploying agents without a prior understanding of the codebase leads to inconsistent assumptions and failure to handle integration points. A map-reduce approach alone cannot resolve the complex, unknown dependencies inherent in legacy systems without an initial coordination and mapping phase.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23980)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Implement a fixed prompt chain that iterates through the repository alphabetically, writing tests for each file.",
+        "First map the codebase structure, identify high-impact areas, and create a prioritized plan that adapts as dependencies are discovered.",
+        "Use a single prompt with the maximum context window to read all files and output all tests in one pass.",
+        "Deploy parallel agents to write tests for all files simultaneously, then use a map-reduce chain to merge them."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-014",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A cloud infrastructure agent uses a `get_container_logs` tool. The tool often returns up to 20MB of raw JSON logs, which exceeds the model's context window and causes token limit errors. The agent only needs to analyze log lines marked as 'ERROR' or 'FATAL'. What is the most efficient way to handle this data?\n",
+      "options": {
+        "A": "Update the system prompt to instruct the model to only request logs that contain 'ERROR' or 'FATAL'.",
+        "B": "Implement a PreToolCall hook that intercepts the request and changes the tool name to `get_error_logs`.",
+        "C": "Implement a PostToolUse hook that parses the 20MB JSON response, filters the array for entries matching 'ERROR' or 'FATAL', and returns only the filtered subset to the model.",
+        "D": "Increase the `max_tokens` parameter in the agent's configuration to accommodate the 20MB payload."
+      },
+      "correct": "C",
+      "explanation": "A: Updating the system prompt influences the model's behavior but does not change the programmatic output of the tool. The `get_container_logs` tool would still return the full 20MB payload to the orchestrator, and if that payload is passed into the conversation history, it will still exceed the context window.\nB: While a PreToolCall hook can intercept and modify requests, this solution assumes a specialized `get_error_logs` tool exists and is available. It relies on tool redirection rather than addressing the core requirement of data normalization for the existing workflow.\nC: Correct. A PostToolUse hook is the standard architectural pattern for data normalization. It allows the orchestration layer to intercept the large raw response from the tool and filter or transform it before it is sent to the LLM. This significantly reduces the token count and ensures the model only receives the relevant 'ERROR' or 'FATAL' lines, staying within the context window limits.\nD: Increasing the `max_tokens` parameter generally refers to the model's output limit, not its input (context window). Furthermore, 20MB of raw logs could represent millions of tokens, which is far beyond the capacity of current model context windows and would be prohibitively expensive and slow to process.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24140)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Update the system prompt to instruct the model to only request logs that contain 'ERROR' or 'FATAL'.",
+        "Implement a PreToolCall hook that intercepts the request and changes the tool name to `get_error_logs`.",
+        "Implement a PostToolUse hook that parses the 20MB JSON response, filters the array for entries matching 'ERROR' or 'FATAL', and returns only the filtered subset to the model.",
+        "Increase the `max_tokens` parameter in the agent's configuration to accommodate the 20MB payload."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-015",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An automated software debugging system uses a coordinator to manage 'LogAnalyzer' and 'CodeFixer' subagents. The coordinator's system prompt contains a rigid 50-step procedural checklist for how to debug applications. The system frequently fails when encountering novel errors that do not perfectly match the checklist, as the coordinator forces subagents down incorrect paths. What is the best architectural change to improve adaptability?\n",
+      "options": {
+        "A": "Break the 50-step checklist into smaller 5-step checklists and assign each to a different subagent AgentDefinition.",
+        "B": "Redesign the coordinator's prompt to specify the overall debugging goals, success criteria, and available subagents, allowing the coordinator to adaptively determine the strategy.",
+        "C": "Implement fork-based session management to try all 50 steps in parallel and return the first successful result to the user.",
+        "D": "Add a ProceduralOverride tool to the coordinator's allowedTools so it can explicitly skip steps when an error is deemed novel."
+      },
+      "correct": "B",
+      "explanation": "A: Breaking the checklist into smaller chunks preserves the procedural, brittle architecture and fragments logic across many agents. This increases coordination complexity and coordination overhead without addressing the core issue that the system still lacks higher-level reasoning to handle novel errors.\nB: Redesigning the prompt to focus on high-level goals and success criteria (declarative) rather than rigid steps (procedural) leverages the coordinator's ability to reason. This allows the system to adapt strategies dynamically for novel errors, delegate to subagents appropriately, and evaluate progress based on outcomes rather than checklist completion.\nC: Trying all steps in parallel is computationally expensive and resource-intensive. Furthermore, it is logically flawed for debugging where steps are often sequential or interdependent, and it does not improve the system's underlying reasoning or ability to handle novel situations.\nD: Adding a ProceduralOverride tool is an ad-hoc patch that still keeps the coordinator tethered to a rigid procedural framework. It relies on heuristics to determine when to skip steps, which is error-prone and less robust than a complete shift to goal-directed planning.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24056)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Break the 50-step checklist into smaller 5-step checklists and assign each to a different subagent AgentDefinition.",
+        "Redesign the coordinator's prompt to specify the overall debugging goals, success criteria, and available subagents, allowing the coordinator to adaptively determine the strategy.",
+        "Implement fork-based session management to try all 50 steps in parallel and return the first successful result to the user.",
+        "Add a ProceduralOverride tool to the coordinator's allowedTools so it can explicitly skip steps when an error is deemed novel."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-016",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial advisor bot receives a multi-concern request: 'What is my current portfolio balance, and what are the tax implications of selling my Apple stock?' The architect wants to optimize for speed while ensuring accurate, holistic answers. Which approach best satisfies these requirements?\n",
+      "options": {
+        "A": "Process the request sequentially using a single agent to ensure the tax calculation has access to the portfolio balance.",
+        "B": "Decompose the request into two distinct items, investigate each in parallel using specialized sub-agents that access a shared context (user profile and holdings), and use a synthesizer agent to generate a unified resolution.",
+        "C": "Route the entire prompt to a tax-specialized agent and rely on its internal knowledge to estimate the portfolio balance.",
+        "D": "Reject the prompt and ask the user to submit the portfolio query and the tax query in separate sessions to maintain deterministic compliance."
+      },
+      "correct": "B",
+      "explanation": "A: Sequential processing through a single agent increases latency and reduces scalability. While it ensures context continuity, it fails to meet the 'optimize for speed' requirement because independent sub-tasks are serialized rather than executed concurrently.\nB: This approach utilizes the 'Parallel Sub-agents' or 'Orchestrator-Workers' pattern. Decomposing the request into distinct items allows for parallel execution to minimize latency. Utilizing a shared context ensures both sub-agents operate on authoritative data, and a synthesizer agent reconciles the outputs into a coherent, holistic response.\nC: Routing a multi-faceted request to a narrow specialized agent often leads to inaccuracies. A tax agent likely lacks authoritative access to real-time portfolio balance tools, leading to hallucinations or stale estimates, and it doesn't optimize for modularity or speed.\nD: Forcing users to split their queries manually is a poor user experience and an architectural failure. Multi-intent requests should be handled by the orchestration layer through routing or decomposition rather than being rejected.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24082)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Process the request sequentially using a single agent to ensure the tax calculation has access to the portfolio balance.",
+        "Decompose the request into two distinct items, investigate each in parallel using specialized sub-agents that access a shared context (user profile and holdings), and use a synthesizer agent to generate a unified resolution.",
+        "Route the entire prompt to a tax-specialized agent and rely on its internal knowledge to estimate the portfolio balance.",
+        "Reject the prompt and ask the user to submit the portfolio query and the tax query in separate sessions to maintain deterministic compliance."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-017",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial agent is designed to analyze quarterly reports using multiple tools. The developer implements a `while` loop that terminates as soon as `response.content[0].type == \"text\"`, assuming that if Claude is outputting text, it has finished using tools. However, the agent frequently stops before completing the analysis. What is the correct way to resolve this?\n",
+      "options": {
+        "A": "Increase the `temperature` parameter to prevent Claude from generating premature text before calling tools.",
+        "B": "Change the loop termination condition to evaluate `stop_reason == \"end_turn\"`, as Claude often outputs 'Chain of Thought' text before a `tool_use` block in the same response.",
+        "C": "Filter out all text blocks from the response and only append `tool_use` blocks to the conversation history to force continuous tool execution.",
+        "D": "Instruct Claude in the system prompt to use the `yield` keyword when pausing tool execution to output text."
+      },
+      "correct": "B",
+      "explanation": "A: Incorrect. Temperature controls the randomness of token sampling but does not influence the structural logic of when Claude chooses to output text versus tool calls. Increasing temperature would not prevent the interleaving of text blocks with tool-use blocks.\nB: Correct. In the Anthropic Messages API, a single response can contain multiple content blocks (e.g., a text block followed by a tool_use block). The reliable way to determine if Claude is finished is by checking the `stop_reason`. If `stop_reason` is `tool_use`, the agent should process the tools and continue the loop; only when `stop_reason` is `end_turn` has the model completed its turn.\nC: Incorrect. Text blocks often contain Claude's internal reasoning (Chain of Thought). Filtering them out would break the context for subsequent turns and potentially confuse the model, while also failing to address the incorrect loop termination logic.\nD: Incorrect. Instructing an LLM to use programming keywords like `yield` to manage API flow is unreliable and not a feature of the Messages API protocol. The protocol already provides structured metadata (stop_reason) for this purpose.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24166)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Increase the `temperature` parameter to prevent Claude from generating premature text before calling tools.",
+        "Change the loop termination condition to evaluate `stop_reason == \"end_turn\"`, as Claude often outputs 'Chain of Thought' text before a `tool_use` block in the same response.",
+        "Filter out all text blocks from the response and only append `tool_use` blocks to the conversation history to force continuous tool execution.",
+        "Instruct Claude in the system prompt to use the `yield` keyword when pausing tool execution to output text."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-018",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A data analysis agent is asked to 'Compare the Q3 revenue of Company A and Company B, then calculate the difference.' The agent successfully calls `get_revenue` for Company A. In the next iteration of the loop, the developer's code sends a new API request containing only the most recent `tool_result`, omitting the original user prompt. What is the architectural impact of this state management approach?\n",
+      "options": {
+        "A": "Claude will successfully call `get_revenue` for Company B because the `tool_result` block inherently contains the necessary context from the previous turn.",
+        "B": "Claude will likely fail to call `get_revenue` for Company B or calculate the difference, because it has lost the original instructions and the overarching goal of the task.",
+        "C": "Claude will automatically query the `/v1/messages/history` endpoint to retrieve the missing user prompt before deciding on the next action.",
+        "D": "The API will return a 400 Bad Request because every API call in an agentic loop must begin with a `system` prompt."
+      },
+      "correct": "B",
+      "explanation": "A: Incorrect. The `tool_result` block provides only the output of the specific tool execution (e.g., Company A's revenue). It does not encapsulate the original user instructions or the overarching task objective needed to proceed to Company B.\nB: Correct. Claude is stateless; robust agentic loops must persist the full conversation context (including user prompts, system instructions, and prior tool interactions) in each request. If only the most recent tool result is sent, Claude loses the 'overarching goal' (comparing A and B and calculating the difference) and cannot determine the next logical step.\nC: Incorrect. Claude does not automatically retrieve server-side history or call a `/v1/messages/history` endpoint. The Messages API requires the developer to manage and provide the conversation state within the request body.\nD: Incorrect. While a system prompt is highly recommended for guidance, it is not a syntactic requirement for the API. Omitting context causes a functional failure in the agent's logic, but it does not trigger a 400 Bad Request schema error.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24172)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Claude will successfully call `get_revenue` for Company B because the `tool_result` block inherently contains the necessary context from the previous turn.",
+        "Claude will likely fail to call `get_revenue` for Company B or calculate the difference, because it has lost the original instructions and the overarching goal of the task.",
+        "Claude will automatically query the `/v1/messages/history` endpoint to retrieve the missing user prompt before deciding on the next action.",
+        "The API will return a 400 Bad Request because every API call in an agentic loop must begin with a `system` prompt."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-019",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A global logistics agent uses three different MCP tools to query delivery statuses from regional carriers. Tool A returns timestamps in Unix epoch, Tool B uses ISO 8601, and Tool C uses DD-MM-YYYY format. The model occasionally miscalculates delivery SLAs because it misinterprets the heterogeneous date formats. As an architect, how should you resolve this issue to guarantee accurate SLA calculations?\n",
+      "options": {
+        "A": "Update the system prompt with few-shot examples demonstrating how to convert Unix epoch and DD-MM-YYYY formats into ISO 8601 before calculating SLAs.",
+        "B": "Implement a PostToolUse hook that detects the tool source, parses the specific date format into a standard ISO 8601 string, and replaces the raw output before returning the result to the model.",
+        "C": "Implement a PreToolCall hook to inject a requested_format=\"ISO8601\" parameter into the outgoing tool arguments for all three carrier tools.",
+        "D": "Create a separate DateConverter tool and instruct the model in the system prompt to call it every time it receives a date from the logistics tools."
+      },
+      "correct": "B",
+      "explanation": "A: While few-shot examples can improve model performance, they do not provide a technical guarantee. Relying on the model to perform manual data normalization is brittle, increases token usage, and is prone to reasoning errors, especially when handling multiple legacy formats.\nB: Implementing a PostToolUse hook is the architectural best practice for data normalization in agentic workflows. By intercepting the tool output and standardizing the date formats before the data reaches the model, you ensure that the model always receives consistent, high-quality data. This centralizes the logic and decouples data parsing from the LLM's reasoning.\nC: A PreToolCall hook modifies tool arguments before they are sent. However, this solution assumes that the underlying third-party MCP tools are designed to accept and process a format parameter, which is unlikely for heterogeneous regional carrier APIs. It does not solve the problem if the tool cannot change its output format.\nD: Creating an additional tool increases the complexity of the agentic loop, adds latency, and increases cost. It also relies on the model consistently deciding to call the converter tool, which introduces a point of failure if the model attempts to calculate the SLA using the raw data directly.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24133)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Update the system prompt with few-shot examples demonstrating how to convert Unix epoch and DD-MM-YYYY formats into ISO 8601 before calculating SLAs.",
+        "Implement a PostToolUse hook that detects the tool source, parses the specific date format into a standard ISO 8601 string, and replaces the raw output before returning the result to the model.",
+        "Implement a PreToolCall hook to inject a requested_format=\"ISO8601\" parameter into the outgoing tool arguments for all three carrier tools.",
+        "Create a separate DateConverter tool and instruct the model in the system prompt to call it every time it receives a date from the logistics tools."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-020",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A software development multi-agent system writes code based on user requirements. The Coordinator delegates code generation to a CoderAgent and then passes the output to a ReviewerAgent for evaluation. Often, the ReviewerAgent identifies critical security flaws, but the Coordinator simply outputs the flawed code along with the reviewer's warnings to the user. How should the Coordinator's logic be improved?\n",
+      "options": {
+        "A": "The ReviewerAgent should be granted tool access to directly modify the code repository without Coordinator intervention.",
+        "B": "The Coordinator should implement an iterative loop where it evaluates the ReviewerAgent's feedback, and if flaws exist, re-delegates the code and feedback back to the CoderAgent for fixing before final output.",
+        "C": "The CoderAgent's system prompt should be updated to include a comprehensive list of all known security vulnerabilities to prevent flaws proactively.",
+        "D": "The Coordinator should merge the CoderAgent and ReviewerAgent into a single prompt to avoid generating conflicting outputs."
+      },
+      "correct": "B",
+      "explanation": "A: Granting direct modification access to the ReviewerAgent bypasses the Coordinator's oversight and control, introduces significant security and auditability risks, and conflates the distinct roles of reviewer and executor. The Coordinator should remain the central point of mediation to ensure authorized and validated changes.\nB: This is the correct architectural approach. The Coordinator should implement an iterative refinement loop that evaluates feedback and re-delegates tasks until quality thresholds are met. This ensures flaws are remediated before reaching the user, preserves the separation of concerns, and leverages the specialized capabilities of each agent.\nC: While improving the CoderAgent's system prompt is a helpful proactive measure, it is insufficient to replace a feedback loop. LLMs cannot guarantee coverage of all vulnerabilities through a prompt alone; a robust orchestration pattern is required to verify outputs and handle edge cases dynamically.\nD: Merging the agents into a single prompt reduces modularity and compromises the benefits of specialization. Independent agents allow for unbiased reviews and clearer accountability. The issue lies in orchestration logic, not in agent separation; keeping them distinct provides a better 'double-check' mechanism.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24010)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "The ReviewerAgent should be granted tool access to directly modify the code repository without Coordinator intervention.",
+        "The Coordinator should implement an iterative loop where it evaluates the ReviewerAgent's feedback, and if flaws exist, re-delegates the code and feedback back to the CoderAgent for fixing before final output.",
+        "The CoderAgent's system prompt should be updated to include a comprehensive list of all known security vulnerabilities to prevent flaws proactively.",
+        "The Coordinator should merge the CoderAgent and ReviewerAgent into a single prompt to avoid generating conflicting outputs."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-021",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An ISP support bot must troubleshoot a connection, check for regional outages, and then schedule a technician if needed. The bot sometimes schedules a technician during a known regional outage, wasting resources. How can the architect enforce the correct workflow order?\n",
+      "options": {
+        "A": "Implement a prerequisite gate in the orchestration layer that only adds the `schedule_technician` tool to the model's available tools after the `check_outage` tool returns a negative result.",
+        "B": "Add a penalty to the model's generation if it attempts to output the `schedule_technician` tool call first.",
+        "C": "Combine `check_outage` and `schedule_technician` into a single tool and let the LLM decide the internal execution order.",
+        "D": "Use a prompt injection technique to remind the model of the correct order at every turn."
+      },
+      "correct": "A",
+      "explanation": "A: Correct. Implementing a prerequisite gate in the orchestration layer is a deterministic way to enforce workflow order. By only exposing the `schedule_technician` tool after `check_outage` has been called and returned a specific result, the orchestrator moves logic enforcement out of the model's 'soft' constraints and into the system's architecture, preventing invalid tool calls.\nB: Incorrect. Adding penalties (like logit bias) is a probabilistic approach and does not provide a hard guarantee. The model may still attempt to schedule a technician despite the penalty, especially if other parts of the context strongly suggest it.\nC: Incorrect. Combining tools into a single monolithic tool reduces observability, makes debugging harder, and still relies on the LLM (or internal code logic) to make the correct decision without the orchestrator's oversight. It does not provide the state-based enforcement needed for reliable workflows.\nD: Incorrect. Relying on prompts to remind the model of rules is a 'soft' constraint. Models can still hallucinate or skip steps when prompts are long or complex. Furthermore, 'prompt injection' is typically a security vulnerability rather than a design pattern.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24088)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Implement a prerequisite gate in the orchestration layer that only adds the `schedule_technician` tool to the model's available tools after the `check_outage` tool returns a negative result.",
+        "Add a penalty to the model's generation if it attempts to output the `schedule_technician` tool call first.",
+        "Combine `check_outage` and `schedule_technician` into a single tool and let the LLM decide the internal execution order.",
+        "Use a prompt injection technique to remind the model of the correct order at every turn."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-022",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An e-commerce bot is authorized to process refunds. Occasionally, the bot calls the `process_refund` tool using hallucinated customer IDs or IDs that have not been verified in the current session. How can the architect prevent this behavior entirely?\n",
+      "options": {
+        "A": "Add a system prompt instruction: 'Do not hallucinate customer IDs. Only use IDs returned by the get_customer tool.'",
+        "B": "Use a vector database to store valid customer IDs and use RAG to inject them into the prompt before the bot decides to refund.",
+        "C": "Change the `process_refund` tool schema to make the `customer_id` parameter optional, allowing the backend to infer it.",
+        "D": "Wrap the `process_refund` tool in application logic that checks for a verified customer ID in the session state, returning a programmatic error to the model if missing."
+      },
+      "correct": "D",
+      "explanation": "A: While system prompt instructions can guide the bot's behavior and reduce hallucinations, they are advisory constraints rather than enforceable programmatic guards. Models can still ignore or misapply instructions, meaning this does not provide an authoritative runtime guarantee.\nB: Using a vector database and RAG helps the model retrieve valid IDs, but it does not prevent the model from fabricating a value or selecting an ID that belongs to a different customer. It does not address session-level verification or provide a strict enforcement mechanism.\nC: Making the customer_id optional removes a critical safety check and forces the backend to guess or infer the identity. This increases the risk of processing refunds for the wrong user and weakens the tool's schema enforcement.\nD: The most robust architectural pattern is to wrap tool execution in application logic (a shim or middleware) that validates arguments against the current session state. By checking for a verified customer ID in the application context and returning a programmatic error to the model if the ID is missing or invalid, you ensure the refund cannot proceed unless session-level requirements are met.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24080)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Add a system prompt instruction: 'Do not hallucinate customer IDs. Only use IDs returned by the get_customer tool.'",
+        "Use a vector database to store valid customer IDs and use RAG to inject them into the prompt before the bot decides to refund.",
+        "Change the `process_refund` tool schema to make the `customer_id` parameter optional, allowing the backend to infer it.",
+        "Wrap the `process_refund` tool in application logic that checks for a verified customer ID in the session state, returning a programmatic error to the model if missing."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-023",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An engineering team is using Claude to review massive pull requests spanning over 50 files. They notice that while Claude catches local syntax errors, it frequently misses subtle cross-file dependency issues and suffers from attention dilution, hallucinating variable names from unrelated files. How should the architect redesign the review workflow?\n",
+      "options": {
+        "A": "Split the workflow into per-file local analysis passes, followed by a separate cross-file integration pass.",
+        "B": "Use dynamic adaptive decomposition to allow Claude to decide which files are most important to read.",
+        "C": "Chunk the pull request into 5-file batches and run them completely independently to reduce context size.",
+        "D": "Increase the model's temperature and use a single prompt with XML tags separating the files."
+      },
+      "correct": "A",
+      "explanation": "A: Correct. This is a classic decomposition strategy (Map-Reduce pattern). By splitting the task into local per-file passes, the architect reduces the context noise and attention dilution for individual file logic. The subsequent integration pass focuses specifically on the interaction between summarized symbols, allowing the model to focus on cross-file dependencies without the 'dilution' of full file contents.\nB: Incorrect. While adaptive decomposition is useful in some agentic workflows, allowing the model to decide 'which files are important' before it has fully analyzed the PR risks missing the 'subtle' dependencies mentioned in the prompt. It doesn't guarantee a comprehensive review of the entire code change.\nC: Incorrect. Running batches 'completely independently' is the fastest way to lose cross-file context. Dependencies between files in Batch 1 and Batch 2 would be entirely invisible to the model, failing the primary requirement of the redesign.\nD: Incorrect. Increasing temperature increases stochasticity (randomness), which generally increases hallucinations rather than reducing them. Furthermore, forcing all 50 files into a single prompt (even with XML tags) causes the 'attention dilution' and 'middle-of-the-context' neglect mentioned in the problem description.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23979)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Split the workflow into per-file local analysis passes, followed by a separate cross-file integration pass.",
+        "Use dynamic adaptive decomposition to allow Claude to decide which files are most important to read.",
+        "Chunk the pull request into 5-file batches and run them completely independently to reduce context size.",
+        "Increase the model's temperature and use a single prompt with XML tags separating the files."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-024",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A retail banking agent processes customer fee reversals using a `reverse_fee` tool. Business rules dictate that any reversal exceeding $500 requires human manager approval. The current implementation relies on a system prompt instruction to enforce this rule, but the agent recently processed a $600 reversal autonomously. How should you redesign the architecture to strictly enforce this compliance rule?\n",
+      "options": {
+        "A": "Decrease the model's temperature to 0.0 to ensure deterministic adherence to the system prompt instructions regarding the $500 limit.",
+        "B": "Implement a PostToolUse hook that checks the API response for the reversed amount and immediately calls a `revert_transaction` tool if it exceeds $500.",
+        "C": "Implement a PreToolCall hook on the `reverse_fee` tool that inspects the `amount` argument, blocks the execution if it exceeds 500, and returns a system message triggering the human escalation workflow.",
+        "D": "Fine-tune the model on a dataset of 10,000 fee reversal scenarios where amounts over $500 are explicitly routed to human managers."
+      },
+      "correct": "C",
+      "explanation": "A: Lowering the model's temperature to 0.0 reduces randomness but does not provide a guarantee of adherence to business rules. Compliance must be enforced at the orchestration layer through deterministic hooks or guards rather than relying on the probabilistic sampling parameters of the LLM.\nB: A PostToolUse hook is reactive, meaning the unauthorized transaction has already occurred before the system attempts to revert it. This creates significant compliance, auditing, and customer-impact risks. Strict enforcement requires blocking disallowed actions before execution.\nC: A PreToolCall hook allows the orchestration layer to inspect tool arguments (like the reversal amount) before the tool is executed. This provides a deterministic, programmatic boundary that can block execution and trigger a human-in-the-loop escalation workflow, ensuring the rule is never bypassed.\nD: Fine-tuning is probabilistic and cannot guarantee 100% adherence to specific numerical constraints. Architectural controls (like SDK hooks) are the correct solution for provable, auditable enforcement of hard business rules.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24134)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Decrease the model's temperature to 0.0 to ensure deterministic adherence to the system prompt instructions regarding the $500 limit.",
+        "Implement a PostToolUse hook that checks the API response for the reversed amount and immediately calls a `revert_transaction` tool if it exceeds $500.",
+        "Implement a PreToolCall hook on the `reverse_fee` tool that inspects the `amount` argument, blocks the execution if it exceeds 500, and returns a system message triggering the human escalation workflow.",
+        "Fine-tune the model on a dataset of 10,000 fee reversal scenarios where amounts over $500 are explicitly routed to human managers."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-025",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An agentic workflow involves Claude exploring a database schema via tool use to write complex SQL business logic. Halfway through the session, the underlying database schema is significantly altered. How should the architect handle the session state to ensure the highest accuracy for the remaining task?\n",
+      "options": {
+        "A": "Use --resume to continue the previous session so Claude remembers the business logic, as the tool results will automatically update.",
+        "B": "Start a new session providing a structured summary of the business goals and the new schema, because the prior tool results are now stale and misleading.",
+        "C": "Use fork_session from the point before the SQL queries were executed to maintain the original context without the stale data.",
+        "D": "Resume the session and instruct Claude to run a full database re-exploration script to overwrite its previous context."
+      },
+      "correct": "B",
+      "explanation": "A: Resuming a session preserves the exact conversation history, including previous tool outputs. These results are static and do not automatically update. Relying on this would lead to Claude using outdated and misleading information for its reasoning, as the prior schema exploration results are now incorrect.\nB: This is the best practice for handling significant environment changes. Starting a new session ensures a clean state without contamination from stale tool results. Providing a structured summary of the business goals preserves the relevant logic while introducing the new schema as the fresh source of truth, maximizing accuracy.\nC: Forking is typically used for exploring alternative reasoning paths or branching experiments. If the underlying schema has changed significantly, forking still carries the risk of including outdated context or assumptions from the original session that are no longer valid, making a clean session a more robust architectural pattern.\nD: Resuming and re-exploring is inefficient and risks context contamination. Claude would have both the old schema data and the new schema data in its context window, which can lead to confusion and reasoning errors. It is cleaner and more reliable to start a fresh session when the environment fundamentally shifts.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24229)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Use --resume to continue the previous session so Claude remembers the business logic, as the tool results will automatically update.",
+        "Start a new session providing a structured summary of the business goals and the new schema, because the prior tool results are now stale and misleading.",
+        "Use fork_session from the point before the SQL queries were executed to maintain the original context without the stale data.",
+        "Resume the session and instruct Claude to run a full database re-exploration script to overwrite its previous context."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-026",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial institution is building an automated compliance review system for standard vendor contracts. The workflow always requires extracting liability clauses, checking data privacy terms against a standard rubric, and generating a final risk score based on the extracted data. Which task decomposition strategy is most appropriate for this architecture?\n",
+      "options": {
+        "A": "Dynamic adaptive decomposition, allowing the agent to determine the review order based on the contract's contents.",
+        "B": "A fixed sequential pipeline (prompt chaining) that executes the extraction, rubric check, and scoring in a predictable order.",
+        "C": "A single zero-shot prompt that asks the model to perform extraction, checking, and scoring simultaneously to save tokens.",
+        "D": "Parallel independent agents that each read the document and vote on the final risk score."
+      },
+      "correct": "B",
+      "explanation": "A: Incorrect. Dynamic adaptive decomposition is best for complex tasks where the subtasks are not predefined. According to Anthropic's documentation, this 'Orchestrator-Workers' workflow is for when an orchestrator must dynamically determine steps. The scenario describes a fixed, predictable workflow, making a static approach more appropriate.\nB: Correct. Anthropic's official documentation recommends a fixed sequential pipeline (prompt chaining) for tasks that can be cleanly decomposed into fixed subtasks. This approach improves accuracy for each step, simplifies troubleshooting, and allows for programmatic checks or 'gates' between steps, which is critical for ensuring compliance and reliability in a financial institution's workflow.\nC: Incorrect. While a single prompt may use fewer tokens, decomposing a complex task into a chain of simpler, more focused prompts generally leads to higher accuracy and consistency. For a high-stakes compliance use case, the improved reliability and auditability of a multi-step process outweigh the benefits of token savings.\nD: Incorrect. The described workflow is inherently sequential; the rubric check depends on the output of the extraction, and the final score depends on the outputs of the first two steps. Parallel processing is not suitable because the tasks are dependent, not independent. Anthropic documentation suggests parallel workflows for tasks where multiple aspects can be processed concurrently.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=28733)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Dynamic adaptive decomposition, allowing the agent to determine the review order based on the contract's contents.",
+        "A fixed sequential pipeline (prompt chaining) that executes the extraction, rubric check, and scoring in a predictable order.",
+        "A single zero-shot prompt that asks the model to perform extraction, checking, and scoring simultaneously to save tokens.",
+        "Parallel independent agents that each read the document and vote on the final risk score."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-027",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An architecture review agent is analyzing a 100-page technical specification. It must verify security compliance, performance requirements, and data model consistency. Currently, the agent is instructed to check all three domains in a single pass, but it frequently misses critical security flaws due to attention dilution. How should the architect restructure the workflow?\n",
+      "options": {
+        "A": "Implement a fixed prompt chain that performs three separate sequential passes over the document, one dedicated to each specific domain.",
+        "B": "Use dynamic decomposition to allow the agent to decide which pages are most relevant for security, performance, and data.",
+        "C": "Compress the document using a summarization agent before performing the three-domain review.",
+        "D": "Increase the context window size and use a more complex system prompt with strict XML formatting."
+      },
+      "correct": "A",
+      "explanation": "A: Correct. Implementing a fixed prompt chain with separate passes ensures that the agent focuses on one domain at a time (e.g., security), effectively eliminating attention dilution. This structured approach enhances thoroughness and recall, ensuring that every page is evaluated against a specific set of criteria without the interference of unrelated objectives.\nB: Incorrect. While dynamic decomposition can improve efficiency, it introduces a significant risk of 'selection bias.' If the agent misidentifies a section as irrelevant during the planning phase, critical security flaws in that section will be missed. For high-stakes compliance and verification tasks, exhaustive sequential review is more reliable than selective dynamic review.\nC: Incorrect. Summarization is a lossy process. Technical specifications contain nuanced details, and security vulnerabilities are often found in fine-grained implementation details that a summarization agent would likely strip away for brevity.\nD: Incorrect. Increasing the context window or the complexity of the prompt does not solve the cognitive load issue. LLMs consistently demonstrate higher accuracy when tasks are decomposed into focused sub-tasks rather than being asked to perform multiple complex analyses in a single, large-context pass.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23984)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Implement a fixed prompt chain that performs three separate sequential passes over the document, one dedicated to each specific domain.",
+        "Use dynamic decomposition to allow the agent to decide which pages are most relevant for security, performance, and data.",
+        "Compress the document using a summarization agent before performing the three-domain review.",
+        "Increase the context window size and use a more complex system prompt with strict XML formatting."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-028",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A developer is building an autonomous research agent. To determine when the agent has finished its research, the developer's code checks if the assistant's response contains the phrase 'Research complete:'. If this phrase is found, the agent's main loop terminates. What is the architectural assessment of this approach?\n",
+      "options": {
+        "A": "This is a best practice, provided the system prompt strongly enforces the exact phrasing of 'Research complete:' using XML tags.",
+        "B": "This is an anti-pattern because it relies on parsing non-deterministic natural language for control flow. The developer should instead instruct the model to call a specific tool, such as `research_complete()`, to signal task completion.",
+        "C": "This is an anti-pattern; the developer should instead evaluate if `stop_reason` equals `end_turn` to safely and deterministically terminate the loop.",
+        "D": "This is an anti-pattern; the developer should instead check for a specific `stop_sequence` like `</research_complete>` in the API request."
+      },
+      "correct": "B",
+      "explanation": "A: Incorrect. Relying on parsing natural language for control flow is a known anti-pattern, as model outputs are non-deterministic. Even with strong prompting and XML tags, the model may not consistently produce the exact string, leading to a brittle and unreliable system. The architecturally sound approach is to use a deterministic mechanism.\nB: Correct. According to Anthropic's documentation and best practices, parsing natural language for control flow is unreliable. The recommended approach is to use the tool-use feature. Defining a `research_complete()` tool provides a structured, deterministic, and machine-readable signal for task completion. When the model calls this tool, the API responds with `stop_reason: \"tool_use\"`, which is the proper way to handle agentic control flow.\nC: Incorrect. The `stop_reason` `end_turn` indicates that the model has finished generating its content for a single API call. In a multi-step agentic loop, this would happen after every turn, causing the agent to terminate prematurely. It does not signify that the overall task is complete.\nD: Incorrect. While using a `stop_sequence` can halt text generation, it is a less robust and less explicit mechanism for agentic control flow compared to tool calling. Tool calling is the purpose-built feature for having the model signal a specific, structured action. It provides a clearer, more reliable architectural pattern for managing agent state and task completion.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=32836)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "This is a best practice, provided the system prompt strongly enforces the exact phrasing of 'Research complete:' using XML tags.",
+        "This is an anti-pattern because it relies on parsing non-deterministic natural language for control flow. The developer should instead instruct the model to call a specific tool, such as `research_complete()`, to signal task completion.",
+        "This is an anti-pattern; the developer should instead evaluate if `stop_reason` equals `end_turn` to safely and deterministically terminate the loop.",
+        "This is an anti-pattern; the developer should instead check for a specific `stop_sequence` like `</research_complete>` in the API request."
+      ]
+    },
+    {
+      "id": "certsafari-domain-1-agentic-029",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A travel booking system uses a pre-configured sequence in its code: `SearchFlights` -> `SelectCheapest` -> `BookFlight`. A user requests a flight, but adds 'Only book if it's under $500, otherwise just tell me the price.' The pre-configured sequence executes and books a $600 flight anyway. How should the architect redesign this to support the user's request?\n",
+      "options": {
+        "A": "Add a `CheckPrice` tool to the pre-configured sequence between `SelectCheapest` and `BookFlight` to halt execution if the price exceeds $500.",
+        "B": "Transition to a model-driven agentic loop where Claude evaluates the `SearchFlights` result against the user's constraints before autonomously deciding whether to call `BookFlight` or return text.",
+        "C": "Implement an application-side `if/else` statement that parses Claude's text output for a dollar amount before allowing the pre-configured sequence to execute the booking tool.",
+        "D": "Use the `tool_choice` parameter to force Claude to output a JSON object containing the price, then use a separate Python script to trigger the booking."
+      },
+      "correct": "B",
+      "explanation": "A: Adding a tool to a hardcoded sequence remains a rigid architectural approach. It fails to leverage the model's reasoning capabilities to interpret varied user constraints and requires manual updates to the code for every new type of user condition.\nB: A model-driven agentic loop allows Claude to observe the output of one tool (SearchFlights), reason about it in the context of the user's specific prompt (the $500 limit), and autonomously decide the next action. This provides the flexibility needed to handle dynamic constraints that fixed chains or DAGs cannot easily accommodate.\nC: Attempting to parse free-text output from an LLM to drive application logic is brittle and prone to failure if the model changes its phrasing. It also keeps the decision-making logic outside of the agent's context, leading to a fragmented architecture.\nD: While structured output (JSON) is useful, using external scripts to orchestrate the final tool call creates a disjointed system. This approach prevents the agent from performing self-correction or multi-step reasoning within a single conversational turn.\n",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24160)",
+      "source_file": "certs/cca-f/domain-1-agentic/certsafari-questions.md",
+      "options_array": [
+        "Add a `CheckPrice` tool to the pre-configured sequence between `SelectCheapest` and `BookFlight` to halt execution if the price exceeds $500.",
+        "Transition to a model-driven agentic loop where Claude evaluates the `SearchFlights` result against the user's constraints before autonomously deciding whether to call `BookFlight` or return text.",
+        "Implement an application-side `if/else` statement that parses Claude's text output for a dollar amount before allowing the pre-configured sequence to execute the booking tool.",
+        "Use the `tool_choice` parameter to force Claude to output a JSON object containing the price, then use a separate Python script to trigger the booking."
+      ]
+    },
+    {
+      "id": "official-domain-1-agentic-01",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nProduction data shows that in 12% of cases, your agent skips get_customer entirely and calls lookup_order using only the customer's stated name, occasionally leading to misidentified accounts and incorrect refunds. What change would most effectively address this reliability issue?\n",
+      "options": {
+        "A": "Add a programmatic prerequisite that blocks lookup_order and process_refund calls until get_customer has returned a verified customer ID.",
+        "B": "Enhance the system prompt to state that customer verification via get_customer is mandatory before any order operations.",
+        "C": "Add few-shot examples showing the agent always calling get_customer first, even when customers volunteer order details.",
+        "D": "Implement a routing classifier that analyzes each request and enables only the subset of tools appropriate for that request type."
+      },
+      "correct": "A",
+      "explanation": "When a specific tool sequence is required for critical business logic (like verifying customer identity before processing refunds), programmatic enforcement provides deterministic guarantees that prompt-based approaches cannot. Options B and C rely on probabilistic LLM compliance, which is insufficient when errors have financial consequences. Option D addresses tool availability rather than tool ordering, which is not the actual problem.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-1-agentic/official-sample-questions.md",
+      "options_array": [
+        "Add a programmatic prerequisite that blocks lookup_order and process_refund calls until get_customer has returned a verified customer ID.",
+        "Enhance the system prompt to state that customer verification via get_customer is mandatory before any order operations.",
+        "Add few-shot examples showing the agent always calling get_customer first, even when customers volunteer order details.",
+        "Implement a routing classifier that analyzes each request and enables only the subset of tools appropriate for that request type."
+      ]
+    },
+    {
+      "id": "official-domain-1-agentic-02",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nAfter running the system on the topic \"impact of AI on creative industries,\" you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarizes papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: \"AI in digital art creation,\" \"AI in graphic design,\" and \"AI in photography.\" What is the most likely root cause?\n",
+      "options": {
+        "A": "The synthesis agent lacks instructions for identifying coverage gaps in the findings it receives from other agents.",
+        "B": "The coordinator agent's task decomposition is too narrow, resulting in subagent assignments that don't cover all relevant domains of the topic.",
+        "C": "The web search agent's queries are not comprehensive enough and need to be expanded to cover more creative industry sectors.",
+        "D": "The document analysis agent is filtering out sources related to non-visual creative industries due to overly restrictive relevance criteria."
+      },
+      "correct": "B",
+      "explanation": "The coordinator's logs reveal the root cause directly: it decomposed \"creative industries\" into only visual arts subtasks (digital art, graphic design, photography), completely omitting music, writing, and film. The subagents executed their assigned tasks correctly—the problem is what they were assigned. Options A, C, and D incorrectly blame downstream agents that are working correctly within their assigned scope.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-1-agentic/official-sample-questions.md",
+      "options_array": [
+        "The synthesis agent lacks instructions for identifying coverage gaps in the findings it receives from other agents.",
+        "The coordinator agent's task decomposition is too narrow, resulting in subagent assignments that don't cover all relevant domains of the topic.",
+        "The web search agent's queries are not comprehensive enough and need to be expanded to cover more creative industry sectors.",
+        "The document analysis agent is filtering out sources related to non-visual creative industries due to overly restrictive relevance criteria."
+      ]
+    },
+    {
+      "id": "official-domain-2-claude-code-01",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYou want to create a custom /review slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository. Where should you create this command file?\n",
+      "options": {
+        "A": "In the .claude/commands/ directory in the project repository",
+        "B": "In ~/.claude/commands/ in each developer's home directory",
+        "C": "In the CLAUDE.md file at the project root",
+        "D": "In a .claude/config.json file with a commands array"
+      },
+      "correct": "A",
+      "explanation": "Project-scoped custom slash commands should be stored in the .claude/commands/ directory within the repository. These commands are version-controlled and automatically available to all developers when they clone or pull the repo. Option B (~/.claude/commands/) is for personal commands that aren't shared via version control. Option C (CLAUDE.md) is for project instructions and context, not command definitions. Option D describes a configuration mechanism that doesn't exist in Claude Code.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-2-claude-code/official-sample-questions.md",
+      "options_array": [
+        "In the .claude/commands/ directory in the project repository",
+        "In ~/.claude/commands/ in each developer's home directory",
+        "In the CLAUDE.md file at the project root",
+        "In a .claude/config.json file with a commands array"
+      ]
+    },
+    {
+      "id": "official-domain-2-claude-code-02",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYou've been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies. Which approach should you take?\n",
+      "options": {
+        "A": "Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes.",
+        "B": "Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries.",
+        "C": "Use direct execution with comprehensive upfront instructions detailing exactly how each service should be structured.",
+        "D": "Begin in direct execution mode and only switch to plan mode if you encounter unexpected complexity during implementation."
+      },
+      "correct": "A",
+      "explanation": "Plan mode is designed for complex tasks involving large-scale changes, multiple valid approaches, and architectural decisions—exactly what monolith-to-microservices restructuring requires. It enables safe codebase exploration and design before committing to changes. Option B risks costly rework when dependencies are discovered late. Option C assumes you already know the right structure without exploring the code. Option D ignores that the complexity is already stated in the requirements, not something that might emerge later.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-2-claude-code/official-sample-questions.md",
+      "options_array": [
+        "Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes.",
+        "Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries.",
+        "Use direct execution with comprehensive upfront instructions detailing exactly how each service should be structured.",
+        "Begin in direct execution mode and only switch to plan mode if you encounter unexpected complexity during implementation."
+      ]
+    },
+    {
+      "id": "official-domain-2-claude-code-03",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYour codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g., Button.test.tsx next to Button.tsx), and you want all tests to follow the same conventions regardless of location. What's the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?\n",
+      "options": {
+        "A": "Create rule files in .claude/rules/ with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths",
+        "B": "Consolidate all conventions in the root CLAUDE.md file under headers for each area, relying on Claude to infer which section applies",
+        "C": "Create skills in .claude/skills/ for each code type that include the relevant conventions in their SKILL.md files",
+        "D": "Place a separate CLAUDE.md file in each subdirectory containing that area's specific conventions"
+      },
+      "correct": "A",
+      "explanation": "Option A is correct because .claude/rules/ with glob patterns (e.g., **/*.test.tsx) allows conventions to be automatically applied based on file paths regardless of directory location—essential for test files spread throughout the codebase. Option B relies on inference rather than explicit matching, making it unreliable. Option C requires manual skill invocation or relies on Claude choosing to load them, contradicting the need for deterministic \"automatic\" application based on file paths. Option D can't easily handle files spread across many directories since CLAUDE.md files are directory-bound.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-2-claude-code/official-sample-questions.md",
+      "options_array": [
+        "Create rule files in .claude/rules/ with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths",
+        "Consolidate all conventions in the root CLAUDE.md file under headers for each area, relying on Claude to infer which section applies",
+        "Create skills in .claude/skills/ for each code type that include the relevant conventions in their SKILL.md files",
+        "Place a separate CLAUDE.md file in each subdirectory containing that area's specific conventions"
+      ]
+    },
+    {
+      "id": "official-domain-2-claude-code-04",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for Continuous Integration.\n\nYour pipeline script runs claude \"Analyze this pull request for security issues\" but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input. What's the correct approach to run Claude Code in an automated pipeline?\n",
+      "options": {
+        "A": "Add the -p flag, claude -p \"Analyze this pull request for security issues\"",
+        "B": "Set the environment variable CLAUDE_HEADLESS=true before running the command",
+        "C": "Redirect stdin from /dev/null, claude \"Analyze this pull request for security issues\" < /dev/null",
+        "D": "Add the --batch flag, claude --batch \"Analyze this pull request for security issues\""
+      },
+      "correct": "A",
+      "explanation": "The -p (or --print) flag is the documented way to run Claude Code in non-interactive mode. It processes the prompt, outputs the result to stdout, and exits without waiting for user input—exactly what CI/CD pipelines require. The other options reference non-existent features (CLAUDE_HEADLESS environment variable, --batch flag) or use Unix workarounds that don't properly address Claude Code's command syntax.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-2-claude-code/official-sample-questions.md",
+      "options_array": [
+        "Add the -p flag, claude -p \"Analyze this pull request for security issues\"",
+        "Set the environment variable CLAUDE_HEADLESS=true before running the command",
+        "Redirect stdin from /dev/null, claude \"Analyze this pull request for security issues\" < /dev/null",
+        "Add the --batch flag, claude --batch \"Analyze this pull request for security issues\""
+      ]
+    },
+    {
+      "id": "official-domain-3-prompt-engineering-01",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for Continuous Integration.\n\nYour team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings. How should you evaluate this proposal?\n",
+      "options": {
+        "A": "Use batch processing for the technical debt reports only; keep real-time calls for pre-merge checks.",
+        "B": "Switch both workflows to batch processing with status polling to check for completion.",
+        "C": "Keep real-time calls for both workflows to avoid batch result ordering issues.",
+        "D": "Switch both to batch processing with a timeout fallback to real-time if batches take too long."
+      },
+      "correct": "A",
+      "explanation": "The Message Batches API offers 50% cost savings but has processing times up to 24 hours with no guaranteed latency SLA. This makes it unsuitable for blocking pre-merge checks where developers wait for results, but ideal for overnight batch jobs like technical debt reports. Option B is wrong because relying on \"often faster\" completion isn't acceptable for blocking workflows. Option C reflects a misconception—batch results can be correlated using custom_id fields. Option D adds unnecessary complexity when the simpler solution is matching each API to its appropriate use case.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-3-prompt-engineering/official-sample-questions.md",
+      "options_array": [
+        "Use batch processing for the technical debt reports only; keep real-time calls for pre-merge checks.",
+        "Switch both workflows to batch processing with status polling to check for completion.",
+        "Keep real-time calls for both workflows to avoid batch result ordering issues.",
+        "Switch both to batch processing with a timeout fallback to real-time if batches take too long."
+      ]
+    },
+    {
+      "id": "official-domain-3-prompt-engineering-02",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for Continuous Integration.\n\nA pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback—flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR. How should you restructure the review?\n",
+      "options": {
+        "A": "Split into focused passes, analyze each file individually for local issues, then run a separate integration-focused pass examining cross-file data flow.",
+        "B": "Require developers to split large PRs into smaller submissions of 3-4 files before the automated review runs.",
+        "C": "Switch to a higher-tier model with a larger context window to give all 14 files adequate attention in one pass.",
+        "D": "Run three independent review passes on the full PR and only flag issues that appear in at least two of the three runs."
+      },
+      "correct": "A",
+      "explanation": "Splitting reviews into focused passes directly addresses the root cause: attention dilution when processing many files at once. File-by-file analysis ensures consistent depth, while a separate integration pass catches cross-file issues. Option B shifts burden to developers without improving the system. Option C misunderstands that larger context windows don't solve attention quality issues. Option D would actually suppress detection of real bugs by requiring consensus on issues that may only be caught intermittently.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-3-prompt-engineering/official-sample-questions.md",
+      "options_array": [
+        "Split into focused passes, analyze each file individually for local issues, then run a separate integration-focused pass examining cross-file data flow.",
+        "Require developers to split large PRs into smaller submissions of 3-4 files before the automated review runs.",
+        "Switch to a higher-tier model with a larger context window to give all 14 files adequate attention in one pass.",
+        "Run three independent review passes on the full PR and only flag issues that appear in at least two of the three runs."
+      ]
+    },
+    {
+      "id": "official-domain-4-mcp-01",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nProduction logs show the agent frequently calls get_customer when users ask about orders (e.g., \"check my order #12345\"), instead of calling lookup_order. Both tools have minimal descriptions (\"Retrieves customer information\" / \"Retrieves order details\") and accept similar identifier formats. What's the most effective first step to improve tool selection reliability?\n",
+      "options": {
+        "A": "Add few-shot examples to the system prompt demonstrating correct tool selection patterns, with 5-8 examples showing order-related queries routing to lookup_order.",
+        "B": "Expand each tool's description to include input formats it handles, example queries, edge cases, and boundaries explaining when to use it versus similar tools.",
+        "C": "Implement a routing layer that parses user input before each turn and pre-selects the appropriate tool based on detected keywords and identifier patterns.",
+        "D": "Consolidate both tools into a single lookup_entity tool that accepts any identifier and internally determines which backend to query."
+      },
+      "correct": "B",
+      "explanation": "Tool descriptions are the primary mechanism LLMs use for tool selection. When descriptions are minimal, models lack the context to differentiate between similar tools. Option B directly addresses this root cause with a low-effort, high-leverage fix. Few-shot examples (A) add token overhead without fixing the underlying issue. A routing layer (C) is over-engineered and bypasses the LLM's natural language understanding. Consolidating tools (D) is a valid architectural choice but requires more effort than a \"first step\" warrants when the immediate problem is inadequate descriptions.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-4-mcp/official-sample-questions.md",
+      "options_array": [
+        "Add few-shot examples to the system prompt demonstrating correct tool selection patterns, with 5-8 examples showing order-related queries routing to lookup_order.",
+        "Expand each tool's description to include input formats it handles, example queries, edge cases, and boundaries explaining when to use it versus similar tools.",
+        "Implement a routing layer that parses user input before each turn and pre-selects the appropriate tool based on detected keywords and identifier patterns.",
+        "Consolidate both tools into a single lookup_entity tool that accepts any identifier and internally determines which backend to query."
+      ]
+    },
+    {
+      "id": "official-domain-4-mcp-02",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nDuring testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. Currently, when verification is needed, the synthesis agent returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with results. This adds 2-3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation. What's the most effective approach to reduce overhead while maintaining system reliability?\n",
+      "options": {
+        "A": "Give the synthesis agent a scoped verify_fact tool for simple lookups, while complex verifications continue delegating to the web search agent through the coordinator.",
+        "B": "Have the synthesis agent accumulate all verification needs and return them as a batch to the coordinator at the end of its pass, which then sends them all to the web search agent at once.",
+        "C": "Give the synthesis agent access to all web search tools so it can handle any verification need directly without round-trips through the coordinator.",
+        "D": "Have the web search agent proactively cache extra context around each source during initial research, anticipating what the synthesis agent might need to verify."
+      },
+      "correct": "A",
+      "explanation": "Option A applies the principle of least privilege by giving the synthesis agent only what it needs for the 85% common case (simple fact verification) while preserving the existing coordination pattern for complex cases. Option B's batching approach creates blocking dependencies since synthesis steps may depend on earlier verified facts. Option C over-provisions the synthesis agent, violating separation of concerns. Option D relies on speculative caching that cannot reliably predict what the synthesis agent will need to verify.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-4-mcp/official-sample-questions.md",
+      "options_array": [
+        "Give the synthesis agent a scoped verify_fact tool for simple lookups, while complex verifications continue delegating to the web search agent through the coordinator.",
+        "Have the synthesis agent accumulate all verification needs and return them as a batch to the coordinator at the end of its pass, which then sends them all to the web search agent at once.",
+        "Give the synthesis agent access to all web search tools so it can handle any verification need directly without round-trips through the coordinator.",
+        "Have the web search agent proactively cache extra context around each source during initial research, anticipating what the synthesis agent might need to verify."
+      ]
+    },
+    {
+      "id": "official-domain-5-context-01",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nYour agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions. What's the most effective way to improve escalation calibration?\n",
+      "options": {
+        "A": "Add explicit escalation criteria to your system prompt with few-shot examples demonstrating when to escalate versus resolve autonomously.",
+        "B": "Have the agent self-report a confidence score (1-10) before each response and automatically route requests to humans when confidence falls below a threshold.",
+        "C": "Deploy a separate classifier model trained on historical tickets to predict which requests need escalation before the main agent begins processing.",
+        "D": "Implement sentiment analysis to detect customer frustration levels and automatically escalate when negative sentiment exceeds a threshold."
+      },
+      "correct": "A",
+      "explanation": "Adding explicit escalation criteria with few-shot examples directly addresses the root cause: unclear decision boundaries. This is the proportionate first response before adding infrastructure. Option B fails because LLM self-reported confidence is poorly calibrated—the agent is already incorrectly confident on hard cases. Option C is over-engineered, requiring labeled data and ML infrastructure when prompt optimization hasn't been tried. Option D solves a different problem entirely; sentiment doesn't correlate with case complexity, which is the actual issue.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-5-context/official-sample-questions.md",
+      "options_array": [
+        "Add explicit escalation criteria to your system prompt with few-shot examples demonstrating when to escalate versus resolve autonomously.",
+        "Have the agent self-report a confidence score (1-10) before each response and automatically route requests to humans when confidence falls below a threshold.",
+        "Deploy a separate classifier model trained on historical tickets to predict which requests need escalation before the main agent begins processing.",
+        "Implement sentiment analysis to detect customer frustration levels and automatically escalate when negative sentiment exceeds a threshold."
+      ]
+    },
+    {
+      "id": "official-domain-5-context-02",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nThe web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent. Which error propagation approach best enables intelligent recovery?\n",
+      "options": {
+        "A": "Return structured error context to the coordinator including the failure type, the attempted query, any partial results, and potential alternative approaches.",
+        "B": "Implement automatic retry logic with exponential backoff within the subagent, returning a generic \"search unavailable\" status only after all retries are exhausted.",
+        "C": "Catch the timeout within the subagent and return an empty result set marked as successful.",
+        "D": "Propagate the timeout exception directly to a top-level handler that terminates the entire research workflow."
+      },
+      "correct": "A",
+      "explanation": "Structured error context gives the coordinator the information it needs to make intelligent recovery decisions—whether to retry with a modified query, try an alternative approach, or proceed with partial results. Option B's generic status hides valuable context from the coordinator, preventing informed decisions. Option C suppresses the error by marking failure as success, which prevents any recovery and risks incomplete research outputs. Option D terminates the entire workflow unnecessarily when recovery strategies could succeed.\n",
+      "source-note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md",
+      "source_file": "certs/cca-f/domain-5-context/official-sample-questions.md",
+      "options_array": [
+        "Return structured error context to the coordinator including the failure type, the attempted query, any partial results, and potential alternative approaches.",
+        "Implement automatic retry logic with exponential backoff within the subagent, returning a generic \"search unavailable\" status only after all retries are exhausted.",
+        "Catch the timeout within the subagent and return an empty result set marked as successful.",
+        "Propagate the timeout exception directly to a top-level handler that terminates the entire research workflow."
+      ]
+    }
+  ]
+}

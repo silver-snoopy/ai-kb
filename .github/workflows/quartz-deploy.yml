@@ -43,6 +43,24 @@ jobs:
         working-directory: quartz
         run: npm run build:vault   # defined in quartz/package.json (Task 4.1 step 4)
 
+      - name: Build question bank for practice + review apps
+        run: |
+          cd scripts && npm ci && cd ..
+          node scripts/build-questions.mjs
+
+      - name: Copy static apps into Quartz output
+        # public/ at repo root contains the vanilla JS practice + review apps and
+        # the generated questions.json. Merge them into quartz/public/ so GitHub
+        # Pages serves /practice/, /review/, /index.html, /questions.json alongside
+        # the Quartz-rendered vault pages.
+        run: |
+          set -e
+          cp -r public/. quartz/public/
+          test -f quartz/public/questions.json
+          test -f quartz/public/practice/index.html
+          test -f quartz/public/review/index.html
+          ls -la quartz/public/practice quartz/public/review quartz/public/questions.json
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
