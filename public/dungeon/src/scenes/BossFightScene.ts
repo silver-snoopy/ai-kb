@@ -8,6 +8,7 @@ import type { Spellbook } from '../game/spellbook';
 import type { BossDefinition, CombatState, Question, QuestionsJson, RunMode, SessionLog, SpellId } from '../types';
 import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
+import { ProceduralBGM } from '../audio/bgm';
 
 interface BossFightData {
   bossId: string;
@@ -35,6 +36,9 @@ export class BossFightScene extends Phaser.Scene {
   // Sprite references for animations
   private heroSprite!: Phaser.GameObjects.Image;
   private bossSprite!: Phaser.GameObjects.Image;
+
+  // Per-boss procedural BGM (no asset dependency — generated via Web Audio)
+  private bgm = new ProceduralBGM();
 
   private acceptingInput = false;
   private currentQuestionIdx = 0;
@@ -179,6 +183,13 @@ export class BossFightScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
+
+    // Procedural BGM tied to boss id \u2014 stops on scene shutdown.
+    // Phaser's sound system already handled the user-gesture unlock, so
+    // its AudioContext is ready to accept scheduled notes here.
+    this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
+    this.events.once('shutdown', () => this.bgm.stop());
+    this.events.once('destroy', () => this.bgm.stop());
 
     this.nextQuestion();
   }
