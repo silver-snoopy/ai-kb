@@ -32,6 +32,10 @@ export class BossFightScene extends Phaser.Scene {
   private tauntText!: Phaser.GameObjects.Text;
   private primerText!: Phaser.GameObjects.Text;
 
+  // Sprite references for animations
+  private heroSprite!: Phaser.GameObjects.Image;
+  private bossSprite!: Phaser.GameObjects.Image;
+
   private acceptingInput = false;
   private currentQuestionIdx = 0;
 
@@ -70,27 +74,69 @@ export class BossFightScene extends Phaser.Scene {
   create(): void {
     this.cameras.main.setBackgroundColor(this.boss.environmentColor);
 
+    // Boss name at top center
     this.add.text(480, 30, this.boss.name, {
-      fontSize: '28px', color: '#f5e4b3', fontFamily: 'monospace',
+      fontSize: '24px', color: '#f5e4b3', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    this.bossHpText = this.add.text(200, 70, '', { fontSize: '18px', color: '#ff6b6b', fontFamily: 'monospace' });
-    this.heroHpText = this.add.text(600, 70, '', { fontSize: '18px', color: '#8bc34a', fontFamily: 'monospace' });
+    // --- Speech bubble (question area) ---
+    // Filled rectangle body
+    this.add.rectangle(480, 230, 620, 200, 0x2a241a).setStrokeStyle(2, 0xa89978);
 
-    this.primerText = this.add.text(480, 130, '', {
-      fontSize: '14px', color: '#ffca28', fontFamily: 'monospace',
-      wordWrap: { width: 880 }, align: 'center', fontStyle: 'italic',
+    // Triangle tail pointing toward boss (bottom-right of bubble)
+    const tail = this.add.graphics();
+    tail.fillStyle(0x2a241a, 1);
+    tail.fillTriangle(720, 330, 760, 330, 740, 310);
+    // Tail border lines to match bubble stroke
+    tail.lineStyle(2, 0xa89978, 1);
+    tail.strokeTriangle(720, 330, 760, 330, 740, 310);
+
+    // Question text inside bubble
+    this.questionText = this.add.text(480, 145, '', {
+      fontSize: '16px', color: '#f0e8d8', fontFamily: 'monospace',
+      wordWrap: { width: 580 }, align: 'center',
     }).setOrigin(0.5, 0);
 
-    this.questionText = this.add.text(480, 200, '', {
-      fontSize: '18px', color: '#e0e0ea', fontFamily: 'monospace',
-      wordWrap: { width: 880 }, align: 'center',
+    // Primer text (Study-the-Tome effect) — below the bubble
+    this.primerText = this.add.text(480, 360, '', {
+      fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
+      wordWrap: { width: 760 }, align: 'center', fontStyle: 'italic',
     }).setOrigin(0.5, 0);
 
+    // --- Hero sprite (left) ---
+    this.heroSprite = this.add.image(120, 330, 'hero').setScale(6);
+
+    // Hero HP hearts below sprite
+    this.heroHpText = this.add.text(120, 410, '', {
+      fontSize: '14px', color: '#8bc34a', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    // Hero name label
+    this.add.text(120, 430, 'WARLOCK', {
+      fontSize: '11px', color: '#a0a0b0', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    // --- Boss sprite (right) ---
+    const bossKey = `boss-${this.boss.id}`;
+    const bossTexKey = this.textures.exists(bossKey) ? bossKey : 'hero';
+    this.bossSprite = this.add.image(840, 330, bossTexKey).setScale(6);
+
+    // Boss HP hearts below boss sprite
+    this.bossHpText = this.add.text(840, 410, '', {
+      fontSize: '14px', color: '#ff6b6b', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    // Taunt text below boss
+    this.tauntText = this.add.text(840, 450, '', {
+      fontSize: '12px', color: '#d0c090', fontFamily: 'monospace', fontStyle: 'italic',
+      wordWrap: { width: 260 }, align: 'center',
+    }).setOrigin(0.5, 0);
+
+    // --- Option buttons ---
     const optLetters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
     optLetters.forEach((letter, idx) => {
-      const y = 390 + idx * 40;
-      const btn = this.add.rectangle(480, y, 800, 36, 0x1a1a2a);
+      const y = 470 + idx * 35;
+      const btn = this.add.rectangle(480, y, 820, 32, 0x1a1a2a);
       btn.setStrokeStyle(2, 0x4a4a6a);
       btn.setInteractive({ useHandCursor: true });
       const txt = this.add.text(100, y, '', {
@@ -102,10 +148,11 @@ export class BossFightScene extends Phaser.Scene {
       this.input.keyboard?.on(`keydown-${idx + 1}`, () => this.submit(letter));
     });
 
+    // --- Spellbook UI (3×2 grid) ---
     const spellIds: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot', 'focus'];
     spellIds.forEach((id, idx) => {
       const x = 100 + (idx % 3) * 280;
-      const y = 570 + Math.floor(idx / 3) * 30;
+      const y = 610 + Math.floor(idx / 3) * 25;
       const btn = this.add.text(x, y, '', {
         fontSize: '13px', color: '#a0a0b0', fontFamily: 'monospace',
       });
@@ -114,9 +161,24 @@ export class BossFightScene extends Phaser.Scene {
       this.spellButtons.push(btn);
     });
 
-    this.tauntText = this.add.text(480, 620, '', {
-      fontSize: '14px', color: '#b0b0c0', fontFamily: 'monospace', fontStyle: 'italic',
-    }).setOrigin(0.5);
+    // --- Idle animations ---
+    this.tweens.add({
+      targets: this.heroSprite,
+      y: '+=4',
+      duration: 1400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.tweens.add({
+      targets: this.bossSprite,
+      y: '+=3',
+      duration: 1800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
 
     this.nextQuestion();
   }
@@ -142,6 +204,16 @@ export class BossFightScene extends Phaser.Scene {
       castSpell(spell, this.spellbook, this.state);
       sessionLog.spells_cast.push(spell);
 
+      // Spell cast animation + SFX
+      this.sound.play('sfx-spell', { volume: 0.5 });
+      this.tweens.add({
+        targets: this.heroSprite,
+        scale: 7,
+        duration: 120,
+        yoyo: true,
+        ease: 'Sine.easeInOut',
+      });
+
       if (spell === 'echo' && this.state.questionHistory.length > 0) {
         const prior = this.state.questionHistory[Math.floor(Math.random() * this.state.questionHistory.length)]!;
         this.questions[this.currentQuestionIdx] = prior;
@@ -149,7 +221,7 @@ export class BossFightScene extends Phaser.Scene {
       }
 
       if (spell === 'study-the-tome' && this.state.currentQuestion) {
-        this.primerText.setText(`\uD83D\uDCD6 ${this.generatePrimer(this.state.currentQuestion)}`);
+        this.primerText.setText(`📖 ${this.generatePrimer(this.state.currentQuestion)}`);
       }
 
       if (spell === 'memorize' && this.state.currentQuestion) {
@@ -190,6 +262,7 @@ export class BossFightScene extends Phaser.Scene {
       txt.setText(`${letter}) ${q.options[letter]}`);
     });
     this.tauntText.setText('');
+    this.primerText.setText('');
     this.questionStartMs = Date.now();
     this.acceptingInput = true;
     this.updateHp();
@@ -227,9 +300,35 @@ export class BossFightScene extends Phaser.Scene {
     const tauntPool = result.wasCorrect ? this.boss.taunts.correct : this.boss.taunts.wrong;
     this.tauntText.setText(`"${tauntPool[Math.floor(Math.random() * tauntPool.length)]}"`);
 
+    if (result.wasCorrect) {
+      // Boss takes damage
+      this.sound.play('sfx-hit-boss', { volume: 0.6 });
+      this.tweens.add({
+        targets: this.bossSprite,
+        x: this.bossSprite.x + 12,
+        duration: 60,
+        yoyo: true,
+        repeat: 2,
+      });
+      this.bossSprite.setTint(0xff6b6b);
+      this.time.delayedCall(200, () => this.bossSprite.clearTint());
+    } else {
+      // Hero takes damage
+      this.sound.play('sfx-hit-hero', { volume: 0.5 });
+      this.tweens.add({
+        targets: this.heroSprite,
+        x: this.heroSprite.x - 10,
+        duration: 60,
+        yoyo: true,
+        repeat: 2,
+      });
+      this.heroSprite.setTint(0xff6b6b);
+      this.time.delayedCall(200, () => this.heroSprite.clearTint());
+    }
+
     if (!result.wasCorrect) {
       this.questionText.setText(
-        `\u2717 Incorrect. Correct: ${result.correctAnswer}\n\n${result.explanation}\n\n(click to continue)`,
+        `✗ Incorrect. Correct: ${result.correctAnswer}\n\n${result.explanation}\n\n(click to continue)`,
       );
       this.optionTexts.forEach(t => t.setText(''));
       this.input.once('pointerdown', () => this.advanceOrEnd());
@@ -252,7 +351,17 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private onBossDefeated(): void {
-    this.questionText.setText(`\uD83C\uDFC6 ${this.boss.name} DEFEATED\n\n(click for reward)`);
+    // Boss defeated animation + SFX
+    this.sound.play('sfx-victory', { volume: 0.6 });
+    this.tweens.add({
+      targets: this.bossSprite,
+      alpha: 0,
+      y: this.bossSprite.y + 30,
+      duration: 800,
+      ease: 'Cubic.easeIn',
+    });
+
+    this.questionText.setText(`🏆 ${this.boss.name} DEFEATED\n\n(click for reward)`);
     this.optionTexts.forEach(t => t.setText(''));
     this.input.once('pointerdown', () => this.grantReward());
   }
@@ -262,13 +371,23 @@ export class BossFightScene extends Phaser.Scene {
     const chosen = choices[Math.floor(Math.random() * choices.length)]!;
     grantBossDefeatReward(this.spellbook, chosen);
 
-    this.questionText.setText(`\uD83D\uDCDC Reward: +1 charge of ${SPELLS[chosen].name}\n\n(click to descend)`);
+    this.questionText.setText(`📜 Reward: +1 charge of ${SPELLS[chosen].name}\n\n(click to descend)`);
     this.refreshSpellUI();
     this.input.once('pointerdown', () => this.onFightEnd('victory'));
   }
 
   private onHeroDead(): void {
-    this.questionText.setText(`\uD83D\uDC80 YOU DIED\n\nThe ${this.boss.name} claims another scholar.\n\n(click to return to Hub)`);
+    // Hero death animation + SFX
+    this.sound.play('sfx-death', { volume: 0.7 });
+    this.tweens.add({
+      targets: this.heroSprite,
+      alpha: 0.3,
+      rotation: Math.PI / 2,
+      duration: 1000,
+      ease: 'Cubic.easeIn',
+    });
+
+    this.questionText.setText(`💀 YOU DIED\n\nThe ${this.boss.name} claims another scholar.\n\n(click to return to Hub)`);
     this.optionTexts.forEach(t => t.setText(''));
     const sessionLog: SessionLog = this.registry.get('sessionLog');
     sessionLog.result = 'death';
@@ -309,8 +428,8 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private updateHp(): void {
-    const bossHearts = '\u2764\uFE0F'.repeat(Math.max(0, this.state.bossHp)) + '\uD83D\uDDA4'.repeat(this.state.bossMaxHp - this.state.bossHp);
-    const heroHearts = '\u2764\uFE0F'.repeat(Math.max(0, this.state.heroHp)) + '\uD83D\uDDA4'.repeat(this.state.heroMaxHp - this.state.heroHp);
+    const bossHearts = '❤️'.repeat(Math.max(0, this.state.bossHp)) + '🖤'.repeat(this.state.bossMaxHp - this.state.bossHp);
+    const heroHearts = '❤️'.repeat(Math.max(0, this.state.heroHp)) + '🖤'.repeat(this.state.heroMaxHp - this.state.heroHp);
     this.bossHpText.setText(`BOSS ${bossHearts}`);
     this.heroHpText.setText(`HERO ${heroHearts}`);
   }

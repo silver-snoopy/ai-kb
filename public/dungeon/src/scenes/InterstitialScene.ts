@@ -22,6 +22,9 @@ export class InterstitialScene extends Phaser.Scene {
   private hintText!: Phaser.GameObjects.Text;
   private optionTexts: Phaser.GameObjects.Text[] = [];
 
+  // Preview sprite tracking — destroyed + recreated on each beat
+  private previewImage: Phaser.GameObjects.Image | null = null;
+
   constructor() {
     super({ key: 'InterstitialScene' });
   }
@@ -75,16 +78,52 @@ export class InterstitialScene extends Phaser.Scene {
     this.renderNarrative();
   }
 
+  /** Destroy the current preview image before setting a new one. */
+  private clearPreview(): void {
+    if (this.previewImage) {
+      this.previewImage.destroy();
+      this.previewImage = null;
+    }
+  }
+
+  /** Add a boss sprite image at the given position with scale and optional alpha.
+   *  Returns the image so callers can add tweens. */
+  private addBossPreview(
+    bossId: string,
+    x: number,
+    y: number,
+    scale: number,
+    alpha = 1,
+  ): Phaser.GameObjects.Image | null {
+    this.clearPreview();
+    const key = `boss-${bossId}`;
+    if (!this.textures.exists(key)) return null;
+    const img = this.add.image(x, y, key).setScale(scale).setAlpha(alpha);
+    this.previewImage = img;
+    return img;
+  }
+
   private renderNarrative(): void {
     this.beat = 'narrative';
-    this.titleText.setText('\u2728 Descent');
+    this.titleText.setText('✨ Descent');
     this.bodyText.setText(
-      `You descended from the ${this.previousBoss.name}\u2019s lair.\n\n` +
+      `You descended from the ${this.previousBoss.name}'s lair.\n\n` +
       `Ahead: the ${this.nextBoss.theme.toLowerCase()}.\n\n` +
       `The ${this.nextBoss.name} awaits.`,
     );
     this.optionTexts.forEach(t => t.setText(''));
     this.hintText.setText('(press Space / Enter / click to continue)');
+
+    // Show previous boss sprite fading out
+    const img = this.addBossPreview(this.previousBoss.id, 480, 400, 6, 1);
+    if (img) {
+      this.tweens.add({
+        targets: img,
+        alpha: 0.3,
+        duration: 1200,
+        ease: 'Sine.easeIn',
+      });
+    }
   }
 
   private renderRecall(): void {
@@ -94,8 +133,22 @@ export class InterstitialScene extends Phaser.Scene {
       this.renderPrimer();
       return;
     }
+
+    // Show previous boss sprite in upper corner as visual reminder
+    const img = this.addBossPreview(this.previousBoss.id, 840, 200, 5, 0.8);
+    if (img) {
+      this.tweens.add({
+        targets: img,
+        y: '+=4',
+        duration: 1600,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
+
     const q = this.recallQuestion;
-    this.titleText.setText('\uD83D\uDCDA Recall');
+    this.titleText.setText('📚 Recall');
     this.bodyText.setText(
       `From your victory over the ${this.previousBoss.name}:\n\n${q.stem}`,
     );
@@ -104,7 +157,7 @@ export class InterstitialScene extends Phaser.Scene {
       const letter = letters[i]!;
       t.setText(`${letter}) ${q.options[letter]}`);
     });
-    this.hintText.setText('(press A/B/C/D or 1-4 to answer \u2014 no HP penalty, this is review only)');
+    this.hintText.setText('(press A/B/C/D or 1-4 to answer — no HP penalty, this is review only)');
   }
 
   private onRecallChoice(choice: 'A' | 'B' | 'C' | 'D'): void {
@@ -112,7 +165,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.beat = 'recall-answered';
     const q = this.recallQuestion;
     const correct = choice === q.correct;
-    const prefix = correct ? '\u2713 Correct' : `\u2717 Incorrect. Correct: ${q.correct}`;
+    const prefix = correct ? '✓ Correct' : `✗ Incorrect. Correct: ${q.correct}`;
     this.bodyText.setText(`${prefix}\n\n${q.explanation}`);
     this.optionTexts.forEach(t => t.setText(''));
     this.hintText.setText('(press Space / Enter / click to continue)');
@@ -120,14 +173,27 @@ export class InterstitialScene extends Phaser.Scene {
 
   private renderPrimer(): void {
     this.beat = 'primer';
-    this.titleText.setText('\uD83D\uDCD6 Primer');
+    this.titleText.setText('📖 Primer');
     this.bodyText.setText(
       `The ${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\n` +
       `Its domain: ${this.nextBoss.domain}.\n\n` +
-      `Gather yourself \u2014 your next trial begins on the next keypress.`,
+      `Gather yourself — your next trial begins on the next keypress.`,
     );
     this.optionTexts.forEach(t => t.setText(''));
     this.hintText.setText('(press Space / Enter / click to begin the fight)');
+
+    // Show incoming boss sprite with idle bob
+    const img = this.addBossPreview(this.nextBoss.id, 480, 300, 6, 0.85);
+    if (img) {
+      this.tweens.add({
+        targets: img,
+        y: '+=4',
+        duration: 1600,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
   }
 
   private onPointer(): void {
