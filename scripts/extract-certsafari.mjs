@@ -27,41 +27,63 @@ if (!USER_ID) {
 }
 
 const BASE = 'https://www.certsafari.com';
+// CertSafari's API rejects requests lacking browser-like Origin/Referer/UA
+// headers (returns 42502 "Access Forbidden"). These headers mimic a real
+// browser session originating from the CCA-F practice page.
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'Referer': 'https://www.certsafari.com/anthropic/claude-certified-architect',
+  'Origin': 'https://www.certsafari.com',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+};
+// CertSafari/exam-guide domain numbering differs from this vault's meta.yaml
+// numbering (vault clusters domains by weight tier). The `name` field is the
+// CertSafari API identifier; `id` is the vault folder slug to write into.
 const DOMAINS = [
-  { name: 'Domain 1: Agentic Architecture & Orchestration', count: 86, id: 'domain-1-agentic' },
-  { name: 'Domain 2: Tool Design & MCP Integration',         count: 60, id: 'domain-2-mcp' },
-  { name: 'Domain 3: Claude Code Configuration & Workflows', count: 73, id: 'domain-3-claude-code' },
-  { name: 'Domain 4: Prompt Engineering & Structured Output', count: 72, id: 'domain-4-prompt-engineering' },
-  { name: 'Domain 5: Context Management & Reliability',      count: 72, id: 'domain-5-context' },
+  { name: 'Domain 1: Agentic Architecture & Orchestration',   count: 86, id: 'domain-1-agentic' },
+  { name: 'Domain 2: Tool Design & MCP Integration',          count: 60, id: 'domain-4-mcp' },
+  { name: 'Domain 3: Claude Code Configuration & Workflows',  count: 73, id: 'domain-2-claude-code' },
+  { name: 'Domain 4: Prompt Engineering & Structured Output', count: 72, id: 'domain-3-prompt-engineering' },
+  { name: 'Domain 5: Context Management & Reliability',       count: 72, id: 'domain-5-context' },
 ];
 const PACING_MS = 500;
 const COOLDOWN_MS = 2000;
+const RATE_LIMIT_BACKOFF_MS = 65_000; // full per-minute window reset
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function createQuiz(domain, count) {
-  const res = await fetch(`${BASE}/api/create-quiz`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      certificate: 'claude-certified-architect',
-      vendor: 'anthropic',
-      n_questions: Math.min(count, 100),
-      user_id: USER_ID,
-      mode: 'exam',
-      domain,
-    }),
-  });
-  if (!res.ok) throw new Error(`create-quiz failed (${res.status}): ${await res.text()}`);
-  return res.json();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(`${BASE}/api/create-quiz`, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({
+        certificate: 'claude-certified-architect',
+        vendor: 'anthropic',
+        n_questions: Math.min(count, 100),
+        user_id: USER_ID,
+        mode: 'exam',
+        domain,
+      }),
+    });
+    if (res.ok) return res.json();
+    if (res.status === 429) {
+      console.error(`  create-quiz 429 \u2014 cooling for ${RATE_LIMIT_BACKOFF_MS / 1000}s (attempt ${attempt + 1}/3)`);
+      await sleep(RATE_LIMIT_BACKOFF_MS);
+      continue;
+    }
+    throw new Error(`create-quiz failed (${res.status}): ${await res.text()}`);
+  }
+  throw new Error(`create-quiz: exhausted retries for ${domain}`);
 }
 
 async function getNextQuestion(quizId) {
   const res = await fetch(`${BASE}/api/questions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: HEADERS,
     body: JSON.stringify({ quiz_id: quizId }),
   });
+  if (res.status === 429) { const err = new Error('questions 429'); err.rateLimited = true; throw err; }
   if (!res.ok) throw new Error(`questions failed (${res.status})`);
   return res.json();
 }
@@ -91,9 +113,14 @@ async function extractDomain(d) {
       }
       process.stdout.write(`  ${collected.size}/${expectedIds.size} (attempts: ${attempts})\r`);
     } catch (e) {
-      console.error(`\n  ${e.message} \u2014 backing off 2s`);
-      stalls++;
-      await sleep(2000);
+      if (e.rateLimited) {
+        console.error(`\n  ${e.message} \u2014 cooling for ${RATE_LIMIT_BACKOFF_MS / 1000}s`);
+        await sleep(RATE_LIMIT_BACKOFF_MS);
+      } else {
+        console.error(`\n  ${e.message} \u2014 backing off 2s`);
+        stalls++;
+        await sleep(2000);
+      }
     }
   }
   console.log(`\n  \u2713 ${collected.size}/${expectedIds.size} collected in ${attempts} attempts`);
@@ -127,22 +154,43 @@ function toQuestionBlock(q, index, domainSlug) {
   ].join('\n');
 }
 
+async function loadExisting(rawPath) {
+  try {
+    const { readFile } = await import('node:fs/promises');
+    const j = JSON.parse(await readFile(rawPath, 'utf8'));
+    return Array.isArray(j.questions) ? j.questions : [];
+  } catch { return []; }
+}
+
 async function main() {
   const scriptDir = fileURLToPath(new URL('.', import.meta.url));
   const vault = resolve(scriptDir, '..');
+  const rawPath = join(vault, 'raw', 'certsafari', 'cca-f-questions.json');
 
-  const all = [];
+  // Resume: load anything already collected from prior runs, merge by question id.
+  const existing = await loadExisting(rawPath);
+  const byId = new Map(existing.map(q => [q.id, q]));
+  const existingByDomain = {};
+  for (const q of existing) existingByDomain[q._domain_slug] = (existingByDomain[q._domain_slug] || 0) + 1;
+  if (existing.length) console.log(`Resume mode: ${existing.length} questions already collected — ${JSON.stringify(existingByDomain)}`);
+
   for (const d of DOMAINS) {
+    const already = existingByDomain[d.id] || 0;
+    if (already >= d.count) {
+      console.log(`\u2192 ${d.name}: ${already}/${d.count} already cached, skipping`);
+      continue;
+    }
     try {
       const qs = await extractDomain(d);
-      all.push(...qs);
+      for (const q of qs) byId.set(q.id, q);
     } catch (e) {
       console.error(`Domain ${d.id} failed: ${e.message}`);
     }
     await sleep(COOLDOWN_MS);
   }
 
-  const rawPath = join(vault, 'raw', 'certsafari', 'cca-f-questions.json');
+  const all = Array.from(byId.values());
+
   await mkdir(dirname(rawPath), { recursive: true });
   await writeFile(rawPath, JSON.stringify({
     extracted_at: new Date().toISOString(),
