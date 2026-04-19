@@ -323,6 +323,7 @@ export class BossFightScene extends Phaser.Scene {
       });
       this.bossSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.bossSprite.clearTint());
+      this.floatDamage(this.bossSprite.x, this.bossSprite.y - 40, `-${result.damageDealt}`, '#ff6b6b');
     } else {
       // Hero takes damage
       this.sound.play('sfx-hit-hero', { volume: 0.5 });
@@ -335,6 +336,7 @@ export class BossFightScene extends Phaser.Scene {
       });
       this.heroSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.heroSprite.clearTint());
+      this.floatDamage(this.heroSprite.x, this.heroSprite.y - 40, '-1', '#ff6b6b');
     }
 
     if (!result.wasCorrect) {
@@ -357,6 +359,21 @@ export class BossFightScene extends Phaser.Scene {
     }
 
     this.time.delayedCall(600, () => this.advanceOrEnd());
+  }
+
+  private floatDamage(x: number, y: number, text: string, color: string): void {
+    const t = this.add.text(x, y, text, {
+      fontSize: '28px', color, fontFamily: 'monospace', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5);
+    this.tweens.add({
+      targets: t,
+      y: y - 50,
+      alpha: 0,
+      duration: 700,
+      ease: 'Cubic.easeOut',
+      onComplete: () => t.destroy(),
+    });
   }
 
   private advanceOrEnd(): void {
