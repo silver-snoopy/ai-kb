@@ -12,9 +12,19 @@ Thumbs.db
 desktop.ini
 
 # Obsidian
+# Track .obsidian/community-plugins.json so a fresh clone knows which plugins to install.
+# Ignore everything else: personal preferences, plugin binaries (re-installable),
+# workspace/cache state (per-machine).
 .obsidian/workspace*
 .obsidian/cache
 .obsidian/app.json
+.obsidian/appearance.json
+.obsidian/core-plugins.json
+.obsidian/hotkeys.json
+.obsidian/graph.json
+.obsidian/plugins/
+.obsidian/themes/
+.obsidian/snippets/
 
 # Secrets (belt & braces — shouldn't exist here anyway)
 .env
