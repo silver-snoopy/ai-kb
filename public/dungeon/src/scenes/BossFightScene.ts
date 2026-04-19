@@ -372,13 +372,6 @@ export class BossFightScene extends Phaser.Scene {
         bossHpPct: this.state.bossHp / this.state.bossMaxHp,
         bossMaxHp: this.state.bossMaxHp,
       });
-      this.tweens.add({
-        targets: this.bossSprite,
-        x: this.bossSprite.x + 12,
-        duration: 60,
-        yoyo: true,
-        repeat: 2,
-      });
       this.bossSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.bossSprite.clearTint());
       this.floatDamage(this.bossSprite.x, this.bossSprite.y - 40, `-${result.damageDealt}`, '#ff6b6b');
@@ -386,13 +379,6 @@ export class BossFightScene extends Phaser.Scene {
       // Hero takes damage
       this.sound.play('sfx-hit-hero', { volume: 0.5 });
       this.events.emit('answer-wrong', { heroHpRemaining: this.state.heroHp });
-      this.tweens.add({
-        targets: this.heroSprite,
-        x: this.heroSprite.x - 10,
-        duration: 60,
-        yoyo: true,
-        repeat: 2,
-      });
       this.heroSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.heroSprite.clearTint());
       this.floatDamage(this.heroSprite.x, this.heroSprite.y - 40, '-1', '#ff6b6b');
