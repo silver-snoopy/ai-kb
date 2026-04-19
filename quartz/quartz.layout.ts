@@ -7,9 +7,13 @@ export const sharedPageComponents: SharedLayout = {
   header: [],
   afterBody: [],
   footer: Component.Footer({
+    // Absolute URLs so footer nav works from any vault-page depth. The PageTitle
+    // in the sidebar already links back to `/` (landing); these footer links
+    // give one-click jumps to the practice/review apps from inside the vault.
     links: {
-      GitHub: "https://github.com/jackyzha0/quartz",
-      "Discord Community": "https://discord.gg/cRFFHYye7t",
+      "Practice": "https://silver-snoopy.github.io/ai-kb/practice/",
+      "Review": "https://silver-snoopy.github.io/ai-kb/review/",
+      GitHub: "https://github.com/silver-snoopy/ai-kb",
     },
   }),
 }

@@ -16,7 +16,7 @@ const config: QuartzConfig = {
       provider: "plausible",
     },
     locale: "en-US",
-    baseUrl: "quartz.jzhao.xyz",
+    baseUrl: "silver-snoopy.github.io/ai-kb",
     ignorePatterns: [
       "private",
       "templates",
@@ -29,8 +29,11 @@ const config: QuartzConfig = {
       "node_modules",
       "docs/superpowers", // private planning docs
       "MEMORY.md",
+      "public",           // static apps (landing/practice/review) overlay onto
+                          // quartz/public/ at deploy time — Quartz must NOT
+                          // treat it as markdown content or it duplicates
+                          // everything into quartz/public/public/.
       // "public/dungeon",  // RESERVED: post-exam Slay the Cert game
-      //                     (uncomment when game lands)
     ],
     defaultDateType: "modified",
     theme: {
