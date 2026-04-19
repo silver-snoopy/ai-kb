@@ -47,3 +47,10 @@ public/dungeon/public/assets/_dropzone/*.zip
 
 # Git worktrees (isolated workspaces for feature branches)
 .worktrees/
+
+# Transient Claude Code scheduler lock
+.claude/scheduled_tasks.lock
+
+# Playwright MCP smoke-test artifacts (screenshots + session caches)
+.playwright-mcp/
+stc-*.png
