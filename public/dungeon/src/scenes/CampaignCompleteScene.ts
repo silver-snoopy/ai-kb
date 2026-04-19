@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { recordCampaignVictory, saveSaveState } from '../game/saveState';
+import type { RunMode, SaveStateV1, SessionLog } from '../types';
 
 export class CampaignCompleteScene extends Phaser.Scene {
   constructor() {
@@ -6,20 +8,81 @@ export class CampaignCompleteScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor('#2d1b4e');
-    this.add.text(480, 200, '\uD83D\uDCDC GOLDEN PARCHMENT', {
-      fontSize: '48px', color: '#f5e4b3', fontFamily: 'monospace',
-    }).setOrigin(0.5);
-    this.add.text(480, 280, 'Quest Complete', {
-      fontSize: '24px', color: '#e0e0ea', fontFamily: 'monospace',
-    }).setOrigin(0.5);
-    this.add.text(480, 360, '(Session 2 placeholder \u2014 score breakdown\nand Archmage Title in Session 3)', {
-      fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace', align: 'center',
-    }).setOrigin(0.5);
-    this.add.text(480, 460, '(click to return to Hub)', {
-      fontSize: '16px', color: '#a0a0b0', fontFamily: 'monospace',
+    this.cameras.main.setBackgroundColor(0x2d1b4e);
+
+    const sessionLog: SessionLog = this.registry.get('sessionLog');
+    const save: SaveStateV1 = this.registry.get('saveState');
+    const mode: RunMode = sessionLog.mode;
+
+    // Persist victory
+    const nextSave = recordCampaignVictory(save, mode);
+    saveSaveState(nextSave);
+    this.registry.set('saveState', nextSave);
+
+    this.add.text(480, 70, '\uD83D\uDCDC GOLDEN PARCHMENT', {
+      fontSize: '44px', color: '#f5e4b3', fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    this.input.once('pointerdown', () => this.scene.start('HubScene'));
+    this.add.text(480, 130, `${modeLabelTitle(mode)} Complete`, {
+      fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    if (nextSave.title_earned && !save.title_earned) {
+      this.add.text(480, 180, `You have earned the title: ${nextSave.title_earned}`, {
+        fontSize: '18px', color: '#ffca28', fontFamily: 'monospace', fontStyle: 'italic',
+      }).setOrigin(0.5);
+    } else if (nextSave.title_earned) {
+      this.add.text(480, 180, `Title: ${nextSave.title_earned}`, {
+        fontSize: '16px', color: '#f5e4b3', fontFamily: 'monospace',
+      }).setOrigin(0.5);
+    }
+
+    // Score breakdown
+    const total = sessionLog.total_correct + sessionLog.total_wrong;
+    const pct = total === 0 ? 0 : Math.round((sessionLog.total_correct / total) * 100);
+
+    const lines = [
+      `Bosses defeated : ${sessionLog.bosses_defeated.length}`,
+      `Correct answers : ${sessionLog.total_correct}`,
+      `Wrong answers   : ${sessionLog.total_wrong}`,
+      `Accuracy        : ${pct}%`,
+      `Final hero HP   : ${sessionLog.final_hero_hp} / 3`,
+      `Spells cast     : ${sessionLog.spells_cast.length}`,
+    ];
+    this.add.text(480, 280, lines.join('\n'), {
+      fontSize: '16px', color: '#e0e0ea', fontFamily: 'monospace', align: 'left',
+    }).setOrigin(0.5, 0);
+
+    // New unlock notice
+    const newUnlocks = nextSave.unlocked_spells.filter(s => !save.unlocked_spells.includes(s));
+    if (newUnlocks.length > 0) {
+      this.add.text(480, 470, `\u2728 New spell unlocked: ${newUnlocks.join(', ')}`, {
+        fontSize: '16px', color: '#ffca28', fontFamily: 'monospace',
+      }).setOrigin(0.5);
+    }
+
+    if (!save.eternal_dungeon_unlocked && nextSave.eternal_dungeon_unlocked) {
+      this.add.text(480, 500, '\uD83D\uDDDD Eternal Dungeon unlocked!', {
+        fontSize: '16px', color: '#8bc34a', fontFamily: 'monospace',
+      }).setOrigin(0.5);
+    }
+
+    this.add.text(480, 580, '(press Space / Enter / click to return to Hub)', {
+      fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    const goHome = () => this.scene.start('HubScene');
+    this.input.once('pointerdown', goHome);
+    this.input.keyboard?.once('keydown-SPACE', goHome);
+    this.input.keyboard?.once('keydown-ENTER', goHome);
+  }
+}
+
+function modeLabelTitle(mode: RunMode): string {
+  switch (mode) {
+    case 'first-run': return 'First Run';
+    case 'ng-plus': return 'NG+';
+    case 'ng-plus-plus': return 'NG++';
+    case 'ng-plus-plus-plus': return 'Eternal Dungeon';
   }
 }

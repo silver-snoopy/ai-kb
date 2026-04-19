@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { loadQuestionsJson } from '../data/questionLoader';
+import { loadSaveState, initSaveState, saveSaveState } from '../game/saveState';
 import type { QuestionsJson } from '../types';
 
 export class BootScene extends Phaser.Scene {
@@ -23,6 +24,14 @@ export class BootScene extends Phaser.Scene {
     try {
       const questions: QuestionsJson = await loadQuestionsJson();
       this.registry.set('questions', questions);
+
+      const certId = questions.cert_id;
+      let saveState = loadSaveState(certId);
+      if (!saveState) {
+        saveState = initSaveState(certId);
+        saveSaveState(saveState);
+      }
+      this.registry.set('saveState', saveState);
 
       this.add.text(480, 400, `${questions.total_questions} questions loaded`, {
         fontSize: '16px',
