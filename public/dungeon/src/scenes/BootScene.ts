@@ -9,6 +9,13 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    // Tileset for per-boss backdrops (Kenney Tiny Dungeon packed 192\u00d7176,
+    // 12\u00d711 tiles at 16px). Frames indexed row-major 0..131.
+    this.load.spritesheet('td-tiles', 'assets/tilemap_packed.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
     // Sprite assets
     this.load.image('hero', 'assets/sprites/hero.png');
     this.load.image('boss-the-orchestrator', 'assets/sprites/boss-orchestrator.png');

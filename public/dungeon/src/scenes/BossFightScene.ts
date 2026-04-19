@@ -10,6 +10,7 @@ import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
 import { ProceduralBGM } from '../audio/bgm';
 import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
+import { renderBackdrop } from './backdrops';
 
 interface BossFightData {
   bossId: string;
@@ -78,6 +79,10 @@ export class BossFightScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor(this.boss.environmentColor);
+
+    // Per-boss backdrop (wall + floor bands + themed props). Must render
+    // before everything else so it sits at the bottom of the z-stack.
+    renderBackdrop(this, this.boss.id);
 
     // Boss name at top center
     this.add.text(480, 30, this.boss.name, {
