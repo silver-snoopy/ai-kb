@@ -9,8 +9,8 @@ import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
 import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
 import { readActiveRun, clearActiveRun, type RunSave } from '../game/runSave';
-import { loadQuestionsJson } from '../data/questionLoader';
-import type { QuestionsJson } from '../types';
+import { loadBank } from '../data/questionLoader';
+import type { Bank } from '../types';
 
 function continueButtonLabel(save: RunSave): string {
   const floor = save.campaign.floorsCleared + 1;
@@ -51,17 +51,17 @@ export class HubScene extends Phaser.Scene {
   create(): void {
     fadeIn(this);
 
-    // If returning from a demo run, swap the real question pool back in
-    // before anything else — otherwise a subsequent real-run start would
-    // inherit the demo questions. The demoRun flag was set in
-    // beginDemoCampaign; the real pool was stashed under realQuestions.
+    // If returning from a demo run, swap the real bank back in before
+    // anything else — otherwise a subsequent real-run start would inherit
+    // the demo bank. The demoRun flag was set in beginDemoCampaign; the
+    // real bank was stashed under realBank.
     if (this.registry.get('demoRun')) {
-      const real = this.registry.get('realQuestions') as QuestionsJson | undefined;
-      if (real) this.registry.set('questions', real);
-      this.registry.remove('realQuestions');
+      const real = this.registry.get('realBank') as Bank | undefined;
+      if (real) this.registry.set('bank', real);
+      this.registry.remove('realBank');
       this.registry.remove('demoRun');
       // Also clear any lingering active-run save — demo saves reference
-      // demo question IDs that are no longer in the live pool, so they'd
+      // demo question IDs that are no longer in the live bank, so they'd
       // self-invalidate on resume anyway, but clearing proactively is
       // cleaner for the Hub's save-present-vs-absent branching.
       clearActiveRun();
@@ -362,20 +362,20 @@ export class HubScene extends Phaser.Scene {
   }
 
   private async beginDemoCampaign(): Promise<void> {
-    // Fetch the demo bundle, stash the real pool, swap demo in, start a
+    // Fetch the demo bundle, stash the real bank, swap demo in, start a
     // first-run campaign. Demo runs are locked to first-run mode (short
     // 5-HP bosses) regardless of the player's actual NG+ progression.
-    let demoQs: QuestionsJson;
+    let demoBank: Bank;
     try {
-      demoQs = await loadQuestionsJson('./data/demo-questions.json');
+      demoBank = await loadBank('./data/demo-questions.json');
     } catch (e: unknown) {
       // eslint-disable-next-line no-console
-      console.warn('[demo] failed to load demo questions:', (e as Error).message);
+      console.warn('[demo] failed to load demo bank:', (e as Error).message);
       return;
     }
 
-    this.registry.set('realQuestions', this.registry.get('questions'));
-    this.registry.set('questions', demoQs);
+    this.registry.set('realBank', this.registry.get('bank'));
+    this.registry.set('bank', demoBank);
     this.registry.set('demoRun', true);
     // Any prior real-run save would block the Hub's continue branch and
     // its question IDs don't match the demo pool. Clear it for a clean

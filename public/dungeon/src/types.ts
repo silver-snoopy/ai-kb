@@ -1,7 +1,11 @@
-// Question bank types (matches questions.json schema)
+// Question bank types. Flat array with per-question domain + scenario tags
+// (matches public/exams/cca-f/bank.json). Replaces the domain-nested
+// QuestionsJson / DomainData pair from the pre-2026-04-20 seed-exam model.
 export interface Question {
   id: string;
+  source: 'certsafari' | 'llm';
   domain: string;
+  scenario: '1' | '2' | '3' | '4' | '5' | '6';
   difficulty: 'easy' | 'medium' | 'hard';
   stem: string;
   options: Record<'A' | 'B' | 'C' | 'D', string>;
@@ -10,19 +14,26 @@ export interface Question {
   source_note: string;
 }
 
-export interface DomainData {
-  id: string;
+export interface DomainMeta {
+  num: number;
   name: string;
   weight: number;
-  questions: Question[];
+  color?: string;
 }
 
-export interface QuestionsJson {
-  generated_at: string;
+export interface ScenarioMeta {
+  name: string;
+  domains: string[];
+}
+
+export interface Bank {
   cert_id: string;
-  cert_name: string;
-  total_questions: number;
-  domains: DomainData[];
+  version: number;
+  built_at: string;
+  total: number;
+  domains: Record<string, DomainMeta>;
+  scenarios: Record<string, ScenarioMeta>;
+  questions: Question[];
 }
 
 // Boss types

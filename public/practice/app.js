@@ -1,25 +1,37 @@
 // public/practice/app.js
-// MCQ practice quiz. States: 'setup' | 'quiz' | 'results'
+// MCQ practice quiz over the unified CCA-F bank. States: 'setup' | 'quiz' | 'results'
+//
+// Data source: ../exams/cca-f/bank.json (flat array with per-question
+// domain + scenario tags). Filter UI lets the user intersect domain and
+// scenario selections; disabled chips prevent empty-pool sessions.
+
+import {
+  filterBank,
+  countByAxis,
+  buildDrillSession,
+  buildMockExam,
+} from '../exams/arrangement.js';
 
 const app = document.getElementById('app');
 
-let data = null;
-let selectedDomains = new Set(); // empty = all
+let bank = null;
+let selectedDomains = new Set();    // empty = all
+let selectedScenarios = new Set();  // empty = all
 let quiz = null; // { questions, current, answers, startedAt }
 
 // ---------- data load ----------
 
 async function load() {
-  const src = new URLSearchParams(location.search).get('src') || '../questions.json';
+  const src = new URLSearchParams(location.search).get('src') || '../exams/cca-f/bank.json';
   try {
     const res = await fetch(src);
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    data = await res.json();
+    bank = await res.json();
     renderSetup();
   } catch (e) {
     app.innerHTML = `<section class="empty">
       <h2>Could not load question bank</h2>
-      <p>Expected <code>${escapeHtml(src)}</code> to exist. Run <code>node scripts/build-questions.mjs</code> from the vault root to regenerate, or generate an exam with <code>/generate-exam</code>.</p>
+      <p>Expected <code>${escapeHtml(src)}</code> to exist. Run <code>node scripts/build-bank.mjs</code> then <code>node scripts/classify-scenarios.mjs</code> from the vault root to regenerate.</p>
       <p class="text-soft">${escapeHtml(e.message)}</p>
     </section>`;
   }
@@ -27,109 +39,150 @@ async function load() {
 
 // ---------- setup screen ----------
 
-function filteredQuestions() {
-  if (!selectedDomains.size) return data.questions;
-  return data.questions.filter(q => selectedDomains.has(q.domain));
+function activeFilters() {
+  return {
+    domains: selectedDomains.size ? [...selectedDomains] : undefined,
+    scenarios: selectedScenarios.size ? [...selectedScenarios] : undefined,
+  };
+}
+
+function filteredPool() {
+  return filterBank(bank, activeFilters());
 }
 
 function domainNumber(slug) {
-  const m = data.domains[slug];
+  const m = bank.domains?.[slug];
   return m ? `D${m.num}` : '?';
 }
 
 function renderSetup() {
   clearKeyHandler();
   document.body.classList.remove('is-session-active');
-  const count = filteredQuestions().length;
+
+  const counts = countByAxis(bank, activeFilters());
+  const pool = filteredPool();
+  const count = pool.length;
   const sessionLen = Math.min(count, 25);
 
-  const meta = data.exam_metadata;
-  const examBanner = meta ? `
-      <div class="exam-banner" role="status" style="padding:0.75rem 1rem;margin-bottom:1rem;border:1px solid currentColor;border-radius:6px;font-size:0.9em;">
-        <strong>Generated exam</strong> &middot; seed <span class="mono">${escapeHtml(String(meta.seed))}</span> &middot;
-        ${Array.isArray(meta.scenarios_kept) && Array.isArray(meta.scenarios_dropped)
-          ? `${meta.scenarios_kept.length} of ${meta.scenarios_kept.length + meta.scenarios_dropped.length} scenarios &middot;`
-          : typeof meta.composition === 'string'
-            ? `${escapeHtml(meta.composition)} &middot;`
-            : ''}
-        ${meta.difficulty_actual ? `E${meta.difficulty_actual.easy}/M${meta.difficulty_actual.medium}/H${meta.difficulty_actual.hard}` : ''}
-        ${meta.coverage_warnings && meta.coverage_warnings.length ? `<div class="text-soft" style="margin-top:0.25rem;">&#9888;&#65039; ${meta.coverage_warnings.map(escapeHtml).join('; ')}</div>` : ''}
-      </div>` : '';
+  // Domain chips with live counts (reflecting current scenario selection).
+  const allDomainsActive = selectedDomains.size === 0 ? 'is-active' : '';
+  const totalUnderScenario = Object.values(counts.byDomain).reduce((a, b) => a + b, 0);
+  const domainChips = [
+    `<button class="filter-chip ${allDomainsActive}" data-axis="domain" data-value="">
+      <span>All domains</span>
+      <span class="filter-chip__count">${totalUnderScenario}</span>
+    </button>`,
+    ...Object.entries(bank.domains)
+      .sort(([, a], [, b]) => a.num - b.num)
+      .map(([slug, meta]) => {
+        const n = counts.byDomain[slug] || 0;
+        const active = selectedDomains.has(slug) ? 'is-active' : '';
+        const disabled = n === 0 && !selectedDomains.has(slug) ? 'disabled' : '';
+        return `<button class="filter-chip ${active}" data-axis="domain" data-value="${slug}" ${disabled}>
+          <span class="filter-chip__dot"></span>
+          <span>D${meta.num} · ${escapeHtml(meta.name)}</span>
+          <span class="filter-chip__count">${n}</span>
+        </button>`;
+      }),
+  ].join('');
 
-  const allActive = selectedDomains.size === 0 ? 'is-active' : '';
-  const allChip = `<button class="filter-chip ${allActive}" data-domain="">
-    <span>All domains</span>
-    <span class="filter-chip__count">${data.total}</span>
-  </button>`;
-
-  const domainChips = Object.entries(data.domains)
-    .filter(([slug]) => (data.by_domain[slug] || 0) > 0)
-    .map(([slug, meta]) => {
-      const n = data.by_domain[slug];
-      const active = selectedDomains.has(slug) ? 'is-active' : '';
-      return `<button class="filter-chip ${active}" data-domain="${slug}">
-        <span class="filter-chip__dot"></span>
-        <span>${escapeHtml(meta.name)}</span>
-        <span class="filter-chip__count">${n}</span>
-      </button>`;
-    }).join('');
+  // Scenario chips with live counts (reflecting current domain selection).
+  const allScenariosActive = selectedScenarios.size === 0 ? 'is-active' : '';
+  const totalUnderDomain = Object.values(counts.byScenario).reduce((a, b) => a + b, 0);
+  const scenarioChips = [
+    `<button class="filter-chip ${allScenariosActive}" data-axis="scenario" data-value="">
+      <span>All scenarios</span>
+      <span class="filter-chip__count">${totalUnderDomain}</span>
+    </button>`,
+    ...Object.entries(bank.scenarios || {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([id, meta]) => {
+        const n = counts.byScenario[id] || 0;
+        const active = selectedScenarios.has(id) ? 'is-active' : '';
+        const disabled = n === 0 && !selectedScenarios.has(id) ? 'disabled' : '';
+        return `<button class="filter-chip ${active}" data-axis="scenario" data-value="${id}" ${disabled}>
+          <span class="filter-chip__dot"></span>
+          <span>S${id} · ${escapeHtml(meta.name)}</span>
+          <span class="filter-chip__count">${n}</span>
+        </button>`;
+      }),
+  ].join('');
 
   app.innerHTML = `
     <section class="setup">
-      ${examBanner}
       <div>
-        <h2 class="section-label">Filter</h2>
+        <h2 class="section-label">Domain</h2>
         <div class="filter-chips" role="group" aria-label="Domain filter">
-          ${allChip}
           ${domainChips}
+        </div>
+      </div>
+
+      <div>
+        <h2 class="section-label">Scenario</h2>
+        <div class="filter-chips" role="group" aria-label="Scenario filter">
+          ${scenarioChips}
         </div>
       </div>
 
       <div class="session-setup">
         <p class="session-summary">
-          <span class="mono">${count}</span> question${count === 1 ? '' : 's'} in pool &middot;
+          <span class="mono">${count}</span> question${count === 1 ? '' : 's'} in filtered pool &middot;
           session of <span class="mono">${sessionLen}</span>
         </p>
-        <button class="btn btn--primary btn--lg" id="start-btn" ${count ? '' : 'disabled'}>
-          Begin session
-        </button>
+        <div class="session-actions">
+          <button class="btn btn--primary btn--lg" id="start-btn" ${count ? '' : 'disabled'}>
+            Begin session
+          </button>
+          <button class="btn btn--secondary" id="mock-btn" title="60 questions, 4 of 6 scenarios, domain-weighted like the real exam">
+            Mock exam (60 Qs)
+          </button>
+        </div>
       </div>
     </section>
   `;
 
   app.querySelectorAll('.filter-chip').forEach(chip => {
+    if (chip.hasAttribute('disabled')) return;
     chip.addEventListener('click', () => {
-      const d = chip.dataset.domain;
-      if (d === '') selectedDomains.clear();
-      else selectedDomains.has(d) ? selectedDomains.delete(d) : selectedDomains.add(d);
+      const axis = chip.dataset.axis;
+      const v = chip.dataset.value;
+      const set = axis === 'domain' ? selectedDomains : selectedScenarios;
+      if (v === '') set.clear();
+      else set.has(v) ? set.delete(v) : set.add(v);
       renderSetup();
     });
   });
 
-  const startBtn = app.querySelector('#start-btn');
-  startBtn?.addEventListener('click', startQuiz);
-  startBtn?.focus();
+  app.querySelector('#start-btn')?.addEventListener('click', startQuiz);
+  app.querySelector('#mock-btn')?.addEventListener('click', startMockExam);
+  app.querySelector('#start-btn')?.focus();
 
   setKeyHandler(e => {
-    if (e.key === 'Enter' && !startBtn?.disabled) { startQuiz(); }
+    if (e.key === 'Enter' && count > 0) startQuiz();
   });
 }
 
 // ---------- quiz engine ----------
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+function startQuiz() {
+  const picked = buildDrillSession(bank, {
+    ...activeFilters(),
+    size: 25,
+    seed: Date.now(),
+  });
+  if (!picked.length) return;
+  quiz = {
+    questions: picked,
+    current: 0,
+    answers: new Array(picked.length).fill(null),
+    startedAt: Date.now(),
+  };
+  renderQuestion();
 }
 
-function startQuiz() {
-  const pool = filteredQuestions();
-  if (!pool.length) return;
-  const picked = shuffle(pool).slice(0, Math.min(pool.length, 25));
+function startMockExam() {
+  const picked = buildMockExam(bank, { size: 60, scenarioCount: 4, seed: Date.now() });
+  if (!picked.length) return;
   quiz = {
     questions: picked,
     current: 0,
@@ -143,14 +196,14 @@ function renderQuestion() {
   document.body.classList.add('is-session-active');
   const q = quiz.questions[quiz.current];
   const total = quiz.questions.length;
-  const meta = data.domains[q.domain] || { num: '?', name: q.domain };
+  const meta = bank.domains[q.domain] || { num: '?', name: q.domain };
   const progressPct = (quiz.current / total) * 100;
   const given = quiz.answers[quiz.current];
   const correct = q.correct;
   const revealed = given !== null;
 
-  const options = ['A', 'B', 'C', 'D'].map((letter, i) => {
-    const text = q.options_array?.[i] ?? q.options?.[letter];
+  const options = ['A', 'B', 'C', 'D'].map(letter => {
+    const text = q.options?.[letter];
     if (text == null || text === '') return '';
     let cls = 'option';
     if (revealed) {
@@ -174,7 +227,7 @@ function renderQuestion() {
           : `Incorrect &middot; answer is ${correct}`}
       </p>
       ${q.explanation ? `<div class="verdict__body">${formatProse(q.explanation)}</div>` : ''}
-      ${q['source-note'] ? `<p class="verdict__source">${escapeHtml(q['source-note'])}</p>` : ''}
+      ${q.source_note ? `<p class="verdict__source">${escapeHtml(q.source_note)}</p>` : ''}
     </div>
   ` : '';
 
@@ -185,6 +238,8 @@ function renderQuestion() {
       </button>
     </div>
   ` : '';
+
+  const scenarioName = bank.scenarios?.[q.scenario]?.name ?? `Scenario ${q.scenario}`;
 
   app.innerHTML = `
     <div class="quiz-progress">
@@ -200,6 +255,9 @@ function renderQuestion() {
         <span class="mono-badge" data-domain="${escapeAttr(q.domain)}">
           <span class="mono-badge__dot"></span>
           <span>${escapeHtml(domainNumber(q.domain))} &middot; ${escapeHtml(meta.name)}</span>
+        </span>
+        <span class="mono-badge" data-scenario="${escapeAttr(q.scenario)}">
+          <span>S${escapeHtml(q.scenario)} &middot; ${escapeHtml(scenarioName)}</span>
         </span>
       </header>
       <p class="question__stem">${formatStem(q.stem)}</p>
@@ -284,7 +342,6 @@ function renderResults() {
   const pct = Math.round((correctCount / total) * 100);
   const pass = pct >= 72;
 
-  // per-domain breakdown
   const perDomain = {};
   for (const { q, given } of answered) {
     const slug = q.domain;
@@ -293,7 +350,6 @@ function renderResults() {
     if (given === q.correct) perDomain[slug].correct++;
   }
 
-  // save wrongs to localStorage weakness queue (with try/catch)
   const wrong = answered.filter(x => x.given !== null && x.given !== x.q.correct);
   let existing = [];
   try {
@@ -311,6 +367,7 @@ function renderResults() {
       merged.push({
         id: q.id,
         domain: q.domain,
+        scenario: q.scenario,
         stem: q.stem.slice(0, 200),
         correct: q.correct,
         given,
@@ -321,9 +378,9 @@ function renderResults() {
   try { localStorage.setItem('weakness-queue', JSON.stringify(merged)); } catch { /* ignore */ }
 
   const rows = Object.entries(perDomain)
-    .sort(([a], [b]) => (data.domains[a]?.num ?? 99) - (data.domains[b]?.num ?? 99))
+    .sort(([a], [b]) => (bank.domains[a]?.num ?? 99) - (bank.domains[b]?.num ?? 99))
     .map(([slug, { correct, total: t }]) => {
-      const meta = data.domains[slug] || { name: slug, num: '?' };
+      const meta = bank.domains[slug] || { name: slug, num: '?' };
       const p = Math.round((correct / t) * 100);
       return `<div class="domain-row">
         <dt class="mono-badge" data-domain="${escapeAttr(slug)}">

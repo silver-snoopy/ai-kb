@@ -84,15 +84,18 @@ jobs:
           rm -rf quartz/public/dungeon
           mkdir -p quartz/public/dungeon
           cp -r public/dungeon/dist/. quartz/public/dungeon/
-          # Overlay freshly built questions.json from the vault so the game
-          # always has the latest compiled questions (not the snapshot that
-          # may be stale in the repo copy)
+          # Overlay the unified bank.json from public/exams/cca-f/ so the
+          # dungeon has the latest (post-classification + post-merge) bank,
+          # not whatever the repo committed copy happens to be. Replaces
+          # the legacy questions.json overlay (vault-authored) — per the
+          # 2026-04-20 bank migration, public/exams/cca-f/bank.json is the
+          # single source of truth for study surfaces.
           mkdir -p quartz/public/dungeon/data
-          cp public/questions.json quartz/public/dungeon/data/questions.json
+          cp public/exams/cca-f/bank.json quartz/public/dungeon/data/bank.json
           echo "Game deployed to /dungeon/. Contents:"
           ls quartz/public/dungeon/ | head -20
           test -f quartz/public/dungeon/index.html || { echo "FAIL: game index.html missing"; exit 1; }
-          test -f quartz/public/dungeon/data/questions.json || { echo "FAIL: questions.json missing"; exit 1; }
+          test -f quartz/public/dungeon/data/bank.json || { echo "FAIL: bank.json missing"; exit 1; }
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

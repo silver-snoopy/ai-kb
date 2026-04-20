@@ -19,7 +19,7 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 - Tutor the user on cert content (`/tutor`) and file valuable Q&A back as wiki pages at session end (compound-knowledge loop)
 - Quiz the user (`/quiz`) and drive retention via saved weakness queue
 - Run full-length mock exams (`/mock-exam`)
-- Dynamically generate + verify exam JSON files for the practice UI and dungeon game (`/cca-f-generate-exam` + `/cca-f-verify-exam`)
+- Dynamically generate + verify novel question sets that merge into the unified bank (`/cca-f-generate-questions` + `/cca-f-verify-questions`)
 - Periodic health checks (`/lint`) — find contradictions, orphans, stale claims, missing cross-references, data gaps
 - Keep `index.md` current on every capture and lint
 
@@ -41,8 +41,8 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 | `_lint/YYYY-MM-DD-report.md` | Claude via `/lint` | No | Reports |
 | `index.md` | Claude via `/capture` and `/lint` | No | Auto-maintained catalog |
 | `dashboard.md` | GitHub Action (dashboard.yml) | No | Auto-generated |
-| `public/exams/<cert-id>/candidates/**` | Claude via `/cca-f-generate-exam` | No | Generated exam JSON files awaiting verification. Not picked up by the UI. |
-| `public/exams/<cert-id>/verified/**` | Claude via `/cca-f-verify-exam` (promotes from candidates/) | No | Reviewer-approved exam JSON. Consumable by `public/practice/picker.html` (via `?src=` query param) and the Slay the Cert dungeon's PickerScene. |
+| `public/exams/<cert-id>/bank.json` | Claude via `scripts/build-bank.mjs` (CertSafari import) + `/cca-f-verify-questions` (LLM-generated merge) | n/a | Single unified question bank for the cert. Every question carries `domain` + `scenario` tags; `source: "certsafari" \| "llm"` distinguishes origin. Consumed by `public/practice/` and the dungeon. |
+| `public/exams/<cert-id>/candidates/**` | Claude via `/cca-f-generate-questions` | No | LLM-generated question sets awaiting verification. Merged into `bank.json` on clean review. Kept as audit trail after merge. |
 
 ## Frontmatter contract (in-scope notes only)
 

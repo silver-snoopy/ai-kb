@@ -6,12 +6,11 @@ Built on the [Karpathy LLM Wiki pattern](https://gist.github.com/karpathy/442a6b
 
 ## Live study surfaces
 
-Deployed via GitHub Pages at `https://silver-snoopy.github.io/ai-kb/`:
+Deployed via GitHub Pages at `https://silver-snoopy.github.io/ai-kb/`. All surfaces read from a single unified bank at `public/exams/cca-f/bank.json` (364 questions, each tagged with domain + scenario).
 
-- **`/practice/`** — scenario MCQs with instant feedback; pick a verified exam or a domain filter
-- **`/review/`** — spaced repetition over the same question bank; missed cards return sooner
+- **`/practice/`** — scenario MCQs with instant feedback. Filter by domain and/or scenario (intersection); or launch a full **Mock Exam** (60 Qs, 4 of 6 scenarios, domain-weighted like the real exam)
 - **`/dungeon/`** — *Slay the Cert*, a 16-bit browser dungeon crawler where each boss is a CCA-F domain. Autosaves, post-boss mistakes review, and a `?debug=1` mode with a demo campaign
-- **`/`** — landing hub that links all three
+- **`/`** — landing hub
 
 All state lives in the user's browser. Nothing phones home.
 
@@ -21,8 +20,9 @@ All state lives in the user's browser. Nothing phones home.
 - `certs/` — per-certification compiled notes, `meta.yaml`, mock exams, weakness queue
 - `concepts/` — provider-neutral concept library
 - `prompts/`, `resources/` — reusable prompts and bookmarks
-- `public/` — the deployed study surfaces (practice, review, dungeon, landing)
-- `public/exams/<cert-id>/verified/` — verified exam JSON files the study surfaces read
+- `public/` — the deployed study surfaces (practice, dungeon, landing; review nav-hidden but reachable by direct URL)
+- `public/exams/<cert-id>/bank.json` — unified question bank the study surfaces read
+- `public/exams/arrangement.js` — shared deterministic arrangement function (filter, mock-exam builder)
 - `.claude/commands/` — slash commands (see below)
 - `scripts/` — dashboard, question-build, CertSafari extractor, exam-builder
 - `quartz/` — Quartz v4 static site generator (wraps the vault into a browsable site)
@@ -39,8 +39,8 @@ Study / ingest:
 - `/ingest-session <session-log>` — ingest a downloaded dungeon session log into the vault
 
 Exam pipeline (CCA-F):
-- `/cca-f-generate-exam` — generate a candidate exam JSON grounded in the CertSafari bank
-- `/cca-f-verify-exam <path>` — 4-pass adversarial review; promotes candidates to `verified/` on zero critical flags
+- `/cca-f-generate-questions` — generate novel questions for a target scenario/domain, grounded in the CertSafari substrate; writes to `public/exams/cca-f/candidates/`
+- `/cca-f-verify-questions <path>` — 4-pass adversarial review; on clean review, merges each question into `public/exams/cca-f/bank.json` (bumps version, keeps candidate as audit trail)
 
 Maintenance:
 - `/lint <cert>` — weekly health check (contradictions, orphans, stale terms)
