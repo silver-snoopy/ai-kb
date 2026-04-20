@@ -1,0 +1,1317 @@
+{
+  "built_at": "2026-04-20T07:41:03.376Z",
+  "total": 60,
+  "exam_metadata": {
+    "seed": 7,
+    "source": "certsafari-curated",
+    "verified_by": "source-is-ground-truth",
+    "generator": "scripts/build-certsafari-exams.mjs",
+    "generator_date": "2026-04-20T07:41:03.376Z",
+    "composition": "certsafari-mixed (no scenario tagging — predates scenario taxonomy)",
+    "time_limit_minutes": 120,
+    "passing_score": 720,
+    "scale_max": 1000,
+    "coverage_warnings": []
+  },
+  "by_domain": {
+    "domain-5-context": 9,
+    "domain-1-agentic": 16,
+    "domain-2-claude-code": 12,
+    "domain-3-prompt-engineering": 12,
+    "domain-4-mcp": 11
+  },
+  "domains": {
+    "domain-1-agentic": {
+      "num": 1,
+      "name": "Agentic Architecture & Orchestration",
+      "weight": 0.27,
+      "color": "#f39c4a"
+    },
+    "domain-2-claude-code": {
+      "num": 2,
+      "name": "Claude Code Configuration & Workflows",
+      "weight": 0.2,
+      "color": "#a87cf0"
+    },
+    "domain-3-prompt-engineering": {
+      "num": 3,
+      "name": "Prompt Engineering & Structured Output",
+      "weight": 0.2,
+      "color": "#5db5f0"
+    },
+    "domain-4-mcp": {
+      "num": 4,
+      "name": "Tool Design & MCP Integration",
+      "weight": 0.18,
+      "color": "#5ad1a0"
+    },
+    "domain-5-context": {
+      "num": 5,
+      "name": "Context Management & Reliability",
+      "weight": 0.15,
+      "color": "#e85d75"
+    }
+  },
+  "questions": [
+    {
+      "id": "certsafari-domain-5-context-24294",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A utility company automates reading meter photos with an overall accuracy of 99.8%. However, a small number of high-value industrial meters, which have a different dial layout, are being consistently misread, though the model reports high confidence (>0.99) on these incorrect readings. What is the most likely root cause and the best immediate solution for the workflow?",
+      "options": {
+        "A": "Root Cause: The model is overfitting to standard residential meters. Solution: Retrain the model with a larger, more balanced dataset.",
+        "B": "Root Cause: The confidence scores are poorly calibrated for the industrial meter sub-population. Solution: Isolate industrial meter photos, create a labeled validation set for them, and use it to recalibrate the confidence scores or set a specific, higher review threshold for this segment.",
+        "C": "Root Cause: The image resolution for industrial meters is too low. Solution: Implement a pre-processing step to reject all low-resolution images.",
+        "D": "Root Cause: Random model error. Solution: Implement a rule that requires two different models to agree on the reading before it can be automated."
+      },
+      "options_array": [
+        "Root Cause: The model is overfitting to standard residential meters. Solution: Retrain the model with a larger, more balanced dataset.",
+        "Root Cause: The confidence scores are poorly calibrated for the industrial meter sub-population. Solution: Isolate industrial meter photos, create a labeled validation set for them, and use it to recalibrate the confidence scores or set a specific, higher review threshold for this segment.",
+        "Root Cause: The image resolution for industrial meters is too low. Solution: Implement a pre-processing step to reject all low-resolution images.",
+        "Root Cause: Random model error. Solution: Implement a rule that requires two different models to agree on the reading before it can be automated."
+      ],
+      "correct": "B",
+      "explanation": "A: While overfitting to the standard residential layout is likely the reason the model struggles with industrial meters, retraining with a larger dataset is a long-term development mitigation. It does not address the immediate operational need to prevent confident misreads from reaching production systems without human review.\nB: Correct. The high-confidence misreads indicate that the model's probability estimates are poorly calibrated for this specific distribution (industrial meters). Isolating the sub-population to perform segment-specific calibration (e.g., via Platt scaling or temperature scaling) or setting a more stringent human review threshold for that specific segment is the most targeted and immediate way to restore reliability.\nC: Low resolution typically results in lower confidence scores or obvious artifacts. It does not explain a systematic failure where a specific layout mismatch results in extremely high confidence on incorrect readings.\nD: The errors are consistent and limited to a specific sub-population with a different layout, which indicates a systematic distribution shift rather than random noise. Requiring model agreement is a complex, expensive mitigation that doesn't solve the underlying calibration failure for that segment.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24294)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-23987",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A customer support system categorizes incoming tickets into 5 distinct buckets, extracts the customer ID, and formats a JSON response. The engineering team initially implemented this using dynamic adaptive decomposition, allowing the agent to reason about how to process each ticket. However, latency and API costs are unacceptably high. What is the best architectural change?",
+      "options": {
+        "A": "Keep the dynamic adaptive decomposition but switch to a smaller, faster model.",
+        "B": "Switch to a fixed sequential pipeline (prompt chaining) because the task is a predictable, multi-aspect review.",
+        "C": "Switch to a map-reduce pattern to process the ticket categorization and extraction in parallel.",
+        "D": "Implement an adaptive investigation plan to only extract the customer ID if the ticket is marked as urgent."
+      },
+      "options_array": [
+        "Keep the dynamic adaptive decomposition but switch to a smaller, faster model.",
+        "Switch to a fixed sequential pipeline (prompt chaining) because the task is a predictable, multi-aspect review.",
+        "Switch to a map-reduce pattern to process the ticket categorization and extraction in parallel.",
+        "Implement an adaptive investigation plan to only extract the customer ID if the ticket is marked as urgent."
+      ],
+      "correct": "B",
+      "explanation": "A: While switching to a smaller model may reduce cost per token, it does not address the architectural overhead of dynamic adaptive decomposition. The 'reasoning loop' used in dynamic planning still requires multiple LLM calls to decide how to process the task, which is redundant for a predictable workflow.\nB: A fixed sequential pipeline (prompt chaining) is the most efficient pattern for tasks that are deterministic and follow a predictable sequence of steps (categorize -> extract -> format). By removing the planning and reasoning overhead of an agentic loop, latency and API costs are significantly reduced without sacrificing accuracy.\nC: Map-reduce is designed for parallelizing large datasets or long documents. For a single ticket involving simple categorization and extraction, the coordination and aggregation overhead of map-reduce would likely increase complexity and latency compared to a simple chain.\nD: Implementing an adaptive investigation plan adds conditional logic that complicates the system rather than simplifying it. Furthermore, skipping customer ID extraction based on urgency risks producing incomplete data for downstream processes and does not solve the root cause of the high orchestration costs.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23987)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24237",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "In the context of managing agentic session state and resumption, which of the following operations is specifically used to create a new session branch from an existing state to allow for parallel or divergent interactions?",
+      "options": {
+        "A": "--resume <session-name>",
+        "B": "fork_session",
+        "C": "--clear-context",
+        "D": "--new-branch"
+      },
+      "options_array": [
+        "--resume <session-name>",
+        "fork_session",
+        "--clear-context",
+        "--new-branch"
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. '--resume <session-name>' is typically a CLI flag or command used to continue an existing session from its last state, rather than creating a divergent or parallel branch from it.\nB: Correct. 'fork_session' is the appropriate primitive for creating a new branch of an existing session. It preserves the current context and produces a new session handle, enabling parallel workflows or resumption from a specific point without modifying the original session state.\nC: Incorrect. '--clear-context' implies wiping the current session history or buffer. This is the opposite of forking or resuming, as it destroys state rather than preserving or branching it.\nD: Incorrect. While '--new-branch' describes the concept, it is not a standard API or SDK primitive in the Claude/Anthropic architecture; branching logic is explicitly handled via forking operations like 'fork_session'.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24237)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24020",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A frontend developer is tasked with setting up a Kubernetes cluster with an Istio service mesh. The developer has zero experience with infrastructure-as-code or Kubernetes networking. They want to use Claude to generate the necessary YAML configuration files. Which prompting strategy should the developer use to ensure a secure and appropriate architecture?",
+      "options": {
+        "A": "Prompt Claude to generate standard, production-ready Kubernetes and Istio YAML files based on industry best practices.",
+        "B": "Prompt Claude to act as a Kubernetes expert and ask the developer questions about their application's traffic patterns, security needs, and scale before generating any YAML.",
+        "C": "Ask Claude to provide a comprehensive tutorial on Kubernetes and Istio, read it, and then attempt to write the YAML manually.",
+        "D": "Provide Claude with the frontend source code and ask it to automatically infer and generate the necessary Kubernetes configuration."
+      },
+      "options_array": [
+        "Prompt Claude to generate standard, production-ready Kubernetes and Istio YAML files based on industry best practices.",
+        "Prompt Claude to act as a Kubernetes expert and ask the developer questions about their application's traffic patterns, security needs, and scale before generating any YAML.",
+        "Ask Claude to provide a comprehensive tutorial on Kubernetes and Istio, read it, and then attempt to write the YAML manually.",
+        "Provide Claude with the frontend source code and ask it to automatically infer and generate the necessary Kubernetes configuration."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. While this approach might generate standard functional YAML files, it fails to account for the specific context of the application. Production readiness depends on application-specific traffic patterns and security policies; without clarification, the generated YAML may include unsafe defaults or miss required controls like mTLS, specific network policies, or resource limits.\nB: Correct. This strategy leverages an interactive, iterative approach where Claude acts as a subject matter expert to gather essential context before generation. By asking targeted questions about traffic, security, and scale, Claude can ensure the generated manifests are tailored to the application's actual needs, reducing misconfiguration risk and supporting progressive refinement toward a secure architecture.\nC: Incorrect. While educational, reading a tutorial and attempting manual drafting is highly time-consuming and error-prone for a developer with no experience. This approach ignores the efficiency and safety provided by an AI assistant capable of expert-guided generation and refinement based on specific technical requirements.\nD: Incorrect. Frontend source code typically lacks the necessary operational, networking, and security context required for infrastructure configuration. Inferring infrastructure requirements solely from source code is fragile and likely to result in incomplete or insecure configurations that miss external dependencies and runtime constraints.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24020)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-32813",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Financial compliance requires that every execution of an `execute_trade` tool is immutably logged to a WORM (Write Once Read Many) database with the exact arguments and execution timestamp. Relying on the model to output a summary of its trades has resulted in missing or hallucinated log entries. How should you guarantee compliance?",
+      "options": {
+        "A": "Instruct the model to call a `write_audit_log` tool immediately after every successful `execute_trade` call.",
+        "B": "Use a PostToolUse hook to parse the model's final text response for trade details and write those details to the WORM database.",
+        "C": "Modify the system prompt to require the model to output a structured JSON log block at the end of its turn, which the application parses and saves.",
+        "D": "Implement a PreToolCall hook on `execute_trade` that synchronously writes the intercepted arguments and a system timestamp to the WORM database before allowing the tool to execute."
+      },
+      "options_array": [
+        "Instruct the model to call a `write_audit_log` tool immediately after every successful `execute_trade` call.",
+        "Use a PostToolUse hook to parse the model's final text response for trade details and write those details to the WORM database.",
+        "Modify the system prompt to require the model to output a structured JSON log block at the end of its turn, which the application parses and saves.",
+        "Implement a PreToolCall hook on `execute_trade` that synchronously writes the intercepted arguments and a system timestamp to the WORM database before allowing the tool to execute."
+      ],
+      "correct": "D",
+      "explanation": "A: Incorrect. This approach still relies on the model to reliably perform the logging action. The model could fail to call `write_audit_log`, call it with hallucinated arguments, or be interrupted, leading to the same missing or inaccurate logs the problem describes.\nB: Incorrect. This method is unreliable because it depends on the model's final narrative output. As the research notes, models can \"confabulate\" or hallucinate, meaning the text summary may not accurately reflect the actual arguments passed to the `execute_trade` tool.\nC: Incorrect. While prompting for structured output is a good practice, it does not guarantee compliance. The model could still hallucinate the contents of the JSON block or fail to generate it, and there is no guarantee the JSON reflects the actual parameters sent to the tool.\nD: Correct. This is the most robust and reliable method. By intercepting the tool call before execution, the application layer—not the model—is responsible for logging. This captures the exact arguments the model intended to use and a reliable system-generated timestamp, creating an immutable, non-repudiable audit trail as recommended for compliance. Research confirms this is a highly recommended approach for sensitive operations.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=32813)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24244",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A legacy project contains both old JavaScript tests (`*.spec.js`) and newly migrated TypeScript tests (`*.test.ts`). You have drafted a unified testing strategy document for Claude. How should you configure the `.claude/rules/testing.md` file so that Claude loads these instructions when editing either type of test file?",
+      "options": {
+        "A": "Include YAML frontmatter with `paths: [\"**/*.spec.js\", \"**/*.test.ts\"]`.",
+        "B": "Create two separate rule files, one for each file extension, as the `paths` field only accepts a single string value.",
+        "C": "Use a regex pattern in the YAML frontmatter: `paths: [\"**/*.(spec\\\\.js|test\\\\.ts)\"]`.",
+        "D": "Place the rule file in the root directory and name it `CLAUDE.test.md` to automatically target all test extensions."
+      },
+      "options_array": [
+        "Include YAML frontmatter with `paths: [\"**/*.spec.js\", \"**/*.test.ts\"]`.",
+        "Create two separate rule files, one for each file extension, as the `paths` field only accepts a single string value.",
+        "Use a regex pattern in the YAML frontmatter: `paths: [\"**/*.(spec\\\\.js|test\\\\.ts)\"]`.",
+        "Place the rule file in the root directory and name it `CLAUDE.test.md` to automatically target all test extensions."
+      ],
+      "correct": "A",
+      "explanation": "A: Correct. Claude Code rule files use YAML frontmatter where the `paths` field accepts an array of glob patterns. Listing both file patterns in this array ensures the rule is applied when editing either `.spec.js` or `.test.ts` files. This is the standard, most maintainable way to target multiple extensions.\nB: Incorrect. The `paths` field in the YAML frontmatter supports an array of strings. Creating separate rule files for each extension is unnecessary and makes managing a unified testing strategy more difficult.\nC: Incorrect. The `paths` field in Claude rule files expects glob patterns rather than raw regular expressions. Standard glob syntax does not support the parenthesized regex groups (e.g., `(a|b)`) shown here. Using an array of distinct glob strings is the correct method.\nD: Incorrect. Claude relies on the YAML frontmatter inside files located in `.claude/rules/` to determine path-specific triggers. Simply naming a file `CLAUDE.test.md` in the root directory will not automatically target specific file extensions; only the root `CLAUDE.md` is automatically loaded for the entire project.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24244)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24124",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "Claude is used to triage incoming bug reports and assign severity levels (Low, Medium, High, Critical). Currently, Claude inconsistently classifies minor UI glitches as 'High' severity. The prompt currently defines High as 'Major impact on user experience.' How should the architect modify the prompt to achieve consistent classification?",
+      "options": {
+        "A": "Instruct Claude to 'Be conservative when assigning High severity to UI issues.'",
+        "B": "Ask Claude to output a confidence score for its severity assignment and downgrade High to Medium if confidence is below 90%.",
+        "C": "Add a strict rule: 'Never classify UI glitches as High severity under any circumstances.'",
+        "D": "Define explicit severity criteria with concrete code and issue examples for each severity level directly in the prompt."
+      },
+      "options_array": [
+        "Instruct Claude to 'Be conservative when assigning High severity to UI issues.'",
+        "Ask Claude to output a confidence score for its severity assignment and downgrade High to Medium if confidence is below 90%.",
+        "Add a strict rule: 'Never classify UI glitches as High severity under any circumstances.'",
+        "Define explicit severity criteria with concrete code and issue examples for each severity level directly in the prompt."
+      ],
+      "correct": "D",
+      "explanation": "A: Instructing the model to 'be conservative' is subjective and lacks the concrete decision rules needed for reliable performance. It fails to provide clear, testable criteria to reduce classification errors and will not lead to consistent results across different types of bug reports.\nB: Confidence scores in LLMs are often poorly calibrated and do not necessarily correlate with factual accuracy. This approach treats the symptom rather than the root cause and adds complexity without addressing the underlying ambiguity in the severity definitions.\nC: An absolute ban is too rigid and fails to account for legitimate high-severity UI issues, such as those that block core functionality or prevent users from completing critical tasks. Effective guidance should define the conditions under which an issue becomes High rather than banning a category entirely.\nD: Providing explicit severity criteria along with concrete examples and snippets anchors the model to repeatable, objective rules. This 'few-shot' prompting technique reduces ambiguity and helps the model distinguish between edge cases, leading to significantly more consistent and accurate classifications.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24124)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-23979",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An engineering team is using Claude to review massive pull requests spanning over 50 files. They notice that while Claude catches local syntax errors, it frequently misses subtle cross-file dependency issues and suffers from attention dilution, hallucinating variable names from unrelated files. How should the architect redesign the review workflow?",
+      "options": {
+        "A": "Split the workflow into per-file local analysis passes, followed by a separate cross-file integration pass.",
+        "B": "Use dynamic adaptive decomposition to allow Claude to decide which files are most important to read.",
+        "C": "Chunk the pull request into 5-file batches and run them completely independently to reduce context size.",
+        "D": "Increase the model's temperature and use a single prompt with XML tags separating the files."
+      },
+      "options_array": [
+        "Split the workflow into per-file local analysis passes, followed by a separate cross-file integration pass.",
+        "Use dynamic adaptive decomposition to allow Claude to decide which files are most important to read.",
+        "Chunk the pull request into 5-file batches and run them completely independently to reduce context size.",
+        "Increase the model's temperature and use a single prompt with XML tags separating the files."
+      ],
+      "correct": "A",
+      "explanation": "A: Correct. This is a classic decomposition strategy (Map-Reduce pattern). By splitting the task into local per-file passes, the architect reduces the context noise and attention dilution for individual file logic. The subsequent integration pass focuses specifically on the interaction between summarized symbols, allowing the model to focus on cross-file dependencies without the 'dilution' of full file contents.\nB: Incorrect. While adaptive decomposition is useful in some agentic workflows, allowing the model to decide 'which files are important' before it has fully analyzed the PR risks missing the 'subtle' dependencies mentioned in the prompt. It doesn't guarantee a comprehensive review of the entire code change.\nC: Incorrect. Running batches 'completely independently' is the fastest way to lose cross-file context. Dependencies between files in Batch 1 and Batch 2 would be entirely invisible to the model, failing the primary requirement of the redesign.\nD: Incorrect. Increasing temperature increases stochasticity (randomness), which generally increases hallucinations rather than reducing them. Furthermore, forcing all 50 files into a single prompt (even with XML tags) causes the 'attention dilution' and 'middle-of-the-context' neglect mentioned in the problem description.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23979)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-32827",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "An engineer is building a tool that uses the Claude API to process user-provided data, such as a `zip_code` and `item_description`. The tool must handle potential API errors gracefully. The API can return a `400 Bad Request` if the `zip_code` is malformed, or a `503 Service Unavailable` if Anthropic's service is temporarily overloaded. How should the tool's error handling logic be structured to correctly manage these two scenarios?",
+      "options": {
+        "A": "Return `isError: true` for both. For the `400` error, return `errorCategory: \"validation\"`, `isRetryable: true`, and prompt the user for a valid zip code. For the `503` error, return `errorCategory: \"transient\"`, `isRetryable: true`, and suggest retrying later.",
+        "B": "Return `isError: true` for both. For the `400` error, return `errorCategory: \"validation\"`, `isRetryable: false`, and prompt the user for a valid zip code. For the `503` error, return `errorCategory: \"transient\"`, `isRetryable: true`, and suggest retrying later.",
+        "C": "Return `isError: true` for both. For the `400` error, set `isRetryable: true`. For the `503` error, set `isRetryable: false` to avoid overwhelming the service.",
+        "D": "Return `isError: true` for both. For the `400` error, use `errorCategory: \"transient\"`. For the `503` error, use `errorCategory: \"validation\"`."
+      },
+      "options_array": [
+        "Return `isError: true` for both. For the `400` error, return `errorCategory: \"validation\"`, `isRetryable: true`, and prompt the user for a valid zip code. For the `503` error, return `errorCategory: \"transient\"`, `isRetryable: true`, and suggest retrying later.",
+        "Return `isError: true` for both. For the `400` error, return `errorCategory: \"validation\"`, `isRetryable: false`, and prompt the user for a valid zip code. For the `503` error, return `errorCategory: \"transient\"`, `isRetryable: true`, and suggest retrying later.",
+        "Return `isError: true` for both. For the `400` error, set `isRetryable: true`. For the `503` error, set `isRetryable: false` to avoid overwhelming the service.",
+        "Return `isError: true` for both. For the `400` error, use `errorCategory: \"transient\"`. For the `503` error, use `errorCategory: \"validation\"`."
+      ],
+      "correct": "B",
+      "explanation": "A: This is incorrect because a `400 Bad Request` error is a client-side validation error and is not retryable. As confirmed by API best practices, retrying the exact same invalid request will only result in the same error. The client must modify the request (e.g., correct the zip code) before sending it again.\nB: This is the correct approach. A `400 Bad Request` is a client-side validation error that is not retryable without modification, so `isRetryable: false` is appropriate. A `503 Service Unavailable` is a transient, server-side error, making it suitable for retries (ideally with exponential backoff), so `isRetryable: true` is correct.\nC: This reverses the correct logic. Client-side `400` errors are not retryable, while server-side `503` errors are. Implementing retries with exponential backoff for `503` errors is a standard practice to manage load, not avoiding retries altogether.\nD: This incorrectly assigns the error categories. A `400` error is a `validation` error because the client's input is invalid. A `503` error is a `transient` error because the server is temporarily unavailable.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=32827)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24008",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A travel booking multi-agent system consists of a FlightAgent, HotelAgent, and CarAgent. Currently, they pass a JSON state object sequentially (Flight -> Hotel -> Car). When the HotelAgent encounters an API timeout, the entire chain fails silently, the user receives no response, and the engineering team struggles to trace the point of failure. How should you redesign the system to improve observability and error handling?",
+      "options": {
+        "A": "Add exponential backoff and retry logic directly inside the HotelAgent's tool definitions.",
+        "B": "Transition to a hub-and-spoke architecture where a Coordinator invokes each agent, catches the HotelAgent's timeout, logs the error, and decides whether to retry or proceed with partial results.",
+        "C": "Implement a global timeout on the user interface so the user is prompted to refresh the page when the chain stalls.",
+        "D": "Configure the HotelAgent to send an alert to the engineering team whenever it fails before passing the state to the CarAgent."
+      },
+      "options_array": [
+        "Add exponential backoff and retry logic directly inside the HotelAgent's tool definitions.",
+        "Transition to a hub-and-spoke architecture where a Coordinator invokes each agent, catches the HotelAgent's timeout, logs the error, and decides whether to retry or proceed with partial results.",
+        "Implement a global timeout on the user interface so the user is prompted to refresh the page when the chain stalls.",
+        "Configure the HotelAgent to send an alert to the engineering team whenever it fails before passing the state to the CarAgent."
+      ],
+      "correct": "B",
+      "explanation": "A: While adding retry logic can help mitigate transient failures, it does not address the core issues of silent failures or poor observability across the entire system. If all retries are exhausted, the failure would still be silent to the rest of the chain, and decision-making remains distributed and difficult to trace.\nB: Moving to a hub-and-spoke (Coordinator) architecture centralizes invocation, error handling, and logging. The Coordinator acts as the central authority that can catch agent timeouts, log detailed context for engineers, and implement logic to return partial results or fallbacks to the user, ensuring the system remains resilient and observable.\nC: Implementing a global UI timeout is a reactive frontend measure that improves user feedback but does not resolve the backend architectural issue. It does not provide the engineering team with diagnostics or enable the system to recover or provide partial data.\nD: Alerting engineers is a useful notification strategy but is reactive and does not fix the fragility of the sequential agent chain. It does not centralize decision-making regarding retries or fallbacks, nor does it ensure the user receives a structured response when a sub-agent fails.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24008)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24187",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A medical research platform uses Claude to extract patient symptoms from clinical notes. The extraction is highly accurate but occasionally hallucinations symptoms. You want to implement a system that automatically accepts highly certain extractions but flags uncertain ones for a doctor's review. Which architecture best supports this requirement?",
+      "options": {
+        "A": "Ask the extraction model to output a JSON boolean `is_certain: true` alongside the symptoms in the initial generation pass.",
+        "B": "Implement a secondary verification pass where an independent Claude instance reviews the extracted symptoms against the clinical notes, outputs a confidence score, and routes low scores to a doctor.",
+        "C": "Run the extraction prompt three times in parallel and only accept symptoms that appear in all three outputs, discarding the rest.",
+        "D": "Increase the `top_k` parameter to ensure the model only selects from the most highly probable symptom tokens during extraction."
+      },
+      "options_array": [
+        "Ask the extraction model to output a JSON boolean `is_certain: true` alongside the symptoms in the initial generation pass.",
+        "Implement a secondary verification pass where an independent Claude instance reviews the extracted symptoms against the clinical notes, outputs a confidence score, and routes low scores to a doctor.",
+        "Run the extraction prompt three times in parallel and only accept symptoms that appear in all three outputs, discarding the rest.",
+        "Increase the `top_k` parameter to ensure the model only selects from the most highly probable symptom tokens during extraction."
+      ],
+      "correct": "B",
+      "explanation": "A: Self-reported certainty flags (e.g., `is_certain: true`) within a single pass are generally unreliable because LLMs are often poorly calibrated and may be overconfident even when hallucinating. This approach lacks the independent validation necessary for high-stakes medical use cases.\nB: A secondary verification pass using an independent model instance (multi-pass architecture) is the most robust approach. It allows the second instance to cross-check the extracted symptoms against the original source text to identify discrepancies or hallucinations. This architecture supports generating a confidence score or routing signal specifically for human-in-the-loop (HITL) review by a doctor.\nC: While consensus-based or n-of-m architectures can reduce inconsistency, they are less effective at identifying hallucinations if the model makes correlated errors across runs. Simply discarding symptoms that don't appear in all runs might also suppress valid clinical findings without providing a nuanced routing mechanism for clinician review.\nD: Adjusting sampling parameters like `top_k` controls token-level probability but does not provide a semantic verification mechanism. Furthermore, increasing `top_k` actually expands the pool of potential tokens, which can increase the likelihood of lower-probability tokens being selected and does not address the requirement for uncertainty flagging.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24187)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-32441",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "You are building an automated code review assistant using a Claude model. The assistant is instructed to output a JSON object containing exactly four fields for every vulnerability found: `location`, `issue`, `severity`, and `suggested_fix`. Despite detailed schema definitions in the prompt, the model occasionally merges the `location` and `issue` fields or omits the `severity` field entirely. What is the most reliable method to enforce this specific output format for programmatic use?",
+      "options": {
+        "A": "Include few-shot examples in the prompt that demonstrate the specific desired output format with all four fields correctly populated.",
+        "B": "Increase the `max_tokens` parameter to ensure Claude has enough space to generate the complete JSON structure.",
+        "C": "Add an instruction to the system prompt stating: 'CRITICAL: You will be penalized if you do not include location, issue, severity, and suggested_fix.'",
+        "D": "Define a tool with an input schema matching the four required fields (`location`, `issue`, `severity`, `suggested_fix`) and force the model to call this tool."
+      },
+      "options_array": [
+        "Include few-shot examples in the prompt that demonstrate the specific desired output format with all four fields correctly populated.",
+        "Increase the `max_tokens` parameter to ensure Claude has enough space to generate the complete JSON structure.",
+        "Add an instruction to the system prompt stating: 'CRITICAL: You will be penalized if you do not include location, issue, severity, and suggested_fix.'",
+        "Define a tool with an input schema matching the four required fields (`location`, `issue`, `severity`, `suggested_fix`) and force the model to call this tool."
+      ],
+      "correct": "D",
+      "explanation": "A: Incorrect. While including few-shot examples is a valid and recommended prompt engineering technique to guide the model, it does not guarantee the output structure. The model can still occasionally deviate, making this method less reliable for programmatic use than more deterministic approaches like Tool Use.\nB: Incorrect. The `max_tokens` parameter controls the maximum length of the model's output. The problem described is a failure to adhere to a specific format, not a truncation of the output due to length constraints. Increasing `max_tokens` will not solve the structural inconsistency.\nC: Incorrect. While clear instructions are important, phrasing them as a threat or penalty is a less effective form of prompt engineering. Models respond more reliably to structural constraints and concrete examples rather than abstract negative reinforcement.\nD: Correct. According to Anthropic's documentation, using Tool Use is a highly recommended and reliable method for ensuring consistent structured output. By defining a tool with a specific input schema and forcing the model to use it, you constrain the output to a predictable JSON object that strictly adheres to the defined fields, making it the most reliable option for this programmatic use case.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=32441)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24104",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "An architect is implementing structured state persistence for a fleet of code-exploration agents. When an agent crashes due to a network timeout, the coordinator needs to resume the agent's work without losing the high-level goal or the specific files already processed. Which implementation best achieves this?",
+      "options": {
+        "A": "The coordinator should save the agent's API keys and session tokens to a secure vault to ensure the connection can be re-established.",
+        "B": "Each agent must continuously append its raw token stream to a Redis cache so the coordinator can perform an exact replay of the session.",
+        "C": "Agents should periodically export a JSON manifest containing their current high-level goal, a list of processed files, and key extracted entities; the coordinator injects this JSON into the prompt on resume.",
+        "D": "The coordinator should use /compact on the crashed agent's context and send the compacted text to a newly spawned subagent."
+      },
+      "options_array": [
+        "The coordinator should save the agent's API keys and session tokens to a secure vault to ensure the connection can be re-established.",
+        "Each agent must continuously append its raw token stream to a Redis cache so the coordinator can perform an exact replay of the session.",
+        "Agents should periodically export a JSON manifest containing their current high-level goal, a list of processed files, and key extracted entities; the coordinator injects this JSON into the prompt on resume.",
+        "The coordinator should use /compact on the crashed agent's context and send the compacted text to a newly spawned subagent."
+      ],
+      "correct": "C",
+      "explanation": "A: Saving API keys and session tokens focuses solely on authentication and connectivity. It fails to preserve the agent's application-level state, such as specific progress or high-level goals, making it insufficient for resuming complex exploration tasks.\nB: Attempting an exact replay of a raw token stream is fragile due to the non-deterministic nature of LLMs and potential model updates. It is also an inefficient way to restore state as it does not provide a semantic summary of progress.\nC: Periodically exporting a structured JSON manifest containing the goal, processed files, and extracted entities provides a robust, semantic checkpoint. This allows the coordinator to inject exactly what the model needs to know to continue work efficiently without re-processing data, which is the definition of structured state persistence.\nD: Context compaction is generally a lossy summarization process. While it reduces token count, it does not guarantee that specific metadata like processed-file lists or extracted entities will be preserved accurately for reliable task resumption.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24104)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-28733",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial institution is building an automated compliance review system for standard vendor contracts. The workflow always requires extracting liability clauses, checking data privacy terms against a standard rubric, and generating a final risk score based on the extracted data. Which task decomposition strategy is most appropriate for this architecture?",
+      "options": {
+        "A": "Dynamic adaptive decomposition, allowing the agent to determine the review order based on the contract's contents.",
+        "B": "A fixed sequential pipeline (prompt chaining) that executes the extraction, rubric check, and scoring in a predictable order.",
+        "C": "A single zero-shot prompt that asks the model to perform extraction, checking, and scoring simultaneously to save tokens.",
+        "D": "Parallel independent agents that each read the document and vote on the final risk score."
+      },
+      "options_array": [
+        "Dynamic adaptive decomposition, allowing the agent to determine the review order based on the contract's contents.",
+        "A fixed sequential pipeline (prompt chaining) that executes the extraction, rubric check, and scoring in a predictable order.",
+        "A single zero-shot prompt that asks the model to perform extraction, checking, and scoring simultaneously to save tokens.",
+        "Parallel independent agents that each read the document and vote on the final risk score."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. Dynamic adaptive decomposition is best for complex tasks where the subtasks are not predefined. According to Anthropic's documentation, this 'Orchestrator-Workers' workflow is for when an orchestrator must dynamically determine steps. The scenario describes a fixed, predictable workflow, making a static approach more appropriate.\nB: Correct. Anthropic's official documentation recommends a fixed sequential pipeline (prompt chaining) for tasks that can be cleanly decomposed into fixed subtasks. This approach improves accuracy for each step, simplifies troubleshooting, and allows for programmatic checks or 'gates' between steps, which is critical for ensuring compliance and reliability in a financial institution's workflow.\nC: Incorrect. While a single prompt may use fewer tokens, decomposing a complex task into a chain of simpler, more focused prompts generally leads to higher accuracy and consistency. For a high-stakes compliance use case, the improved reliability and auditability of a multi-step process outweigh the benefits of token savings.\nD: Incorrect. The described workflow is inherently sequential; the rubric check depends on the output of the extraction, and the final score depends on the outputs of the first two steps. Parallel processing is not suitable because the tasks are dependent, not independent. Anthropic documentation suggests parallel workflows for tasks where multiple aspects can be processed concurrently.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=28733)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-28767",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A lead engineer wants to ensure that all new hires automatically have Claude Code configured to use the company's proprietary internal package registry. The solution must be centrally managed and require no manual configuration on the new hires' machines. Which approach aligns with Anthropic's recommended practices for enterprise environments?",
+      "options": {
+        "A": "Commit a `.claude/settings.json` file containing the registry configuration to the root of every company repository.",
+        "B": "Provide an onboarding script that appends the registry configuration to each new hire's user-specific `~/.claude/settings.json` file.",
+        "C": "Use a central management tool (MDM) or OS-level policies to deploy a managed settings file or apply the configuration directly, for example, via Windows Registry keys.",
+        "D": "Add the registry instructions to a `CLAUDE.md` file and use a server-managed setting to push this file to all new hires."
+      },
+      "options_array": [
+        "Commit a `.claude/settings.json` file containing the registry configuration to the root of every company repository.",
+        "Provide an onboarding script that appends the registry configuration to each new hire's user-specific `~/.claude/settings.json` file.",
+        "Use a central management tool (MDM) or OS-level policies to deploy a managed settings file or apply the configuration directly, for example, via Windows Registry keys.",
+        "Add the registry instructions to a `CLAUDE.md` file and use a server-managed setting to push this file to all new hires."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. While using a project-specific `.claude/settings.json` file is a valid way to configure Claude Code for a particular project, it is not a centrally managed solution for a user. This approach would not apply the setting globally for the new hire and would require maintaining the configuration file across all repositories.\nB: Incorrect. Although this would configure the tool for the user, it relies on modifying a user-level configuration file via a script. The official documentation recommends a more robust, centrally managed approach for enterprise environments that prevents users from accidentally overriding critical settings.\nC: Correct. According to official documentation, Claude Code supports managed settings for centralized enterprise control. This can be achieved through file-based settings in system directories or via MDM/OS-level policies, such as using the `HKLM\\SOFTWARE\\Policies\\ClaudeCode` Registry key on Windows. This method enforces the configuration for all users on a machine without requiring any manual setup.\nD: Incorrect. The `CLAUDE.md` file's purpose is to provide rules for correcting Claude's mistakes and teaching it to avoid them in the future. It is not used for tool configuration, such as setting a package registry. Configuration settings belong in a `settings.json` file.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=28767)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24293",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "You need to completely replace the contents of a legacy `webpack.config.js` file with a brand new, standardized 20-line configuration provided by the platform team. The old file contains 300 lines of outdated custom plugins. Which tool application is most appropriate?",
+      "options": {
+        "A": "Use the Edit tool, matching the first and last lines of the old file, and replacing the entire block with the new configuration.",
+        "B": "Use the Grep tool to delete the old contents line-by-line, then use the Write tool to insert the new configuration.",
+        "C": "Use the Write tool directly to overwrite the entire `webpack.config.js` file with the new 20-line configuration.",
+        "D": "Use the Bash tool to `rm` the file, then use the Edit tool to create a new file with the same name."
+      },
+      "options_array": [
+        "Use the Edit tool, matching the first and last lines of the old file, and replacing the entire block with the new configuration.",
+        "Use the Grep tool to delete the old contents line-by-line, then use the Write tool to insert the new configuration.",
+        "Use the Write tool directly to overwrite the entire `webpack.config.js` file with the new 20-line configuration.",
+        "Use the Bash tool to `rm` the file, then use the Edit tool to create a new file with the same name."
+      ],
+      "correct": "C",
+      "explanation": "A: Using the Edit tool to match the first and last lines of a large 300-line file is brittle and error-prone. The Edit tool is optimized for targeted, contextual modifications rather than full-file replacements.\nB: Grep is a search utility, not a tool for deleting file contents. Attempting to use search tools for deletion is inefficient and structurally incorrect when a direct replacement tool exists.\nC: The Write tool is the most efficient and direct method for this task because it is designed to atomically create or overwrite a file's entire content. It ensures a clean replacement without the complexity of pattern matching or multi-step operations.\nD: Using Bash to delete the file followed by the Edit tool to recreate it is unnecessarily complex. This approach can lead to file system churn and potential issues with file permissions or metadata, whereas Write handles the overwrite natively.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24293)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24120",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "An IT support bot has `reset_password`, `unlock_account`, and `provision_software` tools. The system prompt includes the phrase: 'Your primary goal is to help users unlock their potential and access their accounts.' When a user asks for a password reset, Claude frequently calls `unlock_account` instead. What is the root cause and best solution for this behavior?",
+      "options": {
+        "A": "The tool names are too similar; rename `reset_password` to `change_credentials`.",
+        "B": "The tools have functional overlap; combine `reset_password` and `unlock_account` into a single tool.",
+        "C": "Keyword-sensitive instructions in the system prompt are creating unintended tool associations; remove the metaphorical phrase.",
+        "D": "The tool descriptions lack negative constraints; add 'Do not use for password resets' to the `unlock_account` description."
+      },
+      "options_array": [
+        "The tool names are too similar; rename `reset_password` to `change_credentials`.",
+        "The tools have functional overlap; combine `reset_password` and `unlock_account` into a single tool.",
+        "Keyword-sensitive instructions in the system prompt are creating unintended tool associations; remove the metaphorical phrase.",
+        "The tool descriptions lack negative constraints; add 'Do not use for password resets' to the `unlock_account` description."
+      ],
+      "correct": "C",
+      "explanation": "A: Renaming the target tool does not address the underlying semantic bias. The issue is not that 'reset_password' is vague, but that the system prompt is actively steering the model toward the 'unlock' keyword.\nB: Combining distinct functions like password resets and account unlocks into a single tool is poor design. It conflates different administrative actions, complicates the backend logic, and reduces auditing granularity without addressing the prompt's influence.\nC: LLMs are highly sensitive to keywords in the system prompt. The metaphorical use of 'unlock' ('unlock their potential') creates a strong semantic bias that causes the model to prefer the tool with the matching name 'unlock_account', even when the user's intent (password reset) matches a different tool. Removing or rephrasing the metaphor is the most effective architectural fix.\nD: While negative constraints (telling a model what not to do) can sometimes be a temporary patch, they are brittle and often ignored. The best practice is to eliminate the ambiguity at the source by cleaning up the prompt instructions.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24120)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24041",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A retail bot is programmed with a strict return policy: 'Items may be returned within 30 days of purchase. No exceptions for buyer's remorse.' A customer contacts the bot requesting to return a laptop 45 days after purchase, stating that the laptop's battery caught fire. The provided policy documentation is completely silent on safety incidents or defective hardware past 30 days. How should the bot be designed to handle this?",
+      "options": {
+        "A": "Deny the return request strictly based on the 30-day rule, as the policy explicitly states 'No exceptions'.",
+        "B": "Automatically approve the return to avoid legal liability and ensure customer safety.",
+        "C": "Trigger an escalation to a human agent because the policy is ambiguous and silent regarding safety incidents and severe defects.",
+        "D": "Ask the customer to upload photographic evidence of the fire damage, and if verified by a vision model, approve the return."
+      },
+      "options_array": [
+        "Deny the return request strictly based on the 30-day rule, as the policy explicitly states 'No exceptions'.",
+        "Automatically approve the return to avoid legal liability and ensure customer safety.",
+        "Trigger an escalation to a human agent because the policy is ambiguous and silent regarding safety incidents and severe defects.",
+        "Ask the customer to upload photographic evidence of the fire damage, and if verified by a vision model, approve the return."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. Denying the return strictly based on the 30-day rule ignores the potential safety hazard and legal implications of a defective product. The policy focuses on 'buyer's remorse', and its silence on safety incidents means the bot should not assume the rigid rule applies to hazardous product failures.\nB: Incorrect. Automatically approving the return without further review is risky and bypasses required investigations, evidence collection, and cross-functional notifications (e.g., safety, legal, engineering). The bot should not make unilateral decisions in high-liability situations.\nC: Correct. Escalation to a human agent or a dedicated safety/claims team is the best approach when a policy is ambiguous or silent regarding severe defects. This allows for professional assessment of legal and safety implications, coordination with engineering, and proper initiation of safety protocols (like recalls or incident reports) that automated systems cannot safely perform alone.\nD: Incorrect. While collecting evidence can be part of the process, placing critical safety and liability decisions on automated verification (like a vision model) is fallible and insufficient for legal or recall actions. The final disposition for a hazardous defect requires human oversight and specialized handling.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24041)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24191",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A company is migrating a monolithic application to microservices. They use Claude to analyze the 50-file monolith and propose service boundaries. When analyzing all 50 files in one prompt, Claude's proposed boundaries are superficial and miss deep coupling between distant files. How should the architect redesign the analysis process?",
+      "options": {
+        "A": "Wait for a model with a larger context window to perform this analysis effectively in a single pass.",
+        "B": "Split the task into per-file local analysis passes to extract dependencies and domain entities, followed by a cross-file integration pass that analyzes the extracted data to propose service boundaries.",
+        "C": "Use an independent review instance to critique the superficial boundaries, which will force the original instance to look deeper into the code.",
+        "D": "Increase the max_tokens parameter to allow Claude to write a longer, more detailed analysis of the 50 files."
+      },
+      "options_array": [
+        "Wait for a model with a larger context window to perform this analysis effectively in a single pass.",
+        "Split the task into per-file local analysis passes to extract dependencies and domain entities, followed by a cross-file integration pass that analyzes the extracted data to propose service boundaries.",
+        "Use an independent review instance to critique the superficial boundaries, which will force the original instance to look deeper into the code.",
+        "Increase the max_tokens parameter to allow Claude to write a longer, more detailed analysis of the 50 files."
+      ],
+      "correct": "B",
+      "explanation": "A: Relying on a future model with a larger context window is a passive approach that does not address the current need for structural analysis. Even with larger windows, models can suffer from 'lost in the middle' effects or attention dilution when processing massive inputs. Good architecture utilizes multi-pass strategies that work within existing model constraints.\nB: This is the ideal multi-pass approach for complex codebase analysis. By decomposing the task into local extraction passes followed by a global integration pass, the model can focus its attention on specific dependencies and domain entities. This structured intermediate data then allows the integration pass to identify deep, distributed couplings that are often overlooked in a single-pass holistic analysis.\nC: While a multi-instance review (critic/refiner pattern) is valuable for quality control, it is insufficient if the model cannot effectively digest the volume of raw data in a single pass. Without first decomposing and structuring the dependency data, the critic instance would likely repeat the same superficial mistakes as the original instance.\nD: Increasing the max_tokens parameter only increases the potential length of the model's response; it does not expand the model's input context or fundamentally improve its ability to reason across many files. The problem is related to the depth of analysis and data processing architecture, not the output length.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24191)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24070",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "An automated project management agent needs to generate a daily digest of all active Jira issues. Currently, the agent uses a `search_issues` tool to get a list of issue IDs, and then calls a `get_issue_details` tool 100 times in a loop to read each issue. This frequently triggers API rate limits and takes several minutes to complete. Which MCP feature should the architect implement to resolve this?",
+      "options": {
+        "A": "Implement an exponential backoff retry mechanism within the `get_issue_details` tool to handle the rate limits gracefully.",
+        "B": "Expose a pre-compiled catalog of issue summaries as an MCP resource, allowing the agent to read the aggregated data in a single action.",
+        "C": "Increase the agent's parallel execution limit in the .mcp.json file so it can execute all 100 tool calls simultaneously.",
+        "D": "Modify the `search_issues` tool description to explicitly forbid the agent from calling `get_issue_details` more than 10 times per session."
+      },
+      "options_array": [
+        "Implement an exponential backoff retry mechanism within the `get_issue_details` tool to handle the rate limits gracefully.",
+        "Expose a pre-compiled catalog of issue summaries as an MCP resource, allowing the agent to read the aggregated data in a single action.",
+        "Increase the agent's parallel execution limit in the .mcp.json file so it can execute all 100 tool calls simultaneously.",
+        "Modify the `search_issues` tool description to explicitly forbid the agent from calling `get_issue_details` more than 10 times per session."
+      ],
+      "correct": "B",
+      "explanation": "A: While exponential backoff is a best practice for handling transient rate-limit errors, it does not address the fundamental architectural inefficiency of making 100 individual API calls. The process would remain slow and would still likely hit cumulative quota limits over time.\nB: MCP Resources are designed for reading data (like logs, files, or catalogs) rather than performing actions. By exposing a pre-compiled catalog or aggregated summary as a resource, the agent can fetch all required data in a single 'read' operation. This avoids the overhead of tool-calling loops and prevents rate-limit exhaustion by reducing the number of requests to the underlying API.\nC: Increasing parallel execution does not reduce total API usage and would likely exacerbate rate-limit issues by sending a massive burst of requests to the Jira API simultaneously. It also does not solve the underlying performance issue of the agent needing to process 100 separate tool responses.\nD: Modifying the tool description is a prompt engineering tactic that restricts the agent's functionality. This would prevent the agent from fulfilling the requirement of generating a complete digest of 'all' active issues, failing to solve the technical bottleneck.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24070)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24165",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A cybersecurity agent uses a `scan_port` tool. The developer executes the tool and appends the result as a plain text string to the end of the last `user` message, rather than using a structured `tool_result` block. During testing, Claude begins hallucinating tool outputs and loses track of which ports it has already scanned. Why does this implementation cause model degradation?",
+      "options": {
+        "A": "Plain text strings do not support the `is_error` flag, causing Claude to treat all closed ports as open and vulnerable.",
+        "B": "Appending plain text instead of a structured `tool_result` block breaks the explicit linkage between the assistant's `tool_use_id` and the result, degrading the model's ability to reason about the action.",
+        "C": "The developer must use a `system` message to inject plain text results, as `user` messages are strictly reserved for human input and cannot contain tool data.",
+        "D": "Plain text strings bypass the model's internal safety filters, causing it to hallucinate malicious port activity instead of reading the actual scan results."
+      },
+      "options_array": [
+        "Plain text strings do not support the `is_error` flag, causing Claude to treat all closed ports as open and vulnerable.",
+        "Appending plain text instead of a structured `tool_result` block breaks the explicit linkage between the assistant's `tool_use_id` and the result, degrading the model's ability to reason about the action.",
+        "The developer must use a `system` message to inject plain text results, as `user` messages are strictly reserved for human input and cannot contain tool data.",
+        "Plain text strings bypass the model's internal safety filters, causing it to hallucinate malicious port activity instead of reading the actual scan results."
+      ],
+      "correct": "B",
+      "explanation": "A: While structured tool results can include an `is_error` flag, its absence is not the primary cause of reasoning failure or the loss of state regarding scanned ports. The degradation stems from structural misalignment, not the lack of a specific boolean flag.\nB: Correct. Claude's Messages API requires a structured action-observation loop where a `tool_use` (from the assistant) is followed by a `tool_result` (from the user). The `tool_result` block MUST contain a `tool_use_id` that matches the assistant's request. This linkage provides provenance and allows the model to reliably map observations back to specific actions. Without it, the model loses the logical thread, leading to hallucinations and a failure to maintain accurate state.\nC: This is incorrect because `tool_result` blocks are actually intended to be placed within messages with the `user` role. The problem is not the role of the message, but the format of the content—specifically, the lack of a structured tool block and metadata linkage.\nD: Hallucinations in tool-use scenarios are typically a result of context and provenance loss. While plain text might be processed differently than structured blocks, the degradation is a cognitive reasoning failure rather than a mechanical bypass of internal safety filters.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24165)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24012",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A multi-agent system is tasked with writing a comprehensive biography of a historical figure. The Coordinator assigns Agent A to research the figure's childhood, Agent B for early career, and Agent C for late career. The final synthesis reads like three disconnected essays and completely misses the lifelong evolution of the figure's political philosophy. What is the primary issue with the Coordinator's orchestration strategy?",
+      "options": {
+        "A": "The Coordinator should have assigned all research to a single agent to ensure narrative consistency and tone.",
+        "B": "The Coordinator's temporal partitioning was too narrow; it should have also partitioned by thematic scope (e.g., assigning an agent to trace political philosophy across all periods) to ensure broad coverage.",
+        "C": "The synthesis agent requires a significantly larger context window to rewrite the three distinct essays into a single, unified voice.",
+        "D": "The subagents should have been permitted to communicate directly with one another to align their writing styles during the research phase."
+      },
+      "options_array": [
+        "The Coordinator should have assigned all research to a single agent to ensure narrative consistency and tone.",
+        "The Coordinator's temporal partitioning was too narrow; it should have also partitioned by thematic scope (e.g., assigning an agent to trace political philosophy across all periods) to ensure broad coverage.",
+        "The synthesis agent requires a significantly larger context window to rewrite the three distinct essays into a single, unified voice.",
+        "The subagents should have been permitted to communicate directly with one another to align their writing styles during the research phase."
+      ],
+      "correct": "B",
+      "explanation": "A: Assigning all research to a single agent would eliminate the core benefits of a multi-agent system, such as parallel processing and specialized focus. While it might improve tone, it doesn't solve the structural problem of missing complex cross-cutting themes like political evolution.\nB: Correct. The Coordinator utilized a purely temporal decomposition strategy, which is insufficient for capturing 'cross-cutting concerns' that evolve over time. Effective orchestration for complex narratives often requires combining temporal partitioning with thematic partitioning (e.g., an agent dedicated to tracking philosophy across the whole timeline) to ensure continuity and depth.\nC: A larger context window for the synthesis agent might improve stylistic cohesion, but it cannot fix a content gap. If the research agents did not identify or trace the political evolution during their specific phases, the synthesis agent has no data to work with, regardless of its context window size.\nD: While peer-to-peer communication between subagents can help with stylistic alignment and spotting overlaps, it does not fundamentally address the flawed task decomposition. The primary failure is the lack of an assignment or mechanism focused on the lifelong evolution of the subject's philosophy.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24012)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24333",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "You are designing a JSON schema for an `extract_product_specs` tool. The source documents are marketing brochures that vary wildly in detail. If you make all fields required, Claude hallucinates missing values. If you make them optional, Claude sometimes skips extracting values that are actually present in the text. What is the best architectural solution?",
+      "options": {
+        "A": "Make the fields optional in the schema, and add a system prompt explicitly instructing Claude to extract the values if they are present in the text.",
+        "B": "Keep the fields required, but instruct Claude to output \"0\" or \"N/A\" for missing numerical values.",
+        "C": "Use tool_choice: {\"type\": \"auto\"} so Claude can explain in text which fields are missing before calling the tool.",
+        "D": "Create separate tools for each possible combination of fields and use tool_choice: {\"type\": \"any\"}."
+      },
+      "options_array": [
+        "Make the fields optional in the schema, and add a system prompt explicitly instructing Claude to extract the values if they are present in the text.",
+        "Keep the fields required, but instruct Claude to output \"0\" or \"N/A\" for missing numerical values.",
+        "Use tool_choice: {\"type\": \"auto\"} so Claude can explain in text which fields are missing before calling the tool.",
+        "Create separate tools for each possible combination of fields and use tool_choice: {\"type\": \"any\"}."
+      ],
+      "correct": "B",
+      "explanation": "A: While keeping fields optional maintains schema integrity, it relies entirely on the model's diligence. As noted in the problem description, this approach leads to omission (laziness), where the model ignores values present in the text because there is no structural requirement to include them.\nB: This is the most effective architectural solution for high-precision extraction. Making fields 'required' in the JSON schema creates a structural constraint that forces the model to address every field, effectively eliminating omission. Providing a specific placeholder (like 'N/A' or '0') for missing data gives the model a safe alternative to hallucination when the information is truly absent.\nC: Using tool_choice: 'auto' gives the model the option to bypass the tool entirely or provide a conversational preamble. It does not address the internal consistency of the JSON payload itself and introduces unnecessary latency and token usage.\nD: Creating separate tools for every combination of fields is not a scalable solution. It leads to a 'combinatorial explosion' that makes the schema difficult to maintain and consumes excessive context window space, while making it harder for the model to choose the correct tool.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24333)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24299",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "You are deprecating a legacy utility library `moment.js` in favor of `date-fns`. Before making any changes, you need to find every file in the project that imports `moment`. What is the most efficient way to gather this list?",
+      "options": {
+        "A": "Use Glob to find all files named `moment.js` or `moment.ts` in the project.",
+        "B": "Use Grep with the search pattern `import .* from ['\"]moment['\"]` or `require(['\"]moment['\"])` to search file contents for the import statements.",
+        "C": "Use Read on the `package.json` file to confirm `moment` is a dependency, then use Edit to remove it and see where the build fails.",
+        "D": "Use the Bash tool to uninstall the package and rely on the TypeScript compiler to list the affected files."
+      },
+      "options_array": [
+        "Use Glob to find all files named `moment.js` or `moment.ts` in the project.",
+        "Use Grep with the search pattern `import .* from ['\"]moment['\"]` or `require(['\"]moment['\"])` to search file contents for the import statements.",
+        "Use Read on the `package.json` file to confirm `moment` is a dependency, then use Edit to remove it and see where the build fails.",
+        "Use the Bash tool to uninstall the package and rely on the TypeScript compiler to list the affected files."
+      ],
+      "correct": "B",
+      "explanation": "A: Glob matches file names and paths, not the contents of files. This would only find files actually named 'moment', missing all other files that import the library but have different filenames.\nB: Grep (Global Regular Expression Print) is the standard tool for searching file contents. Using a regular expression that matches common import and require patterns is the most direct, efficient, and non-destructive way to locate every reference to the module across the entire codebase.\nC: Reading package.json only confirms the library is a dependency. Removing it and waiting for build failures is an inefficient 'scream test' that is destructive and may miss usages in non-compiled files or files not currently covered by the build pipeline.\nD: Uninstalling the package and relying on compiler/runtime errors is disruptive and unreliable. The compiler may not provide a comprehensive list of all files, and this approach can cause unnecessary broken states in the development environment compared to a simple search.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24299)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24331",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A sentiment analysis pipeline processes product reviews using a tool with a `sentiment` enum field restricted to `[\"positive\", \"negative\", \"neutral\"]`. For highly sarcastic or contradictory reviews, Claude struggles to classify the text and randomly selects \"positive\" or \"negative\", which skews your analytics. How should you adjust your schema design to handle this?",
+      "options": {
+        "A": "Add `\"unclear\"` to the `sentiment` enum values and instruct Claude to use it for ambiguous or highly sarcastic text.",
+        "B": "Change the schema to output a float between -1.0 and 1.0 to capture the nuance of sarcasm.",
+        "C": "Force Claude to output a chain-of-thought reasoning field before the sentiment field to improve its final classification.",
+        "D": "Use `tool_choice: {\"type\": \"auto\"}` so Claude can refuse to answer when the sentiment is too difficult to determine."
+      },
+      "options_array": [
+        "Add `\"unclear\"` to the `sentiment` enum values and instruct Claude to use it for ambiguous or highly sarcastic text.",
+        "Change the schema to output a float between -1.0 and 1.0 to capture the nuance of sarcasm.",
+        "Force Claude to output a chain-of-thought reasoning field before the sentiment field to improve its final classification.",
+        "Use `tool_choice: {\"type\": \"auto\"}` so Claude can refuse to answer when the sentiment is too difficult to determine."
+      ],
+      "correct": "A",
+      "explanation": "A: Adding an explicit enum value such as 'unclear', 'mixed', or 'ambiguous' provides the model with a 'safe' structured option to use when text doesn't fit the standard categories. This reduces the frequency of forced random guesses, which protects the integrity of the analytics and allows for easy filtering of data points that may require manual review.\nB: Switching to a continuous float (e.g., -1.0 to 1.0) can express intensity but does not solve the classification logic problem for sarcasm. Models may still map sarcastic text to extreme values arbitrarily, and continuous values are significantly harder to interpret and threshold for categorical analytics compared to a discrete 'unclear' category.\nC: While adding a reasoning or explanation field (often called 'thinking' or 'rationale') can improve the model's internal logic and final accuracy, it does not resolve the structural issue of how to represent ambiguous or sarcastic sentiment in the output schema without forcing it into one of the existing incorrect buckets.\nD: Setting tool_choice to 'auto' is the default behavior and does not provide a reliable mechanism for handling ambiguity. If Claude 'refuses' to answer by returning a text response instead of a tool call, it often breaks automated processing pipelines that expect structured JSON tool results.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24331)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24316",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "During a complex refactoring session, Claude Code suddenly stops following the project's custom API error handling conventions. The developer suspects that the relevant configuration file is no longer in context. How should the developer diagnose this issue?",
+      "options": {
+        "A": "Execute the /memory command to inspect which configuration and rule files are currently loaded in the session's context.",
+        "B": "Run /config reload to force Claude to re-parse the .claude/rules/ directory.",
+        "C": "Delete the .claude/CLAUDE.md file and recreate it to reset the context window.",
+        "D": "Use the /import api-conventions.md command to forcefully inject the rules into the current prompt."
+      },
+      "options_array": [
+        "Execute the /memory command to inspect which configuration and rule files are currently loaded in the session's context.",
+        "Run /config reload to force Claude to re-parse the .claude/rules/ directory.",
+        "Delete the .claude/CLAUDE.md file and recreate it to reset the context window.",
+        "Use the /import api-conventions.md command to forcefully inject the rules into the current prompt."
+      ],
+      "correct": "A",
+      "explanation": "A: Correct. In the Claude Code CLI, the /memory command is the primary diagnostic tool used to inspect the current session context. It provides a summary of active rules, project state, and instructions that Claude is currently following, allowing the developer to verify if the API conventions are still being tracked.\nB: Incorrect. While forcing a refresh might be a reactive fix, Claude Code typically monitors the filesystem for changes automatically. Furthermore, /config reload is not the standard diagnostic command for inspecting the internal state of the current context window.\nC: Incorrect. Deleting and recreating the CLAUDE.md file is a destructive action and does not provide any diagnostic information regarding why the model stopped following the conventions. It is an inefficient way to reset context.\nD: Incorrect. There is no standard /import command in Claude Code for ad-hoc rule injection. Rules should be managed through the established hierarchy (.claude/rules/ or CLAUDE.md) to ensure they are properly scoped and maintained across the session.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24316)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-23999",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A critical security vulnerability (SQL Injection) has been identified in `SearchController.java`. The security team has provided the exact sanitization function that needs to be wrapped around the `userInput` parameter on line 112. The fix is fully understood, urgent, and isolated to this single line. Which Claude Code workflow is most appropriate?",
+      "options": {
+        "A": "Plan mode, because security vulnerabilities inherently have architectural implications.",
+        "B": "The Explore subagent, to ensure no other files have similar vulnerabilities before fixing this one.",
+        "C": "Direct execution, because the change is well-understood, simple, and has a clear scope.",
+        "D": "Plan mode to draft the sanitization wrapper, followed by direct execution to apply it."
+      },
+      "options_array": [
+        "Plan mode, because security vulnerabilities inherently have architectural implications.",
+        "The Explore subagent, to ensure no other files have similar vulnerabilities before fixing this one.",
+        "Direct execution, because the change is well-understood, simple, and has a clear scope.",
+        "Plan mode to draft the sanitization wrapper, followed by direct execution to apply it."
+      ],
+      "correct": "C",
+      "explanation": "A: While security issues can have architectural impact, this particular fix is isolated, fully specified, and urgent. Plan mode is better suited for complex, multi-file design changes rather than a single-line sanitation wrap, and its overhead is unnecessary in this context.\nB: The Explore subagent is useful for broad discovery and identifying patterns across a codebase. However, when an urgent, well-scoped fix for a known critical vulnerability is available, delaying remediation to run explorations would unnecessarily prolong the system's exposure to the threat.\nC: Direct execution is the most appropriate workflow when the change is simple, fully understood, and constrained to a single line. This approach minimizes delay and overhead, allowing the developer to address the critical security vulnerability immediately.\nD: Drafting in plan mode before executing adds unnecessary steps for a trivial, well-specified fix. This multi-step workflow is intended for changes that require coordination across files or complex reasoning, neither of which are required for a single-line wrapper.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=23999)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24286",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "An e-commerce company has a mature, Claude-based system for extracting product details from supplier catalogs. Recently, a major supplier changed their catalog format without notice, introducing a new 'sustainability score' field and altering the date format, causing subtle, undetected errors. Which existing workflow component, if designed correctly, would be most effective at detecting this new error pattern quickly?",
+      "options": {
+        "A": "The initial data validation pipeline that checks for required fields based on the old format.",
+        "B": "An anomaly detection model that monitors the distribution of confidence scores for all extractions.",
+        "C": "An ongoing, stratified random sampling of high-confidence extractions, where reviewers compare the model's output against the source document.",
+        "D": "A daily report of the aggregate accuracy metric for all processed catalogs."
+      },
+      "options_array": [
+        "The initial data validation pipeline that checks for required fields based on the old format.",
+        "An anomaly detection model that monitors the distribution of confidence scores for all extractions.",
+        "An ongoing, stratified random sampling of high-confidence extractions, where reviewers compare the model's output against the source document.",
+        "A daily report of the aggregate accuracy metric for all processed catalogs."
+      ],
+      "correct": "C",
+      "explanation": "A: The initial data validation pipeline based on legacy formats is typically designed to check for the presence of specific fields or basic data types. It will not reliably flag subtle changes in field formatting (like a date format swap) or the presence of new, unexpected fields that are not part of the validation schema.\nB: While anomaly detection on confidence scores can flag broad shifts in model behavior, it often fails to detect 'silent failures.' In many cases, when a format changes slightly, the model may still produce an output with high confidence that is factually incorrect (e.g., misparsing DD/MM as MM/DD), meaning the confidence distribution may not trigger an alert.\nC: Ongoing, stratified random sampling of high-confidence extractions is a primary tool for confidence calibration and reliability. By having humans review cases where the model is highly confident, organizations can detect systematic errors where the model is 'confidently wrong.' Stratifying the sample (e.g., by supplier) ensures that errors specific to one source are surfaced quickly even if they are subtle.\nD: Aggregate accuracy metrics are lagging indicators and are often too coarse to detect problems within a specific subset of data. Reporting at an aggregate level can mask localized failures introduced by a single supplier's format change.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24286)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24262",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "An agent is synthesizing news reports about a sensitive political event. One source is a well-regarded international news agency known for its neutrality, while another is a highly partisan blog. The current system extracts claims from both and presents them as equivalent facts, failing to convey the difference in source reliability. Which architectural choice best addresses this problem?",
+      "options": {
+        "A": "Create a blocklist to exclude all sources identified as partisan to ensure the report is unbiased.",
+        "B": "Instruct the synthesis agent to use its own judgment to determine which source is more 'truthful' and prioritize its claims.",
+        "C": "Implement a pre-processing step where a 'source analysis' agent annotates each document with metadata like 'source_type' (e.g., 'news agency', 'partisan blog') and 'known_biases'. The synthesis agent is then required to use this metadata in its attribution, for example, 'According to the partisan blog...' or 'Reuters, a global news agency, reported...'",
+        "D": "Blend the claims from both sources to create a 'middle ground' or 'neutral' viewpoint in the final summary."
+      },
+      "options_array": [
+        "Create a blocklist to exclude all sources identified as partisan to ensure the report is unbiased.",
+        "Instruct the synthesis agent to use its own judgment to determine which source is more 'truthful' and prioritize its claims.",
+        "Implement a pre-processing step where a 'source analysis' agent annotates each document with metadata like 'source_type' (e.g., 'news agency', 'partisan blog') and 'known_biases'. The synthesis agent is then required to use this metadata in its attribution, for example, 'According to the partisan blog...' or 'Reuters, a global news agency, reported...'",
+        "Blend the claims from both sources to create a 'middle ground' or 'neutral' viewpoint in the final summary."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. Creating a blocklist is often heavy-handed and risks excluding relevant perspectives entirely. This approach fails to preserve provenance and reduces transparency, as it ignores certain sources rather than properly contextualizing them for the user.\nB: Incorrect. Relying on the LLM's internal 'judgment' for truthfulness is subjective, inconsistent, and non-transparent. Without explicit metadata, these epistemic decisions are difficult to audit and do not provide the end-user with necessary context about source reliability.\nC: Correct. Implementing a source-analysis pre-processing step provides the synthesis agent with structured metadata (provenance). Requiring the agent to use this metadata in its attribution ensures transparency and helps users understand the reliability and context of different claims, effectively handling uncertainty in multi-source synthesis.\nD: Incorrect. Blending claims into a 'middle ground' risks creating a 'false balance' that may be misleading or factually incorrect. This approach obscures the original provenance and reliability differences, making it impossible for users to assess the credibility of individual statements.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24262)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24259",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "In a multi-agent system analyzing corporate acquisitions, one subagent extracts the deal value from an official SEC filing, while another extracts it from a company's press release. The figures differ slightly due to reporting conventions. The final synthesis agent is inconsistently choosing one figure or hallucinating a reconciliation. Which workflow design best handles this conflict?",
+      "options": {
+        "A": "Always prioritize data from the SEC filing over the press release by hard-coding a source preference rule into the synthesis agent.",
+        "B": "Stop the entire process and flag for human intervention whenever a conflict is detected, ensuring 100% accuracy.",
+        "C": "Design the workflow so that subagents output structured data annotated with source and potential conflicts. A separate 'coordinator' agent reviews these outputs, and if a conflict is detected, it passes both annotated values to the synthesis agent with instructions on how to present the discrepancy.",
+        "D": "Allow the subagents to communicate with each other to debate and resolve the conflict, sending only a single, agreed-upon value to the synthesis agent."
+      },
+      "options_array": [
+        "Always prioritize data from the SEC filing over the press release by hard-coding a source preference rule into the synthesis agent.",
+        "Stop the entire process and flag for human intervention whenever a conflict is detected, ensuring 100% accuracy.",
+        "Design the workflow so that subagents output structured data annotated with source and potential conflicts. A separate 'coordinator' agent reviews these outputs, and if a conflict is detected, it passes both annotated values to the synthesis agent with instructions on how to present the discrepancy.",
+        "Allow the subagents to communicate with each other to debate and resolve the conflict, sending only a single, agreed-upon value to the synthesis agent."
+      ],
+      "correct": "C",
+      "explanation": "A: Hard-coding a source preference rule is a brittle solution that ignores the nuance of provenance. It prevents the system from surfacing uncertainty to downstream consumers and fails to account for scenarios where the 'preferred' source might be outdated or less detailed than the secondary source.\nB: Halting the process for every minor discrepancy is an impractical, high-cost strategy that undermines the scalability of an automated system. While useful for high-risk validation, it does not leverage the LLM's capability to synthesize and explain uncertainty.\nC: This approach preserves information provenance by using structured data and annotations. By involving a coordinator to identify conflicts and instructing the synthesis agent to present the discrepancy, the system ensures transparency and prevents hallucinated reconciliations. It allows the final output to reflect the true state of the available information.\nD: Allowing subagents to debate and reach a single value often results in 'consensus hallucinations' or hidden heuristics. This method risks losing the audit trail and original source context, making it difficult to verify why a specific number was chosen over another.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24259)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24284",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A legal tech company uses Claude to extract key clauses from complex commercial contracts for a team of 5 paralegals. The model flags documents for review if it detects ambiguity or has low confidence. Due to high volume, the review queue often exceeds 100 contracts. As the architect, how would you design the review queue to maximize the value of the paralegals' limited time?",
+      "options": {
+        "A": "A 'First-In, First-Out' (FIFO) queue to ensure all flagged contracts are eventually reviewed in the order they arrived.",
+        "B": "A 'Last-In, First-Out' (LIFO) queue to prioritize the most recent contracts, assuming they are more urgent.",
+        "C": "A prioritized queue that ranks contracts based on a composite score derived from model confidence, clause type (e.g., liability vs. notice period), and contract value metadata.",
+        "D": "A round-robin system that distributes contracts evenly among the paralegals to balance the workload."
+      },
+      "options_array": [
+        "A 'First-In, First-Out' (FIFO) queue to ensure all flagged contracts are eventually reviewed in the order they arrived.",
+        "A 'Last-In, First-Out' (LIFO) queue to prioritize the most recent contracts, assuming they are more urgent.",
+        "A prioritized queue that ranks contracts based on a composite score derived from model confidence, clause type (e.g., liability vs. notice period), and contract value metadata.",
+        "A round-robin system that distributes contracts evenly among the paralegals to balance the workload."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. A FIFO queue treats all flagged contracts equally and processes them strictly by arrival time. This can waste scarce paralegal effort on low-impact or low-risk documents, failing to prioritize based on model confidence or business impact, which does not maximize the value of limited review capacity.\nB: Incorrect. A LIFO approach prioritizes the most recent items but assumes recency correlates with urgency, which is rarely true for legal risk or business impact. This can lead to important older documents languishing while lower-impact recent items are reviewed, reducing overall triage effectiveness.\nC: Correct. A prioritized queue using a composite score (incorporating model confidence, clause sensitivity, and contract value) ensures that paralegals focus on the highest-risk and highest-value reviews first. This approach supports efficient triage, allows for thresholds for automatic acceptance or escalation, and maximizes the impact of human-in-the-loop (HITL) workflows.\nD: Incorrect. While a round-robin system balances workload among staff, it does not account for differing contract importance or model uncertainty. It ensures fairness in task volume but does not ensure the most valuable or critical reviews are completed first.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24284)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24265",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A customer service agent uses an MCP tool to process refunds. A user requests a refund for an item purchased 45 days ago, but the company policy strictly limits refunds to a 30-day window. Currently, the tool returns a generic 'Operation failed' error, which causes the agent to repeatedly retry the tool with different arguments, wasting tokens and frustrating the user. How should the architect redesign the tool's error response to resolve this?",
+      "options": {
+        "A": "Return an MCP response with `isError: true`, `errorCategory: \"validation\"`, and `isRetryable: true` so the agent can ask the user to provide a different purchase date.",
+        "B": "Return an MCP response with `isError: true`, `errorCategory: \"business\"`, `isRetryable: false`, and a customer-friendly explanation of the 30-day policy so the agent can inform the user.",
+        "C": "Return an MCP response with `isError: false` and a text payload of 'Operation failed' to prevent the agent from triggering its internal error-handling loop.",
+        "D": "Return an MCP response with `isError: true`, `errorCategory: \"permission\"`, and `isRetryable: false` because the user lacks the administrative authority to override the 30-day policy."
+      },
+      "options_array": [
+        "Return an MCP response with `isError: true`, `errorCategory: \"validation\"`, and `isRetryable: true` so the agent can ask the user to provide a different purchase date.",
+        "Return an MCP response with `isError: true`, `errorCategory: \"business\"`, `isRetryable: false`, and a customer-friendly explanation of the 30-day policy so the agent can inform the user.",
+        "Return an MCP response with `isError: false` and a text payload of 'Operation failed' to prevent the agent from triggering its internal error-handling loop.",
+        "Return an MCP response with `isError: true`, `errorCategory: \"permission\"`, and `isRetryable: false` because the user lacks the administrative authority to override the 30-day policy."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. Categorizing a business policy violation as a 'validation' error and marking it 'isRetryable: true' is misleading. The issue is not with the data format but with a non-negotiable business constraint; marking it retryable will cause the agent to waste tokens on futile retries.\nB: Correct. Surfacing this as a 'business' error (policy violation) and marking it as 'isRetryable: false' prevents the model from entering a retry loop. Including a customer-friendly explanation allows the agent to provide the user with clear reasoning for the rejection.\nC: Incorrect. Setting 'isError: false' misrepresents the outcome and prevents the model's internal error-handling logic from functioning. Furthermore, a generic 'Operation failed' message does not provide the agent with the necessary information to explain the policy to the user.\nD: Incorrect. A permission error implies that the agent or user lacks the specific authorization or credentials required to perform the action. The issue here is a business rule regarding the purchase date, which is unrelated to the user's administrative authority.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24265)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24014",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "An architect is building a distributed rate-limiting middleware using Claude. The middleware must handle specific race conditions and meet strict performance thresholds. The architect wants to ensure progressive improvement and correctness throughout the implementation process. Which workflow represents the best application of test-driven iteration with Claude?",
+      "options": {
+        "A": "Ask Claude to write the middleware implementation first, manually deploy it to a staging environment, and report any observed bugs back to Claude.",
+        "B": "Ask Claude to generate both the middleware code and the test suite in a single prompt to ensure the tests perfectly match the implementation.",
+        "C": "Write a comprehensive test suite covering edge cases and performance requirements first, run it against Claude's initial implementation, and share the test failures to guide refinement.",
+        "D": "Have Claude explain the rate-limiting algorithm step-by-step in natural language, approve the logic, and then ask for the final code."
+      },
+      "options_array": [
+        "Ask Claude to write the middleware implementation first, manually deploy it to a staging environment, and report any observed bugs back to Claude.",
+        "Ask Claude to generate both the middleware code and the test suite in a single prompt to ensure the tests perfectly match the implementation.",
+        "Write a comprehensive test suite covering edge cases and performance requirements first, run it against Claude's initial implementation, and share the test failures to guide refinement.",
+        "Have Claude explain the rate-limiting algorithm step-by-step in natural language, approve the logic, and then ask for the final code."
+      ],
+      "correct": "C",
+      "explanation": "A: This approach fails to follow test-driven iteration principles. Relying on manual deployment and reporting creates a slow, subjective feedback loop that does not leverage Claude's ability to drive implementation based on specific, automated failure signals.\nB: Generating implementation and tests in the same prompt risks coupling the tests to the code's logic, including potential errors. This reduces the independence of the validation artifacts and skips the iterative refinement loop necessary for complex distributed systems.\nC: This is the most effective iterative workflow. By defining expectations through a comprehensive test suite first, the architect provides Claude with an objective, repeatable benchmark. Sharing specific test failures allows Claude to perform targeted refinements to address complex issues like race conditions and performance bottlenecks progressively.\nD: While explaining the logic is a good preliminary design step, it lacks the executable verification needed for production-grade middleware. Natural language approval cannot guarantee the absence of race conditions or ensure that performance thresholds are met under load.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24014)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24255",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A legal AI assistant tracks proposed legislation by scraping government websites weekly. In its latest summary, it flags a 'contradiction' because a bill's text on the website in Week 1 is different from the text in Week 2. This is causing unnecessary alerts for human review. What is the most appropriate architectural solution to prevent the system from misinterpreting temporal changes as logical contradictions?",
+      "options": {
+        "A": "Instruct the synthesis agent to ignore any information that appears to be contradictory across different data ingestion runs.",
+        "B": "Re-architect the data ingestion pipeline to require every extracted piece of text to be stored in a structured format that includes a mandatory 'data_collection_timestamp' field. The synthesis agent must then use these timestamps to construct a timeline of amendments.",
+        "C": "Implement a final human review stage to manually identify and correct any temporal misinterpretations before the report is finalized.",
+        "D": "Fine-tune the model on historical legislative data so it learns to implicitly understand that bills are often amended over time."
+      },
+      "options_array": [
+        "Instruct the synthesis agent to ignore any information that appears to be contradictory across different data ingestion runs.",
+        "Re-architect the data ingestion pipeline to require every extracted piece of text to be stored in a structured format that includes a mandatory 'data_collection_timestamp' field. The synthesis agent must then use these timestamps to construct a timeline of amendments.",
+        "Implement a final human review stage to manually identify and correct any temporal misinterpretations before the report is finalized.",
+        "Fine-tune the model on historical legislative data so it learns to implicitly understand that bills are often amended over time."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. Instructing the synthesis agent to ignore contradictions across ingestion runs would indiscriminately drop data, potentially hiding real updates or logical inconsistencies. It fails to distinguish between a version update (amendment) and a genuine error, compromising the accuracy of the legislative tracking.\nB: Correct. Incorporating a mandatory 'data_collection_timestamp' field provides explicit provenance. This allows the system to construct a chronological timeline and interpret text changes as temporal updates or amendments rather than logical contradictions. This structured approach preserves information provenance and makes the AI's reasoning auditable.\nC: Incorrect. While human review can identify misinterpretations, it is a non-scalable manual process that introduces a bottleneck and does not address the root architectural issue. It fails to reduce the frequency of false-positive alerts generated by the system.\nD: Incorrect. Fine-tuning a model on historical patterns is brittle and opaque. LLMs may still fail to reliably associate specific text with specific timestamps or may hallucinate when synthesizing multi-source data. Robust handling of temporal data requires explicit structured metadata and versioning rather than relying on implicit model behavior.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24255)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24229",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An agentic workflow involves Claude exploring a database schema via tool use to write complex SQL business logic. Halfway through the session, the underlying database schema is significantly altered. How should the architect handle the session state to ensure the highest accuracy for the remaining task?",
+      "options": {
+        "A": "Use --resume to continue the previous session so Claude remembers the business logic, as the tool results will automatically update.",
+        "B": "Start a new session providing a structured summary of the business goals and the new schema, because the prior tool results are now stale and misleading.",
+        "C": "Use fork_session from the point before the SQL queries were executed to maintain the original context without the stale data.",
+        "D": "Resume the session and instruct Claude to run a full database re-exploration script to overwrite its previous context."
+      },
+      "options_array": [
+        "Use --resume to continue the previous session so Claude remembers the business logic, as the tool results will automatically update.",
+        "Start a new session providing a structured summary of the business goals and the new schema, because the prior tool results are now stale and misleading.",
+        "Use fork_session from the point before the SQL queries were executed to maintain the original context without the stale data.",
+        "Resume the session and instruct Claude to run a full database re-exploration script to overwrite its previous context."
+      ],
+      "correct": "B",
+      "explanation": "A: Resuming a session preserves the exact conversation history, including previous tool outputs. These results are static and do not automatically update. Relying on this would lead to Claude using outdated and misleading information for its reasoning, as the prior schema exploration results are now incorrect.\nB: This is the best practice for handling significant environment changes. Starting a new session ensures a clean state without contamination from stale tool results. Providing a structured summary of the business goals preserves the relevant logic while introducing the new schema as the fresh source of truth, maximizing accuracy.\nC: Forking is typically used for exploring alternative reasoning paths or branching experiments. If the underlying schema has changed significantly, forking still carries the risk of including outdated context or assumptions from the original session that are no longer valid, making a clean session a more robust architectural pattern.\nD: Resuming and re-exploring is inefficient and risks context contamination. Claude would have both the old schema data and the new schema data in its context window, which can lead to confusion and reasoning errors. It is cleaner and more reliable to start a fresh session when the environment fundamentally shifts.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24229)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24149",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "An automated invoice processing pipeline uses Claude to extract line items and then categorize them using a `categorize_items` tool. The system architecture requires that Claude always calls the `extract_metadata` tool first to log the invoice ID and vendor before doing any categorization. Occasionally, Claude skips extraction and goes straight to categorization. How can the architect guarantee the correct sequence?",
+      "options": {
+        "A": "Set `tool_choice: {\"type\": \"any\"}` on the first turn to ensure Claude picks at least one of the two tools.",
+        "B": "Use `tool_choice: {\"type\": \"tool\", \"name\": \"extract_metadata\"}` on the first turn, process the result, and then allow `{\"type\": \"auto\"}` for subsequent turns.",
+        "C": "Remove the `categorize_items` tool entirely and merge its functionality into the `extract_metadata` tool payload.",
+        "D": "Add a system prompt instructing Claude to \"Think step-by-step: 1. Extract metadata, 2. Categorize items.\""
+      },
+      "options_array": [
+        "Set `tool_choice: {\"type\": \"any\"}` on the first turn to ensure Claude picks at least one of the two tools.",
+        "Use `tool_choice: {\"type\": \"tool\", \"name\": \"extract_metadata\"}` on the first turn, process the result, and then allow `{\"type\": \"auto\"}` for subsequent turns.",
+        "Remove the `categorize_items` tool entirely and merge its functionality into the `extract_metadata` tool payload.",
+        "Add a system prompt instructing Claude to \"Think step-by-step: 1. Extract metadata, 2. Categorize items.\""
+      ],
+      "correct": "B",
+      "explanation": "A: Setting `tool_choice: {\"type\": \"any\"}` forces Claude to use at least one tool from the available list, but it does not specify which one. Claude could still choose to call `categorize_items` first, which fails the architectural requirement.\nB: Using `tool_choice` with a specific tool name (e.g., `{\"type\": \"tool\", \"name\": \"extract_metadata\"}`) provides a programmatic guarantee that Claude will call that specific tool first. This is the recommended architectural pattern for enforcing sequences in tool-calling workflows. Once the metadata is extracted and the result is returned to Claude, the developer can switch back to `auto` for more flexible tool selection.\nC: Merging tools technically ensures the logic happens at once, but it is a poor design choice that violates the principle of modularity and separation of concerns. It makes tools harder to maintain, audit, and reuse, and it is unnecessary because tool-calling order can be managed via the API.\nD: System prompts provide guidance and instruction, but they do not act as a strict enforcement mechanism. Under high complexity or specific input conditions, Claude may deviate from prompt-based instructions. The Tool Choice parameter is the intended feature for strict control over model behavior.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24149)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24158",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A system is designed to extract the 'shipper_reference_id' from bills of lading. After several failed attempts and retries on a specific document, the model consistently returns `null` for this field. A manual review of the document confirms that the shipper reference ID is not present anywhere in the provided text; it was only mentioned in the email that the document was attached to. What is the most appropriate system action in this scenario?",
+      "options": {
+        "A": "Continue the retry loop with more aggressive prompts, such as 'The shipper_reference_id MUST be in the document. Find it.'",
+        "B": "Log the failure, halt the retry loop for this document, and flag it for manual review with a reason of 'Required information not present in source document.'",
+        "C": "Switch to a more advanced model and attempt the extraction again, as it may be able to infer the missing information.",
+        "D": "Modify the prompt to ask the model to search the document's metadata for the missing ID."
+      },
+      "options_array": [
+        "Continue the retry loop with more aggressive prompts, such as 'The shipper_reference_id MUST be in the document. Find it.'",
+        "Log the failure, halt the retry loop for this document, and flag it for manual review with a reason of 'Required information not present in source document.'",
+        "Switch to a more advanced model and attempt the extraction again, as it may be able to infer the missing information.",
+        "Modify the prompt to ask the model to search the document's metadata for the missing ID."
+      ],
+      "correct": "B",
+      "explanation": "A: Continuing the retry loop with aggressive prompts that insist a field exists when it does not is a primary driver of model hallucinations. It wastes computational resources and will not yield valid results if the source data is missing.\nB: This is the most robust approach for an automated pipeline. Logging the specific failure and halting the retry loop prevents wasted tokens and hallucinations. Flagging for manual review allows a human to reconcile the missing data (e.g., by checking the associated email body) and provides an audit trail for data quality issues.\nC: Switching to a more advanced model will not solve the issue because no model can extract information that is not present in its input context. This would likely increase costs and might even result in more 'confident' hallucinations as the model tries to infer non-existent data.\nD: Modifying the prompt to search metadata is only useful if metadata was actually provided to the model and contains the ID. In this scenario, the information was specifically stated to be in the email body, not the document itself, making this action ineffective.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24158)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24183",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A legal tech company uses Claude to review uploaded Non-Disclosure Agreements (NDAs) against a standard corporate playbook. The system currently flags every minor deviation, overwhelming the legal team with manual reviews. The architect needs to reduce the human review burden while ensuring critical risks are not missed. Which approach best achieves this?",
+      "options": {
+        "A": "Modify the prompt to only output deviations that contain specific high-risk keywords like 'liability', 'indemnity', or 'jurisdiction'.",
+        "B": "Add a verification pass where Claude evaluates the initial findings and self-reports a confidence score for its assessment; route low-confidence assessments and high-risk findings to the human legal team.",
+        "C": "Instruct the original generation prompt to use a lower temperature and a top_p of 0.5 to ensure it only generates the most probable, high-confidence deviations.",
+        "D": "Implement a multi-pass architecture where the NDA is split into individual clauses, and Claude reviews each clause in isolation to prevent attention dilution."
+      },
+      "options_array": [
+        "Modify the prompt to only output deviations that contain specific high-risk keywords like 'liability', 'indemnity', or 'jurisdiction'.",
+        "Add a verification pass where Claude evaluates the initial findings and self-reports a confidence score for its assessment; route low-confidence assessments and high-risk findings to the human legal team.",
+        "Instruct the original generation prompt to use a lower temperature and a top_p of 0.5 to ensure it only generates the most probable, high-confidence deviations.",
+        "Implement a multi-pass architecture where the NDA is split into individual clauses, and Claude reviews each clause in isolation to prevent attention dilution."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. Relying solely on keyword-based filtering is brittle and context-blind. It will miss many semantically risky deviations that use different terminology, resulting in dangerous false negatives, and does not provide a graded triage mechanism.\nB: Correct. Adding a verification pass where the model evaluates its own findings and assigns a confidence score is a standard multi-pass architecture pattern. This enables automated triage where high-confidence/low-risk items can be auto-processed, while human reviewers focus only on high-risk findings or low-confidence assessments, effectively reducing workload without sacrificing safety.\nC: Incorrect. While lowering temperature and top_p increases the determinism of the output, it does not improve the model's ability to calibrate for risk or confidence. It does not provide a systematic triage workflow to solve the human review burden.\nD: Incorrect. Clause-by-clause review can improve accuracy by reducing context window pressure, but it doesn't solve the problem of flagging too many minor issues. In fact, it might increase the volume of flags and could cause the model to miss risks that only emerge when multiple clauses are read in context.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24183)"
+    },
+    {
+      "id": "certsafari-domain-5-context-24203",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A travel booking agent handles complex multi-city itineraries. Users often change their minds about dates and flight numbers over a 50-turn conversation. The bot currently relies on the raw conversation history, but occasionally books the wrong flight because it gets confused by earlier, discarded preferences. What is the best way to manage this context?",
+      "options": {
+        "A": "Ask the user to re-type their entire desired itinerary from scratch before executing the final booking tool.",
+        "B": "Reduce the context window to only the last 5 turns so the model cannot see the older, discarded preferences.",
+        "C": "Implement a background process that extracts the currently agreed-upon transactional facts (flight numbers, dates, final destinations) into a persistent 'current itinerary' block injected at the top of every prompt.",
+        "D": "Use a higher top_p setting to increase the determinism of the model's flight selection."
+      },
+      "options_array": [
+        "Ask the user to re-type their entire desired itinerary from scratch before executing the final booking tool.",
+        "Reduce the context window to only the last 5 turns so the model cannot see the older, discarded preferences.",
+        "Implement a background process that extracts the currently agreed-upon transactional facts (flight numbers, dates, final destinations) into a persistent 'current itinerary' block injected at the top of every prompt.",
+        "Use a higher top_p setting to increase the determinism of the model's flight selection."
+      ],
+      "correct": "C",
+      "explanation": "A: Asking the user to re-type the entire itinerary is a poor user experience and places an unnecessary burden on the customer. It is not a scalable solution for iterative workflows and introduces additional opportunities for user error.\nB: Arbitrarily truncating the context window is brittle. It might discard important constraints or confirmations that occurred earlier but are still relevant, and it does not provide an authoritative state for the model to follow.\nC: Extracting and maintaining a persistent, structured 'current itinerary' block ensures the model has an authoritative, up-to-date source of truth. This architectural pattern prevents confusion from older, discarded preferences in the chat history and improves reliability across long, complex interactions.\nD: Increasing top_p actually increases sampling randomness rather than determinism. Regardless, tuning sampling hyperparameters does not address the underlying issue of conflicting information within the conversation history.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24203)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-27616",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A development team wants to integrate Claude into their CI/CD pipeline to automatically analyze code complexity. To ensure the analysis results can be programmatically parsed and used in subsequent pipeline steps, the output must strictly adhere to a predefined JSON schema. Which API parameter should be used in the request to Claude to enforce this structured output?",
+      "options": {
+        "A": "A system prompt that includes the instruction \"Always respond in JSON format matching the following schema: ...\".",
+        "B": "The `output_config.format` parameter, with `type` set to `json_schema` and the schema definition provided.",
+        "C": "The `tool_choice` parameter, with the `type` set to `json_tool` and the schema provided as the tool definition.",
+        "D": "The top-level `json_schema` parameter in the API request body."
+      },
+      "options_array": [
+        "A system prompt that includes the instruction \"Always respond in JSON format matching the following schema: ...\".",
+        "The `output_config.format` parameter, with `type` set to `json_schema` and the schema definition provided.",
+        "The `tool_choice` parameter, with the `type` set to `json_tool` and the schema provided as the tool definition.",
+        "The top-level `json_schema` parameter in the API request body."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. While providing instructions in a prompt can guide the model, it does not guarantee that the output will be valid JSON or strictly adhere to the schema. For programmatic use cases like a CI/CD pipeline, a more reliable enforcement mechanism is required.\nB: Correct. According to Anthropic's documentation, the `output_config.format` parameter with `type: \"json_schema\"` is the officially supported method to constrain the model's output to a specific JSON schema. This ensures the response is always valid, machine-readable JSON, which is essential for automated downstream processing in a CI/CD pipeline.\nC: Incorrect. The `tool_choice` parameter is used to force the model to call a specific tool (function). While tool definitions use a JSON schema for their inputs, this parameter's purpose is to invoke a function, not to format the model's final text response into a specific JSON structure.\nD: Incorrect. The Claude Messages API does not have a top-level `json_schema` parameter. The correct way to specify a schema is by nesting it within the `output_config.format` parameter, as this is the designated mechanism for controlling structured outputs.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=27616)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24059",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A financial analysis system extracts quarterly earnings data using a 'DataMiner' subagent and generates a chart using a 'Grapher' subagent. When the DataMiner passes its findings back to the coordinator as a conversational summary, and the coordinator passes that summary to the Grapher, the Grapher frequently plots incorrect numbers or mislabels axes. What is the most robust architectural solution to this context passing issue?",
+      "options": {
+        "A": "Instruct the DataMiner to output its findings as a structured CSV or JSON array, and have the coordinator pass this exact structured output in the prompt to the Grapher subagent.",
+        "B": "Configure the Grapher subagent's AgentDefinition to use a lower temperature setting to prevent the hallucination of numbers during chart generation.",
+        "C": "Use fork-based session management to allow the Grapher to iteratively query the DataMiner in a private thread until the chart is correct.",
+        "D": "Add a DataValidation tool to the coordinator to check the Grapher's output against the DataMiner's summary before presenting it to the user."
+      },
+      "options_array": [
+        "Instruct the DataMiner to output its findings as a structured CSV or JSON array, and have the coordinator pass this exact structured output in the prompt to the Grapher subagent.",
+        "Configure the Grapher subagent's AgentDefinition to use a lower temperature setting to prevent the hallucination of numbers during chart generation.",
+        "Use fork-based session management to allow the Grapher to iteratively query the DataMiner in a private thread until the chart is correct.",
+        "Add a DataValidation tool to the coordinator to check the Grapher's output against the DataMiner's summary before presenting it to the user."
+      ],
+      "correct": "A",
+      "explanation": "A: Instructing the DataMiner to output its findings as a structured CSV or JSON array ensures that exact, machine-readable numeric and field semantics are preserved. This eliminates the ambiguity introduced by free-form conversational summaries, allowing the Grapher to process concrete values and labels directly. This is the most robust way to maintain data integrity across subagent boundaries.\nB: While lowering the temperature can reduce model sampling noise and randomness, it does not solve the underlying issue of data loss or ambiguity caused by the unstructured nature of the input text. If the source context is a vague summary, the model will still struggle to reconstruct precise data points regardless of temperature settings.\nC: Fork-based session management and iterative querying between agents introduce significant architectural complexity, latency, and tight coupling. While this might allow the Grapher to ask for clarification, it is far less efficient than simply passing a well-formatted, complete data object in the initial invocation.\nD: A DataValidation tool is a reactive measure that detects errors after they occur. While useful for quality assurance, it does not fix the root cause of the context-passing problem. A robust architecture should prioritize high-fidelity data transmission to prevent errors from occurring in the first place.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24059)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24141",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An e-commerce agent can issue store credit using the `issue_credit` tool. Company policy requires that the agent must have successfully executed the `verify_fraud_status` tool in the same session before issuing credit. The model occasionally skips the fraud check to save time. How can you enforce this multi-tool dependency deterministically?",
+      "options": {
+        "A": "Combine `verify_fraud_status` and `issue_credit` into a single tool so the model cannot call them separately.",
+        "B": "Add a PostToolUse hook to `issue_credit` that asynchronously triggers `verify_fraud_status` and revokes the credit if fraud is detected.",
+        "C": "Use a few-shot prompt containing examples of the agent being reprimanded for skipping the fraud check.",
+        "D": "Implement a PreToolCall hook on `issue_credit` that checks the orchestrator's session state for a `fraud_check_passed` flag. If missing, it blocks the call and returns an instruction to perform the check first."
+      },
+      "options_array": [
+        "Combine `verify_fraud_status` and `issue_credit` into a single tool so the model cannot call them separately.",
+        "Add a PostToolUse hook to `issue_credit` that asynchronously triggers `verify_fraud_status` and revokes the credit if fraud is detected.",
+        "Use a few-shot prompt containing examples of the agent being reprimanded for skipping the fraud check.",
+        "Implement a PreToolCall hook on `issue_credit` that checks the orchestrator's session state for a `fraud_check_passed` flag. If missing, it blocks the call and returns an instruction to perform the check first."
+      ],
+      "correct": "D",
+      "explanation": "A: While combining tools enforces the sequence by construction, it is a heavy-handed approach that sacrifices modularity and reusability. It forces code-level coupling and prevents other workflows from utilizing the fraud check independently without issuing credit.\nB: A PostToolUse hook triggers after the credit has already been issued, which violates the company policy requiring the check *before* issuance. Asynchronous remediation does not prevent the policy violation and can introduce race conditions.\nC: Few-shot prompting and model reprimands are probabilistic methods. They rely on the LLM's adherence to instructions rather than architectural constraints, meaning they cannot provide a deterministic guarantee against skipping steps.\nD: A PreToolCall hook on `issue_credit` allows the orchestrator to intercept the call and inspect session state for a specific flag (e.g., `fraud_check_passed`). If the flag is missing, the hook can block execution and provide immediate feedback to the model, ensuring the dependency is deterministically enforced at the infrastructure level.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24141)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-27617",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A security operations team is configuring an Anthropic Model Context Protocol (MCP) server to integrate with a third-party SIEM platform. The integration requires a `SIEM_API_KEY` and a `SIEM_REGION`. The region is static for the entire team (`us-east-1`), but the API key is a unique secret for each analyst. How should the team configure the `.mcp.json` file in their shared code repository to securely and efficiently manage these arguments?",
+      "options": {
+        "A": "Hardcode both the `SIEM_API_KEY` and the `SIEM_REGION` in the `.mcp.json` to ensure consistent behavior across the team.",
+        "B": "Use environment variable expansion for both arguments: `${SIEM_API_KEY}` and `${SIEM_REGION}`, requiring analysts to set both variables in their local environment.",
+        "C": "Hardcode the region as `us-east-1` in the `.mcp.json` arguments, and use environment variable expansion `${SIEM_API_KEY}` for the credential.",
+        "D": "Omit both arguments from the `.mcp.json` and require the MCP server to prompt the user interactively for the values upon connection."
+      },
+      "options_array": [
+        "Hardcode both the `SIEM_API_KEY` and the `SIEM_REGION` in the `.mcp.json` to ensure consistent behavior across the team.",
+        "Use environment variable expansion for both arguments: `${SIEM_API_KEY}` and `${SIEM_REGION}`, requiring analysts to set both variables in their local environment.",
+        "Hardcode the region as `us-east-1` in the `.mcp.json` arguments, and use environment variable expansion `${SIEM_API_KEY}` for the credential.",
+        "Omit both arguments from the `.mcp.json` and require the MCP server to prompt the user interactively for the values upon connection."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. Hardcoding sensitive credentials like an API key in a shared configuration file is a major security vulnerability. Official documentation and security best practices strongly recommend storing API keys securely, for example, as environment variables, to prevent them from being exposed in code repositories.\nB: Incorrect. While using an environment variable for the `SIEM_API_KEY}` is the correct approach for a secret, it is unnecessary for the `SIEM_REGION`. Since the region is a non-sensitive, static value for the entire team, hardcoding it in the configuration simplifies setup and reduces the chance of misconfiguration, as analysts would not need to set an extra environment variable.\nC: Correct. This approach follows security and operational best practices. The sensitive, per-user credential (`SIEM_API_KEY`) is securely managed using an environment variable, preventing it from being committed to the shared repository. The non-sensitive, static value (`SIEM_REGION`) is hardcoded for consistency and ease of use, eliminating an unnecessary configuration step for each team member.\nD: Incorrect. While this would avoid hardcoding secrets, it is not a practical or scalable solution. Interactive prompts prevent automation (e.g., in CI/CD pipelines or scripts) and create a cumbersome user experience for analysts who would have to re-enter the information frequently.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=27617)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24332",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "You have successfully implemented tool use with a strict JSON schema for extracting data from complex purchase orders. JSON syntax errors have dropped to zero. However, you notice that Claude sometimes extracts the `subtotal` value into the `tax_amount` field when the purchase order layout is highly unusual. Which statement best explains this behavior and how to fix it?",
+      "options": {
+        "A": "Strict JSON schemas eliminate syntax errors but do not prevent semantic errors; you must add explicit definitions and layout hints in the system prompt.",
+        "B": "The JSON schema is not strict enough; you must enforce strict type checking on the tax_amount field to prevent subtotal values from being accepted.",
+        "C": "The tool_choice parameter is likely set to \"auto\"; switching to \"any\" will force Claude to map the fields correctly.",
+        "D": "The tax_amount field is likely marked as required; making it optional will prevent Claude from mapping the wrong value to it."
+      },
+      "options_array": [
+        "Strict JSON schemas eliminate syntax errors but do not prevent semantic errors; you must add explicit definitions and layout hints in the system prompt.",
+        "The JSON schema is not strict enough; you must enforce strict type checking on the tax_amount field to prevent subtotal values from being accepted.",
+        "The tool_choice parameter is likely set to \"auto\"; switching to \"any\" will force Claude to map the fields correctly.",
+        "The tax_amount field is likely marked as required; making it optional will prevent Claude from mapping the wrong value to it."
+      ],
+      "correct": "A",
+      "explanation": "A: Correct. Strict JSON schemas (and tool use enforcement) ensure that the output follows the correct format and data types (syntax), but they do not ensure that the model correctly interprets the context of the input (semantics). Adding descriptive field definitions within the JSON schema and providing layout-specific guidance or few-shot examples in the system prompt helps the model disambiguate similar data points in complex or unusual layouts.\nB: Incorrect. Strict type checking ensures a value is, for example, a 'number' rather than a 'string'. Since both subtotal and tax_amount are likely numeric, type checking will not prevent the model from swapping one for the other.\nC: Incorrect. The tool_choice parameter (auto, any, or tool) controls whether the model is forced to use a tool, but it has no impact on the accuracy of the data extraction within the tool's parameters.\nD: Incorrect. Making a field optional might allow the model to omit the field if it is confused, but it does not address the root cause of semantic mismapping. If the model believes the subtotal is the tax_amount, it will still populate the field regardless of whether it is required or optional.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24332)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24067",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A data engineering agent is designed to write complex SQL queries across a massive data warehouse containing over 800 tables. During testing, the agent frequently hallucinates column names or wastes significant time executing `DESCRIBE TABLE` tool calls for dozens of tables before writing the actual query. What is the most effective architectural solution to provide the agent with the necessary context?",
+      "options": {
+        "A": "Expose the database schemas as an MCP resource, giving the agent immediate visibility into the schema catalog without exploratory tool calls.",
+        "B": "Update the system prompt to include the complete schema definition for all 800 tables so the agent has it in context at all times.",
+        "C": "Create a guess_schema tool that uses a smaller, faster LLM to predict column names based on the table name, reducing the load on the main agent.",
+        "D": "Restrict the agent's access to only 10 tables per session by configuring a dynamic whitelist in the .mcp.json file."
+      },
+      "options_array": [
+        "Expose the database schemas as an MCP resource, giving the agent immediate visibility into the schema catalog without exploratory tool calls.",
+        "Update the system prompt to include the complete schema definition for all 800 tables so the agent has it in context at all times.",
+        "Create a guess_schema tool that uses a smaller, faster LLM to predict column names based on the table name, reducing the load on the main agent.",
+        "Restrict the agent's access to only 10 tables per session by configuring a dynamic whitelist in the .mcp.json file."
+      ],
+      "correct": "A",
+      "explanation": "A: Correct. In the Model Context Protocol (MCP), resources are designed to expose structured, read-only data (like a database schema catalog) to the agent. This provides an authoritative source of truth that the model can reference as needed, significantly reducing the overhead and latency associated with sequential tool calls and preventing hallucinations.\nB: Incorrect. Including schema definitions for 800 tables in the system prompt would likely exceed the model's context window or at least bloat it significantly, leading to high token costs, increased latency, and a loss of focus for the primary reasoning task.\nC: Incorrect. A guessing tool relies on prediction rather than authoritative metadata, which exacerbates the core problem of hallucination. Data engineering tasks require absolute accuracy to ensure SQL queries do not fail in production.\nD: Incorrect. Restricting the agent's scope is a brittle workaround that limits its ability to handle complex queries across the full warehouse. It does not address the fundamental need for a scalable way to discover metadata within the allowed scope.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24067)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24080",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "An e-commerce bot is authorized to process refunds. Occasionally, the bot calls the `process_refund` tool using hallucinated customer IDs or IDs that have not been verified in the current session. How can the architect prevent this behavior entirely?",
+      "options": {
+        "A": "Add a system prompt instruction: 'Do not hallucinate customer IDs. Only use IDs returned by the get_customer tool.'",
+        "B": "Use a vector database to store valid customer IDs and use RAG to inject them into the prompt before the bot decides to refund.",
+        "C": "Change the `process_refund` tool schema to make the `customer_id` parameter optional, allowing the backend to infer it.",
+        "D": "Wrap the `process_refund` tool in application logic that checks for a verified customer ID in the session state, returning a programmatic error to the model if missing."
+      },
+      "options_array": [
+        "Add a system prompt instruction: 'Do not hallucinate customer IDs. Only use IDs returned by the get_customer tool.'",
+        "Use a vector database to store valid customer IDs and use RAG to inject them into the prompt before the bot decides to refund.",
+        "Change the `process_refund` tool schema to make the `customer_id` parameter optional, allowing the backend to infer it.",
+        "Wrap the `process_refund` tool in application logic that checks for a verified customer ID in the session state, returning a programmatic error to the model if missing."
+      ],
+      "correct": "D",
+      "explanation": "A: While system prompt instructions can guide the bot's behavior and reduce hallucinations, they are advisory constraints rather than enforceable programmatic guards. Models can still ignore or misapply instructions, meaning this does not provide an authoritative runtime guarantee.\nB: Using a vector database and RAG helps the model retrieve valid IDs, but it does not prevent the model from fabricating a value or selecting an ID that belongs to a different customer. It does not address session-level verification or provide a strict enforcement mechanism.\nC: Making the customer_id optional removes a critical safety check and forces the backend to guess or infer the identity. This increases the risk of processing refunds for the wrong user and weakens the tool's schema enforcement.\nD: The most robust architectural pattern is to wrap tool execution in application logic (a shim or middleware) that validates arguments against the current session state. By checking for a verified customer ID in the application context and returning a programmatic error to the model if the ID is missing or invalid, you ensure the refund cannot proceed unless session-level requirements are met.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24080)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24160",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A travel booking system uses a pre-configured sequence in its code: `SearchFlights` -> `SelectCheapest` -> `BookFlight`. A user requests a flight, but adds 'Only book if it's under $500, otherwise just tell me the price.' The pre-configured sequence executes and books a $600 flight anyway. How should the architect redesign this to support the user's request?",
+      "options": {
+        "A": "Add a `CheckPrice` tool to the pre-configured sequence between `SelectCheapest` and `BookFlight` to halt execution if the price exceeds $500.",
+        "B": "Transition to a model-driven agentic loop where Claude evaluates the `SearchFlights` result against the user's constraints before autonomously deciding whether to call `BookFlight` or return text.",
+        "C": "Implement an application-side `if/else` statement that parses Claude's text output for a dollar amount before allowing the pre-configured sequence to execute the booking tool.",
+        "D": "Use the `tool_choice` parameter to force Claude to output a JSON object containing the price, then use a separate Python script to trigger the booking."
+      },
+      "options_array": [
+        "Add a `CheckPrice` tool to the pre-configured sequence between `SelectCheapest` and `BookFlight` to halt execution if the price exceeds $500.",
+        "Transition to a model-driven agentic loop where Claude evaluates the `SearchFlights` result against the user's constraints before autonomously deciding whether to call `BookFlight` or return text.",
+        "Implement an application-side `if/else` statement that parses Claude's text output for a dollar amount before allowing the pre-configured sequence to execute the booking tool.",
+        "Use the `tool_choice` parameter to force Claude to output a JSON object containing the price, then use a separate Python script to trigger the booking."
+      ],
+      "correct": "B",
+      "explanation": "A: Adding a tool to a hardcoded sequence remains a rigid architectural approach. It fails to leverage the model's reasoning capabilities to interpret varied user constraints and requires manual updates to the code for every new type of user condition.\nB: A model-driven agentic loop allows Claude to observe the output of one tool (SearchFlights), reason about it in the context of the user's specific prompt (the $500 limit), and autonomously decide the next action. This provides the flexibility needed to handle dynamic constraints that fixed chains or DAGs cannot easily accommodate.\nC: Attempting to parse free-text output from an LLM to drive application logic is brittle and prone to failure if the model changes its phrasing. It also keeps the decision-making logic outside of the agent's context, leading to a fragmented architecture.\nD: While structured output (JSON) is useful, using external scripts to orchestrate the final tool call creates a disjointed system. This approach prevents the agent from performing self-correction or multi-step reasoning within a single conversational turn.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24160)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24314",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "An architect is managing a monorepo with a React frontend and a Python backend. They want Claude to follow strict React hooks rules only in the frontend directory, and PEP8 rules only in the backend directory, while sharing general git commit rules across both. How should the architect configure the workspace?",
+      "options": {
+        "A": "Place all rules in .claude/rules/ and use the /memory command in each directory to manually toggle the active rule files before prompting.",
+        "B": "Put the React rules in ~/.claude/CLAUDE.md for frontend devs and PEP8 rules in ~/.claude/CLAUDE.md for backend devs.",
+        "C": "Create a root CLAUDE.md with general rules, and in frontend/CLAUDE.md and backend/CLAUDE.md, use @import to pull in react-rules.md and pep8-rules.md respectively.",
+        "D": "Create a single root CLAUDE.md and use conditional YAML tags like if-path: frontend/ to apply the specific rules."
+      },
+      "options_array": [
+        "Place all rules in .claude/rules/ and use the /memory command in each directory to manually toggle the active rule files before prompting.",
+        "Put the React rules in ~/.claude/CLAUDE.md for frontend devs and PEP8 rules in ~/.claude/CLAUDE.md for backend devs.",
+        "Create a root CLAUDE.md with general rules, and in frontend/CLAUDE.md and backend/CLAUDE.md, use @import to pull in react-rules.md and pep8-rules.md respectively.",
+        "Create a single root CLAUDE.md and use conditional YAML tags like if-path: frontend/ to apply the specific rules."
+      ],
+      "correct": "C",
+      "explanation": "A: Manual toggling using the /memory command is not scalable or maintainable in a professional monorepo setup. It introduces high risk for human error and lacks the automated, context-aware application that a directory-scoped configuration provides.\nB: Global home-directory configuration (~/.claude/CLAUDE.md) is user-specific rather than project-specific. It fails to provide directory-level granularity within a monorepo and prevents team-wide standardization of repository rules.\nC: This is the best-practice approach for modular organization. A root CLAUDE.md establishes shared standards (like git workflows), while subdirectory-specific CLAUDE.md files provide localized context (React vs. PEP8). Using modular imports keeps the configuration maintainable and logically separated.\nD: Claude Code's configuration system does not currently support conditional YAML logic based on file paths within a single root file. Sub-directory scoping via the file system hierarchy is the standard mechanism for rule application.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24314)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24150",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A data extraction agent is designed to read unstructured emails and output structured JSON exclusively via a `save_extracted_data` tool. However, for very short emails, the agent sometimes bypasses the tool and simply replies with conversational text like, \"Here is the JSON you requested: {...}\". How can the architect strictly enforce that the data is sent through the tool?",
+      "options": {
+        "A": "Set `tool_choice: {\"type\": \"auto\"}` and remove all conversational examples from the system prompt.",
+        "B": "Set `tool_choice: {\"type\": \"any\"}` to guarantee the model calls a tool rather than returning conversational text.",
+        "C": "Use `tool_choice: {\"type\": \"tool\", \"name\": \"save_extracted_data\"}` on every single turn, including follow-up conversational turns.",
+        "D": "Implement a post-processing script that parses the conversational text to extract the JSON payload."
+      },
+      "options_array": [
+        "Set `tool_choice: {\"type\": \"auto\"}` and remove all conversational examples from the system prompt.",
+        "Set `tool_choice: {\"type\": \"any\"}` to guarantee the model calls a tool rather than returning conversational text.",
+        "Use `tool_choice: {\"type\": \"tool\", \"name\": \"save_extracted_data\"}` on every single turn, including follow-up conversational turns.",
+        "Implement a post-processing script that parses the conversational text to extract the JSON payload."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. Setting `tool_choice: {\"type\": \"auto\"}` allows the model to decide whether to call a tool or return text. This does not strictly enforce tool usage, and even without conversational examples, the model may still default to a text response for short inputs.\nB: Incorrect. While `tool_choice: {\"type\": \"any\"}` does force the model to use at least one of the provided tools (preventing a pure text response), it is less precise than forcing a specific tool by name. To ensure the output specifically follows the `save_extracted_data` schema in a single-purpose agent, type 'tool' is preferred.\nC: Correct. Using `tool_choice: {\"type\": \"tool\", \"name\": \"save_extracted_data\"}` explicitly forces Claude to use that specific tool. This overrides the model's internal heuristic to reply conversationally and ensures that all output is delivered through the defined tool schema, which is the standard method for strict enforcement in the Messages API.\nD: Incorrect. Relying on post-processing is a brittle workaround that does not solve the underlying reliability issue. It reintroduces the risk of parsing errors and fails to leverage the built-in API constraints designed to guarantee structured tool calls.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24150)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24249",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A development team currently maintains 15 identical `CLAUDE.md` files distributed across 15 different feature directories just to enforce the exact same state management conventions. They want to consolidate this to reduce maintenance overhead while ensuring the rules only load when editing files within those specific feature directories. What is the architectural best practice?",
+      "options": {
+        "A": "Delete the 15 `CLAUDE.md` files and create a single `.claude/rules/state.md` file using a YAML frontmatter `paths` array containing the glob patterns for all 15 feature directories.",
+        "B": "Keep one `CLAUDE.md` in the root directory and use symlinks in the 15 feature directories pointing to the root file.",
+        "C": "Consolidate the rules into the root `CLAUDE.md` and rely on Claude's semantic understanding to only apply them to the feature directories.",
+        "D": "Create a `.claude/conventions.yaml` file at the root and map each feature directory path to the state management instructions."
+      },
+      "options_array": [
+        "Delete the 15 `CLAUDE.md` files and create a single `.claude/rules/state.md` file using a YAML frontmatter `paths` array containing the glob patterns for all 15 feature directories.",
+        "Keep one `CLAUDE.md` in the root directory and use symlinks in the 15 feature directories pointing to the root file.",
+        "Consolidate the rules into the root `CLAUDE.md` and rely on Claude's semantic understanding to only apply them to the feature directories.",
+        "Create a `.claude/conventions.yaml` file at the root and map each feature directory path to the state management instructions."
+      ],
+      "correct": "A",
+      "explanation": "A: This approach represents the standard architectural pattern for Claude Code. By centralizing rules in the `.claude/rules/` directory and utilizing YAML frontmatter (e.g., a `paths` or `globs` array), you enable conditional, path-scoped loading. This reduces duplication while ensuring rules are only included in the context window when relevant to the current file path.\nB: Using symlinks is not recommended as it introduces platform-specific brittleness (e.g., Windows vs. Linux/macOS) and increases repository complexity. It fails to leverage the native rule-loading logic built into Claude Code, which is specifically designed to handle path-based scoping through configuration rather than file system hacks.\nC: Placing specific feature rules in a root `CLAUDE.md` often leads to 'rule leakage' or 'context pollution,' where Claude might mistakenly apply those rules to unrelated parts of the codebase. Semantic understanding is less reliable than explicit path-based configuration for strict convention enforcement.\nD: While a centralized YAML mapping file might seem logical in other ecosystems, it is not the supported mechanism for Claude Code. The tool expects individual Markdown files within the `.claude/rules/` directory, where each file contains its own metadata and instruction set.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24249)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24177",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A developer is implementing an agentic loop for a customer service bot. When the API returns a `stop_reason` of `tool_use`, the application executes the tool successfully. To continue the autonomous execution and allow Claude to reason about the next action, how must the developer pass the result back to the model?",
+      "options": {
+        "A": "Append the tool result to the `system` prompt and initiate a completely new conversation thread.",
+        "B": "Send a new request to the API with the `messages` array containing the previous history plus a new `user` message containing the `tool_result` block.",
+        "C": "Call the API's dedicated `/v1/messages/tool_callback` endpoint with the `tool_use_id` and the execution results.",
+        "D": "Replace the original `tool_use` block in the assistant's message with the actual tool execution results and resend the history."
+      },
+      "options_array": [
+        "Append the tool result to the `system` prompt and initiate a completely new conversation thread.",
+        "Send a new request to the API with the `messages` array containing the previous history plus a new `user` message containing the `tool_result` block.",
+        "Call the API's dedicated `/v1/messages/tool_callback` endpoint with the `tool_use_id` and the execution results.",
+        "Replace the original `tool_use` block in the assistant's message with the actual tool execution results and resend the history."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. Appending results to the system prompt and starting a new thread would cause a total loss of conversation context. The system prompt is for global instructions, while the tool loop relies on the specific sequence of messages in the history to maintain reasoning.\nB: Correct. In the Anthropic Messages API tool-use flow, once a tool is executed, the results must be sent back in a new message with the 'user' role containing a 'tool_result' block. This message must follow the assistant message that contained the 'tool_use' block, allowing Claude to process the output and continue the loop.\nC: Incorrect. Anthropic does not provide a dedicated `/v1/messages/tool_callback` endpoint. All interactions for tool use are handled through the standard Messages API endpoint by managing the state within the `messages` array.\nD: Incorrect. The conversation history should remain an immutable, chronological record of the interaction. Replacing the assistant's request with the result would break the logic of the reasoning chain; the model expects to see both its own request and the subsequent result as separate turns.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24177)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24322",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A platform team maintains a shared library of Claude instructions (e.g., security-scans.md, accessibility.md) in a git submodule located at vendor/claude-standards/. A specific microservice only needs the security scanning instructions. How should the microservice be configured?",
+      "options": {
+        "A": "Copy the security-scans.md file into the microservice's .claude/rules/ directory.",
+        "B": "Run /memory add vendor/claude-standards/security-scans.md in the microservice directory.",
+        "C": "Add @import vendor/claude-standards/security-scans.md to the microservice's CLAUDE.md file.",
+        "D": "Configure the user-level ~/.claude/CLAUDE.md to globally import the entire vendor/claude-standards/ directory."
+      },
+      "options_array": [
+        "Copy the security-scans.md file into the microservice's .claude/rules/ directory.",
+        "Run /memory add vendor/claude-standards/security-scans.md in the microservice directory.",
+        "Add @import vendor/claude-standards/security-scans.md to the microservice's CLAUDE.md file.",
+        "Configure the user-level ~/.claude/CLAUDE.md to globally import the entire vendor/claude-standards/ directory."
+      ],
+      "correct": "C",
+      "explanation": "A: Incorrect. Copying the file creates technical debt and breaks the link to the shared submodule. This makes it difficult to maintain consistency and receive updates from the central platform team without manual copying.\nB: Incorrect. Running /memory add is used for adding context to Claude's short-term memory or session-specific context. It is not the standard or persistent mechanism for configuring project-wide, scoped instructions or architectural standards.\nC: Correct. Using the @import directive in the microservice's CLAUDE.md file is the best practice for modularity. It allows the microservice to reference only the specific instructions it needs while maintaining a link to the central repository in the vendor submodule, ensuring updates flow through naturally.\nD: Incorrect. Configuring user-level global imports is too broad and violates scoping best practices. This would force all instructions (including irrelevant ones like accessibility.md) into every project the developer works on, potentially leading to context window bloat and instruction conflicts.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24322)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24091",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A B2B SaaS bot receives a complex prompt: 'Analyze my Q3 API usage, compare it to Q2, and forecast my Q4 costs based on current trends.' The architect decides to use a fan-out/fan-in pattern. How should the synthesis phase be architected?",
+      "options": {
+        "A": "Send the request to a single agent and increase the max_tokens to ensure it can complete all three tasks in one response.",
+        "B": "Execute the tasks sequentially using a single agent, clearing the context window between each task to save tokens.",
+        "C": "Prompt the user to break down their request into three separate messages to avoid overwhelming the model.",
+        "D": "Collect the structured outputs from the parallel worker agents into a shared context window, and use a final synthesizer agent to generate a unified, coherent response."
+      },
+      "options_array": [
+        "Send the request to a single agent and increase the max_tokens to ensure it can complete all three tasks in one response.",
+        "Execute the tasks sequentially using a single agent, clearing the context window between each task to save tokens.",
+        "Prompt the user to break down their request into three separate messages to avoid overwhelming the model.",
+        "Collect the structured outputs from the parallel worker agents into a shared context window, and use a final synthesizer agent to generate a unified, coherent response."
+      ],
+      "correct": "D",
+      "explanation": "A: This approach does not follow the fan-out/fan-in pattern. Sending a complex request to a single agent increases latency, risks hallucinations, and makes it difficult to enforce structured validation compared to modular worker-synthesizer designs.\nB: This describes a sequential workflow rather than a fan-out/fan-in pattern. Clearing the context window between tasks prevents the model from maintaining the continuity required for cross-period comparisons and forecasting, while also forgoing the benefits of parallelism.\nC: Shifting the orchestration burden to the user degrades the user experience. A well-architected system should automatically decompose, process, and synthesize complex requests rather than relying on manual user segmentation.\nD: This is the canonical implementation of the fan-out/fan-in synthesis phase. Worker agents perform specialized tasks in parallel and emit validated, structured results. The synthesizer then merges these results into a shared context to resolve inconsistencies and produce a coherent, unified final response.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24091)"
+    },
+    {
+      "id": "certsafari-domain-4-mcp-24117",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A data science agent uses a generic `analyze_dataset` tool. Users ask it to perform tasks ranging from simple row counts to complex anomaly detection. The tool frequently times out on complex requests because the backend tries to run a massive, monolithic analysis script every time. Which tool design strategy should be applied?",
+      "options": {
+        "A": "Increase the API timeout threshold to 5 minutes to accommodate the monolithic script.",
+        "B": "Split the generic tool into purpose-specific tools like `get_row_count`, `generate_statistical_summary`, and `detect_anomalies` with defined input/output contracts.",
+        "C": "Instruct Claude in the system prompt to warn users that complex queries might take a long time.",
+        "D": "Add a `complexity_score` parameter to the `analyze_dataset` tool so the backend knows how much compute to allocate."
+      },
+      "options_array": [
+        "Increase the API timeout threshold to 5 minutes to accommodate the monolithic script.",
+        "Split the generic tool into purpose-specific tools like `get_row_count`, `generate_statistical_summary`, and `detect_anomalies` with defined input/output contracts.",
+        "Instruct Claude in the system prompt to warn users that complex queries might take a long time.",
+        "Add a `complexity_score` parameter to the `analyze_dataset` tool so the backend knows how much compute to allocate."
+      ],
+      "correct": "B",
+      "explanation": "A: Incorrect. Increasing the API timeout threshold is a 'band-aid' fix that does not address the root cause: an inefficient, monolithic tool design. This approach leads to poor resource utilization, decreased responsiveness for simple tasks, and poor scalability as the tool's scope grows.\nB: Correct. Decomposing a monolithic tool into smaller, purpose-specific tools aligns with best practices for MCP integration. This allows for targeted backend processing, clearer input/output contracts for the LLM to follow, and better error handling. It enables the backend to implement optimized, lightweight handlers for simple tasks while reserving heavy compute for specific complex analyses, preventing unnecessary timeouts.\nC: Incorrect. While warning users about potential latency is a helpful user experience mitigation, it does not solve the underlying technical failure of the monolithic script causing timeouts. It leaves the systemic architectural problem unresolved.\nD: Incorrect. Adding a complexity score might help with backend routing, but it relies on the LLM accurately estimating task complexity, which can be inconsistent. It adds operational complexity and ambiguity without fixing the fundamental issue of the monolithic script execution.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24117)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24024",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Claude generated a Python Flask application for a developer. Upon review, the developer notices two completely unrelated issues: the application logging format is missing timestamps, and the database connection string is hardcoded instead of using environment variables. What is the recommended workflow for addressing these issues?",
+      "options": {
+        "A": "Combine both issues into a single complex prompt detailing how logging and database connections interact.",
+        "B": "Address the logging format in one prompt, verify the fix, and then address the database connection string in a subsequent prompt.",
+        "C": "Ask Claude to rewrite the entire application following 12-factor app principles to automatically resolve both issues.",
+        "D": "Fix the database connection string manually, then ask Claude to fix the logging format."
+      },
+      "options_array": [
+        "Combine both issues into a single complex prompt detailing how logging and database connections interact.",
+        "Address the logging format in one prompt, verify the fix, and then address the database connection string in a subsequent prompt.",
+        "Ask Claude to rewrite the entire application following 12-factor app principles to automatically resolve both issues.",
+        "Fix the database connection string manually, then ask Claude to fix the logging format."
+      ],
+      "correct": "B",
+      "explanation": "A: Combining unrelated issues into a single complex prompt increases the cognitive load on the model and the risk of hallucination or incomplete fixes. Iterative refinement best practices recommend isolating independent fixes so you can validate each change individually and maintain clear context.\nB: Addressing issues sequentially follows the principles of iterative refinement. By isolating concerns into separate prompts and verifying each fix before proceeding, the developer ensures that each change is correct, reduces the chance of introducing regressions, and makes debugging much simpler.\nC: Requesting a complete rewrite for specific, minor issues is an inefficient approach that introduces unnecessary risk. Full rewrites can cause scope creep, change parts of the code that were already working correctly, and make it difficult to verify the specific fixes for the original problems.\nD: While manual fixes are sometimes necessary, mixing manual edits with model-driven changes in the middle of a refinement cycle can reduce reproducibility and break the coherent workflow. It is better to use focused, sequential prompts to handle each issue within the AI-assisted development cycle.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24024)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24083",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "You are designing a pipeline to extract methodology details from thousands of academic research papers. Claude performs well when a paper has a dedicated 'Methodology' section, but fails to extract the required information when the methodology details are embedded within the 'Introduction' section. Which prompt engineering technique will best resolve this issue?",
+      "options": {
+        "A": "Pre-process the documents using a separate model to extract only the paragraphs containing the word 'methodology'.",
+        "B": "Instruct Claude to search the entire document twice before generating the final extraction.",
+        "C": "Use few-shot examples demonstrating correct handling of varied document structures, including both dedicated sections and embedded details.",
+        "D": "Break the task into two separate prompts: one specifically for the 'Methodology' section and one for the 'Introduction' section."
+      },
+      "options_array": [
+        "Pre-process the documents using a separate model to extract only the paragraphs containing the word 'methodology'.",
+        "Instruct Claude to search the entire document twice before generating the final extraction.",
+        "Use few-shot examples demonstrating correct handling of varied document structures, including both dedicated sections and embedded details.",
+        "Break the task into two separate prompts: one specifically for the 'Methodology' section and one for the 'Introduction' section."
+      ],
+      "correct": "C",
+      "explanation": "A: Pre-processing using keyword matching (e.g., searching for 'methodology') is brittle and will miss cases where methodology is described using synonyms or within an Introduction. This approach adds architectural complexity without teaching the model how to recognize the semantic meaning of methodological descriptions.\nB: Instructing the model to 'search twice' is a vague instruction that doesn't provide a concrete strategy for identifying information in unexpected sections. LLMs do not perform deterministic document searches like humans, and this technique is unlikely to improve performance on varied structures.\nC: Few-shot prompting is the most effective way to improve output consistency and generalization across diverse inputs. By providing examples that cover both explicit 'Methodology' headers and cases where the info is embedded in the 'Introduction', Claude learns the semantic patterns to look for regardless of the document structure.\nD: While breaking tasks into smaller prompts can sometimes help, this specific strategy relies on rigid assumptions about document structure and requires complex routing logic. It is less scalable and generalizable than teaching the model to handle varied structures through few-shot examples.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24083)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24167",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A system for extracting information from insurance claims fails an initial extraction attempt. The validation layer reports two distinct errors: (1) The `policy_number` field, which should be 10 characters, was extracted as 'ABC-123'. (2) The `incident_date` was extracted as a date in the future. What is the most effective error feedback to include in the retry prompt?",
+      "options": {
+        "A": "Error: The data is invalid. Please try again.",
+        "B": "Error: The policy number has the wrong format. Please correct it.",
+        "C": "The JSON output did not match the required schema. Please regenerate the entire output correctly.",
+        "D": "Validation Errors: 1. 'policy_number' must be 10 alphanumeric characters without hyphens. 2. 'incident_date' must be a date in the past. Please correct these fields based on the document."
+      },
+      "options_array": [
+        "Error: The data is invalid. Please try again.",
+        "Error: The policy number has the wrong format. Please correct it.",
+        "The JSON output did not match the required schema. Please regenerate the entire output correctly.",
+        "Validation Errors: 1. 'policy_number' must be 10 alphanumeric characters without hyphens. 2. 'incident_date' must be a date in the past. Please correct these fields based on the document."
+      ],
+      "correct": "D",
+      "explanation": "A: This option is too vague and lacks specificity. It does not identify which fields failed validation or provide guidance on how to fix them, making it difficult for the model to make targeted improvements in a retry.\nB: This feedback is incomplete because it only addresses the policy number and ignores the date error. Furthermore, it doesn't specify the exact format requirements (10 characters, no hyphens), providing insufficient guidance for correction.\nC: Asking to regenerate the entire output without detailing which fields are wrong is non-actionable and inefficient. Validation feedback should provide specific corrections so the model can repair only the problematic fields rather than performing a blind retry.\nD: This is the most effective feedback because it is precise, comprehensive, and actionable. It clearly identifies both errors and provides the specific rules (10 alphanumeric characters/no hyphens and requirement for a past date) needed to satisfy validation, facilitating a targeted and successful correction.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24167)"
+    },
+    {
+      "id": "certsafari-domain-2-claude-code-24312",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "A team has a custom skill `/deploy-cloud` that requires a `region` parameter. The `SKILL.md` body contains the instruction: 'If the user does not provide a region, ask them for it before proceeding.' Despite this, Claude occasionally infers the region from previous chats and executes the deployment without asking, causing deployments to the wrong region. How can the architect strictly enforce that Claude prompts the user if the argument is missing?",
+      "options": {
+        "A": "Remove the instruction from the body and add `argument-hint: \"Requires region parameter\"` to the frontmatter.",
+        "B": "Change the skill to a project-scoped command in `.claude/commands/` which natively enforces strict arguments.",
+        "C": "Add `allowed-tools: [PromptUser]` to the frontmatter to ensure Claude has permission to ask questions.",
+        "D": "Add `context: fork` to the frontmatter so the skill runs in isolation and cannot read previous chat history."
+      },
+      "options_array": [
+        "Remove the instruction from the body and add `argument-hint: \"Requires region parameter\"` to the frontmatter.",
+        "Change the skill to a project-scoped command in `.claude/commands/` which natively enforces strict arguments.",
+        "Add `allowed-tools: [PromptUser]` to the frontmatter to ensure Claude has permission to ask questions.",
+        "Add `context: fork` to the frontmatter so the skill runs in isolation and cannot read previous chat history."
+      ],
+      "correct": "D",
+      "explanation": "A: Adding an `argument-hint` to the frontmatter provides a visual hint or placeholder in the CLI UI for the user, but it does not modify Claude's reasoning or prevent it from using available chat history to infer missing parameters.\nB: While project-scoped commands in `.claude/commands/` are handled differently than skills, simply moving the logic there does not inherently enforce strict argument validation by the LLM unless a specific validation schema is implemented, and it does not address the core issue of information leakage from the chat history.\nC: This is incorrect as `allowed-tools: [PromptUser]` is not a standard configuration property in Claude Code skills. Claude does not require a specific tool permission to ask for user input; it does so through natural dialogue.\nD: Correct. In Claude Code, the `context` frontmatter property controls the scope of the conversation history visible to a skill. By setting `context: fork` (or `none`), the skill's execution is isolated from the previous conversation history. This ensures Claude cannot see or infer the region from earlier messages, forcing it to adhere to the instruction to ask the user when the parameter is not provided in the current turn.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24312)"
+    },
+    {
+      "id": "certsafari-domain-3-prompt-engineering-24176",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A system extracts the `project_deadline` from meeting transcripts. A transcript states, 'We need to have this completed by EOD next Thursday.' The system runs on Friday, October 4th. The model correctly infers the deadline as 'October 17th'. However, a validation rule requires that the extracted date must have been explicitly written in the text (e.g., 'October 17th'), not inferred from relative terms. The validation fails. What is the correct action?",
+      "options": {
+        "A": "Retry with the error 'The date is incorrect. Please find the explicit date in the text.'",
+        "B": "Do not retry. Flag the extraction for manual review, noting that the deadline was specified in relative terms, which violates the validation rule.",
+        "C": "Retry with a new prompt that includes the current date and asks the model to recalculate 'next Thursday' more accurately.",
+        "D": "Accept the model's inferred date, as it is logically correct, and override the validation rule."
+      },
+      "options_array": [
+        "Retry with the error 'The date is incorrect. Please find the explicit date in the text.'",
+        "Do not retry. Flag the extraction for manual review, noting that the deadline was specified in relative terms, which violates the validation rule.",
+        "Retry with a new prompt that includes the current date and asks the model to recalculate 'next Thursday' more accurately.",
+        "Accept the model's inferred date, as it is logically correct, and override the validation rule."
+      ],
+      "correct": "B",
+      "explanation": "A: Retrying is ineffective in this scenario because the explicit date does not exist in the source transcript. Asking the model to 'find' something that isn't there often leads to hallucination or repeated failure, as the model cannot satisfy the validation requirement with the provided text.\nB: This is the correct architectural response. When validation fails because the source data cannot meet a specific business constraint (explicit vs. inferred) and a retry will not change the source text, the item should be flagged for manual human-in-the-loop (HITL) review. This preserves data integrity and provides a feedback loop for potential policy adjustments.\nC: Recalculating the inference with the current date may confirm the accuracy of the date (October 17th), but it fails to address the validation rule which specifically prohibits inferred dates. The issue is the source of the data, not the calculation logic.\nD: Overriding validation rules undermines the system's consistency, auditability, and reliability. If a rule is in place to ensure data is supported by verbatim text, bypassing it silently introduces risk and violates the established data extraction standards.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24176)"
+    },
+    {
+      "id": "certsafari-domain-1-agentic-24058",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A travel planning application uses a 'FlightSearch' subagent and a 'HotelSearch' subagent. The coordinator needs to invoke the HotelSearch subagent after the FlightSearch subagent successfully finds a flight. During testing, the HotelSearch subagent keeps searching for hotels on the wrong dates. How should the architect ensure the HotelSearch subagent receives the correct temporal context?",
+      "options": {
+        "A": "Configure the HotelSearch subagent's AgentDefinition to inherit the FlightSearch subagent's memory state.",
+        "B": "Ensure the coordinator explicitly extracts the arrival and departure dates from the FlightSearch results and includes them in the prompt when invoking the HotelSearch subagent via the Task tool.",
+        "C": "Use fork-based session management to merge the FlightSearch and HotelSearch threads before generating the final itinerary.",
+        "D": "Add the FlightSearch tool to the HotelSearch subagent's allowedTools so it can independently verify the dates itself."
+      },
+      "options_array": [
+        "Configure the HotelSearch subagent's AgentDefinition to inherit the FlightSearch subagent's memory state.",
+        "Ensure the coordinator explicitly extracts the arrival and departure dates from the FlightSearch results and includes them in the prompt when invoking the HotelSearch subagent via the Task tool.",
+        "Use fork-based session management to merge the FlightSearch and HotelSearch threads before generating the final itinerary.",
+        "Add the FlightSearch tool to the HotelSearch subagent's allowedTools so it can independently verify the dates itself."
+      ],
+      "correct": "B",
+      "explanation": "A: Inheriting the entire memory state is brittle and inefficient. Agent memory inheritance often includes irrelevant or stale data which leads to context pollution and hallucinations in subagent parameters. It is not a reliable substitute for explicit context passing.\nB: This is the architectural best practice for agentic orchestration. The coordinator acts as the state manager, explicitly extracting specific output variables (like arrival and departure dates) from the previous agent and passing them as precise, deterministic inputs to the next subagent. This ensures an auditable and accurate handoff.\nC: Fork-based session management and thread merging are techniques used for parallel execution flows or combining independent results. They do not resolve issues related to sequential state dependencies or the passing of specific temporal context between subagents.\nD: Adding the FlightSearch tool to the HotelSearch agent creates tight coupling and violates the principle of separation of concerns. It forces the HotelSearch agent to perform redundant work already completed by the system, leading to higher latency and cost without guaranteeing the agent will correctly derive the dates from the tools.",
+      "source-note": "raw/certsafari/cca-f-questions.json (certsafari_id=24058)"
+    }
+  ]
+}
