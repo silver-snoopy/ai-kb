@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
+import { PickerScene } from './scenes/PickerScene';
 import { HubScene } from './scenes/HubScene';
 import { BossFightScene } from './scenes/BossFightScene';
 import { InterstitialScene } from './scenes/InterstitialScene';
@@ -16,7 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [BootScene, HubScene, BossFightScene, InterstitialScene, CampaignCompleteScene],
+  scene: [BootScene, PickerScene, HubScene, BossFightScene, InterstitialScene, CampaignCompleteScene],
 };
 
 const game = new Phaser.Game(config);
