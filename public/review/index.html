@@ -34,10 +34,27 @@
   </header>
 
   <main class="container main" id="main">
-    <section class="page-header">
-      <p class="page-header__eyebrow">Review &middot; Spaced repetition</p>
-      <h1>Return to what you almost remember.</h1>
-      <p class="page-header__lead">Cards you miss come back sooner. Cards you know well fade to the horizon. All state lives in your browser.</p>
+    <section class="page-header page-header--split cascade">
+      <div class="page-header__copy" style="--index:0">
+        <p class="page-header__eyebrow">Review &middot; Spaced repetition</p>
+        <h1>Return to what you <span class="page-header__accent">almost remember.</span></h1>
+        <p class="page-header__lead">Cards you miss come back sooner. Cards you know well fade to the horizon. All state lives in your browser.</p>
+      </div>
+
+      <aside class="status-rail" style="--index:1" aria-label="Session cadence">
+        <div class="status-rail__row">
+          <p class="status-rail__label">Method</p>
+          <p class="status-rail__value">SM&#8209;2 lite</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Storage</p>
+          <p class="status-rail__value">Local only</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Ladder</p>
+          <p class="status-rail__value">1 &middot; 3 &middot; 7 &middot; 21 d</p>
+        </div>
+      </aside>
     </section>
 
     <div id="app" aria-live="polite"></div>

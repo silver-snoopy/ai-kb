@@ -2,6 +2,26 @@
 
 .main { padding-bottom: var(--space-3xl); }
 
+/* Stagger the filter chips on load (skill §4: no instant list mount) */
+.filter-chips {
+  animation: cascade-in 520ms var(--ease-out) both;
+  animation-delay: 220ms;
+}
+
+.filter-chips .filter-chip {
+  animation: cascade-in 420ms var(--ease-out) both;
+}
+.filter-chips .filter-chip:nth-child(1) { animation-delay: 260ms; }
+.filter-chips .filter-chip:nth-child(2) { animation-delay: 305ms; }
+.filter-chips .filter-chip:nth-child(3) { animation-delay: 350ms; }
+.filter-chips .filter-chip:nth-child(4) { animation-delay: 395ms; }
+.filter-chips .filter-chip:nth-child(5) { animation-delay: 440ms; }
+.filter-chips .filter-chip:nth-child(6) { animation-delay: 485ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-chips, .filter-chips .filter-chip { animation: none !important; }
+}
+
 /* ============================================================
    SETUP SCREEN
    ============================================================ */

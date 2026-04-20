@@ -346,11 +346,26 @@ strong { font-weight: 600; }
   :root:not([data-theme]) .theme-toggle [data-icon="moon"] { display: none; }
 }
 
-/* ---------- Page header ---------- */
+/* ---------- Page header (asymmetric hero) ----------
+   Rule: left-aligned text + optional right-side mono rail.
+   Collapses to single column below 768px. */
 
 .page-header {
   padding-block: var(--space-2xl) var(--space-lg);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+  align-items: end;
 }
+
+@media (min-width: 768px) {
+  .page-header--split {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--space-2xl);
+  }
+}
+
+.page-header__copy { min-width: 0; }
 
 .page-header__eyebrow {
   font-family: var(--font-mono);
@@ -359,18 +374,119 @@ strong { font-weight: 600; }
   text-transform: uppercase;
   color: var(--ink-muted);
   margin-bottom: var(--space-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.page-header__eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
 }
 
 .page-header h1 {
-  font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl));
-  margin-bottom: var(--space-sm);
+  /* Skill §3 Rule 1: large display, tracking-tighter, leading-none equivalent */
+  font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+  letter-spacing: -0.022em;
+  line-height: 1.02;
+  margin-bottom: var(--space-md);
+  max-width: 18ch;
 }
 
 .page-header__lead {
   font-size: var(--text-base);
   color: var(--ink-muted);
-  max-width: 60ch;
+  max-width: 52ch;
   line-height: var(--leading-snug);
+}
+
+/* ---------- Status rail (right side of asymmetric hero) ----------
+   Rule-grouped mono block; no card box. Uses divide-y border style. */
+
+.status-rail {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.status-rail__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: var(--space-md);
+  padding-block: var(--space-sm);
+}
+
+.status-rail__row + .status-rail__row {
+  border-top: 1px solid var(--hairline);
+}
+
+.status-rail__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.status-rail__value {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  letter-spacing: var(--tracking-tight);
+}
+
+.status-rail__value[data-live="on"]::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: var(--space-xs);
+  vertical-align: 2px;
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+/* ---------- Staggered cascade ----------
+   Skill §4: never mount lists instantly.
+   Parent adds .cascade, children set --index inline. */
+
+.cascade > * {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: cascade-in 480ms var(--ease-out) forwards;
+  animation-delay: calc(var(--index, 0) * 55ms + 80ms);
+}
+
+@keyframes cascade-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Tactile feedback (global, interactive elements) ----------
+   Skill §3 Rule 5: push-on-active physical feedback. */
+
+.btn:not(:disabled):active,
+.mode:active,
+.filter-chip:active,
+.rating-btn:active,
+.option:not(:disabled):active,
+.exam-card:active {
+  transform: translateY(1px) scale(0.995);
+  transition-duration: 80ms;
 }
 
 /* ---------- Surfaces ---------- */

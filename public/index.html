@@ -34,39 +34,68 @@
   </header>
 
   <main class="container landing">
-    <section class="page-header">
-      <p class="page-header__eyebrow">Claude Certified Architect &mdash; Foundations</p>
-      <h1>Drill. Review. Repeat.</h1>
-      <p class="page-header__lead">A quiet study surface for CCA-F. Practice for drill with instant feedback; Review for spaced repetition. All state stays on your device.</p>
+    <section class="page-header page-header--split cascade">
+      <div class="page-header__copy" style="--index:0">
+        <p class="page-header__eyebrow">Claude Certified Architect &mdash; Foundations</p>
+        <h1>Drill.<br>Review.<br><span class="page-header__accent">Repeat.</span></h1>
+        <p class="page-header__lead">A quiet study surface for CCA-F. Practice drills with instant feedback; Review runs spaced repetition against the same bank. All state stays on your device.</p>
+      </div>
+
+      <aside class="status-rail" style="--index:1" aria-label="Question bank status">
+        <div class="status-rail__row">
+          <p class="status-rail__label">Bank</p>
+          <p class="status-rail__value" id="stat-total" data-live="on">&mdash;</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Domains</p>
+          <p class="status-rail__value" id="stat-domains">&mdash;</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Due today</p>
+          <p class="status-rail__value" id="stat-due">&mdash;</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Mastered</p>
+          <p class="status-rail__value" id="stat-mastered">&mdash;</p>
+        </div>
+      </aside>
     </section>
 
-    <div class="modes">
-      <a class="mode" href="practice/">
+    <section class="modes cascade" aria-label="Study modes">
+      <a class="mode mode--featured" href="practice/" style="--index:2">
+        <div class="mode__rule" aria-hidden="true"></div>
         <div class="mode__head">
-          <span class="mono-badge"><span>01</span></span>
-          <h2>Practice</h2>
+          <span class="mono-badge"><span>01 &mdash; Practice</span></span>
         </div>
-        <p class="mode__desc">Scenario MCQs with instant feedback, per-domain scoring, and wrong-answer capture.</p>
-        <dl class="mode__stats" id="practice-stats">
-          <div><dt>Questions</dt><dd class="mono" id="stat-total">&mdash;</dd></div>
-          <div><dt>Domains</dt><dd class="mono" id="stat-domains">&mdash;</dd></div>
-        </dl>
-        <span class="mode__cta">Start a session <span aria-hidden="true">&rarr;</span></span>
+        <h2 class="mode__title">Scenario MCQs with instant feedback.</h2>
+        <p class="mode__desc">Filter by exam domain, run a session, capture wrong answers to your local weakness queue. Source citation on every explanation.</p>
+        <div class="mode__cta-row">
+          <span class="mode__cta">Start a session</span>
+          <span class="mode__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </span>
+        </div>
       </a>
 
-      <a class="mode" href="review/">
+      <a class="mode mode--compact" href="review/" style="--index:3">
+        <div class="mode__rule" aria-hidden="true"></div>
         <div class="mode__head">
-          <span class="mono-badge"><span>02</span></span>
-          <h2>Review</h2>
+          <span class="mono-badge"><span>02 &mdash; Review</span></span>
         </div>
-        <p class="mode__desc">Spaced repetition against the same question bank. Cards you miss return sooner. Mastered cards fade into the background.</p>
-        <dl class="mode__stats" id="review-stats">
-          <div><dt>Queue</dt><dd class="mono" id="stat-due">&mdash;</dd></div>
-          <div><dt>Mastered</dt><dd class="mono" id="stat-mastered">&mdash;</dd></div>
-        </dl>
-        <span class="mode__cta">Open queue <span aria-hidden="true">&rarr;</span></span>
+        <h2 class="mode__title">Return to what you almost remember.</h2>
+        <p class="mode__desc">Spaced repetition against the same bank. Misses come back sooner; mastered cards fade.</p>
+        <div class="mode__cta-row">
+          <span class="mode__cta">Open queue</span>
+          <span class="mode__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </span>
+        </div>
       </a>
-    </div>
+    </section>
 
   </main>
 

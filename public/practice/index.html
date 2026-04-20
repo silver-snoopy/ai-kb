@@ -34,10 +34,27 @@
   </header>
 
   <main class="container main" id="main">
-    <section class="page-header">
-      <p class="page-header__eyebrow">Practice &middot; Scenario MCQs</p>
-      <h1>One domain at a time, or all at once.</h1>
-      <p class="page-header__lead">Filter by exam domain, run a session, get instant feedback with source citations. Wrong answers save to your local weakness queue.</p>
+    <section class="page-header page-header--split cascade">
+      <div class="page-header__copy" style="--index:0">
+        <p class="page-header__eyebrow">Practice &middot; Scenario MCQs</p>
+        <h1>One domain at a time, <span class="page-header__accent">or all at once.</span></h1>
+        <p class="page-header__lead">Filter by exam domain, run a session, get instant feedback with source citations. Wrong answers save to your local weakness queue.</p>
+      </div>
+
+      <aside class="status-rail" style="--index:1" aria-label="Exam format">
+        <div class="status-rail__row">
+          <p class="status-rail__label">Exam</p>
+          <p class="status-rail__value">CCA&#8209;F</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Format</p>
+          <p class="status-rail__value">60 Q / 120 min</p>
+        </div>
+        <div class="status-rail__row">
+          <p class="status-rail__label">Pass</p>
+          <p class="status-rail__value">70 %</p>
+        </div>
+      </aside>
     </section>
 
     <div id="app" aria-live="polite"></div>

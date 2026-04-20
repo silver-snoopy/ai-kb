@@ -1,43 +1,94 @@
-/* public/index.css — landing page */
+/* public/landing.css — landing page (skill pass: asymmetric, zig-zag, tactile) */
 
 .landing { padding-block: 0 var(--space-3xl); }
 
-/* ---------- Mode cards (2-column grid, collapses to stack) ---------- */
+/* ---------- Hero accent word (skill §3 Rule 1: hierarchy through color, not scale) ---------- */
+
+.page-header__accent {
+  color: var(--accent-ink);
+  font-style: italic;
+  font-weight: 500;
+}
+
+:root[data-theme="dark"] .page-header__accent { color: var(--accent); }
+
+/* ---------- Mode cards — zig-zag, not 3-column equal row ----------
+   Skill §7: "NO 3-Column Card Layouts". Here we go 2-col asymmetric
+   (2fr featured + 1fr compact) above md, collapse below. */
 
 .modes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: var(--space-md);
-  margin-block: var(--space-lg) var(--space-2xl);
+  margin-block: var(--space-2xl) var(--space-2xl);
+}
+
+@media (min-width: 768px) {
+  .modes {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-lg);
+    align-items: stretch;
+  }
 }
 
 .mode {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-lg);
+  padding: var(--space-xl) var(--space-lg) var(--space-lg);
   background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: 4px;
   color: var(--ink);
+  overflow: hidden;
+  isolation: isolate;
   transition: border-color var(--dur-base) var(--ease-out),
-              transform var(--dur-base) var(--ease-out);
+              transform var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+  /* Skill §7: tinted inner shadow, not default glow */
+  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--ink) 4%, transparent);
+}
+
+/* Offset the compact card slightly downward on desktop (zig-zag asymmetry) */
+@media (min-width: 768px) {
+  .mode--compact { margin-top: var(--space-xl); }
+  .mode--featured { padding-right: var(--space-2xl); }
 }
 
 .mode:hover {
   border-color: var(--border-strong);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 color-mix(in oklch, var(--ink) 4%, transparent),
+              0 18px 32px -24px color-mix(in oklch, var(--ink) 30%, transparent);
 }
 
-.mode__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+/* Top rule line — a premium detail that replaces generic card shadow */
+.mode__rule {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    color-mix(in oklch, var(--accent) 0%, transparent) 0%,
+    color-mix(in oklch, var(--accent) 80%, transparent) 18%,
+    color-mix(in oklch, var(--accent) 0%, transparent) 100%);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.mode:hover .mode__rule { opacity: 1; }
+
+.mode__head { display: flex; align-items: center; gap: var(--space-sm); }
+
+.mode__title {
+  font-size: clamp(var(--text-xl), 2.4vw, var(--text-2xl));
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+  margin: var(--space-sm) 0 0;
+  max-width: 20ch;
 }
 
-.mode__head h2 {
-  font-size: var(--text-xl);
-  margin: 0;
+.mode--compact .mode__title {
+  font-size: clamp(var(--text-lg), 2vw, var(--text-xl));
 }
 
 .mode__desc {
@@ -45,40 +96,56 @@
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
   margin: 0;
+  max-width: 48ch;
 }
 
-.mode__stats {
+.mode__cta-row {
+  margin-top: auto;
+  padding-top: var(--space-lg);
   display: flex;
-  gap: var(--space-lg);
-  margin: 0;
-  padding-top: var(--space-sm);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
   border-top: 1px solid var(--hairline);
 }
 
-.mode__stats > div { display: flex; flex-direction: column; gap: var(--space-3xs); }
-
-.mode__stats dt {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
-.mode__stats dd {
-  font-size: var(--text-lg);
-  font-weight: 500;
-  color: var(--ink);
-  margin: 0;
-}
-
 .mode__cta {
-  margin-top: auto;
-  padding-top: var(--space-sm);
   color: var(--ink-muted);
   font-size: var(--text-sm);
   font-weight: 500;
+  letter-spacing: var(--tracking-tight);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.mode:hover .mode__cta { color: var(--accent); }
+.mode__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--ink-muted);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  transition: color var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out),
+              background var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+}
+
+.mode:hover .mode__cta   { color: var(--ink); }
+.mode:hover .mode__arrow {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateX(3px);
+}
+
+/* Respect users who don't want motion — skip the cascade entirely */
+@media (prefers-reduced-motion: reduce) {
+  .cascade > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .status-rail__value[data-live="on"]::after { animation: none; }
+}
