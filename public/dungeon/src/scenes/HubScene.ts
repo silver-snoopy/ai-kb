@@ -7,6 +7,7 @@ import { SPELLS } from '../config';
 import { mountAudioToggles } from '../ui/audioToggles';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
+import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
 
 function nextModeFor(save: SaveStateV1): RunMode {
   // Determine the next unplayed tier from unlocked_spells.
@@ -90,61 +91,69 @@ export class HubScene extends Phaser.Scene {
       }).setOrigin(0.5);
     }
 
-    // Debug boss-preview row \u2014 each button jumps straight to the named
-    // boss's fight in isolated mode so the design of each room can be
-    // eyeballed without playing a full campaign.
-    this.add.text(480, 420, '(debug) preview boss rooms', {
-      fontSize: '12px', color: '#808090', fontFamily: 'monospace', fontStyle: 'italic',
-    }).setOrigin(0.5);
+    // Debug surfaces live in a dedicated container so the bug-icon toggle
+    // can show/hide the entire cluster atomically. Only mounted when the
+    // URL gate (?debug or ?debug=1) is present — otherwise non-dev users
+    // never see a discovery path.
+    if (isDebugEnabled()) {
+      const debugLayer = this.add.container(0, 0);
 
-    const debugBosses: Array<{ id: string; label: string }> = [
-      { id: 'the-orchestrator',  label: 'Orch.' },
-      { id: 'the-compiler-king', label: 'Comp-K' },
-      { id: 'the-grammarian',    label: 'Gram.' },
-      { id: 'the-tool-smith',    label: 'Tool-S' },
-      { id: 'the-memory-kraken', label: 'Kraken' },
-    ];
-    debugBosses.forEach((b, idx) => {
-      // 5 buttons at 150 wide, 175px-apart centers, centered around x=480.
-      const x = 130 + idx * 175;
-      const y = 465;
-      const btn = this.add.rectangle(x, y, 150, 38, 0x1b2d4e);
-      btn.setStrokeStyle(2, 0x6a7aa4);
-      btn.setInteractive({ useHandCursor: true });
-      attachRectHover(btn,
-        { fill: 0x1b2d4e, stroke: 0x6a7aa4 },
-        { fill: 0x2d4a7a, stroke: 0xa0b4e0 },
+      debugLayer.add(this.add.text(480, 420, '(debug) preview boss rooms', {
+        fontSize: '12px', color: '#808090', fontFamily: 'monospace', fontStyle: 'italic',
+      }).setOrigin(0.5));
+
+      const debugBosses: Array<{ id: string; label: string }> = [
+        { id: 'the-orchestrator',  label: 'Orch.' },
+        { id: 'the-compiler-king', label: 'Comp-K' },
+        { id: 'the-grammarian',    label: 'Gram.' },
+        { id: 'the-tool-smith',    label: 'Tool-S' },
+        { id: 'the-memory-kraken', label: 'Kraken' },
+      ];
+      debugBosses.forEach((b, idx) => {
+        const x = 130 + idx * 175;
+        const y = 465;
+        const btn = this.add.rectangle(x, y, 150, 38, 0x1b2d4e);
+        btn.setStrokeStyle(2, 0x6a7aa4);
+        btn.setInteractive({ useHandCursor: true });
+        attachRectHover(btn,
+          { fill: 0x1b2d4e, stroke: 0x6a7aa4 },
+          { fill: 0x2d4a7a, stroke: 0xa0b4e0 },
+        );
+        const label = this.add.text(x, y, b.label, {
+          fontSize: '14px', color: '#d0d0da', fontFamily: 'monospace',
+        }).setOrigin(0.5);
+        btn.on('pointerdown', () => {
+          fadeToScene(this, 'BossFightScene', { bossId: b.id, mode, isolated: true });
+        });
+        debugLayer.add(btn);
+        debugLayer.add(label);
+      });
+
+      const interBtn = this.add.rectangle(480, 525, 320, 34, 0x2d1b4e);
+      interBtn.setStrokeStyle(2, 0x7a6aa4);
+      interBtn.setInteractive({ useHandCursor: true });
+      attachRectHover(interBtn,
+        { fill: 0x2d1b4e, stroke: 0x7a6aa4 },
+        { fill: 0x4a2d7a, stroke: 0xc4a0ff },
       );
-      this.add.text(x, y, b.label, {
-        fontSize: '14px', color: '#d0d0da', fontFamily: 'monospace',
+      const interLabel = this.add.text(480, 525, '(debug) preview interstitial', {
+        fontSize: '12px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
       }).setOrigin(0.5);
-      btn.on('pointerdown', () => {
-        fadeToScene(this, 'BossFightScene', { bossId: b.id, mode, isolated: true });
+      interBtn.on('pointerdown', () => {
+        fadeToScene(this, 'InterstitialScene', {
+          previousBossId: 'the-orchestrator',
+          nextBossId: 'the-compiler-king',
+          mode,
+          nextBossIsolated: true,
+        });
       });
-    });
+      debugLayer.add(interBtn);
+      debugLayer.add(interLabel);
 
-    // Debug: preview the 3-beat interstitial (narrative \u2192 recall \u2192 primer).
-    // Hardcodes Orchestrator \u2192 Compiler-King so the recall step has real
-    // domain-1 content to pull from; flagged isolated so the follow-up
-    // BossFight doesn't try to read a non-existent campaign.
-    const interBtn = this.add.rectangle(480, 525, 320, 34, 0x2d1b4e);
-    interBtn.setStrokeStyle(2, 0x7a6aa4);
-    interBtn.setInteractive({ useHandCursor: true });
-    attachRectHover(interBtn,
-      { fill: 0x2d1b4e, stroke: 0x7a6aa4 },
-      { fill: 0x4a2d7a, stroke: 0xc4a0ff },
-    );
-    this.add.text(480, 525, '(debug) preview interstitial', {
-      fontSize: '12px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
-    }).setOrigin(0.5);
-    interBtn.on('pointerdown', () => {
-      fadeToScene(this, 'InterstitialScene', {
-        previousBossId: 'the-orchestrator',
-        nextBossId: 'the-compiler-king',
-        mode,
-        nextBossIsolated: true,
+      mountDebugToggle(this, (visible) => {
+        debugLayer.setVisible(visible);
       });
-    });
+    }
   }
 
   private beginCampaign(mode: RunMode): void {
