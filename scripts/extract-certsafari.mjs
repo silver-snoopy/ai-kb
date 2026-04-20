@@ -11,7 +11,7 @@
 //     returns: { data: [question_obj] }   // returns next question in the quiz
 //
 // Invariants:
-// - 500ms pacing between /api/questions calls to avoid per-minute rate limit.
+// - 2600ms pacing between /api/questions calls to avoid per-minute rate limit.
 // - Uses provided user-id; doesn't pollute the user's real quiz history in any unsafe way.
 // - Writes immutable raw JSON + per-domain markdown with ```question blocks.
 
@@ -59,7 +59,7 @@ const DOMAINS = [
   { name: 'Domain 4: Prompt Engineering & Structured Output', count: 72, id: 'domain-3-prompt-engineering' },
   { name: 'Domain 5: Context Management & Reliability',       count: 72, id: 'domain-5-context' },
 ];
-const PACING_MS = 2500;      // ~24 req/min — stays under the per-minute limit
+const PACING_MS = 2600;      // ~23 req/min — stays under the per-minute limit
 const COOLDOWN_MS = 30_000;  // 30s between domains so we don't stack bursts
 const RATE_LIMIT_BACKOFF_MS = 65_000; // full per-minute window reset
 

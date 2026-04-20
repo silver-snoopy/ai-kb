@@ -1,0 +1,9 @@
+{
+  "exams": [
+    { "path": "public/exams/cca-f/verified/certsafari-seed1.json",   "seed": 1,   "source": "certsafari-curated", "total": 60 },
+    { "path": "public/exams/cca-f/verified/certsafari-seed7.json",   "seed": 7,   "source": "certsafari-curated", "total": 60 },
+    { "path": "public/exams/cca-f/verified/certsafari-seed42.json",  "seed": 42,  "source": "certsafari-curated", "total": 60 },
+    { "path": "public/exams/cca-f/verified/certsafari-seed101.json", "seed": 101, "source": "certsafari-curated", "total": 60 },
+    { "path": "public/exams/cca-f/verified/certsafari-seed777.json", "seed": 777, "source": "certsafari-curated", "total": 60 }
+  ]
+}

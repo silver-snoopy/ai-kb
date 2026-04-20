@@ -26,6 +26,24 @@
 
 See [mock-exams/](./mock-exams/) for dated session reports.
 
+## Dynamic exam generation
+
+The `/generate-exam` slash command produces a fresh 60-question exam JSON on each invocation, using the real exam rules (4 of 6 scenarios picked at random from this cert's 6-scenario pool). Output lands in [`public/exams/`](../../public/exams/) and is loadable in the practice UI via the `?src=` query parameter.
+
+```
+/generate-exam                       # default: 60 Q, 4 of 6 scenarios, mixed difficulty
+/generate-exam --seed 42             # reproducible scenario pick
+/generate-exam --size 12 --drop 2    # short warmup (3 Q per kept scenario)
+```
+
+Open the generated exam in the practice UI:
+
+```
+public/practice/index.html?src=../exams/<generated-filename>.json
+```
+
+Zero per-invocation cost on a Claude Max subscription — cheap to rerun.
+
 ## Weakness queue
 
 Missed questions accumulate in [weakness-queue.md](./weakness-queue.md). Use `/quiz --review-weak` to drill them.

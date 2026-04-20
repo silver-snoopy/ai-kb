@@ -19,6 +19,7 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 - Tutor the user on cert content (`/tutor`) and file valuable Q&A back as wiki pages at session end (compound-knowledge loop)
 - Quiz the user (`/quiz`) and drive retention via saved weakness queue
 - Run full-length mock exams (`/mock-exam`)
+- Dynamically generate exam JSON files on demand for the practice UI and game (`/generate-exam`)
 - Periodic health checks (`/lint`) — find contradictions, orphans, stale claims, missing cross-references, data gaps
 - Keep `index.md` current on every capture and lint
 
@@ -40,6 +41,7 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 | `_lint/YYYY-MM-DD-report.md` | Claude via `/lint` | No | Reports |
 | `index.md` | Claude via `/capture` and `/lint` | No | Auto-maintained catalog |
 | `dashboard.md` | GitHub Action (dashboard.yml) | No | Auto-generated |
+| `public/exams/**` | Claude via `/generate-exam` | No | Dynamically generated exam JSON files. Consumable by `public/practice/` (via `?src=` query param) and the future Slay the Cert game. |
 
 ## Frontmatter contract (in-scope notes only)
 

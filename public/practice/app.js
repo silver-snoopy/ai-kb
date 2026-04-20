@@ -10,15 +10,16 @@ let quiz = null; // { questions, current, answers, startedAt }
 // ---------- data load ----------
 
 async function load() {
+  const src = new URLSearchParams(location.search).get('src') || '../questions.json';
   try {
-    const res = await fetch('../questions.json');
+    const res = await fetch(src);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
     renderSetup();
   } catch (e) {
     app.innerHTML = `<section class="empty">
       <h2>Could not load question bank</h2>
-      <p>Expected <code>../questions.json</code> to exist. Run <code>node scripts/build-questions.mjs</code> from the vault root to regenerate.</p>
+      <p>Expected <code>${escapeHtml(src)}</code> to exist. Run <code>node scripts/build-questions.mjs</code> from the vault root to regenerate, or generate an exam with <code>/generate-exam</code>.</p>
       <p class="text-soft">${escapeHtml(e.message)}</p>
     </section>`;
   }
@@ -41,6 +42,19 @@ function renderSetup() {
   const count = filteredQuestions().length;
   const sessionLen = Math.min(count, 25);
 
+  const meta = data.exam_metadata;
+  const examBanner = meta ? `
+      <div class="exam-banner" role="status" style="padding:0.75rem 1rem;margin-bottom:1rem;border:1px solid currentColor;border-radius:6px;font-size:0.9em;">
+        <strong>Generated exam</strong> &middot; seed <span class="mono">${escapeHtml(String(meta.seed))}</span> &middot;
+        ${Array.isArray(meta.scenarios_kept) && Array.isArray(meta.scenarios_dropped)
+          ? `${meta.scenarios_kept.length} of ${meta.scenarios_kept.length + meta.scenarios_dropped.length} scenarios &middot;`
+          : typeof meta.composition === 'string'
+            ? `${escapeHtml(meta.composition)} &middot;`
+            : ''}
+        ${meta.difficulty_actual ? `E${meta.difficulty_actual.easy}/M${meta.difficulty_actual.medium}/H${meta.difficulty_actual.hard}` : ''}
+        ${meta.coverage_warnings && meta.coverage_warnings.length ? `<div class="text-soft" style="margin-top:0.25rem;">&#9888;&#65039; ${meta.coverage_warnings.map(escapeHtml).join('; ')}</div>` : ''}
+      </div>` : '';
+
   const allActive = selectedDomains.size === 0 ? 'is-active' : '';
   const allChip = `<button class="filter-chip ${allActive}" data-domain="">
     <span>All domains</span>
@@ -61,6 +75,7 @@ function renderSetup() {
 
   app.innerHTML = `
     <section class="setup">
+      ${examBanner}
       <div>
         <h2 class="section-label">Filter</h2>
         <div class="filter-chips" role="group" aria-label="Domain filter">
