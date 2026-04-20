@@ -245,6 +245,34 @@ function advance() {
 
 // ---------- results ----------
 
+function renderMissedQuestions(wrong) {
+  if (wrong.length === 0) return '<p class="text-soft">No missed questions — all answered items were correct.</p>';
+  const items = wrong.map(({ q, given }) => {
+    const correctText = q.options[q.correct] ?? '';
+    const givenText = given != null ? (q.options[given] ?? '') : '(unanswered)';
+    const stem = q.stem.length > 300 ? q.stem.slice(0, 300) + '…' : q.stem;
+    return `
+      <li class="missed-item">
+        <p class="missed-item__stem">${escapeHtml(stem)}</p>
+        <dl class="missed-item__ans">
+          <dt>Your answer</dt><dd><span class="mono">${escapeHtml(given ?? '—')}</span> ${escapeHtml(givenText)}</dd>
+          <dt>Correct</dt><dd><span class="mono">${escapeHtml(q.correct)}</span> ${escapeHtml(correctText)}</dd>
+        </dl>
+        <details class="missed-item__explain">
+          <summary>Why</summary>
+          <p>${escapeHtml(q.explanation)}</p>
+        </details>
+      </li>
+    `;
+  }).join('');
+  return `
+    <details class="missed-section">
+      <summary><strong>${wrong.length}</strong> missed question${wrong.length === 1 ? '' : 's'}</summary>
+      <ol class="missed-list">${items}</ol>
+    </details>
+  `;
+}
+
 function renderResults() {
   clearKeyHandler();
   const answered = quiz.answers.map((a, i) => ({ q: quiz.questions[i], given: a }));
@@ -318,6 +346,8 @@ function renderResults() {
 
       <h3 class="section-label">Per-domain</h3>
       <dl class="domain-table">${rows}</dl>
+
+      ${renderMissedQuestions(wrong)}
 
       ${wrong.length ? `
         <p class="weakness">
