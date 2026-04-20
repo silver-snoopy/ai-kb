@@ -47,7 +47,7 @@ export interface BossDefinition {
 }
 
 // Spell types
-export type SpellId = 'echo' | 'study-the-tome' | 'memorize' | 'amplify' | 'doubleshot' | 'focus';
+export type SpellId = 'echo' | 'study-the-tome' | 'memorize' | 'amplify' | 'doubleshot';
 
 export interface SpellEffect {
   type: 'retake' | 'primer' | 'weakness-queue' | 'damage-mult';
@@ -58,6 +58,7 @@ export interface Spell {
   id: SpellId;
   name: string;
   description: string;
+  tagline: string; // short combat-tooltip copy, ≤40 chars
   tier: 'common' | 'uncommon' | 'rare';
   effect: SpellEffect;
   unlockedIn: 'first-run' | 'ng-plus' | 'ng-plus-plus' | 'ng-plus-plus-plus';

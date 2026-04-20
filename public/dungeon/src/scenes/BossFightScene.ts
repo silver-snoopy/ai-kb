@@ -16,6 +16,7 @@ import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
 import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
 import { mountDemoBadgeIfActive } from '../ui/demoBadge';
+import { formatSpellTooltip } from '../ui/spellTooltip';
 import { installFeelPack } from '../feel/install';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
@@ -43,6 +44,9 @@ export class BossFightScene extends Phaser.Scene {
   private optionTexts: Phaser.GameObjects.Text[] = [];
   private optionButtons: Phaser.GameObjects.Rectangle[] = [];
   private spellButtons: Phaser.GameObjects.Text[] = [];
+  private spellTooltip!: Phaser.GameObjects.Container;
+  private spellTooltipBg!: Phaser.GameObjects.Rectangle;
+  private spellTooltipText!: Phaser.GameObjects.Text;
   private tauntText!: Phaser.GameObjects.Text;
   private primerText!: Phaser.GameObjects.Text;
 
@@ -228,19 +232,16 @@ export class BossFightScene extends Phaser.Scene {
       this.input.keyboard?.on(`keydown-${idx + 1}`, () => this.submit(letter));
     });
 
-    // --- Spellbook UI (3\u00D72 grid) ---
-    // Each button carries its own dark background panel + padding so the
-    // labels stay readable against the tiled floor backdrop. Active
-    // spells tint amber (reads as "charged"); unavailable ones fade to
-    // dim grey.
-    const spellIds: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot', 'focus'];
+    // --- Spellbook UI (3+2 centered layout) ---
+    // Row 1: echo, study-the-tome, memorize at x={100,380,660}, y=650.
+    // Row 2: amplify, doubleshot at x={240,520}, y=682 (two cells centered
+    // across the three-column axis). Each button carries its own dark panel
+    // + padding so labels stay readable over the tiled floor backdrop.
+    // Active spells tint amber; 0-charge spells fade to dim grey.
+    const spellIds: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot'];
     spellIds.forEach((id, idx) => {
-      const x = 100 + (idx % 3) * 280;
-      // Two rows at y=650 and y=682, panels ~26 tall. Canvas is now 720
-      // tall so spells sit with ~50px breathing room below the option row
-      // (y=575) and the last row's bottom lands at y=708 \u2014 comfortably
-      // above the 720 canvas floor.
-      const y = 650 + Math.floor(idx / 3) * 32;
+      const x = idx < 3 ? 100 + idx * 280 : 240 + (idx - 3) * 280;
+      const y = idx < 3 ? 650 : 682;
       const btn = this.add.text(x, y, '', {
         fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
         backgroundColor: '#1a1a2a', padding: { x: 8, y: 4 },
@@ -254,8 +255,23 @@ export class BossFightScene extends Phaser.Scene {
         () => (this.spellbook[id] ?? 0) > 0,
       );
       btn.on('pointerdown', () => this.tryCast(id));
+      // Tooltip on hover: name + tagline above the button, regardless of
+      // charge count (players learn what a spell does before they own it).
+      btn.on('pointerover', () => this.showSpellTooltip(id, btn));
+      btn.on('pointerout', () => this.hideSpellTooltip());
       this.spellButtons.push(btn);
     });
+
+    // Shared tooltip (one Container, repopulated per hover). High depth so
+    // it renders above spell buttons + backdrop, hidden by default.
+    this.spellTooltipBg = this.add.rectangle(0, 0, 180, 50, 0x1a1a2a).setStrokeStyle(1, 0xffca28);
+    this.spellTooltipText = this.add.text(0, 0, '', {
+      fontSize: '12px', color: '#e0e0ea', fontFamily: 'monospace',
+      wordWrap: { width: 164, useAdvancedWrap: true }, align: 'center',
+    }).setOrigin(0.5);
+    this.spellTooltip = this.add.container(0, 0, [this.spellTooltipBg, this.spellTooltipText]);
+    this.spellTooltip.setDepth(1000);
+    this.spellTooltip.setVisible(false);
 
     // --- Idle animations ---
     this.tweens.add({
@@ -352,7 +368,7 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private refreshSpellUI(): void {
-    const ids: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot', 'focus'];
+    const ids: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot'];
     ids.forEach((id, i) => {
       const btn = this.spellButtons[i]!;
       const def = SPELLS[id];
@@ -363,6 +379,21 @@ export class BossFightScene extends Phaser.Scene {
       // labels are visible but clearly un-castable.
       btn.setColor(active ? '#ffca28' : '#5a5a6a');
     });
+  }
+
+  private showSpellTooltip(id: SpellId, btn: Phaser.GameObjects.Text): void {
+    const def = SPELLS[id];
+    this.spellTooltipText.setText(formatSpellTooltip(def));
+    const bgHeight = Math.max(44, this.spellTooltipText.height + 12);
+    this.spellTooltipBg.setSize(180, bgHeight);
+    const centerX = btn.x + btn.width / 2;
+    const tooltipCenterY = btn.y - (bgHeight / 2) - 6;
+    this.spellTooltip.setPosition(centerX, tooltipCenterY);
+    this.spellTooltip.setVisible(true);
+  }
+
+  private hideSpellTooltip(): void {
+    this.spellTooltip.setVisible(false);
   }
 
   private tryCast(spell: SpellId): void {

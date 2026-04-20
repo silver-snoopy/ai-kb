@@ -10,7 +10,6 @@ export function createSpellbook(mode: RunMode): Spellbook {
     memorize: 0,
     amplify: 0,
     doubleshot: 0,
-    focus: 0,
   };
   const tierOrder: RunMode[] = ['first-run', 'ng-plus', 'ng-plus-plus', 'ng-plus-plus-plus'];
   const currentIdx = tierOrder.indexOf(mode);

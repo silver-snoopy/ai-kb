@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { createCampaign } from '../game/dungeon';
 import { createSpellbook } from '../game/spellbook';
 import type { Campaign } from '../game/dungeon';
-import type { RunMode, SaveStateV1, SpellId } from '../types';
-import { BOSSES, SPELLS } from '../config';
+import type { RunMode, SaveStateV1 } from '../types';
+import { BOSSES } from '../config';
 import { mountAudioToggles } from '../ui/audioToggles';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
@@ -22,16 +22,16 @@ function continueButtonLabel(save: RunSave): string {
 }
 
 function nextModeFor(save: SaveStateV1): RunMode {
-  // Determine the next unplayed tier from unlocked_spells.
-  // first-run: nothing NG-tier yet → play first-run
-  // ng-plus: amplify unlocked but not doubleshot
-  // ng-plus-plus: doubleshot unlocked but not focus
-  // ng-plus-plus-plus: focus unlocked (terminal/replay tier)
+  // Determine the next unplayed tier. first-run gates on parchment. NG+ →
+  // NG++ gates on doubleshot being unlocked (awarded on NG+ victory).
+  // NG++ is now terminal — Focus removal 2026-04-20 dropped the NG++ →
+  // NG+++ progression marker, so NG+++ is unreachable via the Hub's
+  // normal "Begin Quest" flow. The RunMode enum retains ng-plus-plus-plus
+  // for type-level back-compat but this function never returns it.
   const u = save.unlocked_spells;
   if (!save.parchment_earned) return 'first-run';
   if (!u.includes('doubleshot')) return 'ng-plus';
-  if (!u.includes('focus')) return 'ng-plus-plus';
-  return 'ng-plus-plus-plus';
+  return 'ng-plus-plus';
 }
 
 function modeLabel(mode: RunMode): string {
@@ -89,11 +89,10 @@ export class HubScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const mode = nextModeFor(save);
-    const isTerminal = mode === 'ng-plus-plus-plus' && save.eternal_dungeon_unlocked && save.unlocked_spells.includes('focus');
-
-    const beginLabel = isTerminal
-      ? 'Enter the Eternal Dungeon (NG+++)'
-      : `Begin Quest (${modeLabel(mode)})`;
+    // Eternal Dungeon (NG+++) tier retired 2026-04-20 with Focus removal;
+    // nextModeFor tops out at ng-plus-plus, so `beginLabel` is always the
+    // generic Begin Quest form now.
+    const beginLabel = `Begin Quest (${modeLabel(mode)})`;
 
     const activeRun = readActiveRun();
 
@@ -140,11 +139,20 @@ export class HubScene extends Phaser.Scene {
       newBtn.on('pointerdown', () => this.beginCampaign(mode));
     }
 
-    // Unlocked spells summary
-    const unlockedNames = save.unlocked_spells.map((id: SpellId) => SPELLS[id].name).join(', ');
-    this.add.text(480, 320, `Unlocked spells: ${unlockedNames}`, {
-      fontSize: '13px', color: '#808090', fontFamily: 'monospace',
+    // Archmage's Codex — opens the spell reference scene. Replaces the
+    // old comma-separated "Unlocked spells: …" summary (2026-04-20); the
+    // Codex is a richer surface for the same info plus locked-page hints.
+    const codexBtn = this.add.rectangle(480, 325, 240, 36, 0x1a1a2a);
+    codexBtn.setStrokeStyle(2, 0xffca28);
+    codexBtn.setInteractive({ useHandCursor: true });
+    attachRectHover(codexBtn,
+      { fill: 0x1a1a2a, stroke: 0xffca28 },
+      { fill: 0x3a2f10, stroke: 0xffe070 },
+    );
+    this.add.text(480, 325, '\uD83D\uDCD6 The Archmage\u2019s Codex', {
+      fontSize: '14px', color: '#ffca28', fontFamily: 'monospace',
     }).setOrigin(0.5);
+    codexBtn.on('pointerdown', () => fadeToScene(this, 'TomeScene', {}));
 
     if (save.parchment_earned) {
       this.add.text(480, 355, '\uD83D\uDCDC Golden Parchment earned', {

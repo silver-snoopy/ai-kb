@@ -19,12 +19,21 @@ export function initSaveState(certId: string): SaveStateV1 {
   };
 }
 
+const VALID_SPELL_IDS: readonly SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot'];
+
 export function loadSaveState(certId: string): SaveStateV1 | null {
   try {
     const raw = localStorage.getItem(keyFor(certId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<SaveStateV1>;
     if (parsed.version !== 1) return null;
+    // Filter stale spell ids (e.g. 'focus', removed 2026-04-20) out of
+    // unlocked_spells so old saves don't violate the narrowed SpellId union.
+    if (Array.isArray(parsed.unlocked_spells)) {
+      parsed.unlocked_spells = parsed.unlocked_spells.filter(
+        (s): s is SpellId => typeof s === 'string' && (VALID_SPELL_IDS as readonly string[]).includes(s),
+      );
+    }
     return parsed as SaveStateV1;
   } catch {
     return null;
@@ -42,7 +51,7 @@ export function deleteSaveState(certId: string): void {
 const NEW_SPELLS_PER_MODE: Record<RunMode, SpellId | null> = {
   'first-run': 'amplify',        // unlocked for NG+
   'ng-plus': 'doubleshot',       // unlocked for NG++
-  'ng-plus-plus': 'focus',       // unlocked for NG+++
+  'ng-plus-plus': null,          // no new spell (Focus removed 2026-04-20)
   'ng-plus-plus-plus': null,     // terminal
 };
 

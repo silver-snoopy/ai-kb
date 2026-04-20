@@ -4,6 +4,7 @@ import { HubScene } from './scenes/HubScene';
 import { BossFightScene } from './scenes/BossFightScene';
 import { InterstitialScene } from './scenes/InterstitialScene';
 import { CampaignCompleteScene } from './scenes/CampaignCompleteScene';
+import { TomeScene } from './scenes/TomeScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -18,7 +19,7 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   // PickerScene retired 2026-04-20 with the unified bank migration — BootScene
   // now fetches bank.json directly and transitions to HubScene.
-  scene: [BootScene, HubScene, BossFightScene, InterstitialScene, CampaignCompleteScene],
+  scene: [BootScene, HubScene, BossFightScene, InterstitialScene, CampaignCompleteScene, TomeScene],
 };
 
 const game = new Phaser.Game(config);

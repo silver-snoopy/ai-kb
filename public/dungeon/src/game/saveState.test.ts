@@ -74,12 +74,13 @@ describe('saveState', () => {
     expect(v.unlocked_spells.filter(x => x === 'amplify')).toHaveLength(1);
   });
 
-  it('recordCampaignVictory on ng-plus-plus adds focus', () => {
+  it('recordCampaignVictory on ng-plus-plus adds no new spell (Focus removed 2026-04-20)', () => {
     let s = initSaveState('cca-f');
     s = recordCampaignVictory(s, 'first-run');
     s = recordCampaignVictory(s, 'ng-plus');
+    const before = s.unlocked_spells.length;
     const v = recordCampaignVictory(s, 'ng-plus-plus');
-    expect(v.unlocked_spells).toContain('focus');
+    expect(v.unlocked_spells.length).toBe(before);
   });
 
   it('recordCampaignVictory on ng-plus-plus-plus (terminal) adds no new spell', () => {
@@ -90,6 +91,27 @@ describe('saveState', () => {
     const before = s.unlocked_spells.length;
     const v = recordCampaignVictory(s, 'ng-plus-plus-plus');
     expect(v.unlocked_spells.length).toBe(before);
+  });
+
+  it('loadSaveState filters stale spell ids (e.g. focus) out of unlocked_spells', () => {
+    // Simulate an old save on disk that was written before the Focus spell
+    // was removed. The loader must strip the stale id so downstream code
+    // doesn't see a value outside the narrowed SpellId union.
+    const stale = {
+      version: 1,
+      cert_id: 'cca-f',
+      current_campaign: null,
+      unlocked_spells: ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot', 'focus'],
+      bosses_defeated_ever: [],
+      parchment_earned: true,
+      eternal_dungeon_unlocked: true,
+      title_earned: 'Archmage',
+    };
+    localStorage.setItem(STORAGE_KEY_PREFIX + 'cca-f', JSON.stringify(stale));
+    const loaded = loadSaveState('cca-f');
+    expect(loaded).not.toBeNull();
+    expect(loaded!.unlocked_spells).not.toContain('focus');
+    expect(loaded!.unlocked_spells).toEqual(['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot']);
   });
 
   it('deleteSaveState removes the entry', () => {
