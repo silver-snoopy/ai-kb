@@ -28,35 +28,40 @@ See [mock-exams/](./mock-exams/) for dated session reports.
 
 ## Study surfaces
 
-Three live surfaces, all deployed via GitHub Pages and reading from the same verified exam pool under [`public/exams/cca-f/verified/`](../../public/exams/cca-f/verified/):
+Two live surfaces, both reading from the unified [bank.json](../../public/exams/cca-f/bank.json):
 
-- [`/practice/picker.html`](../../public/practice/picker.html) — card grid of verified exams; pick one to launch a timed session with instant feedback + missed-question review
-- [`/review/`](../../public/review/) — spaced repetition over the same question bank
-- [`/dungeon/`](../../public/dungeon/) — *Slay the Cert* browser game; `PickerScene` offers the same verified exams as boss-fight pools
+- [`/practice/`](../../public/practice/) — scenario MCQs. Filter by domain + scenario (intersection). Launch a **Mock Exam** (60 Qs, 4-of-6 scenarios, domain-weighted).
+- [`/dungeon/`](../../public/dungeon/) — *Slay the Cert* browser game. Each boss is a CCA-F domain; questions drawn from the bank filtered to that domain.
 
-## Dynamic exam generation
+Review exists as a nav-hidden surface (`/review/`) per the 2026-04-20 retirement — unused in the active study loop.
 
-Two-step pipeline, generator + adversarial verifier:
+## Unified question bank
 
-```
-/cca-f-generate-exam [--seed N] [--size N] [--drop N] [--difficulty e/m/h]
-    # Produces a candidate exam JSON grounded in the 364-Q CertSafari bank.
-    # Output: public/exams/cca-f/candidates/<filename>.json
-    # NOT picked up by the study surfaces until verified.
+Single source of truth: `public/exams/cca-f/bank.json`. Every question carries `domain` + `scenario` + `source` tags.
 
-/cca-f-verify-exam <path-to-candidate>
-    # 4 parallel reviewer subagents (fact-check, distractor audit,
-    # stale-term sweep, explanation audit). On zero critical/high flags,
-    # promotes the candidate to public/exams/cca-f/verified/.
-    # Calibration gate: 10/10 against planted-error set.
-```
+- **CertSafari imports** (initial seed, 364 questions): built once via `scripts/build-bank.mjs`, scenario-tagged via `scripts/classify-scenarios.mjs`.
+- **LLM-generated additions** (accumulative): produced via `/cca-f-generate-questions`, merged into the bank by `/cca-f-verify-questions` on clean 4-reviewer pass.
 
-The 5 pre-seeded verified exams (`certsafari-seed{1,7,42,101,777}.json`, 60 Qs each, built from the CertSafari bank) are already live and surfaced in all three study surfaces.
-
-Open a specific exam directly in the practice UI:
+### Pipeline
 
 ```
-public/practice/index.html?src=../exams/cca-f/verified/<filename>.json
+/cca-f-generate-questions [--count N] [--scenario 1..6] [--domain D] [--seed N]
+    # Produces novel questions grounded in the CertSafari substrate.
+    # Output: public/exams/cca-f/candidates/gen-<timestamp>.json
+
+/cca-f-verify-questions <path-to-candidate>
+    # 4 parallel reviewers (fact-check, distractor audit, stale-term sweep,
+    # explanation audit) + 5th scenario/domain plausibility check.
+    # On clean review: merges questions into bank.json (+ bump version).
+    # Calibration gate: 10/10 against planted-error set (--calibrate).
+```
+
+Candidate files stay in `candidates/` after merge as an audit trail.
+
+Direct exam loads in the practice UI still work via `?src=`:
+
+```
+public/practice/index.html?src=../exams/cca-f/bank.json  # explicit default
 ```
 
 Zero per-invocation cost on a Claude Max subscription — cheap to rerun.

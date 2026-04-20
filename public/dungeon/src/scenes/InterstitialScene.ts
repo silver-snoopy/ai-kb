@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { BOSSES } from '../config';
-import type { MissedQuestion, Question, QuestionsJson, RunMode, BossDefinition } from '../types';
+import type { Bank, MissedQuestion, Question, RunMode, BossDefinition } from '../types';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
 import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
@@ -63,9 +63,8 @@ export class InterstitialScene extends Phaser.Scene {
     this.currentMistakeIdx = 0;
     this.beat = 'narrative';
 
-    const qs: QuestionsJson = this.registry.get('questions');
-    const prevDomain = qs.domains.find(d => d.id === prev.domain);
-    const pool = prevDomain?.questions ?? [];
+    const bank: Bank = this.registry.get('bank');
+    const pool = bank?.questions.filter(q => q.domain === prev.domain) ?? [];
     this.recallQuestion = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)]! : null;
   }
 

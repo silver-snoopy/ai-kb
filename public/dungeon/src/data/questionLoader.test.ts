@@ -4,7 +4,7 @@ import type { Question } from '../types';
 
 function makeQ(id: string, difficulty: 'easy' | 'medium' | 'hard'): Question {
   return {
-    id, domain: 'd1', difficulty,
+    id, source: 'certsafari', domain: 'd1', scenario: '1', difficulty,
     stem: 'stem', options: { A: 'a', B: 'b', C: 'c', D: 'd' },
     correct: 'A', explanation: 'e', source_note: 't.md',
   };

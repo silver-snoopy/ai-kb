@@ -1,78 +1,32 @@
-import type { Question, QuestionsJson, DomainData } from '../types';
+import type { Bank, Question } from '../types';
 
-// Shape of the raw JSON emitted by scripts/build-questions.mjs.
-interface RawQuestion {
-  id: string;
-  domain: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  stem: string;
-  options: Record<'A' | 'B' | 'C' | 'D', string>;
-  correct: 'A' | 'B' | 'C' | 'D';
-  explanation: string;
-  'source-note': string;
-}
-interface RawDomainsJson {
-  built_at: string;
-  total: number;
-  by_domain: Record<string, number>;
-  domains: Record<string, { num: number; name: string; weight: number; color?: string }>;
-  questions: RawQuestion[];
+/**
+ * Loads the unified question bank (public/exams/cca-f/bank.json, surfaced to
+ * the dungeon at ./data/bank.json via CI overlay or committed fallback for
+ * local dev). The bank is already in the flat shape the game needs — no
+ * normalization required; we just validate and pass through.
+ *
+ * See: docs/superpowers/specs/2026-04-20-unified-question-bank-design.md §A
+ */
+export async function loadBank(url: string = './data/bank.json'): Promise<Bank> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to load bank.json: ${res.status}`);
+  const bank = (await res.json()) as Bank;
+  if (!Array.isArray(bank.questions) || bank.questions.length === 0) {
+    throw new Error(`${url}: expected non-empty questions array`);
+  }
+  if (!bank.domains || !bank.scenarios) {
+    throw new Error(`${url}: missing domains or scenarios metadata`);
+  }
+  return bank;
 }
 
 /**
- * Loads + normalizes the vault's questions.json into the shape declared in
- * src/types.ts. The raw file uses a flat top-level `questions` array with
- * hyphenated `source-note` keys; this function transforms it into the
- * domain-nested, snake_case-keyed QuestionsJson shape the game consumes.
+ * Filter the bank's questions to a single domain. Used by BossFightScene.init
+ * to scope the per-boss pool.
  */
-export async function loadQuestionsJson(url: string = './data/questions.json'): Promise<QuestionsJson> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load questions.json: ${res.status}`);
-  const raw = (await res.json()) as RawDomainsJson;
-  return normalize(raw);
-}
-
-function normalize(raw: RawDomainsJson): QuestionsJson {
-  const questionsByDomain = new Map<string, Question[]>();
-  for (const rq of raw.questions) {
-    const q: Question = {
-      id: rq.id,
-      domain: rq.domain,
-      difficulty: rq.difficulty,
-      stem: rq.stem,
-      options: rq.options,
-      correct: rq.correct,
-      explanation: rq.explanation,
-      source_note: rq['source-note'],
-    };
-    const bucket = questionsByDomain.get(rq.domain);
-    if (bucket) bucket.push(q);
-    else questionsByDomain.set(rq.domain, [q]);
-  }
-
-  // Warn (don't throw) on orphaned questions — tolerable for in-progress data
-  // but worth surfacing so build-questions.mjs bugs don't hide.
-  for (const rq of raw.questions) {
-    if (!(rq.domain in raw.domains)) {
-      // eslint-disable-next-line no-console
-      console.warn(`[questionLoader] Question ${rq.id} references unknown domain "${rq.domain}"; it will not appear in any domain bucket`);
-    }
-  }
-
-  const domains: DomainData[] = Object.entries(raw.domains).map(([id, meta]) => ({
-    id,
-    name: meta.name,
-    weight: meta.weight,
-    questions: questionsByDomain.get(id) ?? [],
-  }));
-
-  return {
-    generated_at: raw.built_at,
-    cert_id: 'cca-f',
-    cert_name: 'Claude Certified Architect \u2014 Foundations',
-    total_questions: raw.total,
-    domains,
-  };
+export function questionsForDomain(bank: Bank, domain: string): Question[] {
+  return bank.questions.filter(q => q.domain === domain);
 }
 
 /**

@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 import { BOSSES, GAME_CONFIG, SPELLS } from '../config';
 import { downloadSessionLog } from '../game/sessionExport';
 import { initCombat, resolveAnswer, isBossDefeated, isHeroDead } from '../game/combat';
-import { pickQuestionsForFight } from '../data/questionLoader';
+import { pickQuestionsForFight, questionsForDomain } from '../data/questionLoader';
 import { canCast, castSpell, createSpellbook, grantBossDefeatReward } from '../game/spellbook';
 import type { Spellbook } from '../game/spellbook';
-import type { BossDefinition, CombatState, MissedQuestion, Question, QuestionsJson, RunMode, SessionLog, SpellId } from '../types';
+import type { Bank, BossDefinition, CombatState, MissedQuestion, Question, RunMode, SessionLog, SpellId } from '../types';
 import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
 import { readActiveRun, writeActiveRun, clearActiveRun, restoreQuestionPool } from '../game/runSave';
@@ -72,9 +72,10 @@ export class BossFightScene extends Phaser.Scene {
     this.mode = data.mode;
     this.isolated = data.isolated;
 
-    const questionsJson: QuestionsJson = this.registry.get('questions');
-    const domainData = questionsJson.domains.find(d => d.id === boss.domain);
-    if (!domainData || domainData.questions.length === 0) {
+    const bank: Bank = this.registry.get('bank');
+    if (!bank) throw new Error('No bank in registry — BootScene should have loaded it');
+    const domainPool = questionsForDomain(bank, boss.domain);
+    if (domainPool.length === 0) {
       throw new Error(`No questions for domain ${boss.domain}`);
     }
     const bossHp = GAME_CONFIG.BOSS_HP[this.mode];
@@ -87,14 +88,14 @@ export class BossFightScene extends Phaser.Scene {
     const canRestore = save?.inBoss != null && save.inBoss.bossId === data.bossId;
     let restoredQuestions: Question[] | null = null;
     if (canRestore) {
-      restoredQuestions = restoreQuestionPool(save!.inBoss!.questionIds, domainData.questions);
+      restoredQuestions = restoreQuestionPool(save!.inBoss!.questionIds, domainPool);
       if (!restoredQuestions) {
-        // Save references question IDs that no longer exist in the pool
-        // (pool swap via PickerScene). Treat as corruption; clear and
-        // start a fresh fight.
+        // Save references question IDs that no longer exist in the bank
+        // (bank evolved since the save was written). Treat as corruption;
+        // clear and start a fresh fight.
         clearActiveRun();
         // eslint-disable-next-line no-console
-        console.warn('[runSave] cleared: saved question IDs missing from current pool');
+        console.warn('[runSave] cleared: saved question IDs missing from current bank');
       }
     }
 
@@ -104,9 +105,9 @@ export class BossFightScene extends Phaser.Scene {
       this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: save!.inBoss!.bossMaxHp });
       this.state.heroHp = save!.inBoss!.heroHp;
       this.state.bossHp = save!.inBoss!.bossHp;
-      this.state.questionHistory = restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainData.questions) ?? [];
+      this.state.questionHistory = restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
     } else {
-      this.questions = pickQuestionsForFight(domainData.questions, maxQuestions);
+      this.questions = pickQuestionsForFight(domainPool, maxQuestions);
       this.currentQuestionIdx = 0;
       const heroHpStart = this.registry.get('heroHp') ?? GAME_CONFIG.HERO_MAX_HP;
       this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: bossHp });

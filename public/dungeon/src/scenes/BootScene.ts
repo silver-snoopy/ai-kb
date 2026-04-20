@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { fadeToScene } from '../ui/transitions';
+import { loadBank } from '../data/questionLoader';
+import { loadSaveState, initSaveState, saveSaveState } from '../game/saveState';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -55,21 +57,40 @@ export class BootScene extends Phaser.Scene {
     });
   }
 
-  create(): void {
+  async create(): Promise<void> {
     this.add.text(480, 280, 'Slay the Cert', {
       fontSize: '48px',
       color: '#e0e0ea',
       fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    this.add.text(480, 340, 'Assets loaded.', {
+    const status = this.add.text(480, 340, 'Loading question bank...', {
       fontSize: '20px',
       color: '#a0a0b0',
       fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    this.time.delayedCall(400, () => {
-      fadeToScene(this, 'PickerScene');
-    });
+    // Absorb the bank fetch that PickerScene used to do. Prefer the
+    // committed local-dev copy at ./data/bank.json; CI overlays the
+    // production bank from public/exams/cca-f/bank.json over this path
+    // at deploy time.
+    try {
+      const bank = await loadBank('./data/bank.json');
+      this.registry.set('bank', bank);
+      // Initialize save state once on first boot (or rehydrate existing).
+      let saveState = loadSaveState(bank.cert_id);
+      if (!saveState) {
+        saveState = initSaveState(bank.cert_id);
+        saveSaveState(saveState);
+      }
+      this.registry.set('saveState', saveState);
+      status.setText('Ready.');
+      this.time.delayedCall(300, () => fadeToScene(this, 'HubScene'));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      status.setText(`ERROR: could not load question bank — ${msg}`);
+      status.setColor('#e57373');
+      // Leave the scene visible so the error is readable; no fade.
+    }
   }
 }
