@@ -82,39 +82,3 @@
 }
 
 .mode:hover .mode__cta { color: var(--accent); }
-
-/* ---------- Meta grid (under modes) ---------- */
-
-.landing__meta { margin-top: var(--space-2xl); }
-
-.meta-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-lg) var(--space-2xl);
-  margin: var(--space-lg) 0 0;
-}
-
-.meta-grid > div { display: flex; flex-direction: column; gap: var(--space-3xs); }
-
-.meta-grid dt {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
-.meta-grid dd {
-  font-size: var(--text-sm);
-  color: var(--ink-muted);
-  line-height: var(--leading-snug);
-  margin: 0;
-}
-
-.meta-grid code {
-  padding: 1px var(--space-2xs);
-  background: var(--surface-sunk);
-  border: 1px solid var(--hairline);
-  border-radius: 2px;
-  font-size: 0.85em;
-}
