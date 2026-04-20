@@ -90,6 +90,18 @@ export interface SessionLog {
   final_hero_hp: number;
 }
 
+// Post-boss review — one entry per wrong answer from a single boss fight.
+// BossFightScene accumulates these during combat and hands them to
+// InterstitialScene for the mistakes-review beat.
+export interface MissedQuestion {
+  questionId: string;
+  stem: string;
+  options: Record<'A' | 'B' | 'C' | 'D', string>;
+  correct: 'A' | 'B' | 'C' | 'D';
+  chosen: 'A' | 'B' | 'C' | 'D';
+  explanation: string;
+}
+
 // Save state (localStorage v1)
 export interface SaveStateV1 {
   version: 1;

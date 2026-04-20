@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { BOSSES } from '../config';
-import type { Question, QuestionsJson, RunMode, BossDefinition } from '../types';
+import type { MissedQuestion, Question, QuestionsJson, RunMode, BossDefinition } from '../types';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
+import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
+import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 
 interface InterstitialData {
   previousBossId: string;
@@ -12,9 +14,12 @@ interface InterstitialData {
   // used by the Hub's "preview interstitial" button so the next boss
   // doesn't try to read a non-existent campaign from the registry.
   nextBossIsolated?: boolean;
+  // Wrong answers from the boss just defeated. Drives the mistakes-review
+  // beat. Undefined/empty \u2192 skip the beat entirely.
+  missedQuestions?: MissedQuestion[];
 }
 
-type Beat = 'narrative' | 'recall' | 'recall-answered' | 'primer';
+type Beat = 'narrative' | 'mistakes-review' | 'recall' | 'recall-answered' | 'primer';
 
 export class InterstitialScene extends Phaser.Scene {
   private previousBoss!: BossDefinition;
@@ -23,6 +28,8 @@ export class InterstitialScene extends Phaser.Scene {
   private nextBossIsolated = false;
   private beat: Beat = 'narrative';
   private recallQuestion: Question | null = null;
+  private missedQuestions: MissedQuestion[] = [];
+  private currentMistakeIdx = 0;
 
   private titleText!: Phaser.GameObjects.Text;
   private bodyText!: Phaser.GameObjects.Text;
@@ -52,6 +59,8 @@ export class InterstitialScene extends Phaser.Scene {
     this.nextBoss = next;
     this.mode = data.mode;
     this.nextBossIsolated = data.nextBossIsolated ?? false;
+    this.missedQuestions = data.missedQuestions ?? [];
+    this.currentMistakeIdx = 0;
     this.beat = 'narrative';
 
     const qs: QuestionsJson = this.registry.get('questions');
@@ -61,6 +70,16 @@ export class InterstitialScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Phaser reuses scene instances on re-entry (same bug pattern as BossFightScene):
+    // without this reset, optionPanels + optionTexts accumulate references to
+    // destroyed GameObjects from the previous campaign transition. On boss 2→3+,
+    // the forEach(setText/...) in renderRecall throws on a destroyed Text's null
+    // canvas — which halts the function before setVisible(true) and the hint
+    // update can run, leaving the recall screen with no option panels and a
+    // stale hint reading "(press Space / Enter / click to continue)".
+    this.optionTexts = [];
+    this.optionPanels = [];
+
     this.cameras.main.setBackgroundColor(0x0a0a14);
     fadeIn(this);
 
@@ -107,13 +126,23 @@ export class InterstitialScene extends Phaser.Scene {
 
     this.hintText = this.add.text(480, 600, '', {
       fontSize: '14px', color: '#808090', fontFamily: 'monospace', fontStyle: 'italic',
-    }).setOrigin(0.5);
+      wordWrap: { width: 900, useAdvancedWrap: true }, align: 'center',
+    }).setOrigin(0.5, 0);
 
     this.input.on('pointerdown', () => this.onPointer());
     this.input.keyboard?.on('keydown-SPACE', () => this.onPointer());
     this.input.keyboard?.on('keydown-ENTER', () => this.onPointer());
 
+    mountDemoBadgeIfActive(this);
+
     this.renderNarrative();
+  }
+
+  /** Restore the default grey-italic hint style after mistakes-review
+   *  overrode it for a higher-contrast explanation readout. */
+  private resetHintStyle(): void {
+    this.hintText.setColor('#808090');
+    this.hintText.setStyle({ fontStyle: 'italic' });
   }
 
   /** Destroy the current preview image before setting a new one. */
@@ -151,6 +180,7 @@ export class InterstitialScene extends Phaser.Scene {
     );
     this.optionTexts.forEach(t => t.setText(''));
     this.optionPanels.forEach(p => p.setVisible(false));
+    this.resetHintStyle();
     this.hintText.setText('(press Space / Enter / click to continue)');
 
     // Show previous boss sprite fading out
@@ -198,7 +228,18 @@ export class InterstitialScene extends Phaser.Scene {
       const letter = letters[i]!;
       t.setText(`${letter}) ${q.options[letter]}`);
     });
-    this.optionPanels.forEach(p => p.setVisible(true));
+    // Recall options re-enable input (mistakes-review may have disabled them).
+    this.optionPanels.forEach(p => {
+      p.setVisible(true);
+      p.setInteractive({ useHandCursor: true });
+    });
+    resetOptionFeedback(this.optionPanels, this.optionTexts);
+    // Re-apply the recall option text since resetOptionFeedback strips prefixes.
+    this.optionTexts.forEach((t, i) => {
+      const letter = (['A', 'B', 'C', 'D'] as const)[i]!;
+      t.setText(`${letter}) ${q.options[letter]}`);
+    });
+    this.resetHintStyle();
     this.hintText.setText('(press A/B/C/D or 1-4 to answer — no HP penalty, this is review only)');
   }
 
@@ -212,6 +253,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.bodyText.setText(`${prefix}\n\n${q.explanation}`);
     this.optionTexts.forEach(t => t.setText(''));
     this.optionPanels.forEach(p => p.setVisible(false));
+    this.resetHintStyle();
     this.hintText.setText('(press Space / Enter / click to continue)');
   }
 
@@ -225,6 +267,7 @@ export class InterstitialScene extends Phaser.Scene {
     );
     this.optionTexts.forEach(t => t.setText(''));
     this.optionPanels.forEach(p => p.setVisible(false));
+    this.resetHintStyle();
     this.hintText.setText('(press Space / Enter / click to begin the fight)');
 
     // Show incoming boss sprite with idle bob
@@ -250,7 +293,19 @@ export class InterstitialScene extends Phaser.Scene {
       return;
     }
     if (this.beat === 'narrative') {
-      this.renderRecall();
+      if (this.missedQuestions.length > 0) {
+        this.currentMistakeIdx = 0;
+        this.renderMistakesReview();
+      } else {
+        this.renderRecall();
+      }
+    } else if (this.beat === 'mistakes-review') {
+      if (this.currentMistakeIdx + 1 < this.missedQuestions.length) {
+        this.currentMistakeIdx++;
+        this.renderMistakesReview();
+      } else {
+        this.renderRecall();
+      }
     } else if (this.beat === 'recall-answered') {
       this.renderPrimer();
     } else if (this.beat === 'primer') {
@@ -261,5 +316,52 @@ export class InterstitialScene extends Phaser.Scene {
       });
     }
     // If beat === 'recall' (not answered yet): ignore pointer. User must pick A-D.
+  }
+
+  private renderMistakesReview(): void {
+    this.beat = 'mistakes-review';
+    const miss = this.missedQuestions[this.currentMistakeIdx];
+    if (!miss) {
+      // Defensive: if the index got out of bounds, skip to recall.
+      this.renderRecall();
+      return;
+    }
+
+    const total = this.missedQuestions.length;
+    const n = this.currentMistakeIdx + 1;
+    this.titleText.setText(`\uD83D\uDCDC Mistake ${n} of ${total}`);
+    this.clearPreview();
+
+    // Stem in the body slot \u2014 truncated hint if very long, options below
+    // show the detail.
+    this.bodyText.setText(miss.stem);
+
+    // Populate the 4 option texts with the full option text, then paint
+    // them via the shared helper so the chosen-wrong option goes red (\u2717)
+    // and the correct one green (\u2713).
+    const letters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
+    resetOptionFeedback(this.optionPanels, this.optionTexts);
+    this.optionTexts.forEach((t, i) => {
+      const letter = letters[i]!;
+      t.setText(`${letter}) ${miss.options[letter]}`);
+    });
+    this.optionPanels.forEach(p => {
+      p.setVisible(true);
+      // Disable interactivity \u2014 this is review, not a quiz.
+      p.disableInteractive();
+    });
+    paintOptionFeedback(this.optionPanels, this.optionTexts, miss.correct, miss.chosen);
+
+    // Explanation summary below the options. 350-char cap + wordWrap keeps
+    // the text inside the ~160px band between the last option (y=561) and
+    // the canvas floor (y=720). Full explanation is still available via
+    // the session log download / post-run review.
+    const summary = summarizeExplanation(miss.explanation, miss.correct, 350);
+    const advance = n < total
+      ? '(press Space / Enter / click for next mistake)'
+      : '(press Space / Enter / click to continue)';
+    this.hintText.setColor('#e8e0d0');
+    this.hintText.setStyle({ fontStyle: 'normal' });
+    this.hintText.setText(`${summary}\n\n${advance}`);
   }
 }
