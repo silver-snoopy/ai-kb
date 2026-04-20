@@ -142,20 +142,26 @@ export class HubScene extends Phaser.Scene {
     // Archmage's Codex — opens the spell reference scene. Replaces the
     // old comma-separated "Unlocked spells: …" summary (2026-04-20); the
     // Codex is a richer surface for the same info plus locked-page hints.
-    const codexBtn = this.add.rectangle(480, 325, 240, 36, 0x1a1a2a);
+    // Position is dynamic: with an active run the Continue + New Game stack
+    // ends at y=308, so the Codex sits at y=360. Without an active run the
+    // single Begin Quest button ends at y=270, so the Codex sits at y=325.
+    const codexY = activeRun ? 360 : 325;
+    const codexBtn = this.add.rectangle(480, codexY, 240, 36, 0x1a1a2a);
     codexBtn.setStrokeStyle(2, 0xffca28);
     codexBtn.setInteractive({ useHandCursor: true });
     attachRectHover(codexBtn,
       { fill: 0x1a1a2a, stroke: 0xffca28 },
       { fill: 0x3a2f10, stroke: 0xffe070 },
     );
-    this.add.text(480, 325, '\uD83D\uDCD6 The Archmage\u2019s Codex', {
+    this.add.text(480, codexY, '\uD83D\uDCD6 The Archmage\u2019s Codex', {
       fontSize: '14px', color: '#ffca28', fontFamily: 'monospace',
     }).setOrigin(0.5);
     codexBtn.on('pointerdown', () => fadeToScene(this, 'TomeScene', {}));
 
     if (save.parchment_earned) {
-      this.add.text(480, 355, '\uD83D\uDCDC Golden Parchment earned', {
+      // Parchment label sits ~30px below the Codex so it moves with it when
+      // an active run shifts the Codex down.
+      this.add.text(480, codexY + 30, '\uD83D\uDCDC Golden Parchment earned', {
         fontSize: '14px', color: '#f5e4b3', fontFamily: 'monospace',
       }).setOrigin(0.5);
     }
