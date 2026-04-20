@@ -46,7 +46,11 @@ function renderSetup() {
   const examBanner = meta ? `
       <div class="exam-banner" role="status" style="padding:0.75rem 1rem;margin-bottom:1rem;border:1px solid currentColor;border-radius:6px;font-size:0.9em;">
         <strong>Generated exam</strong> &middot; seed <span class="mono">${escapeHtml(String(meta.seed))}</span> &middot;
-        ${meta.scenarios_kept.length} of ${meta.scenarios_kept.length + meta.scenarios_dropped.length} scenarios &middot;
+        ${Array.isArray(meta.scenarios_kept) && Array.isArray(meta.scenarios_dropped)
+          ? `${meta.scenarios_kept.length} of ${meta.scenarios_kept.length + meta.scenarios_dropped.length} scenarios &middot;`
+          : typeof meta.composition === 'string'
+            ? `${escapeHtml(meta.composition)} &middot;`
+            : ''}
         ${meta.difficulty_actual ? `E${meta.difficulty_actual.easy}/M${meta.difficulty_actual.medium}/H${meta.difficulty_actual.hard}` : ''}
         ${meta.coverage_warnings && meta.coverage_warnings.length ? `<div class="text-soft" style="margin-top:0.25rem;">&#9888;&#65039; ${meta.coverage_warnings.map(escapeHtml).join('; ')}</div>` : ''}
       </div>` : '';
