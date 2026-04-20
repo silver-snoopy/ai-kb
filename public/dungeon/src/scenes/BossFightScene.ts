@@ -38,6 +38,7 @@ export class BossFightScene extends Phaser.Scene {
   private bossHpText!: Phaser.GameObjects.Text;
   private questionText!: Phaser.GameObjects.Text;
   private optionTexts: Phaser.GameObjects.Text[] = [];
+  private optionButtons: Phaser.GameObjects.Rectangle[] = [];
   private spellButtons: Phaser.GameObjects.Text[] = [];
   private tauntText!: Phaser.GameObjects.Text;
   private primerText!: Phaser.GameObjects.Text;
@@ -96,6 +97,7 @@ export class BossFightScene extends Phaser.Scene {
     // otherwise accumulate references to destroyed GameObjects, causing a
     // `setText → drawImage on null canvas` crash in showCurrentQuestion. Reset.
     this.optionTexts = [];
+    this.optionButtons = [];
     this.spellButtons = [];
 
     this.cameras.main.setBackgroundColor(this.boss.environmentColor);
@@ -182,6 +184,7 @@ export class BossFightScene extends Phaser.Scene {
         { fill: 0x1a1a2a, stroke: 0x4a4a6a },
         { fill: 0x2a2a3a, stroke: 0x8b8bc4 },
       );
+      this.optionButtons.push(btn);
       const txt = this.add.text(50, y, '', {
         fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
         wordWrap: { width: 870, useAdvancedWrap: true },
@@ -354,6 +357,9 @@ export class BossFightScene extends Phaser.Scene {
   private showCurrentQuestion(): void {
     const q = this.state.currentQuestion!;
     this.questionText.setText(q.stem);
+    // Self-heal visibility: if the previous frame hid option buttons (wrong-answer
+    // explanation overlay), restore them so the next question is answerable.
+    this.optionButtons.forEach(b => b.setVisible(true));
     this.optionTexts.forEach((txt, i) => {
       const letter = ['A', 'B', 'C', 'D'][i] as 'A' | 'B' | 'C' | 'D';
       txt.setText(`${letter}) ${q.options[letter]}`);
@@ -437,6 +443,7 @@ export class BossFightScene extends Phaser.Scene {
       // Hide the spellbook row too so the explanation has room to breathe.
       this.questionText.setText(`\u2717 Incorrect. Correct: ${result.correctAnswer}`);
       this.optionTexts.forEach(t => t.setText(''));
+      this.optionButtons.forEach(b => b.setVisible(false));
       this.spellButtons.forEach(b => b.setVisible(false));
       const explain = this.add.text(480, 440, `${result.explanation}\n\n(click to continue)`, {
         fontSize: '13px', color: '#e8e0d0', fontFamily: 'monospace',
@@ -496,6 +503,7 @@ export class BossFightScene extends Phaser.Scene {
 
     this.questionText.setText(`🏆 ${this.boss.name} DEFEATED\n\n(click for reward)`);
     this.optionTexts.forEach(t => t.setText(''));
+    this.optionButtons.forEach(b => b.setVisible(false));
     this.input.once('pointerdown', () => this.grantReward());
   }
 
@@ -523,6 +531,7 @@ export class BossFightScene extends Phaser.Scene {
 
     this.questionText.setText(`💀 YOU DIED\n\n${this.boss.name} claims another scholar.\n\n(click to return to Hub)`);
     this.optionTexts.forEach(t => t.setText(''));
+    this.optionButtons.forEach(b => b.setVisible(false));
     const sessionLog: SessionLog = this.registry.get('sessionLog');
     sessionLog.result = 'death';
     sessionLog.ended_at = new Date().toISOString();

@@ -61,6 +61,16 @@ export class InterstitialScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Phaser reuses scene instances on re-entry (same bug pattern as BossFightScene):
+    // without this reset, optionPanels + optionTexts accumulate references to
+    // destroyed GameObjects from the previous campaign transition. On boss 2→3+,
+    // the forEach(setText/...) in renderRecall throws on a destroyed Text's null
+    // canvas — which halts the function before setVisible(true) and the hint
+    // update can run, leaving the recall screen with no option panels and a
+    // stale hint reading "(press Space / Enter / click to continue)".
+    this.optionTexts = [];
+    this.optionPanels = [];
+
     this.cameras.main.setBackgroundColor(0x0a0a14);
     fadeIn(this);
 
