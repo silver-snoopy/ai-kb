@@ -29,6 +29,13 @@
     gap: var(--space-lg);
     align-items: stretch;
   }
+
+  /* When only one mode card is present (e.g. Review hidden), collapse the
+     2fr+1fr split to a single constrained column so the card doesn't sprawl. */
+  .modes:has(> .mode:only-child) {
+    grid-template-columns: minmax(0, 2fr);
+    max-width: 640px;
+  }
 }
 
 .mode {

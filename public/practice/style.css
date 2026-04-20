@@ -2,6 +2,11 @@
 
 .main { padding-bottom: var(--space-3xl); }
 
+/* Hero framing belongs to the pre-session setup screen only. Once a session
+   starts (quiz in progress or results), hide it so the question flow owns
+   the viewport. Toggled from app.js via body.is-session-active. */
+body.is-session-active .page-header { display: none; }
+
 /* Stagger the filter chips on load (skill §4: no instant list mount) */
 .filter-chips {
   animation: cascade-in 520ms var(--ease-out) both;

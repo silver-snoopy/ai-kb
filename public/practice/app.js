@@ -39,6 +39,7 @@ function domainNumber(slug) {
 
 function renderSetup() {
   clearKeyHandler();
+  document.body.classList.remove('is-session-active');
   const count = filteredQuestions().length;
   const sessionLen = Math.min(count, 25);
 
@@ -139,6 +140,7 @@ function startQuiz() {
 }
 
 function renderQuestion() {
+  document.body.classList.add('is-session-active');
   const q = quiz.questions[quiz.current];
   const total = quiz.questions.length;
   const meta = data.domains[q.domain] || { num: '?', name: q.domain };
@@ -275,6 +277,7 @@ function renderMissedQuestions(wrong) {
 
 function renderResults() {
   clearKeyHandler();
+  document.body.classList.add('is-session-active');
   const answered = quiz.answers.map((a, i) => ({ q: quiz.questions[i], given: a }));
   const correctCount = answered.filter(x => x.given === x.q.correct).length;
   const total = answered.length;
