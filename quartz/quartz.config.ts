@@ -33,7 +33,9 @@ const config: QuartzConfig = {
                           // quartz/public/ at deploy time — Quartz must NOT
                           // treat it as markdown content or it duplicates
                           // everything into quartz/public/public/.
-      // "public/dungeon",  // RESERVED: post-exam Slay the Cert game
+      "public/dungeon",          // game built + deployed as subfolder
+                                 // via CI; Quartz should NOT content-index
+                                 // its TS source / node_modules
     ],
     defaultDateType: "modified",
     theme: {
