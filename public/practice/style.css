@@ -448,3 +448,67 @@
   .quiz-foot { justify-content: stretch; }
   .quiz-foot .btn { flex: 1; }
 }
+
+/* --- picker page --- */
+.exam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.exam-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+
+.exam-card:hover,
+.exam-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--accent, currentColor);
+  outline: none;
+}
+
+.exam-card__title {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.exam-card__meta {
+  font-size: 0.85em;
+  color: var(--soft, #777);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+}
+
+.exam-card__badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75em;
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.exam-card__warn {
+  font-size: 0.8em;
+  color: #d66;
+}
+
+.exam-card__launch {
+  margin-top: auto;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
