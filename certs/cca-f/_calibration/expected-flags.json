@@ -1,0 +1,14 @@
+{
+  "expected_flags": [
+    { "question_id": "calib-wrongans-01",    "min_severity": "critical", "pass": 1, "location": "explanation" },
+    { "question_id": "calib-wrongans-02",    "min_severity": "critical", "pass": 1, "location": "explanation" },
+    { "question_id": "calib-distractor-01",  "min_severity": "critical", "pass": 2, "location": "option-B" },
+    { "question_id": "calib-distractor-02",  "min_severity": "critical", "pass": 2, "location": "option-B" },
+    { "question_id": "calib-stale-01",       "min_severity": "high",     "pass": 3, "location": "stem" },
+    { "question_id": "calib-stale-02",       "min_severity": "high",     "pass": 3, "location": "stem" },
+    { "question_id": "calib-fabricate-01",   "min_severity": "critical", "pass": 4, "location": "explanation" },
+    { "question_id": "calib-fabricate-02",   "min_severity": "critical", "pass": 4, "location": "explanation" },
+    { "question_id": "calib-wrongdomain-01", "min_severity": "high",     "pass": 1, "location": "metadata" },
+    { "question_id": "calib-wrongdomain-02", "min_severity": "high",     "pass": 1, "location": "metadata" }
+  ]
+}
