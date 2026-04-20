@@ -505,6 +505,14 @@ export class BossFightScene extends Phaser.Scene {
       this.bossSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.bossSprite.clearTint());
       this.floatDamage(this.bossSprite.x, this.bossSprite.y - 40, `-${result.damageDealt}`, '#ff6b6b');
+      // Paint the chosen option green + ✓ so the player gets positive
+      // visual confirmation of which answer was correct, AND lock
+      // interactivity so the hover handlers can't revert the colors and
+      // stray clicks during the 600ms + narrator delay before advance
+      // cannot fire tryCast/submit hover-look changes. showCurrentQuestion
+      // re-enables on the next question.
+      paintOptionFeedback(this.optionButtons, this.optionTexts, result.correctAnswer, choice);
+      this.optionButtons.forEach(b => b.disableInteractive());
     } else {
       // Hero takes damage
       this.sound.play('sfx-hit-hero', { volume: 0.5 });
