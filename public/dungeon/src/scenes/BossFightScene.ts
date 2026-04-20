@@ -427,11 +427,15 @@ export class BossFightScene extends Phaser.Scene {
   private showCurrentQuestion(): void {
     const q = this.state.currentQuestion!;
     this.questionText.setText(q.stem);
-    // Self-heal visibility AND color. The previous frame may have hidden
-    // option buttons (wrong-answer overlay) and/or recolored them via
-    // paintOptionFeedback — restore both so the next question presents
-    // a clean slate.
-    this.optionButtons.forEach(b => b.setVisible(true));
+    // Self-heal visibility AND color AND interactivity. The previous
+    // frame may have hidden option buttons (defeat/death/wrong-answer),
+    // recolored them via paintOptionFeedback, or disabled their input
+    // via disableInteractive — restore all three so the next question
+    // presents a clean slate.
+    this.optionButtons.forEach(b => {
+      b.setVisible(true);
+      b.setInteractive({ useHandCursor: true });
+    });
     this.optionTexts.forEach((txt, i) => {
       const letter = ['A', 'B', 'C', 'D'][i] as 'A' | 'B' | 'C' | 'D';
       txt.setText(`${letter}) ${q.options[letter]}`);
@@ -534,6 +538,11 @@ export class BossFightScene extends Phaser.Scene {
         result.correctAnswer,
         choice,
       );
+      // Lock in the painted colors: disable interactivity on the option
+      // panels so their hover handlers can't repaint back to navy when
+      // the cursor moves, AND so a stray click on a panel can't re-fire
+      // submit. Re-enabled in showCurrentQuestion on the next question.
+      this.optionButtons.forEach(b => b.disableInteractive());
       // CCA-F explanations commonly run 400-1300 chars with per-option
       // breakdowns ("A: ... B: ... C: ..."). That won't fit the ~140px
       // gap between bubble and options. Trim to the correct-answer
@@ -544,11 +553,18 @@ export class BossFightScene extends Phaser.Scene {
       this.primerText.setColor('#e8e0d0');
       this.primerText.setStyle({ fontStyle: 'normal' });
       this.primerText.setText(`${summary}\n\n(click to continue — full review after the boss)`);
-      this.input.once('pointerdown', () => {
-        this.primerText.setText('');
-        this.primerText.setColor('#ffca28');
-        this.primerText.setStyle({ fontStyle: 'italic' });
-        this.advanceOrEnd();
+      // Defer the dismiss-once registration to the next tick so it can't
+      // fire on the SAME pointerdown that triggered submit (Phaser's
+      // scene-level input.emit runs after gameobject-level handlers in
+      // the same frame; a once-listener added during a gameobject
+      // handler IS in the snapshot for the scene-level emit).
+      this.time.delayedCall(1, () => {
+        this.input.once('pointerdown', () => {
+          this.primerText.setText('');
+          this.primerText.setColor('#ffca28');
+          this.primerText.setStyle({ fontStyle: 'italic' });
+          this.advanceOrEnd();
+        });
       });
       return;
     }
