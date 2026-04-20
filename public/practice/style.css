@@ -80,7 +80,7 @@ body.is-session-active .page-header { display: none; }
   font-weight: 500;
 }
 
-.filter-chip[data-domain=""].is-active {
+.filter-chip[data-value=""].is-active {
   background: var(--ink);
   color: var(--bg);
   border-color: var(--ink);
@@ -94,11 +94,11 @@ body.is-session-active .page-header { display: none; }
   flex-shrink: 0;
 }
 
-.filter-chip[data-domain="domain-1-agentic"]            { --chip-color: var(--domain-1); }
-.filter-chip[data-domain="domain-2-claude-code"]        { --chip-color: var(--domain-2); }
-.filter-chip[data-domain="domain-3-prompt-engineering"] { --chip-color: var(--domain-3); }
-.filter-chip[data-domain="domain-4-mcp"]                { --chip-color: var(--domain-4); }
-.filter-chip[data-domain="domain-5-context"]            { --chip-color: var(--domain-5); }
+.filter-chip[data-axis="domain"][data-value="domain-1-agentic"]            { --chip-color: var(--domain-1); }
+.filter-chip[data-axis="domain"][data-value="domain-2-claude-code"]        { --chip-color: var(--domain-2); }
+.filter-chip[data-axis="domain"][data-value="domain-3-prompt-engineering"] { --chip-color: var(--domain-3); }
+.filter-chip[data-axis="domain"][data-value="domain-4-mcp"]                { --chip-color: var(--domain-4); }
+.filter-chip[data-axis="domain"][data-value="domain-5-context"]            { --chip-color: var(--domain-5); }
 
 .filter-chip__count {
   font-family: var(--font-mono);
