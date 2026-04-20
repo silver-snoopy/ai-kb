@@ -26,20 +26,37 @@
 
 See [mock-exams/](./mock-exams/) for dated session reports.
 
+## Study surfaces
+
+Three live surfaces, all deployed via GitHub Pages and reading from the same verified exam pool under [`public/exams/cca-f/verified/`](../../public/exams/cca-f/verified/):
+
+- [`/practice/picker.html`](../../public/practice/picker.html) — card grid of verified exams; pick one to launch a timed session with instant feedback + missed-question review
+- [`/review/`](../../public/review/) — spaced repetition over the same question bank
+- [`/dungeon/`](../../public/dungeon/) — *Slay the Cert* browser game; `PickerScene` offers the same verified exams as boss-fight pools
+
 ## Dynamic exam generation
 
-The `/generate-exam` slash command produces a fresh 60-question exam JSON on each invocation, using the real exam rules (4 of 6 scenarios picked at random from this cert's 6-scenario pool). Output lands in [`public/exams/`](../../public/exams/) and is loadable in the practice UI via the `?src=` query parameter.
+Two-step pipeline, generator + adversarial verifier:
 
 ```
-/generate-exam                       # default: 60 Q, 4 of 6 scenarios, mixed difficulty
-/generate-exam --seed 42             # reproducible scenario pick
-/generate-exam --size 12 --drop 2    # short warmup (3 Q per kept scenario)
+/cca-f-generate-exam [--seed N] [--size N] [--drop N] [--difficulty e/m/h]
+    # Produces a candidate exam JSON grounded in the 364-Q CertSafari bank.
+    # Output: public/exams/cca-f/candidates/<filename>.json
+    # NOT picked up by the study surfaces until verified.
+
+/cca-f-verify-exam <path-to-candidate>
+    # 4 parallel reviewer subagents (fact-check, distractor audit,
+    # stale-term sweep, explanation audit). On zero critical/high flags,
+    # promotes the candidate to public/exams/cca-f/verified/.
+    # Calibration gate: 10/10 against planted-error set.
 ```
 
-Open the generated exam in the practice UI:
+The 5 pre-seeded verified exams (`certsafari-seed{1,7,42,101,777}.json`, 60 Qs each, built from the CertSafari bank) are already live and surfaced in all three study surfaces.
+
+Open a specific exam directly in the practice UI:
 
 ```
-public/practice/index.html?src=../exams/<generated-filename>.json
+public/practice/index.html?src=../exams/cca-f/verified/<filename>.json
 ```
 
 Zero per-invocation cost on a Claude Max subscription — cheap to rerun.

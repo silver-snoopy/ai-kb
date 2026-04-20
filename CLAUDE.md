@@ -19,7 +19,7 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 - Tutor the user on cert content (`/tutor`) and file valuable Q&A back as wiki pages at session end (compound-knowledge loop)
 - Quiz the user (`/quiz`) and drive retention via saved weakness queue
 - Run full-length mock exams (`/mock-exam`)
-- Dynamically generate exam JSON files on demand for the practice UI and game (`/generate-exam`)
+- Dynamically generate + verify exam JSON files for the practice UI and dungeon game (`/cca-f-generate-exam` + `/cca-f-verify-exam`)
 - Periodic health checks (`/lint`) — find contradictions, orphans, stale claims, missing cross-references, data gaps
 - Keep `index.md` current on every capture and lint
 
@@ -41,7 +41,8 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 | `_lint/YYYY-MM-DD-report.md` | Claude via `/lint` | No | Reports |
 | `index.md` | Claude via `/capture` and `/lint` | No | Auto-maintained catalog |
 | `dashboard.md` | GitHub Action (dashboard.yml) | No | Auto-generated |
-| `public/exams/**` | Claude via `/generate-exam` | No | Dynamically generated exam JSON files. Consumable by `public/practice/` (via `?src=` query param) and the future Slay the Cert game. |
+| `public/exams/<cert-id>/candidates/**` | Claude via `/cca-f-generate-exam` | No | Generated exam JSON files awaiting verification. Not picked up by the UI. |
+| `public/exams/<cert-id>/verified/**` | Claude via `/cca-f-verify-exam` (promotes from candidates/) | No | Reviewer-approved exam JSON. Consumable by `public/practice/picker.html` (via `?src=` query param) and the Slay the Cert dungeon's PickerScene. |
 
 ## Frontmatter contract (in-scope notes only)
 
@@ -69,11 +70,11 @@ Update this list as Anthropic deprecates features. Current items to flag if ment
 
 (Reviewer agent / `/lint` adds to this list when user asks.)
 
-## Cert roadmap (2026-04-18)
+## Cert roadmap
 
-1. **CCA-F** — in progress, target end of May 2026 (primary focus)
-2. **Next Claude cert** — placeholder in `certs/cca-next/` (Professional / FDE-track); populate when Anthropic announces
-3. Other providers de-prioritized; architecture remains open
+1. **CCA-F** — in progress, target end of May 2026 (primary focus). Study surfaces live at `public/practice/`, `public/review/`, and `public/dungeon/` (Slay the Cert browser game).
+2. **Next Claude cert** — placeholder in `certs/cca-next/` (Professional / FDE-track); populate when Anthropic announces.
+3. Other providers de-prioritized; architecture remains open.
 
 ## Subscription context
 
@@ -82,7 +83,7 @@ User is on **Claude Max** plan. Tutor-mode and mock-exam loops can load full dom
 ## When invoked in this vault, Claude:
 1. Reads this file (automatic via Claude Code).
 2. Consults the active cert's `meta.yaml` for exam parameters.
-3. Uses `obsidian-mcp` to access vault files.
+3. Reads vault files directly via the Read tool (or `obsidian-mcp` if invoked from Obsidian).
 4. For any mutating action: proposes, waits for approval, then applies.
 5. Updates `index.md` whenever notes are created/moved/renamed.
 6. Cites source filenames when drawing on vault content (trust-but-verify).
