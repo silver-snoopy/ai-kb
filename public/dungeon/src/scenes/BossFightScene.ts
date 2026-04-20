@@ -8,6 +8,7 @@ import type { Spellbook } from '../game/spellbook';
 import type { BossDefinition, CombatState, MissedQuestion, Question, QuestionsJson, RunMode, SessionLog, SpellId } from '../types';
 import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
+import { readActiveRun, writeActiveRun, clearActiveRun, restoreQuestionPool } from '../game/runSave';
 import { ProceduralBGM } from '../audio/bgm';
 import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { renderBackdrop } from './backdrops';
@@ -77,12 +78,39 @@ export class BossFightScene extends Phaser.Scene {
     }
     const bossHp = GAME_CONFIG.BOSS_HP[this.mode];
     const maxQuestions = bossHp + GAME_CONFIG.HERO_MAX_HP - 1;
-    this.questions = pickQuestionsForFight(domainData.questions, maxQuestions);
-    this.currentQuestionIdx = 0;
 
-    const heroHpStart = this.registry.get('heroHp') ?? GAME_CONFIG.HERO_MAX_HP;
-    this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: bossHp });
-    this.state.heroHp = heroHpStart;
+    // Try to restore from an active run save if this entry matches the
+    // in-boss slot. Never restore in isolated (debug) mode — the debug
+    // path doesn't own a campaign and shouldn't reuse any ongoing save.
+    const save = !this.isolated ? readActiveRun() : null;
+    const canRestore = save?.inBoss != null && save.inBoss.bossId === data.bossId;
+    let restoredQuestions: Question[] | null = null;
+    if (canRestore) {
+      restoredQuestions = restoreQuestionPool(save!.inBoss!.questionIds, domainData.questions);
+      if (!restoredQuestions) {
+        // Save references question IDs that no longer exist in the pool
+        // (pool swap via PickerScene). Treat as corruption; clear and
+        // start a fresh fight.
+        clearActiveRun();
+        // eslint-disable-next-line no-console
+        console.warn('[runSave] cleared: saved question IDs missing from current pool');
+      }
+    }
+
+    if (restoredQuestions) {
+      this.questions = restoredQuestions;
+      this.currentQuestionIdx = save!.inBoss!.currentQuestionIdx;
+      this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: save!.inBoss!.bossMaxHp });
+      this.state.heroHp = save!.inBoss!.heroHp;
+      this.state.bossHp = save!.inBoss!.bossHp;
+      this.state.questionHistory = restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainData.questions) ?? [];
+    } else {
+      this.questions = pickQuestionsForFight(domainData.questions, maxQuestions);
+      this.currentQuestionIdx = 0;
+      const heroHpStart = this.registry.get('heroHp') ?? GAME_CONFIG.HERO_MAX_HP;
+      this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: bossHp });
+      this.state.heroHp = heroHpStart;
+    }
 
     if (this.isolated) {
       this.spellbook = createSpellbook(this.mode);
@@ -280,7 +308,43 @@ export class BossFightScene extends Phaser.Scene {
 
     this.events.emit('battle-start', { bossId: this.boss.id });
 
+    // Boss-entry save (Write Point 1). If we restored from save, the
+    // state captured here re-affirms it with a fresh savedAt timestamp,
+    // sliding the stale window forward. If fresh fight, this is the
+    // first save for this boss.
+    this.writeSave();
+
     this.nextQuestion();
+  }
+
+  /**
+   * Persist the current run state so a tab-close mid-boss resumes on
+   * re-entry. Called at boss entry, after each advance, and on victory
+   * (with inBoss=null). No-op in isolated (debug) mode.
+   */
+  private writeSave(options: { endOfFight?: boolean } = {}): void {
+    if (this.isolated) return;
+    const campaign: Campaign | undefined = this.registry.get('campaign');
+    if (!campaign) return;
+    writeActiveRun({
+      version: 1,
+      campaign: {
+        bossOrder: [...campaign.bossOrder],
+        floorsCleared: campaign.floorsCleared,
+        mode: campaign.mode,
+      },
+      spellbook: { ...this.spellbook },
+      heroHpCarryover: this.state.heroHp,
+      inBoss: options.endOfFight ? null : {
+        bossId: this.boss.id,
+        questionIds: this.questions.map(q => q.id),
+        currentQuestionIdx: this.currentQuestionIdx,
+        heroHp: this.state.heroHp,
+        bossHp: this.state.bossHp,
+        bossMaxHp: this.state.bossMaxHp,
+        questionHistoryIds: this.state.questionHistory.map(q => q.id),
+      },
+    });
   }
 
   private refreshSpellUI(): void {
@@ -515,6 +579,11 @@ export class BossFightScene extends Phaser.Scene {
       this.onHeroDead();
       return;
     }
+    // Write Point 2: on-advance. The boss and hero are both alive; state
+    // is stable for the next question. Capturing here means a tab close
+    // during the hit-animation or explanation overlay re-enters on the
+    // same upcoming question.
+    this.writeSave();
     this.nextQuestion();
   }
 
@@ -567,6 +636,8 @@ export class BossFightScene extends Phaser.Scene {
     sessionLog.final_hero_hp = 0;
     this.input.once('pointerdown', () => {
       if (sessionLog.questions.length > 0) downloadSessionLog(sessionLog);
+      // Hero died — run is over; drop the save so the Hub shows New Game.
+      clearActiveRun();
       fadeToScene(this, 'HubScene');
     });
   }
@@ -588,8 +659,13 @@ export class BossFightScene extends Phaser.Scene {
       sessionLog.result = 'victory';
       sessionLog.ended_at = new Date().toISOString();
       sessionLog.final_hero_hp = this.state.heroHp;
+      // Campaign cleared — no more runs to resume.
+      clearActiveRun();
       fadeToScene(this, 'CampaignCompleteScene');
     } else {
+      // Write Point 3: victory transition. inBoss=null so a re-entry
+      // from the hub lands in the interstitial-or-next-boss branch.
+      this.writeSave({ endOfFight: true });
       const nextBossId = campaign.bossOrder[campaign.floorsCleared]!;
       fadeToScene(this, 'InterstitialScene', {
         previousBossId: this.boss.id,

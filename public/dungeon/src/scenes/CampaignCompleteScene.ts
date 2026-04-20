@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { recordCampaignVictory, saveSaveState } from '../game/saveState';
+import { clearActiveRun } from '../game/runSave';
 import { downloadSessionLog } from '../game/sessionExport';
 import type { RunMode, SaveStateV1, SessionLog } from '../types';
 import { fadeIn, fadeToScene } from '../ui/transitions';
@@ -21,6 +22,11 @@ export class CampaignCompleteScene extends Phaser.Scene {
     const nextSave = recordCampaignVictory(save, mode);
     saveSaveState(nextSave);
     this.registry.set('saveState', nextSave);
+
+    // Defensive clear (BossFightScene's onFightEnd already clears on the
+    // last-floor branch; this guards against edge cases like direct scene
+    // navigation during dev / tests).
+    clearActiveRun();
 
     this.add.text(480, 70, '\uD83D\uDCDC GOLDEN PARCHMENT', {
       fontSize: '44px', color: '#f5e4b3', fontFamily: 'monospace',

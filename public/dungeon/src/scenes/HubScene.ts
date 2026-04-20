@@ -3,11 +3,21 @@ import { createCampaign } from '../game/dungeon';
 import { createSpellbook } from '../game/spellbook';
 import type { Campaign } from '../game/dungeon';
 import type { RunMode, SaveStateV1, SpellId } from '../types';
-import { SPELLS } from '../config';
+import { BOSSES, SPELLS } from '../config';
 import { mountAudioToggles } from '../ui/audioToggles';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
 import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
+import { readActiveRun, clearActiveRun, type RunSave } from '../game/runSave';
+
+function continueButtonLabel(save: RunSave): string {
+  const floor = save.campaign.floorsCleared + 1;
+  const currentBossId = save.inBoss?.bossId
+    ?? save.campaign.bossOrder[save.campaign.floorsCleared];
+  const bossName = BOSSES.find(b => b.id === currentBossId)?.name ?? currentBossId ?? '???';
+  const where = save.inBoss ? 'mid-fight' : 'approaching';
+  return `Continue (Floor ${floor} · ${bossName}, ${where})`;
+}
 
 function nextModeFor(save: SaveStateV1): RunMode {
   // Determine the next unplayed tier from unlocked_spells.
@@ -66,18 +76,50 @@ export class HubScene extends Phaser.Scene {
       ? 'Enter the Eternal Dungeon (NG+++)'
       : `Begin Quest (${modeLabel(mode)})`;
 
-    const newBtn = this.add.rectangle(480, 230, 500, 80, 0x2d1b4e);
-    newBtn.setStrokeStyle(3, 0x8b7cc4);
-    newBtn.setInteractive({ useHandCursor: true });
-    attachRectHover(newBtn,
-      { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
-      { fill: 0x4a2d7a, stroke: 0xc4a0ff },
-      3,
-    );
-    this.add.text(480, 230, beginLabel, {
-      fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
-    }).setOrigin(0.5);
-    newBtn.on('pointerdown', () => this.beginCampaign(mode));
+    const activeRun = readActiveRun();
+
+    if (activeRun) {
+      // Mid-run save present — offer Continue (primary) + New Game (secondary).
+      const continueLabel = continueButtonLabel(activeRun);
+      const continueBtn = this.add.rectangle(480, 210, 500, 64, 0x1b4e2d);
+      continueBtn.setStrokeStyle(3, 0x8bc34a);
+      continueBtn.setInteractive({ useHandCursor: true });
+      attachRectHover(continueBtn,
+        { fill: 0x1b4e2d, stroke: 0x8bc34a },
+        { fill: 0x2d7a4a, stroke: 0xb0e070 },
+        3,
+      );
+      this.add.text(480, 210, continueLabel, {
+        fontSize: '18px', color: '#e0e0ea', fontFamily: 'monospace',
+      }).setOrigin(0.5);
+      continueBtn.on('pointerdown', () => this.resumeActiveRun(activeRun));
+
+      const newBtn = this.add.rectangle(480, 286, 320, 44, 0x2d1b4e);
+      newBtn.setStrokeStyle(2, 0x8b7cc4);
+      newBtn.setInteractive({ useHandCursor: true });
+      attachRectHover(newBtn,
+        { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
+        { fill: 0x4a2d7a, stroke: 0xc4a0ff },
+      );
+      this.add.text(480, 286, 'New Game (discards current run)', {
+        fontSize: '13px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
+      }).setOrigin(0.5);
+      newBtn.on('pointerdown', () => this.confirmNewGame(mode));
+    } else {
+      // No save — single big button as before.
+      const newBtn = this.add.rectangle(480, 230, 500, 80, 0x2d1b4e);
+      newBtn.setStrokeStyle(3, 0x8b7cc4);
+      newBtn.setInteractive({ useHandCursor: true });
+      attachRectHover(newBtn,
+        { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
+        { fill: 0x4a2d7a, stroke: 0xc4a0ff },
+        3,
+      );
+      this.add.text(480, 230, beginLabel, {
+        fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
+      }).setOrigin(0.5);
+      newBtn.on('pointerdown', () => this.beginCampaign(mode));
+    }
 
     // Unlocked spells summary
     const unlockedNames = save.unlocked_spells.map((id: SpellId) => SPELLS[id].name).join(', ');
@@ -154,6 +196,131 @@ export class HubScene extends Phaser.Scene {
         debugLayer.setVisible(visible);
       });
     }
+  }
+
+  private resumeActiveRun(save: RunSave): void {
+    // Validate the saved boss still exists (boss config could have drifted
+    // between versions). If not, clear and fall back to a fresh start.
+    const inBossId = save.inBoss?.bossId;
+    const nextBossIdx = save.campaign.floorsCleared;
+    const currentBossId = inBossId ?? save.campaign.bossOrder[nextBossIdx];
+    if (!currentBossId || !BOSSES.find(b => b.id === currentBossId)) {
+      clearActiveRun();
+      // eslint-disable-next-line no-console
+      console.warn('[runSave] cleared: saved boss id missing from BOSSES config');
+      this.scene.restart();
+      return;
+    }
+
+    // Restore the minimum registry state BossFightScene / InterstitialScene
+    // expect: campaign, spellbook, heroHp, sessionLog.
+    const saveState: SaveStateV1 = this.registry.get('saveState');
+    this.registry.set('campaign', {
+      mode: save.campaign.mode,
+      bossOrder: [...save.campaign.bossOrder],
+      floorsCleared: save.campaign.floorsCleared,
+    });
+    this.registry.set('spellbook', { ...save.spellbook });
+    this.registry.set('heroHp', save.heroHpCarryover);
+    this.registry.set('sessionLog', {
+      schema_version: 1,
+      cert_id: saveState.cert_id,
+      mode: save.campaign.mode,
+      started_at: save.savedAt,
+      ended_at: null,
+      result: null,
+      bosses_defeated: save.campaign.bossOrder.slice(0, save.campaign.floorsCleared),
+      spells_cast: [],
+      questions: [],
+      total_correct: 0,
+      total_wrong: 0,
+      final_hero_hp: save.heroHpCarryover,
+    });
+
+    if (save.inBoss) {
+      // Re-enter mid-boss. BossFightScene.init will detect the matching
+      // save and restore question pool + index + HP from it.
+      fadeToScene(this, 'BossFightScene', {
+        bossId: save.inBoss.bossId,
+        mode: save.campaign.mode,
+        isolated: false,
+      });
+    } else if (nextBossIdx === 0) {
+      // Between-bosses save but no floors cleared yet — happens after
+      // "(debug) preview interstitial" lands a stale save. Straight to
+      // first boss.
+      fadeToScene(this, 'BossFightScene', {
+        bossId: currentBossId,
+        mode: save.campaign.mode,
+        isolated: false,
+      });
+    } else {
+      // Between-bosses save mid-campaign — re-enter the interstitial
+      // with the previous-boss → next-boss recap (no mistakes-review
+      // since those were scene-local to the just-finished BossFight).
+      fadeToScene(this, 'InterstitialScene', {
+        previousBossId: save.campaign.bossOrder[nextBossIdx - 1]!,
+        nextBossId: currentBossId,
+        mode: save.campaign.mode,
+      });
+    }
+  }
+
+  private confirmNewGame(mode: RunMode): void {
+    // Simple in-scene confirm modal — dim overlay + two-button row.
+    const overlay = this.add.rectangle(480, 360, 960, 720, 0x000000, 0.72);
+    overlay.setInteractive();
+
+    const panel = this.add.rectangle(480, 340, 560, 220, 0x1a1a2a);
+    panel.setStrokeStyle(2, 0x8b7cc4);
+
+    const title = this.add.text(480, 270, 'Abandon current run?', {
+      fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    const body = this.add.text(480, 312, 'This will discard your in-flight progress\nand start a fresh campaign.', {
+      fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace', align: 'center',
+    }).setOrigin(0.5);
+
+    const yesBtn = this.add.rectangle(360, 400, 180, 44, 0x4e1b1b);
+    yesBtn.setStrokeStyle(2, 0xe57373);
+    yesBtn.setInteractive({ useHandCursor: true });
+    attachRectHover(yesBtn,
+      { fill: 0x4e1b1b, stroke: 0xe57373 },
+      { fill: 0x7a2d2d, stroke: 0xff9b9b },
+    );
+    const yesText = this.add.text(360, 400, 'Abandon', {
+      fontSize: '15px', color: '#f0c8c8', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    const noBtn = this.add.rectangle(600, 400, 180, 44, 0x2d1b4e);
+    noBtn.setStrokeStyle(2, 0x8b7cc4);
+    noBtn.setInteractive({ useHandCursor: true });
+    attachRectHover(noBtn,
+      { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
+      { fill: 0x4a2d7a, stroke: 0xc4a0ff },
+    );
+    const noText = this.add.text(600, 400, 'Keep running', {
+      fontSize: '15px', color: '#e0e0ea', fontFamily: 'monospace',
+    }).setOrigin(0.5);
+
+    const dismiss = () => {
+      overlay.destroy();
+      panel.destroy();
+      title.destroy();
+      body.destroy();
+      yesBtn.destroy();
+      yesText.destroy();
+      noBtn.destroy();
+      noText.destroy();
+    };
+
+    yesBtn.on('pointerdown', () => {
+      clearActiveRun();
+      dismiss();
+      this.beginCampaign(mode);
+    });
+    noBtn.on('pointerdown', dismiss);
   }
 
   private beginCampaign(mode: RunMode): void {
