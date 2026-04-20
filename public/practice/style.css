@@ -486,7 +486,7 @@
 
 .exam-card__meta {
   font-size: 0.85em;
-  color: var(--soft, #777);
+  color: var(--ink-soft);
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 0.75rem;
