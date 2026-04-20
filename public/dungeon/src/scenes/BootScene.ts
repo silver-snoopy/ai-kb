@@ -1,7 +1,4 @@
 import Phaser from 'phaser';
-import { loadQuestionsJson } from '../data/questionLoader';
-import { loadSaveState, initSaveState, saveSaveState } from '../game/saveState';
-import type { QuestionsJson } from '../types';
 import { fadeToScene } from '../ui/transitions';
 
 export class BootScene extends Phaser.Scene {
@@ -58,47 +55,21 @@ export class BootScene extends Phaser.Scene {
     });
   }
 
-  async create(): Promise<void> {
+  create(): void {
     this.add.text(480, 280, 'Slay the Cert', {
       fontSize: '48px',
       color: '#e0e0ea',
       fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    this.add.text(480, 340, 'Loading questions...', {
+    this.add.text(480, 340, 'Assets loaded.', {
       fontSize: '20px',
       color: '#a0a0b0',
       fontFamily: 'monospace',
     }).setOrigin(0.5);
 
-    try {
-      const questions: QuestionsJson = await loadQuestionsJson();
-      this.registry.set('questions', questions);
-
-      const certId = questions.cert_id;
-      let saveState = loadSaveState(certId);
-      if (!saveState) {
-        saveState = initSaveState(certId);
-        saveSaveState(saveState);
-      }
-      this.registry.set('saveState', saveState);
-
-      this.add.text(480, 400, `${questions.total_questions} questions loaded`, {
-        fontSize: '16px',
-        color: '#8bc34a',
-        fontFamily: 'monospace',
-      }).setOrigin(0.5);
-
-      this.time.delayedCall(1000, () => {
-        fadeToScene(this, 'HubScene');
-      });
-    } catch (e: unknown) {
-      this.add.text(480, 400, `ERROR: ${(e as Error).message}`, {
-        fontSize: '16px',
-        color: '#e57373',
-        fontFamily: 'monospace',
-        wordWrap: { width: 800 },
-      }).setOrigin(0.5);
-    }
+    this.time.delayedCall(400, () => {
+      fadeToScene(this, 'PickerScene');
+    });
   }
 }
