@@ -1,0 +1,624 @@
+{
+  "built_at": "2026-04-20T00:00:00.000Z",
+  "total": 40,
+  "by_domain": {
+    "domain-1-agentic": 8,
+    "domain-2-claude-code": 8,
+    "domain-3-prompt-engineering": 8,
+    "domain-4-mcp": 8,
+    "domain-5-context": 8
+  },
+  "domains": {
+    "domain-1-agentic": { "num": 1, "name": "Demo · Cat Dispatch", "weight": 0.27, "color": "#f39c4a" },
+    "domain-2-claude-code": { "num": 2, "name": "Demo · Kitchen Commands", "weight": 0.2, "color": "#a87cf0" },
+    "domain-3-prompt-engineering": { "num": 3, "name": "Demo · Asking Nicely", "weight": 0.2, "color": "#5db5f0" },
+    "domain-4-mcp": { "num": 4, "name": "Demo · Hammers & Nails", "weight": 0.18, "color": "#5ad1a0" },
+    "domain-5-context": { "num": 5, "name": "Demo · Grocery Lists", "weight": 0.15, "color": "#e85d75" }
+  },
+  "questions": [
+    {
+      "id": "demo-d1-01",
+      "domain": "domain-1-agentic",
+      "difficulty": "easy",
+      "stem": "How many cats does it take to coordinate a nap in the sun?",
+      "options": {
+        "A": "Zero. Cats nap alone.",
+        "B": "Exactly one, who dispatches to the others.",
+        "C": "All of them, in parallel.",
+        "D": "Three, in strict sequence."
+      },
+      "correct": "C",
+      "explanation": "A: Cats famously ignore coordination requests.\nB: No cat has ever accepted a dispatch role.\nC: Parallel execution is the only working pattern for cat napping.\nD: Sequential cats would miss the sun window.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-02",
+      "domain": "domain-1-agentic",
+      "difficulty": "easy",
+      "stem": "Two dogs are sent to fetch the same ball. What happens?",
+      "options": {
+        "A": "They share it nicely.",
+        "B": "Race condition; exactly one wins.",
+        "C": "They form a committee.",
+        "D": "The ball splits in two."
+      },
+      "correct": "B",
+      "explanation": "Fetch is a classic race. Only one dog can hold the ball — exactly the definition of a race condition.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-03",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "A butler agent needs to warm tea, polish silver, and answer the door. Which is the best orchestration?",
+      "options": {
+        "A": "Do all three at once; they're independent.",
+        "B": "Always polish silver first, it is most important.",
+        "C": "Wait for the kettle before starting anything.",
+        "D": "Refuse all three and go for a walk."
+      },
+      "correct": "A",
+      "explanation": "A: Independent tasks should run concurrently; the butler finishes sooner.\nB: Prioritization without dependency is unhelpful.\nC: The kettle has nothing to do with the door.\nD: Tempting, but not orchestration.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-04",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "What is the correct response when a subordinate pigeon reports back with stale breadcrumbs?",
+      "options": {
+        "A": "Retry with a fresh pigeon.",
+        "B": "Accept the stale crumbs; pigeons are always right.",
+        "C": "Demote the pigeon.",
+        "D": "Fire the bakery."
+      },
+      "correct": "A",
+      "explanation": "Stale results → retry with a fresh worker is the canonical pattern. Don't trust stale data; don't blame the bakery.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-05",
+      "domain": "domain-1-agentic",
+      "difficulty": "hard",
+      "stem": "A distributed flock of geese must decide which pond to migrate to. Three ponds are available. They have no leader. What is the expected outcome, assuming each goose independently votes for the pond with the most other geese already there?",
+      "options": {
+        "A": "They evenly split across all three ponds.",
+        "B": "They all eventually gather at one pond via positive feedback.",
+        "C": "They never decide and fly forever.",
+        "D": "Two ponds tie and the third is ignored."
+      },
+      "correct": "B",
+      "explanation": "A: Even split requires coordination; independent voting doesn't produce it.\nB: Positive-feedback dynamics (rich-get-richer) consolidate the flock into one pond.\nC: The feedback loop terminates quickly in practice.\nD: Ties are unstable under this voting rule.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-06",
+      "domain": "domain-1-agentic",
+      "difficulty": "easy",
+      "stem": "What is the minimum number of cooks to spoil the broth?",
+      "options": {
+        "A": "One",
+        "B": "Two",
+        "C": "Too many",
+        "D": "Depends on the broth"
+      },
+      "correct": "C",
+      "explanation": "Proverbial wisdom: too many cooks spoil the broth. Coordination overhead is the bug.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-07",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Coordinator dog delegates fetch to three retriever subagents in parallel. Two return a ball; one returns a stick. What should coordinator do?",
+      "options": {
+        "A": "Accept the stick; variety is good.",
+        "B": "Return the majority result: a ball.",
+        "C": "Demand a revote.",
+        "D": "Eat all three results."
+      },
+      "correct": "B",
+      "explanation": "Majority vote is the standard consensus pattern. Two balls beat one stick.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d1-08",
+      "domain": "domain-1-agentic",
+      "difficulty": "hard",
+      "stem": "Your orchestrator agent dispatched 5 subagents. 4 reported success; 1 timed out. The timed-out subagent was responsible for summarizing the other 4. What is the safest recovery?",
+      "options": {
+        "A": "Report success anyway.",
+        "B": "Retry only the summarization subagent with the existing 4 results.",
+        "C": "Retry all 5 from scratch.",
+        "D": "Declare total failure and escalate."
+      },
+      "correct": "B",
+      "explanation": "A: Ignoring a failure is unsafe.\nB: The 4 successful results are still valid; only the summarization needs retry.\nC: Wasteful re-execution of already-successful work.\nD: Over-escalation; the partial state is recoverable.",
+      "source-note": "demo-data"
+    },
+
+    {
+      "id": "demo-d2-01",
+      "domain": "domain-2-claude-code",
+      "difficulty": "easy",
+      "stem": "Your oven is smoking. What command should you run first?",
+      "options": {
+        "A": "/turn-oven-off",
+        "B": "/add-more-butter",
+        "C": "/call-grandma",
+        "D": "/close-kitchen-door"
+      },
+      "correct": "A",
+      "explanation": "Safety first. Turn off the source of the smoke before anything else.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-02",
+      "domain": "domain-2-claude-code",
+      "difficulty": "easy",
+      "stem": "Which of these is a valid slash command?",
+      "options": {
+        "A": "/make-tea",
+        "B": "make-tea",
+        "C": "tea please",
+        "D": "🫖"
+      },
+      "correct": "A",
+      "explanation": "Slash commands begin with a slash. B is a shell command, C is prose, D is emoji diplomacy.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-03",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Where should a team-shared /deploy-lunch command live?",
+      "options": {
+        "A": "In your personal home directory.",
+        "B": "In the project's .claude/commands/ folder, committed to git.",
+        "C": "On a sticky note.",
+        "D": "In the oven."
+      },
+      "correct": "B",
+      "explanation": "A: Personal commands aren't shared.\nB: Commands committed to the project are available to every teammate.\nC: Sticky notes don't version-control.\nD: Ovens are output-only.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-04",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Which file controls the automatic cleanup of stale leftovers?",
+      "options": {
+        "A": "/etc/fridge.yaml",
+        "B": "hooks in settings.json",
+        "C": ".clauderc",
+        "D": "The sink"
+      },
+      "correct": "B",
+      "explanation": "Hooks are the harness's mechanism for running shell commands on lifecycle events — including periodic cleanup.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-05",
+      "domain": "domain-2-claude-code",
+      "difficulty": "hard",
+      "stem": "A chef wants to disallow the /season-with-salt command for apprentices but allow it for head chefs. How?",
+      "options": {
+        "A": "Trust the apprentices.",
+        "B": "Delete the command.",
+        "C": "Permission settings scoped per-role in settings.json.",
+        "D": "Hide the salt."
+      },
+      "correct": "C",
+      "explanation": "Scoped permissions are the correct mechanism. Trust and hiding are not access controls.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-06",
+      "domain": "domain-2-claude-code",
+      "difficulty": "easy",
+      "stem": "You type /help. What happens?",
+      "options": {
+        "A": "Kitchen help arrives.",
+        "B": "The harness prints help documentation.",
+        "C": "Nothing.",
+        "D": "Oven explodes."
+      },
+      "correct": "B",
+      "explanation": "/help is a built-in CLI affordance.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-07",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Which hook event fires when a tool is about to be invoked?",
+      "options": {
+        "A": "PreToolUse",
+        "B": "PreFlightCheck",
+        "C": "ToolCall",
+        "D": "BeforeAction"
+      },
+      "correct": "A",
+      "explanation": "PreToolUse is the canonical pre-invocation hook event name in Claude Code.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d2-08",
+      "domain": "domain-2-claude-code",
+      "difficulty": "hard",
+      "stem": "A recipe says simmer for 30 minutes. The lead chef wants a /simmer command that all cooks can use and ALSO a /taste command for only their own kitchen (not shared). Where do these live?",
+      "options": {
+        "A": "Both in the project .claude/commands/, shared via git.",
+        "B": "/simmer in .claude/commands/ committed to git; /taste in the local settings.local.json or a non-committed user-level dir.",
+        "C": "Both in the chef's personal folder.",
+        "D": "Both in the oven."
+      },
+      "correct": "B",
+      "explanation": "A: Committing a personal /taste to git clutters teammates' setups.\nB: Team-shared commands go in the committed .claude/commands/; personal commands go in the non-committed user/local dir.\nC: Personal placement hides /simmer from the team.\nD: Ovens still do not host commands.",
+      "source-note": "demo-data"
+    },
+
+    {
+      "id": "demo-d3-01",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "easy",
+      "stem": "Which prompt gets your dog to sit?",
+      "options": {
+        "A": "'Whatever you want, pal.'",
+        "B": "'Sit.'",
+        "C": "'Please consider sitting if convenient.'",
+        "D": "'Implement a sitting protocol.'"
+      },
+      "correct": "B",
+      "explanation": "Short, direct, unambiguous instructions work best — for dogs and for LLMs.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-02",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "easy",
+      "stem": "What's wrong with the prompt: 'Do the thing we talked about'?",
+      "options": {
+        "A": "Nothing. The model remembers.",
+        "B": "It's ambiguous — no referent for 'the thing'.",
+        "C": "It's too polite.",
+        "D": "It needs more exclamation points."
+      },
+      "correct": "B",
+      "explanation": "Ambiguous pronouns / implicit references are a top failure mode. Spell out the task.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-03",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "Which structure is best for asking the model to return a list of 3 items, each with a name and a description?",
+      "options": {
+        "A": "'Give me stuff.'",
+        "B": "JSON schema with `items[].name` and `items[].description`.",
+        "C": "A haiku.",
+        "D": "A riddle."
+      },
+      "correct": "B",
+      "explanation": "A: Too vague.\nB: Explicit schema with named fields is the canonical structured-output pattern.\nC: Haiku is underspecified.\nD: Riddles are not schemas.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-04",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "A prompt returns wildly different answers on repeated runs. What's the likely fix?",
+      "options": {
+        "A": "Raise temperature.",
+        "B": "Lower temperature toward 0.",
+        "C": "Change the model family.",
+        "D": "Apologize more."
+      },
+      "correct": "B",
+      "explanation": "Low temperature makes sampling more deterministic — the canonical fix for inconsistent output.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-05",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "hard",
+      "stem": "You want the model to classify a support ticket as one of exactly three categories (billing, technical, other). The model keeps inventing a fourth category. What's the strongest fix?",
+      "options": {
+        "A": "Ask nicely.",
+        "B": "Add examples of all three categories.",
+        "C": "Use a constrained output schema with an enum of the three valid values.",
+        "D": "Ignore the fourth category in post-processing."
+      },
+      "correct": "C",
+      "explanation": "A: Politeness doesn't constrain output.\nB: Few-shot examples help but don't structurally prevent invention.\nC: Enum-constrained output prevents invalid values at the generation layer — strongest guarantee.\nD: Fixes symptoms, not cause.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-06",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "easy",
+      "stem": "Is 'You are a helpful assistant.' a useful system prompt?",
+      "options": {
+        "A": "Yes, maximally.",
+        "B": "It's fine but adds little information.",
+        "C": "No, never use system prompts.",
+        "D": "Only on Tuesdays."
+      },
+      "correct": "B",
+      "explanation": "Generic helpful-assistant framing is harmless but shouldn't substitute for a specific, scoped system prompt.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-07",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "You want the model to think step-by-step before answering. Which is the most reliable technique?",
+      "options": {
+        "A": "Ask it to think faster.",
+        "B": "Use extended thinking / chain-of-thought prompting with a scratch area.",
+        "C": "Raise the temperature to maximum.",
+        "D": "Ask twice and compare."
+      },
+      "correct": "B",
+      "explanation": "Giving the model explicit room to reason (scratchpad, thinking block) is the standard CoT pattern.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d3-08",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "hard",
+      "stem": "A summarization prompt works well on short documents but falls apart on a 200-page PDF. What's the right direction to debug first?",
+      "options": {
+        "A": "Tell it to try harder.",
+        "B": "Chunk the document, summarize each chunk, then summarize the summaries (map-reduce).",
+        "C": "Ignore the problem.",
+        "D": "Switch to a smaller model."
+      },
+      "correct": "B",
+      "explanation": "Map-reduce over chunks is the canonical long-document summarization pattern when context limits bite.",
+      "source-note": "demo-data"
+    },
+
+    {
+      "id": "demo-d4-01",
+      "domain": "domain-4-mcp",
+      "difficulty": "easy",
+      "stem": "What tool should you use to drive in a nail?",
+      "options": {
+        "A": "A screwdriver.",
+        "B": "A hammer.",
+        "C": "A banana.",
+        "D": "Your forehead."
+      },
+      "correct": "B",
+      "explanation": "Tool-to-task fit is the most important MCP design principle. Choose the right tool.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-02",
+      "domain": "domain-4-mcp",
+      "difficulty": "easy",
+      "stem": "You're designing a hammer tool schema. What should the `target` field's type be?",
+      "options": {
+        "A": "number",
+        "B": "string (the nail's identifier)",
+        "C": "Generic object with no schema.",
+        "D": "null"
+      },
+      "correct": "B",
+      "explanation": "Specific typed fields beat generic objects. Nails have identifiers (positions, IDs).",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-03",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A hammer tool call returns 'error: nail missing'. What should the caller do?",
+      "options": {
+        "A": "Retry immediately in a tight loop.",
+        "B": "Surface the error to the user and skip the hammering step.",
+        "C": "Swallow the error silently and continue.",
+        "D": "Deny the error exists."
+      },
+      "correct": "B",
+      "explanation": "A: Tight retry without backoff is a DoS pattern.\nB: Surface the failure; don't hide it.\nC: Silent failures are the worst kind.\nD: Denial is not a strategy.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-04",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "Two MCP tools — `hammer` and `mjolnir` — both hit nails but `mjolnir` also summons thunder. Which should the server expose?",
+      "options": {
+        "A": "Only `hammer` — thunder is overreach.",
+        "B": "Only `mjolnir` — thunder is always helpful.",
+        "C": "Both — with clear descriptions so the agent picks the right one for the task.",
+        "D": "Neither — ban carpentry."
+      },
+      "correct": "C",
+      "explanation": "Expose the menu, write clear descriptions, let the agent choose. Hide neither; don't merge them into a do-everything super-tool.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-05",
+      "domain": "domain-4-mcp",
+      "difficulty": "hard",
+      "stem": "Your MCP server exposes a `drill` tool that takes 30 seconds per call. The agent is calling it in a tight loop and the server is saturated. Best fix?",
+      "options": {
+        "A": "Ship more drills.",
+        "B": "Add a `batch-drill` tool that accepts multiple holes in one call, so the agent amortizes round trips.",
+        "C": "Remove the drill tool.",
+        "D": "Increase the timeout."
+      },
+      "correct": "B",
+      "explanation": "A: More drills is not an API-design fix.\nB: Batched operations reduce per-call overhead — the canonical MCP scaling pattern for chatty agents.\nC: Removes a valid capability.\nD: Doesn't address saturation.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-06",
+      "domain": "domain-4-mcp",
+      "difficulty": "easy",
+      "stem": "Which is a poor tool name?",
+      "options": {
+        "A": "`read_file`",
+        "B": "`do_stuff`",
+        "C": "`list_s3_objects`",
+        "D": "`send_email`"
+      },
+      "correct": "B",
+      "explanation": "B: `do_stuff` tells the agent nothing about when to call it. The other three are descriptive.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-07",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "An MCP tool description says: 'Use this when the user wants a thing.' What's the problem?",
+      "options": {
+        "A": "Nothing.",
+        "B": "It's too vague for the agent to know when to call it.",
+        "C": "It's too specific.",
+        "D": "It's in the wrong language."
+      },
+      "correct": "B",
+      "explanation": "Descriptions drive tool selection. Vague descriptions cause wrong-tool calls or silent skips.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d4-08",
+      "domain": "domain-4-mcp",
+      "difficulty": "hard",
+      "stem": "You're exposing a `delete_database` MCP tool. What's the safest default design?",
+      "options": {
+        "A": "Execute immediately — agents know what they're doing.",
+        "B": "Require a `confirm: true` parameter AND return a dry-run diff before the real deletion path.",
+        "C": "Log each call and hope for the best.",
+        "D": "Rename it to `refresh_database`."
+      },
+      "correct": "B",
+      "explanation": "A: Destructive defaults should never be immediate.\nB: Explicit confirm + dry-run is the canonical safety pattern for irreversible operations.\nC: Logging after destruction is too late.\nD: Misleading naming is a security antipattern.",
+      "source-note": "demo-data"
+    },
+
+    {
+      "id": "demo-d5-01",
+      "domain": "domain-5-context",
+      "difficulty": "easy",
+      "stem": "You forgot what's on your grocery list. What's the fastest fix?",
+      "options": {
+        "A": "Go home and read it.",
+        "B": "Improvise at the store.",
+        "C": "Call your partner.",
+        "D": "Buy everything."
+      },
+      "correct": "A",
+      "explanation": "The list is the source of truth. Reading it costs little; buying everything costs a lot.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-02",
+      "domain": "domain-5-context",
+      "difficulty": "easy",
+      "stem": "Your grocery list says 'eggs, milk, bread'. You already bought eggs. What should your tracker remember?",
+      "options": {
+        "A": "Nothing.",
+        "B": "That eggs are done; remaining = milk, bread.",
+        "C": "That you're bad at shopping.",
+        "D": "The weather."
+      },
+      "correct": "B",
+      "explanation": "Incremental state updates — remove completed items, retain the rest. Minimal relevant context.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-03",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "Your tracker's grocery list has grown to 400 items because it never forgets. What is the problem?",
+      "options": {
+        "A": "You eat too much.",
+        "B": "Context bloat — the tracker is retaining items that are no longer relevant.",
+        "C": "The store is understaffed.",
+        "D": "Nothing; more context is always better."
+      },
+      "correct": "B",
+      "explanation": "Indefinite context growth without pruning is a classic failure mode. Regularly drop irrelevant state.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-04",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A shopping trip lasts 20 minutes and your list changes twice during it. What's the best way to keep the agent in sync?",
+      "options": {
+        "A": "Restart the agent on every change.",
+        "B": "Pass the updated list as part of every next turn's context.",
+        "C": "Let the agent guess.",
+        "D": "Stop adding items."
+      },
+      "correct": "B",
+      "explanation": "Fresh state in every turn's context is the canonical way to keep an agent current without tear-down/restart cost.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-05",
+      "domain": "domain-5-context",
+      "difficulty": "hard",
+      "stem": "Two agents share a grocery list via a shared notebook. Agent A buys eggs; Agent B also buys eggs 30 seconds later because it hadn't re-read the notebook. What is the bug category?",
+      "options": {
+        "A": "Race condition from stale context.",
+        "B": "Typo in the list.",
+        "C": "Over-politeness.",
+        "D": "Refrigerator malfunction."
+      },
+      "correct": "A",
+      "explanation": "Classic stale-read race condition. The shared-state mechanism needs either locking, versioning, or fresher reads.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-06",
+      "domain": "domain-5-context",
+      "difficulty": "easy",
+      "stem": "Your agent's context window is almost full. What should you drop first?",
+      "options": {
+        "A": "The most recent turn.",
+        "B": "Old, irrelevant conversation history.",
+        "C": "The system prompt.",
+        "D": "Everything at random."
+      },
+      "correct": "B",
+      "explanation": "Recency usually matters; the system prompt always matters. Drop the oldest low-relevance content first.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-07",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "What's the simplest way to avoid reloading the full cookbook every turn?",
+      "options": {
+        "A": "Cache relevant sections and reference them by name.",
+        "B": "Reload it every time anyway.",
+        "C": "Memorize it.",
+        "D": "Delete the cookbook."
+      },
+      "correct": "A",
+      "explanation": "Selective caching + reference by handle is the canonical way to keep large reference material outside the hot context window.",
+      "source-note": "demo-data"
+    },
+    {
+      "id": "demo-d5-08",
+      "domain": "domain-5-context",
+      "difficulty": "hard",
+      "stem": "A long-running agent session crashes and restarts. What state should you persist to resume correctly, and what can you drop?",
+      "options": {
+        "A": "Persist EVERYTHING including micro-tool-call timings.",
+        "B": "Persist the durable facts (task goal, completed steps, known state) and drop ephemeral bookkeeping.",
+        "C": "Persist nothing — start fresh.",
+        "D": "Persist only the crash stack trace."
+      },
+      "correct": "B",
+      "explanation": "A: Over-persistence wastes storage and replays irrelevant history on resume.\nB: Durable vs ephemeral is the right axis. Keep what informs the next action; drop per-turn bookkeeping.\nC: Loses all progress.\nD: Useful for debugging, but insufficient for resume.",
+      "source-note": "demo-data"
+    }
+  ]
+}

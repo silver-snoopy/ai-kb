@@ -4,6 +4,7 @@ import { clearActiveRun } from '../game/runSave';
 import { downloadSessionLog } from '../game/sessionExport';
 import type { RunMode, SaveStateV1, SessionLog } from '../types';
 import { fadeIn, fadeToScene } from '../ui/transitions';
+import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 
 export class CampaignCompleteScene extends Phaser.Scene {
   constructor() {
@@ -18,15 +19,20 @@ export class CampaignCompleteScene extends Phaser.Scene {
     const save: SaveStateV1 = this.registry.get('saveState');
     const mode: RunMode = sessionLog.mode;
 
-    // Persist victory
-    const nextSave = recordCampaignVictory(save, mode);
-    saveSaveState(nextSave);
-    this.registry.set('saveState', nextSave);
+    // Demo runs must not advance real NG+ progression or earn titles.
+    const isDemoRun = Boolean(this.registry.get('demoRun'));
+    const nextSave = isDemoRun ? save : recordCampaignVictory(save, mode);
+    if (!isDemoRun) {
+      saveSaveState(nextSave);
+      this.registry.set('saveState', nextSave);
+    }
 
     // Defensive clear (BossFightScene's onFightEnd already clears on the
     // last-floor branch; this guards against edge cases like direct scene
     // navigation during dev / tests).
     clearActiveRun();
+
+    mountDemoBadgeIfActive(this);
 
     this.add.text(480, 70, '\uD83D\uDCDC GOLDEN PARCHMENT', {
       fontSize: '44px', color: '#f5e4b3', fontFamily: 'monospace',

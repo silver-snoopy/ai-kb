@@ -15,6 +15,7 @@ import { renderBackdrop } from './backdrops';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
 import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
+import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { installFeelPack } from '../feel/install';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
@@ -305,6 +306,8 @@ export class BossFightScene extends Phaser.Scene {
       this.narratorDispatcher.destroy();
       this.narratorOverlay.destroy();
     });
+
+    mountDemoBadgeIfActive(this);
 
     this.events.emit('battle-start', { bossId: this.boss.id });
 

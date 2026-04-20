@@ -4,6 +4,7 @@ import type { MissedQuestion, Question, QuestionsJson, RunMode, BossDefinition }
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
 import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
+import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 
 interface InterstitialData {
   previousBossId: string;
@@ -131,6 +132,8 @@ export class InterstitialScene extends Phaser.Scene {
     this.input.on('pointerdown', () => this.onPointer());
     this.input.keyboard?.on('keydown-SPACE', () => this.onPointer());
     this.input.keyboard?.on('keydown-ENTER', () => this.onPointer());
+
+    mountDemoBadgeIfActive(this);
 
     this.renderNarrative();
   }

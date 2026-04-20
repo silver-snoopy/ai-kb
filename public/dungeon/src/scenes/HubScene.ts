@@ -9,6 +9,8 @@ import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
 import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
 import { readActiveRun, clearActiveRun, type RunSave } from '../game/runSave';
+import { loadQuestionsJson } from '../data/questionLoader';
+import type { QuestionsJson } from '../types';
 
 function continueButtonLabel(save: RunSave): string {
   const floor = save.campaign.floorsCleared + 1;
@@ -48,6 +50,23 @@ export class HubScene extends Phaser.Scene {
 
   create(): void {
     fadeIn(this);
+
+    // If returning from a demo run, swap the real question pool back in
+    // before anything else — otherwise a subsequent real-run start would
+    // inherit the demo questions. The demoRun flag was set in
+    // beginDemoCampaign; the real pool was stashed under realQuestions.
+    if (this.registry.get('demoRun')) {
+      const real = this.registry.get('realQuestions') as QuestionsJson | undefined;
+      if (real) this.registry.set('questions', real);
+      this.registry.remove('realQuestions');
+      this.registry.remove('demoRun');
+      // Also clear any lingering active-run save — demo saves reference
+      // demo question IDs that are no longer in the live pool, so they'd
+      // self-invalidate on resume anyway, but clearing proactively is
+      // cleaner for the Hub's save-present-vs-absent branching.
+      clearActiveRun();
+    }
+
     const save: SaveStateV1 = this.registry.get('saveState');
 
     // Audio mute toggles (top-right). Hub has no BGM so only SFX mute is
@@ -192,6 +211,25 @@ export class HubScene extends Phaser.Scene {
       debugLayer.add(interBtn);
       debugLayer.add(interLabel);
 
+      // Demo-campaign button: loads a fake question bundle + runs a
+      // full first-run campaign without touching the real question pool
+      // or the NG+ progression. Placed below the preview-interstitial
+      // button with amber styling so it reads as a distinct "run the
+      // whole flow" affordance, not just a scene-preview.
+      const demoBtn = this.add.rectangle(480, 575, 360, 36, 0x4e3a1b);
+      demoBtn.setStrokeStyle(2, 0xffca28);
+      demoBtn.setInteractive({ useHandCursor: true });
+      attachRectHover(demoBtn,
+        { fill: 0x4e3a1b, stroke: 0xffca28 },
+        { fill: 0x6a5028, stroke: 0xffe070 },
+      );
+      const demoLabel = this.add.text(480, 575, '(debug) start demo campaign (fake questions)', {
+        fontSize: '12px', color: '#ffe070', fontFamily: 'monospace', fontStyle: 'italic',
+      }).setOrigin(0.5);
+      demoBtn.on('pointerdown', () => this.beginDemoCampaign());
+      debugLayer.add(demoBtn);
+      debugLayer.add(demoLabel);
+
       mountDebugToggle(this, (visible) => {
         debugLayer.setVisible(visible);
       });
@@ -321,6 +359,59 @@ export class HubScene extends Phaser.Scene {
       this.beginCampaign(mode);
     });
     noBtn.on('pointerdown', dismiss);
+  }
+
+  private async beginDemoCampaign(): Promise<void> {
+    // Fetch the demo bundle, stash the real pool, swap demo in, start a
+    // first-run campaign. Demo runs are locked to first-run mode (short
+    // 5-HP bosses) regardless of the player's actual NG+ progression.
+    let demoQs: QuestionsJson;
+    try {
+      demoQs = await loadQuestionsJson('./data/demo-questions.json');
+    } catch (e: unknown) {
+      // eslint-disable-next-line no-console
+      console.warn('[demo] failed to load demo questions:', (e as Error).message);
+      return;
+    }
+
+    this.registry.set('realQuestions', this.registry.get('questions'));
+    this.registry.set('questions', demoQs);
+    this.registry.set('demoRun', true);
+    // Any prior real-run save would block the Hub's continue branch and
+    // its question IDs don't match the demo pool. Clear it for a clean
+    // demo start.
+    clearActiveRun();
+
+    const saveState: SaveStateV1 = this.registry.get('saveState');
+    const mode: RunMode = 'first-run';
+    const seed = Date.now();
+    const campaign: Campaign = createCampaign(mode, seed);
+    const spellbook = createSpellbook(mode);
+    // Grant any extra unlocks the player has earned so demo exercises
+    // the spell UI realistically.
+    for (const spellId of saveState.unlocked_spells) {
+      if ((spellbook[spellId] ?? 0) === 0) spellbook[spellId] = 1;
+    }
+
+    this.registry.set('campaign', campaign);
+    this.registry.set('spellbook', spellbook);
+    this.registry.set('heroHp', 3);
+    this.registry.set('sessionLog', {
+      schema_version: 1,
+      cert_id: 'demo',
+      mode,
+      started_at: new Date().toISOString(),
+      ended_at: null,
+      result: null,
+      bosses_defeated: [],
+      spells_cast: [],
+      questions: [],
+      total_correct: 0,
+      total_wrong: 0,
+      final_hero_hp: 3,
+    });
+
+    fadeToScene(this, 'BossFightScene', { bossId: campaign.bossOrder[0], mode, isolated: false });
   }
 
   private beginCampaign(mode: RunMode): void {
