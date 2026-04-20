@@ -13,7 +13,7 @@ Defaults match the real exam (from `certs/cca-f/meta.yaml` and `_exam-guide-extr
 - `--drop 2` (keep **4 of 6** scenarios, per the guide's "4 of the 6 scenarios above, chosen at random" rule)
 - `--difficulty 9/30/21` (easy/medium/hard — scaled from user's "between option B and C" preference across 60 Qs)
 - `--seed` = `Date.now()` when omitted (logged for reproducibility of the scenario pick)
-- `--out` = `public/exams/<UTC-timestamp>-seed<seed>.json`
+- `--out` = `public/exams/cca-f/candidates/<UTC-timestamp>-seed<seed>.json`
 
 Zero marginal cost per invocation on a Claude Max subscription — cheap to rerun.
 
@@ -42,7 +42,11 @@ Read these vault files via the Read tool (once each, top-to-bottom):
 - `certs/cca-f/domain-3-prompt-engineering/anti-patterns.md`
 - `certs/cca-f/domain-4-mcp/anti-patterns.md`
 - `certs/cca-f/domain-5-context/anti-patterns.md`
-- `public/questions.json` (skim 4–6 existing questions for style anchoring)
+- `raw/certsafari/cca-f-questions.json` (FULL bank — load all ~364 real-exam questions; used as grounding substrate, few-shot examples, subdomain coverage reference, AND near-duplicate comparison set)
+
+### 2.5. Build subdomain coverage map
+
+After loading the CertSafari bank, build an in-memory frequency map: `{ [subdomain_string]: questionCount }`. This map becomes `exam_metadata.subdomain_coverage` in step 7. Surface any subdomain with zero coverage as a warning in step 4 (analogous to the existing domain-coverage warning).
 
 ### 3. Seeded scenario pick
 
@@ -70,6 +74,14 @@ Log the pick: `🎲 seed=<N> · kept=[...] · dropped=[...]`.
 ### 5. Generate questions
 
 For each kept scenario, generate its quota of fresh MCQs. Each question must conform to this rubric:
+
+**Grounding (new — enforced per scenario):**
+
+For each kept scenario's batch of questions, before generating, select 6–10 CertSafari questions from the bank that match the scenario's tested domains (per §3 mapping). Inject these as explicit few-shot examples in the generation prompt:
+
+> "These are real-exam questions testing the same domains. Mimic their style, rigor, and distractor plausibility. Produce NOVEL stems on angles the samples don't cover. Do not copy stems, options, or explanations verbatim."
+
+Record the few-shot CertSafari IDs used for each generated question into provenance (see below).
 
 **Stem:**
 - Opens with `Scenario: <scenario-name>.` on its own line.
@@ -99,6 +111,29 @@ For each kept scenario, generate its quota of fresh MCQs. Each question must con
 - `stem`, `options` (object with A,B,C,D), `options_array` (array parallel to A-D), `correct`, `explanation`.
 - `source-note`: string literal `generated-from-vault-<YYYY-MM-DD>` (never a URL).
 
+**Internal provenance (new — per-question, written to a sibling .provenance.json file):**
+
+For EACH generated question, emit an entry in the provenance file:
+
+```json
+{
+  "question_id": "generated-20260420-seed42-s2cg-01",
+  "correct_answer_maps_to": {
+    "anti_pattern": "Using Bash when a built-in tool exists",
+    "source_file": "certs/cca-f/domain-4-mcp/anti-patterns.md",
+    "source_line": 12
+  },
+  "distractors_map_to": {
+    "A": { "anti_pattern": "...", "source_file": "...", "source_line": 0 },
+    "C": { "anti_pattern": "...", "source_file": "...", "source_line": 0 },
+    "D": { "anti_pattern": "...", "source_file": "...", "source_line": 0 }
+  },
+  "few_shot_certsafari_ids": [24170, 24231, 32816]
+}
+```
+
+Provenance enables `/cca-f-verify-exam` to verify citations exist in the substrate before deep fact-checking.
+
 **Difficulty calibration rubric (apply consistently):**
 - `easy` = single-concept recall. One decision point, one anti-pattern tested, distractors are obviously wrong to someone who has studied that sub-topic. Stem 2–3 sentences.
 - `medium` = scenario with a tradeoff. Two or three competing considerations; distractors are plausible mistakes a junior practitioner would make. Stem 4–5 sentences.
@@ -118,6 +153,7 @@ Before writing, pass the assembled question list through these checks. Re-genera
 - Every question's `domain` is a domain its `scenario` actually tests (per §3 mapping).
 - Actual difficulty distribution is within ±3 of target per bucket. If off, re-roll the overshot bucket once.
 - Actual count equals `--size` exactly.
+- **Near-duplicate guard (new):** for each generated stem, compute trigram overlap (Jaccard) against every CertSafari stem. If any overlap > **0.60**, reject the question and re-generate it once. If the re-generation still overlaps, abort with a clear error.
 
 ### 7. Assemble output JSON
 
@@ -134,6 +170,10 @@ Shape matches `public/questions.json` so the existing UI loads it unchanged:
     "difficulty_target": { "easy": 9, "medium": 30, "hard": 21 },
     "difficulty_actual": { "easy": 9, "medium": 30, "hard": 21 },
     "coverage_warnings": [],
+    "subdomain_coverage": {
+      "Subdomain 1.1: Design and implement agentic loops for autonomous task execution": 4,
+      "Subdomain 1.2: Orchestrate multi-agent coordinator-subagent systems": 3
+    },
     "exam_rules_source": "certs/cca-f/meta.yaml + _exam-guide-extract.md (60 Q, 4 of 6 scenarios)",
     "time_limit_minutes": 120,
     "passing_score": 720,
@@ -158,13 +198,13 @@ Shuffle `questions` before writing (seeded by `seed + 1`) so the order doesn't l
 
 ### 8. Write the file
 
-Target: `--out` if provided, else `public/exams/<YYYYMMDD>T<HHMMSS>Z-seed<seed>.json`. Create the directory if missing (`public/exams/` should already exist with `.gitkeep`).
+Target: `--out` if provided, else `public/exams/cca-f/candidates/<YYYYMMDD>T<HHMMSS>Z-seed<seed>.json`. ALSO write `<same-path>.provenance.json` with the per-question provenance entries from step 5. NEVER write to `public/exams/cca-f/verified/` directly — that's `/cca-f-verify-exam`'s job. Create the directory if missing (`public/exams/cca-f/candidates/` should already exist with `.gitkeep`).
 
 Pretty-print JSON with 2-space indentation (matches `public/questions.json`).
 
 ### 9. Update registry
 
-Append an entry to `public/exams/index.json` (create with `{ "exams": [] }` if missing):
+Append an entry to `public/exams/cca-f/candidates/index.json` (create with `{ "exams": [] }` if missing):
 
 ```json
 {
@@ -199,13 +239,16 @@ Open in practice UI:
 
 ## Invariants
 
-- **Write scope:** ONLY to `public/exams/**`. NEVER write to `certs/**`, `concepts/**`, `raw/**`, or any other vault folder.
+- **Write scope:** ONLY to `public/exams/cca-f/candidates/**`. NEVER write to `certs/**`, `concepts/**`, `raw/**`, or any other vault folder.
 - **No URLs:** Question stems and explanations never contain URLs. `source-note` is always the literal string `generated-from-vault-<YYYY-MM-DD>`.
 - **Size contract:** Output must contain exactly `--size` questions. If self-verify §6 cannot reach that count after one retry per item, ABORT — do not silently produce an undersized exam.
 - **Seed reproducibility:** Same `--seed` must produce the same `scenarios_kept` / `scenarios_dropped`. Question content is intentionally fresh per run (the "dynamic generation" contract; this is a feature, not a bug).
 - **Coverage warnings:** If a domain has zero coverage, the warning MUST appear both in `exam_metadata.coverage_warnings` and in the stdout summary. Never silently ship an exam missing a domain.
 - **Closed vocabularies:** `domain` and `scenario` field values must come from the respective closed sets. No novel IDs.
 - **Real exam calibration:** Defaults (60 Q, 4 of 6 scenarios) mirror `certs/cca-f/meta.yaml` and `_exam-guide-extract.md`. If either source diverges in the future, update THIS command, not the defaults ad-hoc.
+- **Near-duplicate guard:** Generated stems MUST NOT have trigram overlap > 0.60 with any CertSafari stem. Self-verify retries once; abort if still over threshold.
+- **Provenance emission:** Every generated question MUST produce a provenance record. No provenance → abort.
+- **Candidates-only write scope:** `/cca-f-generate-exam` writes ONLY to `public/exams/cca-f/candidates/**`. Promotion to `verified/` is `/cca-f-verify-exam`'s responsibility.
 
 ## Usage examples
 
@@ -223,7 +266,7 @@ Open in practice UI:
 The practice UI accepts a `?src=` query parameter:
 
 ```
-public/practice/index.html?src=../exams/<filename>.json
+public/practice/index.html?src=../exams/cca-f/verified/<filename>.json
 ```
 
 The future Slay the Cert game (see `docs/superpowers/specs/2026-04-18-slay-the-cert-gamification-design.md`) will consume the same schema.

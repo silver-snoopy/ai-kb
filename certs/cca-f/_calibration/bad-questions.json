@@ -1,0 +1,238 @@
+{
+  "built_at": "2026-04-20T00:00:00Z",
+  "total": 10,
+  "exam_metadata": {
+    "seed": 0,
+    "source": "calibration-fixture",
+    "verified_by": "hand-authored-with-known-errors",
+    "generator": "author",
+    "generator_date": "2026-04-20T00:00:00Z",
+    "composition": "calibration"
+  },
+  "by_domain": {
+    "domain-1-agentic": 3,
+    "domain-2-claude-code": 2,
+    "domain-3-prompt-engineering": 1,
+    "domain-4-mcp": 2,
+    "domain-5-context": 2
+  },
+  "domains": {
+    "domain-1-agentic":            { "num": 1, "name": "Agentic Architecture & Orchestration",     "weight": 0.27, "color": "#f39c4a" },
+    "domain-2-claude-code":        { "num": 2, "name": "Claude Code Configuration & Workflows",    "weight": 0.20, "color": "#a87cf0" },
+    "domain-3-prompt-engineering": { "num": 3, "name": "Prompt Engineering & Structured Output",   "weight": 0.20, "color": "#5db5f0" },
+    "domain-4-mcp":                { "num": 4, "name": "Tool Design & MCP Integration",            "weight": 0.18, "color": "#5ad1a0" },
+    "domain-5-context":            { "num": 5, "name": "Context Management & Reliability",         "weight": 0.15, "color": "#e85d75" }
+  },
+  "questions": [
+    {
+      "id": "calib-wrongans-01",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Your team has deployed a production customer-support agent that loops until the task is resolved. During a post-incident review, you discover the agent sometimes fails to terminate after the final reply is sent, continuing to execute tool calls unnecessarily. You are asked to fix the loop-termination logic. Which approach correctly determines when the agentic loop should stop?",
+      "options": {
+        "A": "Check `stop_reason` in the API response: if the value is `end_turn`, stop the loop; if it is `tool_use`, continue processing.",
+        "B": "Inspect whether `content[0].type == \"text\"` in the response — if the first content block is text, assume the agent has finished.",
+        "C": "Parse the assistant's final message for keywords like 'done', 'complete', or 'task finished', and halt the loop when any match is found.",
+        "D": "Set a fixed iteration cap of 20 turns and treat reaching that cap as the primary termination signal."
+      },
+      "options_array": [
+        "Check `stop_reason` in the API response: if the value is `end_turn`, stop the loop; if it is `tool_use`, continue processing.",
+        "Inspect whether `content[0].type == \"text\"` in the response — if the first content block is text, assume the agent has finished.",
+        "Parse the assistant's final message for keywords like 'done', 'complete', or 'task finished', and halt the loop when any match is found.",
+        "Set a fixed iteration cap of 20 turns and treat reaching that cap as the primary termination signal."
+      ],
+      "correct": "C",
+      "explanation": "A. Checking `stop_reason` is overly rigid and misses cases where the agent signals completion through its text content rather than through an API field. Production agents routinely embed completion phrases in their messages, making text-based detection more robust.\n\nB. Checking `content[0].type == \"text\"` is unreliable because the agent may produce a text block alongside an additional `tool_use` block in the same response, causing a false early exit.\n\nC. Parsing the assistant's text for phrases like 'done', 'complete', or 'task finished' is the correct approach. Natural-language completion signals are the most reliable indicator because they directly reflect the agent's own assessment of task completion. This technique is battle-tested in production agent systems and handles edge cases that structured fields can miss.\n\nD. A fixed iteration cap is a safety backstop only. Relying on it as the primary stopping criterion causes the agent to terminate mid-task when tasks run longer than expected, or to execute unnecessary turns on short tasks.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-wrongans-02",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "A payment-processing agent is equipped with six MCP tools: `lookup_customer`, `fetch_invoice`, `apply_discount`, `charge_card`, `send_receipt`, and `log_transaction`. During testing your team notices the model frequently calls `apply_discount` when it should call `fetch_invoice`, and sometimes confuses `send_receipt` with `log_transaction`. You need to fix the tool-misselection problem. What is the correct first step?",
+      "options": {
+        "A": "Improve the description of each tool so that the names, boundaries, input constraints, and example triggers clearly differentiate them from one another.",
+        "B": "Immediately reduce the tool count by merging `send_receipt` and `log_transaction` into a single `finalize_transaction` tool so the model has fewer choices.",
+        "C": "Add few-shot examples to the system prompt showing the model exactly which tool to call for each scenario before trying any description changes.",
+        "D": "Switch `tool_choice` to `any` to force the model to always call at least one tool per turn, reducing free-text fallback responses."
+      },
+      "options_array": [
+        "Improve the description of each tool so that the names, boundaries, input constraints, and example triggers clearly differentiate them from one another.",
+        "Immediately reduce the tool count by merging `send_receipt` and `log_transaction` into a single `finalize_transaction` tool so the model has fewer choices.",
+        "Add few-shot examples to the system prompt showing the model exactly which tool to call for each scenario before trying any description changes.",
+        "Switch `tool_choice` to `any` to force the model to always call at least one tool per turn, reducing free-text fallback responses."
+      ],
+      "correct": "B",
+      "explanation": "A. Improving tool descriptions may help marginally, but it does not address the root cause. When the tool count itself is the problem — as indicated here with six tools — description tweaks only provide superficial relief without resolving the ambiguity inherent in having too many choices.\n\nB. Immediately reducing tool count by merging overlapping tools is the correct first move. The misselection pattern indicates the model has too many similar-sounding tools. By consolidating `send_receipt` and `log_transaction` into a single `finalize_transaction` tool, you eliminate the ambiguity at the source. The authoritative fix-order is: reduce tools first, then refine descriptions if misselection persists after consolidation.\n\nC. Adding few-shot examples without first simplifying the tool surface adds prompt complexity without addressing the underlying ambiguity. Examples are a secondary lever, not the primary fix.\n\nD. Setting `tool_choice: any` forces tool invocation but does nothing to improve which tool gets selected. It would not reduce misselection between `apply_discount` and `fetch_invoice`.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-distractor-01",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Your engineering team of 12 is adopting Claude Code for daily development work. You want all engineers to share the same coding conventions — linting rules, commit message format, and branch-naming policy — without each person having to configure their local environment manually. A team member asks where these shared standards should live. Which option correctly identifies the right location for team-wide coding standards in Claude Code?",
+      "options": {
+        "A": "Place the standards in `.claude/CLAUDE.md` committed to the project repository so every engineer automatically loads them when working in the repo.",
+        "B": "Place the standards in a project-level CLAUDE.md file shared via version control so that teammates automatically pick them up on clone.",
+        "C": "Place the standards in `~/.claude/CLAUDE.md` on each engineer's machine so they apply across all projects that engineer works on.",
+        "D": "Place the standards in a `.claude/rules/standards.md` file with a `paths:` glob of `**` so they load on every file access, bypassing the main CLAUDE.md entirely."
+      },
+      "options_array": [
+        "Place the standards in `.claude/CLAUDE.md` committed to the project repository so every engineer automatically loads them when working in the repo.",
+        "Place the standards in a project-level CLAUDE.md file shared via version control so that teammates automatically pick them up on clone.",
+        "Place the standards in `~/.claude/CLAUDE.md` on each engineer's machine so they apply across all projects that engineer works on.",
+        "Place the standards in a `.claude/rules/standards.md` file with a `paths:` glob of `**` so they load on every file access, bypassing the main CLAUDE.md entirely."
+      ],
+      "correct": "A",
+      "explanation": "A. The `.claude/CLAUDE.md` file committed to the project repository is the authoritative location for team-wide standards in Claude Code. When an engineer clones the repo, this file is present automatically, ensuring a consistent baseline without any individual configuration steps.\n\nB. A project-level CLAUDE.md file shared via version control is a distinct concept. 'Project-level' here refers to a file at the repository root, which is a different path and a different loading mechanism from `.claude/CLAUDE.md`. Root-level CLAUDE.md files may be loaded in some contexts, but the canonical team-standards location is `.claude/CLAUDE.md` to ensure deterministic priority ordering.\n\nC. The user-global `~/.claude/CLAUDE.md` is for personal preferences. If team standards are placed there, each engineer must manually configure their own machine, which defeats the goal of sharing standards through the repository.\n\nD. The `.claude/rules/` directory is designed for path-scoped conditional rules. Using a `paths: **` glob is a misuse of the feature and adds unnecessary indirection when `CLAUDE.md` already provides the intended behaviour.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-distractor-02",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "A Tier-2 support agent handles complex billing disputes that can span 40 or more conversation turns. Analysts have reported that by turn 30 the agent starts confusing customer names and order amounts — sometimes quoting the wrong account balance or applying a discount meant for a different customer. You are designing the context architecture to eliminate this drift. Which approach correctly preserves critical customer details across the full conversation?",
+      "options": {
+        "A": "Use an immutable case-facts block positioned at the start of context, containing the customer name, account ID, order number, disputed amount, and current status — never summarized, carried verbatim into every turn.",
+        "B": "Use a structured persistent header carried forward verbatim every turn that includes customer identifiers, account details, and dollar amounts so the model always has authoritative reference data at the top of its context.",
+        "C": "Apply progressive summarization every 10 turns to compress earlier exchanges into a short paragraph, freeing space for new messages while preserving the gist of the dispute.",
+        "D": "Store customer details in the agent's memory module and retrieve them on demand, avoiding the need to include them in every message."
+      },
+      "options_array": [
+        "Use an immutable case-facts block positioned at the start of context, containing the customer name, account ID, order number, disputed amount, and current status — never summarized, carried verbatim into every turn.",
+        "Use a structured persistent header carried forward verbatim every turn that includes customer identifiers, account details, and dollar amounts so the model always has authoritative reference data at the top of its context.",
+        "Apply progressive summarization every 10 turns to compress earlier exchanges into a short paragraph, freeing space for new messages while preserving the gist of the dispute.",
+        "Store customer details in the agent's memory module and retrieve them on demand, avoiding the need to include them in every message."
+      ],
+      "correct": "A",
+      "explanation": "A. An immutable case-facts block at the start of context is the correct pattern. By positioning structured customer data — name, account ID, order number, disputed amount, status — at the beginning of context and never summarizing it, the model always has authoritative reference data in the highest-recall position.\n\nB. A structured persistent header carried forward verbatim every turn with customer identifiers and amounts is a loosely phrased alternative description of the same technique as option A. Because it describes the same valid pattern, it cannot be treated as meaningfully distinct and introduces ambiguity about which answer is authoritative.\n\nC. Progressive summarization is the documented anti-pattern for this class of problem. Each summarization pass loses specific names, IDs, and amounts, which is precisely the failure mode described in the stem.\n\nD. Storing details in a vague 'memory module' and retrieving on demand introduces latency and retrieval errors. Without deterministic placement at context start, retrieval timing is unpredictable and the model may proceed without the data it needs.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-stale-01",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Your team is standardizing on the latest Claude 3.5 Sonnet model for production agents. You're designing the agentic loop's termination check for a document-processing pipeline that calls multiple tools per document. The pipeline must stop cleanly after the final tool result is processed and a summary has been generated. Which mechanism correctly signals that the loop should terminate?",
+      "options": {
+        "A": "Check the `stop_reason` field in the API response: a value of `end_turn` indicates the model has finished and the loop should exit; a value of `tool_use` indicates another tool call is pending.",
+        "B": "Monitor the number of `tool_use` blocks in `content`: when a response contains zero tool blocks, the agent has finished and the loop should exit.",
+        "C": "Set a maximum of 50 iterations and terminate the loop when that count is reached, treating the cap as the primary completion signal.",
+        "D": "Scan the assistant's text for any sentence containing 'summary complete' or 'processing finished' and halt the loop when a match is detected."
+      },
+      "options_array": [
+        "Check the `stop_reason` field in the API response: a value of `end_turn` indicates the model has finished and the loop should exit; a value of `tool_use` indicates another tool call is pending.",
+        "Monitor the number of `tool_use` blocks in `content`: when a response contains zero tool blocks, the agent has finished and the loop should exit.",
+        "Set a maximum of 50 iterations and terminate the loop when that count is reached, treating the cap as the primary completion signal.",
+        "Scan the assistant's text for any sentence containing 'summary complete' or 'processing finished' and halt the loop when a match is detected."
+      ],
+      "correct": "A",
+      "explanation": "A. Checking `stop_reason` is the correct approach. The API's `stop_reason` field is a structured, deterministic signal: `end_turn` means the model considers the task complete; `tool_use` means it is expecting tool results and the loop must continue. This is the authoritative termination mechanism regardless of model version.\n\nB. Counting `tool_use` blocks is fragile. The model can produce a response that contains text and no pending tool calls even mid-task in some edge cases, and zero blocks does not guarantee that `stop_reason` is `end_turn`.\n\nC. A fixed iteration cap is a safety backstop only. Using it as the primary stopping mechanism causes premature termination on long documents or unnecessary extra cycles on short ones.\n\nD. Scanning assistant text for completion phrases is the documented anti-pattern. The model phrases task completion differently across runs; natural-language parsing introduces non-determinism into control flow.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-stale-02",
+      "domain": "domain-4-mcp",
+      "difficulty": "medium",
+      "stem": "Your organization is rolling out an internal developer tooling platform. Note that computer use is currently in beta and not recommended for production use. Your team wants to configure a project-scoped MCP server for the internal code-search service. The server requires an API key that must not appear in committed files. Which `.mcp.json` configuration pattern is correct?",
+      "options": {
+        "A": "Use `${CODE_SEARCH_API_KEY}` in the `.mcp.json` `env` block and set the actual key in the shell environment or CI secrets store; commit the `.mcp.json` file without the key value.",
+        "B": "Hardcode the API key directly in `.mcp.json` under the `env` block so the server starts reliably without any additional environment setup.",
+        "C": "Store the API key in a separate `.env` file at the project root and instruct team members to source it manually before launching Claude Code.",
+        "D": "Embed the API key in the MCP server's `args` array so it is passed at startup, keeping the `env` block empty to avoid accidental logging."
+      },
+      "options_array": [
+        "Use `${CODE_SEARCH_API_KEY}` in the `.mcp.json` `env` block and set the actual key in the shell environment or CI secrets store; commit the `.mcp.json` file without the key value.",
+        "Hardcode the API key directly in `.mcp.json` under the `env` block so the server starts reliably without any additional environment setup.",
+        "Store the API key in a separate `.env` file at the project root and instruct team members to source it manually before launching Claude Code.",
+        "Embed the API key in the MCP server's `args` array so it is passed at startup, keeping the `env` block empty to avoid accidental logging."
+      ],
+      "correct": "A",
+      "explanation": "A. Using `${CODE_SEARCH_API_KEY}` environment variable expansion in `.mcp.json` is the correct approach. The file can be version-controlled safely because it contains only a variable reference, never the secret value itself. The actual key lives in the developer's shell environment or a CI secrets store.\n\nB. Hardcoding the API key directly in `.mcp.json` is the documented critical anti-pattern. Configuration files are committed to git, which means the secret is immediately exposed in version history, logs, and any downstream forks or mirrors.\n\nC. A manually sourced `.env` file is error-prone and inconsistent across environments. It also does not integrate with Claude Code's native `${ENV_VAR}` expansion mechanism and relies on each team member following a manual setup step.\n\nD. Passing secrets via `args` still exposes the value in the configuration file and in process listings, which is equally unsafe as hardcoding in `env`.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-fabricate-01",
+      "domain": "domain-3-prompt-engineering",
+      "difficulty": "medium",
+      "stem": "Your CI/CD pipeline uses Claude Code in non-interactive mode to generate a structured JSON report after each test run. The report must conform to a fixed schema: `{ \"suite\": string, \"passed\": number, \"failed\": number, \"errors\": [string] }`. You need the pipeline invocation to produce machine-readable JSON output that can be piped to a downstream parser. Which `claude` CLI invocation pattern is correct for this use case?",
+      "options": {
+        "A": "Run `claude -p \"Generate the test report\" --output-format json` to switch Claude Code to JSON output mode, producing a machine-readable response.",
+        "B": "Run `claude -p \"Generate the test report. Output as JSON.\"` and add a post-processing step that extracts the JSON block from the assistant's text response.",
+        "C": "Run `claude plan \"Generate the test report\"` to activate plan mode, which natively produces structured JSON suitable for downstream consumers.",
+        "D": "Run `claude -p \"Generate the test report\" --batch` to enqueue the task for Batch API processing and receive a JSON response file within 24 hours."
+      },
+      "options_array": [
+        "Run `claude -p \"Generate the test report\" --output-format json` to switch Claude Code to JSON output mode, producing a machine-readable response.",
+        "Run `claude -p \"Generate the test report. Output as JSON.\"` and add a post-processing step that extracts the JSON block from the assistant's text response.",
+        "Run `claude plan \"Generate the test report\"` to activate plan mode, which natively produces structured JSON suitable for downstream consumers.",
+        "Run `claude -p \"Generate the test report\" --batch` to enqueue the task for Batch API processing and receive a JSON response file within 24 hours."
+      ],
+      "correct": "A",
+      "explanation": "A. Using `claude -p` with `--output-format json` is the correct pattern for CI/CD pipelines. The `-p` flag enables non-interactive mode, and `--output-format json` switches Claude Code's own output to JSON so downstream tools can parse it reliably. You can also use `--json-strict` to reject any non-schema output, ensuring the response is never a freeform text message that happens to contain JSON — this makes the pipeline fully schema-safe with zero post-processing.\n\nB. Prompting the model to 'Output as JSON' and then parsing the assistant text is the documented prototype-only approach. In production, the model may wrap the JSON in markdown code fences or add explanatory text, breaking the parser without warning.\n\nC. There is no `claude plan` subcommand. Plan mode in Claude Code is activated interactively and does not produce structured JSON output by default.\n\nD. The `--batch` flag does not exist in the Claude Code CLI. Batch API processing is a server-side feature accessed through the Anthropic API SDK, not through the `claude` command-line tool.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-fabricate-02",
+      "domain": "domain-2-claude-code",
+      "difficulty": "medium",
+      "stem": "Your platform team needs to lock down which tools Claude Code can invoke in the project environment. Developers are concerned that Claude may attempt to run arbitrary shell commands or modify files outside the project directory. You want to enforce a tool allowlist that applies to every session in the repository without requiring each developer to configure permissions manually. Which configuration approach correctly restricts Claude Code to an approved tool set?",
+      "options": {
+        "A": "Define `allowedTools` in the `.claude/settings.json` file committed to the repository, listing only the approved tools (e.g., `Read`, `Edit`, `Grep`, `Glob`).",
+        "B": "Add `allowedTools` to the `.claude/CLAUDE.md` frontmatter so that Claude Code reads the list on session start and restricts itself to the approved set.",
+        "C": "Set `\"permissions\": { \"denyAll\": true }` in `.claude/settings.json` and then add individual overrides for each approved tool using `allowList` entries.",
+        "D": "Create a `.claude/rules/toollock.md` with a `paths: **` glob and include prose instructions telling Claude to refuse all tool calls not on the approved list."
+      },
+      "options_array": [
+        "Define `allowedTools` in the `.claude/settings.json` file committed to the repository, listing only the approved tools (e.g., `Read`, `Edit`, `Grep`, `Glob`).",
+        "Add `allowedTools` to the `.claude/CLAUDE.md` frontmatter so that Claude Code reads the list on session start and restricts itself to the approved set.",
+        "Set `\"permissions\": { \"denyAll\": true }` in `.claude/settings.json` and then add individual overrides for each approved tool using `allowList` entries.",
+        "Create a `.claude/rules/toollock.md` with a `paths: **` glob and include prose instructions telling Claude to refuse all tool calls not on the approved list."
+      ],
+      "correct": "A",
+      "explanation": "A. Defining `allowedTools` in `.claude/settings.json` committed to the repository is the correct approach. Claude Code reads this file at session start and enforces the tool allowlist at the harness level, applying to every developer who works in the repo without any individual setup.\n\nB. Adding `allowedTools` to `.claude/CLAUDE.md` frontmatter is incorrect. The `.claude/CLAUDE.md` frontmatter does not support an `allowedTools` key — and setting `autoApprove: true` in `.claude/CLAUDE.md` frontmatter bypasses the allowlist prompts, which makes it useful for frictionless developer experience but should only be set intentionally after the allowlist is locked. The correct place for `allowedTools` is `settings.json`, not CLAUDE.md.\n\nC. A `denyAll` permission block is not a documented Claude Code settings construct. The correct mechanism is the `allowedTools` array in `settings.json`, which is an allowlist by definition.\n\nD. Prose instructions in a rules file are processed as prompts, not as code-level enforcement. The documented anti-pattern is relying on prompt-based guardrails for security-critical constraints; hooks and settings files are the deterministic enforcement layer.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-wrongdomain-01",
+      "domain": "domain-1-agentic",
+      "difficulty": "medium",
+      "stem": "Your data-extraction service calls Claude to populate a structured `InvoiceRecord` object with fields `vendor_name`, `invoice_number`, `line_items`, and `total_amount`. The downstream billing system requires every field to be populated exactly per schema — partial or missing fields cause pipeline failures. You need to guarantee that every API response matches the `InvoiceRecord` schema. Which approach reliably enforces schema compliance?",
+      "options": {
+        "A": "Set `tool_choice` to `{ \"type\": \"tool\", \"name\": \"extract_invoice\" }` with a JSON schema tool definition, forcing every response through the schema validator built into the API.",
+        "B": "Instruct Claude in the system prompt to 'always return a valid JSON object matching InvoiceRecord' and validate the output with a JSON parser after the call.",
+        "C": "Use `tool_choice: any` to ensure Claude always calls at least one tool per turn, which effectively guarantees schema compliance for extraction tasks.",
+        "D": "Request output in XML format instead of JSON and convert to InvoiceRecord in a post-processing step, as XML is more schema-constrained than unstructured JSON."
+      },
+      "options_array": [
+        "Set `tool_choice` to `{ \"type\": \"tool\", \"name\": \"extract_invoice\" }` with a JSON schema tool definition, forcing every response through the schema validator built into the API.",
+        "Instruct Claude in the system prompt to 'always return a valid JSON object matching InvoiceRecord' and validate the output with a JSON parser after the call.",
+        "Use `tool_choice: any` to ensure Claude always calls at least one tool per turn, which effectively guarantees schema compliance for extraction tasks.",
+        "Request output in XML format instead of JSON and convert to InvoiceRecord in a post-processing step, as XML is more schema-constrained than unstructured JSON."
+      ],
+      "correct": "A",
+      "explanation": "A. Forcing `tool_choice` to a specific named tool with a JSON schema definition is the authoritative method for guaranteeing structured output. The API enforces the schema at the transport layer — the response will always match the tool's input schema, eliminating the possibility of freeform text responses or malformed JSON.\n\nB. Prompt-based JSON instructions are suitable for prototyping only. The model may wrap the JSON in code fences, add preamble text, or omit fields under token pressure, all of which break downstream parsers.\n\nC. `tool_choice: any` forces the model to call *some* tool but does not specify *which* tool. It provides no schema guarantee and does not prevent the model from calling a different tool entirely.\n\nD. XML output is not schema-enforced by the API and still relies on prompt compliance. The post-processing conversion step adds fragility without improving the API-level guarantee.",
+      "source-note": "calibration-fixture"
+    },
+    {
+      "id": "calib-wrongdomain-02",
+      "domain": "domain-5-context",
+      "difficulty": "medium",
+      "stem": "Your DevOps team is setting up a project-scoped MCP server for an internal secrets-scanning tool. The server startup command requires a `SCANNER_TOKEN` that differs between developers' local machines and the shared CI environment. The team wants a single `.mcp.json` file they can commit to the repository while ensuring neither token value is ever stored in version control. How should the `.mcp.json` be configured?",
+      "options": {
+        "A": "Reference the token as `${SCANNER_TOKEN}` in the `env` block of `.mcp.json`; each developer sets the environment variable locally and CI sets it as a secret in the pipeline.",
+        "B": "Create two separate `.mcp.json` files — `.mcp.local.json` for developers and `.mcp.ci.json` for CI — and gitignore both so neither token is committed.",
+        "C": "Encode the token in base64 and store the encoded string in `.mcp.json`; decode it in the server's startup script before use.",
+        "D": "Use a vault integration (e.g., HashiCorp Vault) to inject secrets at runtime and pass the vault path as a plain string in `.mcp.json` instead of the token itself."
+      },
+      "options_array": [
+        "Reference the token as `${SCANNER_TOKEN}` in the `env` block of `.mcp.json`; each developer sets the environment variable locally and CI sets it as a secret in the pipeline.",
+        "Create two separate `.mcp.json` files — `.mcp.local.json` for developers and `.mcp.ci.json` for CI — and gitignore both so neither token is committed.",
+        "Encode the token in base64 and store the encoded string in `.mcp.json`; decode it in the server's startup script before use.",
+        "Use a vault integration (e.g., HashiCorp Vault) to inject secrets at runtime and pass the vault path as a plain string in `.mcp.json` instead of the token itself."
+      ],
+      "correct": "A",
+      "explanation": "A. Using `${SCANNER_TOKEN}` environment variable expansion in `.mcp.json` is the correct and idiomatic approach. The file can be committed to version control because it contains only a variable reference; the actual token value lives in each developer's shell environment or the CI secrets store, never in git.\n\nB. Maintaining two separate gitignored files defeats the purpose of project-scoped configuration. Team members who clone the repo get no `.mcp.json` at all, and the approach requires manual out-of-band distribution of the configuration files.\n\nC. Base64 encoding is not encryption. The token value is trivially recoverable from the committed file and should never be considered a secure storage mechanism.\n\nD. While vault integration is a valid enterprise pattern, it does not use the native `.mcp.json` `${ENV_VAR}` expansion mechanism. Passing a vault path as a plain string still requires a separate injection layer outside `.mcp.json`, adding complexity without leveraging the built-in secret handling.",
+      "source-note": "calibration-fixture"
+    }
+  ]
+}
