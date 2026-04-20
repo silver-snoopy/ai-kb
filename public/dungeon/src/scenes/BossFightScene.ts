@@ -167,10 +167,12 @@ export class BossFightScene extends Phaser.Scene {
       wordWrap: { width: 580 }, align: 'center',
     }).setOrigin(0.5, 0);
 
-    // Primer text (Study-the-Tome effect) — below the bubble
+    // Primer text (Study-the-Tome effect) — below the bubble. Wrap is
+    // 880 so post-answer explanations (~300 chars via summarizeExplanation)
+    // fit in 2–3 lines and don't bleed into the first option box below.
     this.primerText = this.add.text(480, 360, '', {
       fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
-      wordWrap: { width: 760 }, align: 'center', fontStyle: 'italic',
+      wordWrap: { width: 880 }, align: 'center', fontStyle: 'italic',
     }).setOrigin(0.5, 0);
 
     // --- Hero sprite (left) ---
@@ -206,15 +208,15 @@ export class BossFightScene extends Phaser.Scene {
     }).setOrigin(0.5, 0);
 
     // --- Option buttons ---
-    // Boxes are wider (900 vs old 820) and text is smaller (13 vs 15)
-    // with wordWrap, so answers up to ~110 monospace chars fit on one
-    // line; only truly long answers wrap to 2 lines and are still
-    // readable inside the 32-tall box. Row pitch is kept at 35px so the
-    // spellbook at y=610 still has room beneath.
+    // Box height 50 + 48px pitch fits a 2-line wrapped answer cleanly
+    // and degrades gracefully on the rare 3-line outlier. First center
+    // stays at y=470 so the post-answer explanation (in the primer slot
+    // at y=360, wrap 880) has room above without bleeding into option A;
+    // last box bottom (~639) leaves ~7px above the spellbook row at y=650.
     const optLetters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
     optLetters.forEach((letter, idx) => {
-      const y = 470 + idx * 35;
-      const btn = this.add.rectangle(480, y, 900, 32, 0x1a1a2a);
+      const y = 470 + idx * 48;
+      const btn = this.add.rectangle(480, y, 900, 50, 0x1a1a2a);
       btn.setStrokeStyle(2, 0x4a4a6a);
       btn.setInteractive({ useHandCursor: true });
       attachRectHover(btn,
