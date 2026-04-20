@@ -5,7 +5,7 @@ import { initCombat, resolveAnswer, isBossDefeated, isHeroDead } from '../game/c
 import { pickQuestionsForFight } from '../data/questionLoader';
 import { canCast, castSpell, createSpellbook, grantBossDefeatReward } from '../game/spellbook';
 import type { Spellbook } from '../game/spellbook';
-import type { BossDefinition, CombatState, Question, QuestionsJson, RunMode, SessionLog, SpellId } from '../types';
+import type { BossDefinition, CombatState, MissedQuestion, Question, QuestionsJson, RunMode, SessionLog, SpellId } from '../types';
 import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
 import { ProceduralBGM } from '../audio/bgm';
@@ -13,6 +13,7 @@ import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { renderBackdrop } from './backdrops';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
+import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
 import { installFeelPack } from '../feel/install';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
@@ -53,6 +54,7 @@ export class BossFightScene extends Phaser.Scene {
   private acceptingInput = false;
   private currentQuestionIdx = 0;
   private lastPhaseEmitted: 66 | 33 | 10 | null = null;
+  private missedQuestions: MissedQuestion[] = [];
 
   private narratorOverlay!: NarratorOverlay;
   private narratorDispatcher!: NarratorDispatcher;
@@ -99,6 +101,7 @@ export class BossFightScene extends Phaser.Scene {
     this.optionTexts = [];
     this.optionButtons = [];
     this.spellButtons = [];
+    this.missedQuestions = [];
 
     this.cameras.main.setBackgroundColor(this.boss.environmentColor);
     fadeIn(this);
@@ -357,13 +360,16 @@ export class BossFightScene extends Phaser.Scene {
   private showCurrentQuestion(): void {
     const q = this.state.currentQuestion!;
     this.questionText.setText(q.stem);
-    // Self-heal visibility: if the previous frame hid option buttons (wrong-answer
-    // explanation overlay), restore them so the next question is answerable.
+    // Self-heal visibility AND color. The previous frame may have hidden
+    // option buttons (wrong-answer overlay) and/or recolored them via
+    // paintOptionFeedback — restore both so the next question presents
+    // a clean slate.
     this.optionButtons.forEach(b => b.setVisible(true));
     this.optionTexts.forEach((txt, i) => {
       const letter = ['A', 'B', 'C', 'D'][i] as 'A' | 'B' | 'C' | 'D';
       txt.setText(`${letter}) ${q.options[letter]}`);
     });
+    resetOptionFeedback(this.optionButtons, this.optionTexts);
     this.tauntText.setText('');
     this.primerText.setText('');
     this.questionStartMs = Date.now();
@@ -438,20 +444,43 @@ export class BossFightScene extends Phaser.Scene {
     }
 
     if (!result.wasCorrect) {
-      // Keep the bubble message short; push the full explanation into the
-      // (now-empty) option-area below so long explanations don't overflow.
-      // Hide the spellbook row too so the explanation has room to breathe.
-      this.questionText.setText(`\u2717 Incorrect. Correct: ${result.correctAnswer}`);
-      this.optionTexts.forEach(t => t.setText(''));
-      this.optionButtons.forEach(b => b.setVisible(false));
-      this.spellButtons.forEach(b => b.setVisible(false));
-      const explain = this.add.text(480, 440, `${result.explanation}\n\n(click to continue)`, {
-        fontSize: '13px', color: '#e8e0d0', fontFamily: 'monospace',
-        wordWrap: { width: 880 }, align: 'center',
-      }).setOrigin(0.5, 0);
+      // Record for post-boss mistakes-review (F3b). questionHistory already
+      // contains the answered question at the end; keep a denormalized copy
+      // with the chosen letter since sessionLog.questions doesn't carry
+      // `chosen` today.
+      this.missedQuestions.push({
+        questionId: q.id,
+        stem: q.stem,
+        options: q.options,
+        correct: result.correctAnswer,
+        chosen: choice,
+        explanation: result.explanation,
+      });
+      // Inline feedback: keep stem + 4 options visible, recolor chosen option
+      // red (✗) and correct option green (✓). Options + spellbook stay
+      // interactive-looking but input is already disabled (acceptingInput=false).
+      // Explanation renders in the primerText slot between bubble and options
+      // — the only on-screen space that doesn't overlap another UI band.
+      paintOptionFeedback(
+        this.optionButtons,
+        this.optionTexts,
+        result.correctAnswer,
+        choice,
+      );
+      // CCA-F explanations commonly run 400-1300 chars with per-option
+      // breakdowns ("A: ... B: ... C: ..."). That won't fit the ~140px
+      // gap between bubble and options. Trim to the correct-answer
+      // paragraph if the A:/B:/C:/D: structure is present, else
+      // truncate to ~300 chars. Full explanation lives in post-boss
+      // mistakes review (F3b).
+      const summary = summarizeExplanation(result.explanation, result.correctAnswer);
+      this.primerText.setColor('#e8e0d0');
+      this.primerText.setStyle({ fontStyle: 'normal' });
+      this.primerText.setText(`${summary}\n\n(click to continue — full review after the boss)`);
       this.input.once('pointerdown', () => {
-        explain.destroy();
-        this.spellButtons.forEach(b => b.setVisible(true));
+        this.primerText.setText('');
+        this.primerText.setColor('#ffca28');
+        this.primerText.setStyle({ fontStyle: 'italic' });
         this.advanceOrEnd();
       });
       return;
@@ -566,6 +595,7 @@ export class BossFightScene extends Phaser.Scene {
         previousBossId: this.boss.id,
         nextBossId,
         mode: campaign.mode,
+        missedQuestions: this.missedQuestions,
       });
     }
   }
