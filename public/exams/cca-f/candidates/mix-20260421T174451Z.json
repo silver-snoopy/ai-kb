@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-21T17:44:51.469311+00:00",
+  "generated_at": "2026-04-21T19:01:35.899856+00:00",
   "exam_metadata": {
     "source_dump": "raw/other/cca-f-questions-2.json",
     "count": 165,
@@ -27,14 +27,15 @@
     "per_correct_letter": {
       "A": 96,
       "C": 13,
-      "B": 54,
-      "D": 2
+      "B": 53,
+      "D": 3
     },
     "topic_domain_agreement": "127/165",
     "scenario_alias_agreement": "124/165",
     "post_processing_notes": [
       "reordered 9 explanations to canonical A/B/C/D line order (content unchanged)",
-      "remapped 4 questions (mix-680, mix-685, mix-691, mix-696) from domain-3-prompt-engineering to domain-5-context to satisfy scenario-1 allowed-domains constraint — these are multi-turn conversation UX questions"
+      "remapped 4 questions (mix-680, mix-685, mix-691, mix-696) from domain-3-prompt-engineering to domain-5-context to satisfy scenario-1 allowed-domains constraint — these are multi-turn conversation UX questions",
+      "r2-round: applied substrate-recommended fixes to 10 questions (4 CRITICAL + 6 HIGH): correct-answer flips on mix-733 (B→A) and mix-790 (A→D); rewritten explanations on mix-782, mix-816, mix-758, mix-764, mix-858, mix-867, mix-872, mix-900 to strengthen anti-pattern grounding. See source_note per-question for details."
     ]
   },
   "questions": [
@@ -1156,9 +1157,9 @@
         "C": "Spawn the subagent with only a brief task description, relying on automatic context inheritance from the coordinator",
         "D": "Provide the subagent with tool definitions that allow it to request outputs from other subagents via callbacks"
       },
-      "correct": "B",
-      "explanation": "A: Anti-pattern: including complete findings in prompt duplicates data; reference + shared memory is more efficient.\nB: Correct — pass reference identifiers and configure subagent with read access to shared memory store; efficient and avoids context duplication.\nC: Anti-pattern: relying on automatic context inheritance is not guaranteed; explicit passing is required.\nD: Anti-pattern: callbacks require asynchronous context passing; shared memory is simpler and synchronous.",
-      "source_note": "raw/other/cca-f-questions-2.json id=733 raw-topic=\"Subagent Context Passing\" raw-scenarioId=3 topic-domain-agree=true scenario-alias-agree=true"
+      "correct": "A",
+      "explanation": "A: Correct — coordinator passes the specific findings the synthesis subagent needs directly in its spawn prompt; matches scenario 3 \"Pass ONLY the context relevant to each subagent's specific task\" pattern.\nB: Anti-pattern: shared memory store across subagents violates scenario 3 hub-and-spoke architecture with isolated contexts; flat shared state is the explicit anti-pattern.\nC: Anti-pattern: Claude Agent SDK does not automatically inherit coordinator context to spawned subagents; explicit prompt-time context passing is required.\nD: Anti-pattern: callback-based subagent-to-subagent communication creates coupling; scenario 3 specifies coordinator-as-hub with explicit prompt context passing.",
+      "source_note": "raw/other/cca-f-questions-2.json id=733 raw-topic=\"Subagent Context Passing\" raw-scenarioId=3 topic-domain-agree=true scenario-alias-agree=true [FIX: correct B→A; scenario 3 correct pattern is \"pass relevant context in spawn prompt\", not shared memory]"
     },
     {
       "id": "mix-735",
@@ -1395,8 +1396,8 @@
         "D": "Use plan mode to analyze the error in context of the module's design, enumerate potential root causes, and prioritize fixes systematically."
       },
       "correct": "D",
-      "explanation": "A: Plan mode is valuable but not sufficient alone — understanding the error is the immediate priority.\nB: Direct execution to gather info, then plan is reasonable but delays the comprehensive view.\nC: Plan mode for analysis, enumerate causes, prioritize fixes — systematic and design-forward.\nD: Plan mode for analysis, enumerate root causes, prioritize fixes — most methodical for unfamiliar code.",
-      "source_note": "raw/other/cca-f-questions-2.json id=758 raw-topic=\"Plan Mode vs Direct Execution\" raw-scenarioId=11 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Anti-pattern: plan-mode-for-full-architecture is overkill for a specific bug with a clear stack trace; wastes context exploring code unrelated to the failure.\nB: Anti-pattern: direct execution to fix without enumerating potential causes risks a narrow patch that misses related failure modes in unfamiliar code.\nC: Anti-pattern: direct-first-then-plan order seeds hypotheses before systematic enumeration; for unfamiliar code scenario 2 recommends plan-mode upfront.\nD: Correct — plan mode for root-cause enumeration and prioritization matches scenario 2 \"plan before code for multi-step/unfamiliar changes\" pattern; systematic approach for a module you have not worked with.",
+      "source_note": "raw/other/cca-f-questions-2.json id=758 raw-topic=\"Plan Mode vs Direct Execution\" raw-scenarioId=11 topic-domain-agree=true scenario-alias-agree=true [FIX: disambiguated A/C as anti-patterns; D is scenario 2 plan-mode-for-unfamiliar-code pattern]"
     },
     {
       "id": "mix-759",
@@ -1480,8 +1481,8 @@
         "D": "Create a `shared-standards.md` that uses @imports to combine all three standards, then have each package's CLAUDE.md import that combined file."
       },
       "correct": "A",
-      "explanation": "A: Using @imports to reference only relevant standard files avoids duplication and maintainer confusion — each package imports what it needs.\nB: Inline override instructions are hard to track and error-prone across 15 packages.\nC: Path-listed `.claude/rules/` can work but require managing every path; @imports delegation is cleaner.\nD: Combining into shared-standards.md then importing defeats the purpose; @imports directly is simpler.",
-      "source_note": "raw/other/cca-f-questions-2.json id=764 raw-topic=\"CLAUDE.md Import Patterns\" raw-scenarioId=11 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Correct — @imports in each package's CLAUDE.md include only the relevant standard files; leverages Claude Code's compositional CLAUDE.md import mechanism to avoid duplication and irrelevant context.\nB: Anti-pattern: prose-based negation (\"ignore X when Y\") relies on conditional-following at prompt time across 15 packages — Claude Code supports @imports precisely to avoid this fragility.\nC: Anti-pattern: path-listed `.claude/rules/` with frontmatter requires central maintenance of every package path; @imports delegates to the maintainer who owns the package.\nD: Anti-pattern: combining all three standards into shared-standards.md and importing that re-introduces the \"apply irrelevant guidance\" problem the question is trying to solve.",
+      "source_note": "raw/other/cca-f-questions-2.json id=764 raw-topic=\"CLAUDE.md Import Patterns\" raw-scenarioId=11 topic-domain-agree=true scenario-alias-agree=true [FIX: grounded B in \"prose-based negation / conditional-following\" anti-pattern; @imports is documented Claude Code feature]"
     },
     {
       "id": "mix-765",
@@ -1701,8 +1702,8 @@
         "D": "The agent automatically selects the most relevant server based on the request and loads only that server's tools."
       },
       "correct": "A",
-      "explanation": "A: All configured MCP servers' tools are discovered and available simultaneously — the agent accesses all tools from all servers in a single turn.\nB: Agent does not query servers sequentially; tools are bundled and available upfront.\nC: Agent uses multiple servers' tools in the same turn with no per-turn server restriction.\nD: Tools from all servers are available; agent does not auto-select or limit to one server.",
-      "source_note": "raw/other/cca-f-questions-2.json id=782 raw-topic=\"MCP Server Integration\" raw-scenarioId=13 topic-domain-agree=false scenario-alias-agree=false"
+      "explanation": "A: Correct — each MCP server registers its tools at connection time; the agent sees a unified tool list spanning all configured servers simultaneously in a single turn.\nB: Anti-pattern: MCP does not use runtime sequential per-server routing — there is no prefix-matching router; tool names are exposed upfront at connection and available globally.\nC: Anti-pattern: no per-turn single-server restriction exists in MCP — the agent can invoke tools from multiple servers within the same turn.\nD: Anti-pattern: MCP does not auto-select one server based on request heuristics; all connected servers' tools are always available to the agent.",
+      "source_note": "raw/other/cca-f-questions-2.json id=782 raw-topic=\"MCP Server Integration\" raw-scenarioId=13 topic-domain-agree=false scenario-alias-agree=false [FIX: strengthened option B/C/D anti-pattern grounding]"
     },
     {
       "id": "mix-783",
@@ -1836,9 +1837,9 @@
         "C": "The `process_reimbursement` tool accepts an `approved_by_manager: boolean` parameter. The system prompt instructs the agent to only set this to `true` after confirming that a manager has approved the request. A nightly audit script reviews all reimbursements where `approved_by_manager` was set to `true`.",
         "D": "Implement the threshold check in a PreToolUse hook that inspects the amount parameter before `process_reimbursement` executes. If the amount exceeds $500, the hook modifies the tool call to add a `requires_approval: true` flag, which the tool checks before disbursing."
       },
-      "correct": "A",
-      "explanation": "A: CORRECT: Tool itself enforces threshold. Auto-disburse ≤$500; >$500 triggers pending approval. Tamper-proof: prompt cannot override tool logic.\nB: System prompt is probabilistic. Agent prompted to check amount may ignore instruction under certain conditions.\nC: Relying on `approved_by_manager` boolean parameter requires agent honesty. Agent can set true without verification; audit is after-the-fact.\nD: PreToolUse hook adds flag but tool still processes; hook cannot prevent execution. Doesn't guarantee threshold enforcement.",
-      "source_note": "raw/other/cca-f-questions-2.json id=790 raw-topic=\"Human-in-the-Loop Safeguards\" raw-scenarioId=12 topic-domain-agree=True scenario-alias-agree=True"
+      "correct": "D",
+      "explanation": "A: Partially tamper-proof (tool-internal logic cannot be overridden by prompt), but not the scenario 1 prescribed pattern — scenario 1 CORRECT pattern for the $500-refund-limit analog is a hook, not bundling policy into every tool.\nB: Anti-pattern: system-prompt-guided tool selection (\"check amount, call appropriate tool\") is the explicit scenario 1 anti-pattern — prompt-based enforcement is not tamper-proof.\nC: Anti-pattern: relying on an agent-populated `approved_by_manager` boolean plus nightly audit is after-the-fact detection, not prevention; agent can set the flag without manager approval.\nD: Correct — PreToolUse hook inspects amount and flags amounts >$500 for approval before the tool executes; matches scenario 1 \"hook-based enforcement\" pattern (hooks run deterministic code outside the agent loop, so prompt cannot bypass).",
+      "source_note": "raw/other/cca-f-questions-2.json id=790 raw-topic=\"Human-in-the-Loop Safeguards\" raw-scenarioId=12 topic-domain-agree=True scenario-alias-agree=True [FIX: correct A→D; scenario 1 substrate mandates hook-based enforcement for $500 refund analog]"
     },
     {
       "id": "mix-791",
@@ -2041,8 +2042,8 @@
         "D": "MCP servers run as local processes, so tools from any properly initialized connection inherit your application's security context and can be trusted regardless of vendor."
       },
       "correct": "A",
-      "explanation": "A: CORRECT: Tool annotations are metadata from potentially untrusted vendors. Base confirmation on vendor trustworthiness assessment, not self-reported hints.\nB: Read-only annotations can be false. Vendor may annotate a tool as read-only when it actually has side effects elsewhere.\nC: Behavioral testing before allowlisting is valid but doesn't scale. Still requires per-vendor trust assessment.\nD: Local MCP processes inherit app security context but tool behavior depends on vendor code. Vendors can and do introduce backdoors.",
-      "source_note": "raw/other/cca-f-questions-2.json id=816 raw-topic=\"MCP Tool Annotation Trust Model\" raw-scenarioId=12 topic-domain-agree=True scenario-alias-agree=True"
+      "explanation": "A: Correct — tool annotations are vendor-supplied metadata that cannot be trusted without vendor-level trust assessment; scenario 4 MCP model requires evaluating each vendor individually, not deferring to self-reported hints.\nB: Anti-pattern: `readOnlyHint: true` is a vendor claim, not a verified guarantee — tools can be mis-annotated or have side effects (network calls, logging) that the hint does not capture.\nC: Anti-pattern: behavioral testing creates false confidence — vendors can change tool behavior in subsequent updates after allowlisting, and testing does not replace vendor-level trust; annotations are not the verification surface.\nD: Anti-pattern: MCP servers as local processes do NOT inherit trust from the host app — tool code still comes from the vendor and can misbehave regardless of transport.",
+      "source_note": "raw/other/cca-f-questions-2.json id=816 raw-topic=\"MCP Tool Annotation Trust Model\" raw-scenarioId=12 topic-domain-agree=True scenario-alias-agree=True [FIX: reworded option C explanation to remove \"valid but doesn't scale\" ambiguity]"
     },
     {
       "id": "mix-820",
@@ -2228,8 +2229,8 @@
         "D": "Modify your schema to make citations and methodology optional, and flag incomplete records for manual review rather than failing validation."
       },
       "correct": "B",
-      "explanation": "A: Blind retry without feedback doesn't help. Model will repeat same empty-field error.\nB: CORRECT: Few-shot examples showing varied citation/methodology structures teach model to recognize and extract them.\nC: Regex post-processing is brittle. New citation formats or methodology placements bypass regex patterns.\nD: Making fields optional is copout. Discards information available in source but missed by model.",
-      "source_note": "raw/other/cca-f-questions-2.json id=858 raw-topic=\"Structured Output Extraction\" raw-scenarioId=17 topic-domain-agree=True scenario-alias-agree=True"
+      "explanation": "A: Anti-pattern: retry-without-error-feedback — scenario 6 requires \"append SPECIFIC error details\" when validation fails; blind re-send gives the model no new signal to improve on.\nB: Correct — few-shot examples demonstrating varied citation/methodology structures teach the model to recognize these formats across document types; scenario 6 pattern for \"documents vary in structure\".\nC: Anti-pattern: regex-based post-processing is brittle — new citation formats bypass patterns; scenario 6 domain-3 guidance favors teaching the model over downstream string matching.\nD: Anti-pattern: making required fields optional discards extractable information that is present in the source; the failure is recognition, not schema laxity.",
+      "source_note": "raw/other/cca-f-questions-2.json id=858 raw-topic=\"Structured Output Extraction\" raw-scenarioId=17 topic-domain-agree=True scenario-alias-agree=True [FIX: named retry-without-error-feedback anti-pattern for A]"
     },
     {
       "id": "mix-859",
@@ -2364,8 +2365,8 @@
         "D": "Add stricter schema constraints with detailed field descriptions to prevent the model from generating invalid values initially."
       },
       "correct": "A",
-      "explanation": "A: Correct—retry with the original output + specific validation errors gives the model signal to correct; from scenario 6 pattern 'Extraction validation fails: append SPECIFIC error details and retry'.\nB: Post-processing logic that auto-corrects is brittle and hides the root cause.\nC: Blind retries without error feedback won't improve results.\nD: Stricter schema constraints don't address semantic correctness (which field values are valid given business rules).",
-      "source_note": "raw/other/cca-f-questions-2.json id=867 raw-topic=\"Structured Output Extraction\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Correct — scenario 6 \"Extraction validation fails\" pattern is to resend the document + prior extraction + SPECIFIC validation errors so the model can target the fix on the next turn.\nB: Anti-pattern: auto-correction in post-processing hides root cause and encodes brittle business rules outside the extraction layer where they're hardest to evolve.\nC: Anti-pattern: retry-without-error-feedback — scenario 6 explicitly requires appending specific validation errors; up-to-3 blind retries is stochastic noise with no signal.\nD: Anti-pattern: stricter schema/field descriptions do not address semantic validity (line-item sums, vendor-ID format checks) — those are runtime business rules, not type constraints.",
+      "source_note": "raw/other/cca-f-questions-2.json id=867 raw-topic=\"Structured Output Extraction\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=true [FIX: named retry-without-error-feedback anti-pattern for C]"
     },
     {
       "id": "mix-868",
@@ -2432,8 +2433,8 @@
         "D": "Claude requires a vector database connection to maintain conversation memory"
       },
       "correct": "B",
-      "explanation": "A: Claude API does not require a session_id parameter; the application manages message history.\nB: Correct—if prior messages aren't in the messages array, the model has no context of them; this is the most likely cause.\nC: 2 messages is well within context window; not the cause.\nD: Claude API doesn't require a vector database for conversation memory; message history is the standard approach.",
-      "source_note": "raw/other/cca-f-questions-2.json id=872 raw-topic=\"Session Persistence\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Anti-pattern: Claude API does not require a `session_id` parameter — the application owns conversation state by passing the messages array each turn.\nB: Correct — the Claude API is stateless; if prior messages are not re-sent in the messages array, the model has no context of them, producing the observed amnesia.\nC: Anti-pattern: 2 messages is far below any Claude model's context window; context-window exhaustion is not the failure mode at this scale.\nD: Anti-pattern: conflates RAG/vector search with conversation memory — the Claude API uses the messages array for turn-to-turn context; there is no required vector database for maintaining conversation state.",
+      "source_note": "raw/other/cca-f-questions-2.json id=872 raw-topic=\"Session Persistence\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true [FIX: named conflate-RAG-with-conversation-memory anti-pattern for D]"
     },
     {
       "id": "mix-873",
@@ -2823,8 +2824,8 @@
         "D": "Add an explicit instruction for the model to ask a clarifying question about experience level whenever the user's expertise isn't immediately clear from their first message."
       },
       "correct": "B",
-      "explanation": "A: Adding more conditionals doesn't address the core issue: the model fails to infer expertise from implicit signals regardless of how many branches exist.\nB: Correct—replace rigid conditionals with a general principle to 'adapt explanation depth to match user expertise' + mirror terminology; teaches the model to infer expertise contextually.\nC: Pre-conversation intake adds friction and doesn't enable the model to detect implicit signals in later turns.\nD: Asking for clarification is a fallback; doesn't improve the model's ability to read implicit signals.",
-      "source_note": "raw/other/cca-f-questions-2.json id=900 raw-topic=\"System Prompt Design\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Anti-pattern: stacking more conditional branches instantiates the exact failure mode the question tests — rigid conditionals cannot enumerate every implicit expertise signal (jargon, rep ranges, phrasing) the model encounters.\nB: Correct — replace rigid conditionals with a general principle (\"adapt explanation depth to match user expertise, mirroring their terminology\") plus a preserved safety-critical conditional; teaches the model to infer expertise contextually.\nC: Anti-pattern: pre-conversation intake adds user friction and does not enable implicit-signal detection in later turns when the user's expertise becomes apparent mid-conversation.\nD: Anti-pattern: always-ask-for-clarification is a fallback that doesn't improve the model's ability to read implicit signals; it shifts the inference burden onto the user.",
+      "source_note": "raw/other/cca-f-questions-2.json id=900 raw-topic=\"System Prompt Design\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true [FIX: explicitly named \"conditional stacking\" as instantiating the anti-pattern being tested]"
     },
     {
       "id": "mix-901",
