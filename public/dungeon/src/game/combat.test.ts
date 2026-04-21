@@ -9,7 +9,7 @@ import type { Question } from '../types';
 
 const dummyQuestion: Question = {
   id: 'q1',
-  source: 'certsafari',
+  source: 'cs',
   domain: 'd1',
   scenario: '1',
   difficulty: 'easy',

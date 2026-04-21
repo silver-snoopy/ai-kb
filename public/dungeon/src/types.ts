@@ -3,7 +3,7 @@
 // QuestionsJson / DomainData pair from the pre-2026-04-20 seed-exam model.
 export interface Question {
   id: string;
-  source: 'certsafari' | 'llm';
+  source: 'cs' | 'llm';
   domain: string;
   scenario: '1' | '2' | '3' | '4' | '5' | '6';
   difficulty: 'easy' | 'medium' | 'hard';
