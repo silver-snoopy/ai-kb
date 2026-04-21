@@ -70,7 +70,7 @@
   "questions": [
     {
       "id": "demo-d1-01",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "easy",
@@ -87,7 +87,7 @@
     },
     {
       "id": "demo-d1-02",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "easy",
@@ -104,7 +104,7 @@
     },
     {
       "id": "demo-d1-03",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "medium",
@@ -121,7 +121,7 @@
     },
     {
       "id": "demo-d1-04",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "medium",
@@ -138,7 +138,7 @@
     },
     {
       "id": "demo-d1-05",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "hard",
@@ -155,7 +155,7 @@
     },
     {
       "id": "demo-d1-06",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "easy",
@@ -172,7 +172,7 @@
     },
     {
       "id": "demo-d1-07",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "medium",
@@ -189,7 +189,7 @@
     },
     {
       "id": "demo-d1-08",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-1-agentic",
       "scenario": "1",
       "difficulty": "hard",
@@ -206,7 +206,7 @@
     },
     {
       "id": "demo-d2-01",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "easy",
@@ -223,7 +223,7 @@
     },
     {
       "id": "demo-d2-02",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "easy",
@@ -240,7 +240,7 @@
     },
     {
       "id": "demo-d2-03",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "medium",
@@ -257,7 +257,7 @@
     },
     {
       "id": "demo-d2-04",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "medium",
@@ -274,7 +274,7 @@
     },
     {
       "id": "demo-d2-05",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "hard",
@@ -291,7 +291,7 @@
     },
     {
       "id": "demo-d2-06",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "easy",
@@ -308,7 +308,7 @@
     },
     {
       "id": "demo-d2-07",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "medium",
@@ -325,7 +325,7 @@
     },
     {
       "id": "demo-d2-08",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-2-claude-code",
       "scenario": "2",
       "difficulty": "hard",
@@ -342,7 +342,7 @@
     },
     {
       "id": "demo-d3-01",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "easy",
@@ -359,7 +359,7 @@
     },
     {
       "id": "demo-d3-02",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "easy",
@@ -376,7 +376,7 @@
     },
     {
       "id": "demo-d3-03",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "medium",
@@ -393,7 +393,7 @@
     },
     {
       "id": "demo-d3-04",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "medium",
@@ -410,7 +410,7 @@
     },
     {
       "id": "demo-d3-05",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "hard",
@@ -427,7 +427,7 @@
     },
     {
       "id": "demo-d3-06",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "easy",
@@ -444,7 +444,7 @@
     },
     {
       "id": "demo-d3-07",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "medium",
@@ -461,7 +461,7 @@
     },
     {
       "id": "demo-d3-08",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-3-prompt-engineering",
       "scenario": "6",
       "difficulty": "hard",
@@ -478,7 +478,7 @@
     },
     {
       "id": "demo-d4-01",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "easy",
@@ -495,7 +495,7 @@
     },
     {
       "id": "demo-d4-02",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "easy",
@@ -512,7 +512,7 @@
     },
     {
       "id": "demo-d4-03",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "medium",
@@ -529,7 +529,7 @@
     },
     {
       "id": "demo-d4-04",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "medium",
@@ -546,7 +546,7 @@
     },
     {
       "id": "demo-d4-05",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "hard",
@@ -563,7 +563,7 @@
     },
     {
       "id": "demo-d4-06",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "easy",
@@ -580,7 +580,7 @@
     },
     {
       "id": "demo-d4-07",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "medium",
@@ -597,7 +597,7 @@
     },
     {
       "id": "demo-d4-08",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "hard",
@@ -614,7 +614,7 @@
     },
     {
       "id": "demo-d5-01",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "easy",
@@ -631,7 +631,7 @@
     },
     {
       "id": "demo-d5-02",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "easy",
@@ -648,7 +648,7 @@
     },
     {
       "id": "demo-d5-03",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "medium",
@@ -665,7 +665,7 @@
     },
     {
       "id": "demo-d5-04",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "medium",
@@ -682,7 +682,7 @@
     },
     {
       "id": "demo-d5-05",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "hard",
@@ -699,7 +699,7 @@
     },
     {
       "id": "demo-d5-06",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "easy",
@@ -716,7 +716,7 @@
     },
     {
       "id": "demo-d5-07",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "medium",
@@ -733,7 +733,7 @@
     },
     {
       "id": "demo-d5-08",
-      "source": "certsafari",
+      "source": "cs",
       "domain": "domain-5-context",
       "scenario": "3",
       "difficulty": "hard",

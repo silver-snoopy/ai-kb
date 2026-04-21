@@ -1,11 +1,11 @@
 // scripts/build-bank.mjs
 //
-// Transforms the raw CertSafari question bank into the unified study-surface
+// Transforms the raw upstream question bank into the unified study-surface
 // bank used by Practice and Dungeon. Produces public/exams/cca-f/bank.json
 // with scenario=null on every question — run scripts/classify-scenarios.mjs
 // afterward to fill in scenario tags via LLM classification.
 //
-// Input:  raw/certsafari/cca-f-questions.json (364 Qs, CertSafari schema)
+// Input:  raw/certsafari/cca-f-questions.json (364 Qs, upstream schema)
 // Output: public/exams/cca-f/bank.json (bank schema; see spec §A)
 //
 // Also loads the six scenario definitions from certs/cca-f/_scenarios.md and
@@ -24,8 +24,8 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const vault = resolve(scriptDir, '..');
 
-// CertSafari domain name → vault slug. Authoritative:
-// C:/Users/D/.claude/projects/c--projects-ai-kb/memory/reference_certsafari_api.md
+// Upstream domain name → vault slug. Authoritative reference lives in the
+// local memory note on the upstream source's API shape.
 const DOMAIN_SLUG = {
   'Domain 1: Agentic Architecture & Orchestration':   'domain-1-agentic',
   'Domain 2: Tool Design & MCP Integration':          'domain-4-mcp',
@@ -74,7 +74,7 @@ const SCENARIO_META = {
 
 function transformQuestion(rawQ) {
   const slug = DOMAIN_SLUG[rawQ.domain];
-  if (!slug) throw new Error(`Unknown CertSafari domain: "${rawQ.domain}"`);
+  if (!slug) throw new Error(`Unknown upstream domain: "${rawQ.domain}"`);
 
   if (!Array.isArray(rawQ.options) || rawQ.options.length !== 4) {
     throw new Error(`Question ${rawQ.id}: expected 4 options, got ${rawQ.options?.length}`);
@@ -96,16 +96,16 @@ function transformQuestion(rawQ) {
     .join('\n');
 
   return {
-    id: `certsafari-${slug}-${rawQ.id}`,
-    source: 'certsafari',
+    id: `cs-${slug}-${rawQ.id}`,
+    source: 'cs',
     domain: slug,
     scenario: null, // filled in by classify-scenarios.mjs
-    difficulty: 'medium', // CertSafari doesn't ship difficulty; default matches prior seed behavior
+    difficulty: 'medium', // upstream doesn't ship difficulty; default matches prior seed behavior
     stem: rawQ.question,
     options: optionsObj,
     correct,
     explanation,
-    source_note: `raw/certsafari/cca-f-questions.json (id=${rawQ.id})`,
+    source_note: `cs id=${rawQ.id}`,
   };
 }
 

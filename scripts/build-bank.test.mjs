@@ -54,14 +54,14 @@ test('scenarios 1-6 are present with required metadata', async () => {
   }
 });
 
-test('CertSafari ID prefix preserved on every imported question', async () => {
+test('cs ID prefix preserved on every imported question', async () => {
   const bank = await loadBank();
-  const certsafari = bank.questions.filter(q => q.source === 'certsafari');
-  assert.ok(certsafari.length > 0, 'expected at least one certsafari-sourced question');
-  for (const q of certsafari) {
+  const cs = bank.questions.filter(q => q.source === 'cs');
+  assert.ok(cs.length > 0, 'expected at least one cs-sourced question');
+  for (const q of cs) {
     assert.ok(
-      q.id.startsWith('certsafari-'),
-      `certsafari question has wrong id prefix: ${q.id}`,
+      q.id.startsWith('cs-'),
+      `cs question has wrong id prefix: ${q.id}`,
     );
   }
 });
@@ -69,9 +69,9 @@ test('CertSafari ID prefix preserved on every imported question', async () => {
 test('ID prefix discriminates source (invariant)', async () => {
   const bank = await loadBank();
   for (const q of bank.questions) {
-    if (q.source === 'certsafari') {
-      assert.ok(q.id.startsWith('certsafari-'),
-        `source=certsafari but id=${q.id}`);
+    if (q.source === 'cs') {
+      assert.ok(q.id.startsWith('cs-'),
+        `source=cs but id=${q.id}`);
     } else if (q.source === 'llm') {
       assert.ok(q.id.startsWith('gen-'),
         `source=llm but id=${q.id}`);

@@ -32,6 +32,18 @@ const DOMAIN_META = {
 // question in a CRLF-committed vault file on Windows.
 const BLOCK_RE = /```question[^\r\n]*\r?\n([\s\S]*?)\r?\n```/g;
 
+// Rewrite upstream source-note strings into a short, UI-safe form that
+// doesn't name the external source. Captures originally carried strings
+// like `raw/certsafari/cca-f-questions.json (certsafari_id=24170)`; the
+// review app renders this field verbatim, so we strip upstream identifiers
+// at build time instead of mutating the immutable capture files.
+function sanitizeSourceNote(note) {
+  if (typeof note !== 'string') return note;
+  const m = note.match(/(?:certsafari_)?id=(\d+)/i);
+  if (m) return `cs id=${m[1]}`;
+  return note.replace(/certsafari/gi, 'cs');
+}
+
 function extractQuestionsFromText(text, sourcePath) {
   const out = [];
   for (const m of text.matchAll(BLOCK_RE)) {
@@ -39,7 +51,13 @@ function extractQuestionsFromText(text, sourcePath) {
       const q = parseYaml(m[1]);
       if (!q || typeof q !== 'object') continue;
       if (!q.id || !q.stem || !q.options || !q.correct) continue;
-      q.source_file = sourcePath;
+      q.source_file = sourcePath.replace(/certsafari/gi, 'cs');
+      if (typeof q.id === 'string' && q.id.startsWith('certsafari-')) {
+        q.id = 'cs-' + q.id.slice('certsafari-'.length);
+      }
+      if (q.source === 'certsafari') q.source = 'cs';
+      if (q['source-note']) q['source-note'] = sanitizeSourceNote(q['source-note']);
+      if (q.source_note) q.source_note = sanitizeSourceNote(q.source_note);
       if (typeof q.options === 'object' && !Array.isArray(q.options)) {
         // normalize options dict {A,B,C,D} to array [A,B,C,D] for UI consumption
         q.options_array = ['A', 'B', 'C', 'D'].map(k => q.options[k]).filter(Boolean);
