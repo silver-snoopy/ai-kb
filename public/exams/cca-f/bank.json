@@ -1,7 +1,7 @@
 {
   "cert_id": "cca-f",
-  "version": 6,
-  "built_at": "2026-04-21T23:07:49.943843Z",
+  "version": 7,
+  "built_at": "2026-04-21T23:42:56.803644Z",
   "total": 561,
   "domains": {
     "domain-1-agentic": {
@@ -6678,7 +6678,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct — Grep searches file contents for patterns from scenario 4. Finds import statements across codebase.\nB: Anti-pattern: Glob finds files by name; would miss @company/auth imports in files not containing 'auth' in name.\nC: Anti-pattern: Read requires knowing specific file paths; reading all files is inefficient.\nD: Anti-pattern: Bash find explores directories by name; does not search file contents for import statements.",
-      "source_note": "raw/shard-1.json id=604 raw-topic=\"Built-in Tool Selection\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=false"
+      "source_note": "raw/shard-1.json id=604 raw-topic=\"Built-in Tool Selection\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=false | v7-audit: verified-ok: code search fits s4/d4"
     },
     {
       "id": "mix-605",
@@ -6949,8 +6949,8 @@
         "D": "Add few-shot examples to your system prompt demonstrating how to distinguish network errors from syntax errors and handle each case appropriately."
       },
       "correct": "B",
-      "explanation": "A: Anti-pattern: retryable flag helps but doesn't implement the distinction; automatic retry is better.\nB: Correct — differentiate errors from scenario 4. Automatic retry for transient timeouts; immediate return for syntax errors.\nC: Anti-pattern: uniform backoff for all errors wastes retry attempts on syntax errors that will never succeed.\nD: Anti-pattern: prompt-based handling is probabilistic; structural tool design is deterministic.",
-      "source_note": "raw/shard-1.json id=643 raw-topic=\"Tool Error Handling\" raw-scenarioId=12 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Delegates retry decision to the agent via structured metadata. Defensible pattern (agent gets visibility into error types) but not what exam guide Task 2.2 prescribes for transient-vs-permanent routing.\nB: Correct per Task 2.2 — \"Implementing local error recovery within subagents for transient failures, propagating to the coordinator only errors that cannot be resolved locally.\" Network timeouts that succeed on retry ARE transient; syntax errors that never succeed ARE permanent. Internal retry for transient + immediate propagation of permanent with actionable details matches the prescribed split.\nC: Uniform retry for all errors wastes turns retrying permanent syntax errors. Generic \"service unavailable\" masks the actual failure type from the agent.\nD: Few-shot prompt guidance is probabilistic; the Task 2.2 pattern is structural (tool-level), not prompt-level. The agent should receive pre-classified errors, not classify them from prompt examples.",
+      "source_note": "raw/shard-1.json id=643 raw-topic=\"Tool Error Handling\" raw-scenarioId=12 topic-domain-agree=true scenario-alias-agree=true | v7-audit: kept B, refined explanation"
     },
     {
       "id": "mix-644",
@@ -7050,9 +7050,9 @@
         "C": "Start fresh with a detailed prompt specifying all formatting requirements upfront.",
         "D": "Show Claude an example of a correctly formatted report and ask it to match that output, rather than listing the specific technical issues."
       },
-      "correct": "A",
-      "explanation": "A: Correct — sequential iterative refinement from scenario 2. Test each change in isolation before moving to next.\nB: Anti-pattern: providing all issues at once creates interaction uncertainty; harder to isolate root cause.\nC: Anti-pattern: starting fresh loses debugging context accumulated from first implementation.\nD: Anti-pattern: showing examples without specifying technical issues leaves Claude to infer requirements.",
-      "source_note": "raw/shard-1.json id=653 raw-topic=\"Iterative Refinement\" raw-scenarioId=11 topic-domain-agree=true scenario-alias-agree=true"
+      "correct": "B",
+      "explanation": "A: Anti-pattern for this case. Sequential iteration applies to INDEPENDENT issues; stem explicitly states these issues interact (column widths affect date rendering, page breaks depend on content). Sequential fixes repeatedly invalidate each other — testing A-alone doesn't confirm it works once B and C change.\nB: Correct. Per CCA-F exam guide Task 3.5: \"Addressing multiple interacting issues in a single detailed message when fixes interact, versus sequential iteration for independent issues.\" Because the stem confirms interaction (column widths <-> dates <-> page breaks), a single detailed message with full specifications lets Claude reason about the issues jointly rather than re-breaking prior fixes.\nC: Anti-pattern. Starting fresh discards the already-correct database query logic and the debugging context from the first implementation. Throws away working code along with the broken rendering.\nD: Anti-pattern. Example-matching without specifying the technical issues leaves Claude inferring requirements — likely misses exact column measurements, date formats, and page-break rules. Substrate calls for explicit specifications, not implicit matching.",
+      "source_note": "raw/shard-1.json id=653 raw-topic=\"Iterative Refinement\" raw-scenarioId=11 topic-domain-agree=true scenario-alias-agree=true | v7-audit: re-keyed A->B per exam-guide Task 3.5 (interacting issues use single message)"
     },
     {
       "id": "mix-655",
@@ -7075,7 +7075,7 @@
       "id": "mix-656",
       "source": "mix",
       "domain": "domain-4-mcp",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "Engineers frequently ask the agent to cross-reference code changes with Jira tickets during reviews—checking ticket descriptions, acceptance criteria, and recent comments. This currently requires manually copy-pasting content into conversations. The team wants the agent to access this standard Jira ticket data directly. What's the most effective approach?",
       "options": {
@@ -7086,7 +7086,7 @@
       },
       "correct": "B",
       "explanation": "A: Anti-pattern: Bash with curl requires inline auth handling and JSON parsing; not maintainable.\nB: Correct — existing Jira MCP server from scenario 4. Uses standard tool interfaces; no custom work.\nC: Anti-pattern: custom MCP server adds maintenance burden; better to use community server first.\nD: Anti-pattern: exporting to markdown adds sync burden; MCP server is more reliable and current.",
-      "source_note": "raw/shard-1.json id=656 raw-topic=\"MCP Server Integration\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=false"
+      "source_note": "raw/shard-1.json id=656 raw-topic=\"MCP Server Integration\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=false | v7-audit: retagged scenario 1->4"
     },
     {
       "id": "mix-658",
@@ -7103,7 +7103,7 @@
       },
       "correct": "B",
       "explanation": "A: Anti-pattern: Batch API has up-to-24h latency; cannot meet 30-minute SLA for urgent reports.\nB: Correct — route by urgency from scenario 5/6. Standard reports → Batch (50% savings). Urgent → Messages API.\nC: Anti-pattern: real-time API for all documents wastes cost on non-urgent standard reports.\nD: Anti-pattern: hourly batches with manual flagging adds latency; better to separate pipelines. (Confidence 75%)",
-      "source_note": "raw/shard-1.json id=658 raw-topic=\"Batch Processing\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=true"
+      "source_note": "raw/shard-1.json id=658 raw-topic=\"Batch Processing\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=true | v7-audit: verified-ok: extraction routing fits s6/d5"
     },
     {
       "id": "mix-659",
@@ -7137,13 +7137,13 @@
       },
       "correct": "A",
       "explanation": "A: Correct — retained story bible at context start from scenario 1. Persistent facts kept verbatim; trim only brainstorming.\nB: Anti-pattern: sliding window loses early story elements; contradicts 'narrative consistency' requirement.\nC: Anti-pattern: summarization loses specifics (character traits, world rules); violates immutable fact requirement.\nD: Anti-pattern: vector retrieval is lossy; semantic matching may drop important but infrequently-mentioned facts.",
-      "source_note": "raw/shard-1.json id=662 raw-topic=\"Context Window Optimization\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true"
+      "source_note": "raw/shard-1.json id=662 raw-topic=\"Context Window Optimization\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true | v7-audit: verified-ok: creative-writing surface, long-convo pattern matches s1"
     },
     {
       "id": "mix-668",
       "source": "mix",
       "domain": "domain-5-context",
-      "scenario": "1",
+      "scenario": "6",
       "difficulty": "medium",
       "stem": "After deployment, you find that 12% of extractions contain semantic errors that pass JSON schema validation (e.g., a duration like \"30 minutes\" incorrectly placed in an ingredient quantity field). Human reviewers have capacity to check only 20% of extractions. Which approach most effectively allocates reviewer attention?",
       "options": {
@@ -7154,7 +7154,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct — confidence scores with calibration from scenario 6. Field-level scores enable thresholded review allocation.\nB: Anti-pattern: layout anomalies are weak proxy; confidence scores are more precise predictor.\nC: Anti-pattern: empty/unfound fields are flag worthy, but not the best use of limited 20% review budget.\nD: Anti-pattern: random sampling wastes reviews on likely-correct items; strategic allocation is better.",
-      "source_note": "raw/shard-1.json id=668 raw-topic=\"Human Review Workflows\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=false"
+      "source_note": "raw/shard-1.json id=668 raw-topic=\"Human Review Workflows\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=false | v7-audit: retagged scenario 1->6"
     },
     {
       "id": "mix-669",
@@ -7171,7 +7171,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct — few-shot examples from scenario 6. Concrete examples of difficulty levels are more impactful than prose.\nB: Anti-pattern: restructuring placement helps but doesn't address the core attention-recency bias.\nC: Anti-pattern: post-response evaluation adds latency and cost; proactive design is better.\nD: Anti-pattern: periodic reminders are band-aid; few-shot examples are more durable and direct.",
-      "source_note": "raw/shard-1.json id=669 raw-topic=\"System Prompt Design\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=false"
+      "source_note": "raw/shard-1.json id=669 raw-topic=\"System Prompt Design\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=false | v7-audit: verified-ok: conversational tutor; s2 is least-bad fit for d3"
     },
     {
       "id": "mix-673",
@@ -7238,8 +7238,8 @@
         "D": "Use semantic embedding to index the full conversation history and retrieve only relevant past exchanges for each user query, replacing the linear conversation format with retrieved chunks."
       },
       "correct": "C",
-      "explanation": "A: Anti-pattern: rolling window truncation loses accumulated insights; users explicitly ask about prior conclusions that vanish.\nB: Anti-pattern: XML tags mark conclusions but do not compress context; 85k tokens still exceeds limits and loses recent exchanges.\nC: Correct — progressive summarization explicitly extracts key conclusions, decisions, and recurring themes from older blocks, replacing them with concise summaries while keeping recent exchanges verbatim.\nD: Anti-pattern: semantic embedding retrieval breaks linear narrative flow users rely on; cannot guarantee all relevant context gets retrieved.",
-      "source_note": "raw/other/cca-f-questions-2.json id=678 raw-topic=\"Conversation Memory Strategies\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Rolling window truncation discards the group's conclusions from earlier sessions entirely — exactly the information the stem says users are asking about (\"what did we conclude about the theme of isolation\"). Loses the data.\nB: XML tags mark significant conclusions within the existing history but don't reduce the 85K-token load — doesn't address the scaling pressure the stem describes.\nC: Correct. While the phrasing \"progressive summarization\" can be a D5 anti-pattern when it compresses lossy, option C's explicit behavior — \"concise summaries that explicitly extract key conclusions, decisions\" — is fact-block extraction: preserving the specifics (conclusions, decisions) verbatim while compressing narrative connective tissue. Fact-block extraction is the D5-endorsed pattern for long-running conversations where specific historical claims must be retrievable.\nD: Semantic embedding retrieval handles pure-lookup well but loses narrative flow — the stem explicitly says \"discussions often build on previous meetings' conclusions, so maintaining narrative flow is important.\" RAG retrieves relevant chunks but breaks chronological continuity between sessions.",
+      "source_note": "raw/other/cca-f-questions-2.json id=678 raw-topic=\"Conversation Memory Strategies\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true | v7-audit: kept C, refined explanation"
     },
     {
       "id": "mix-679",
@@ -7296,7 +7296,7 @@
       "id": "mix-684",
       "source": "mix",
       "domain": "domain-4-mcp",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "After integrating a local MCP server providing code analysis tools (`analyze_dependencies`, `find_dead_code`, `calculate_complexity`), you verify the server is healthy and tools appear in the `tools/list` response. However, you observe that the agent consistently uses Grep to search for import statements instead of calling `analyze_dependencies`—even when users explicitly ask about \"code dependencies.\"\n\nExamining tool definitions reveals:\n- MCP: `analyze_dependencies` — \"Analyzes dependency graph\"  \n- Built-in: Grep — \"Search file contents for a pattern using regular expressions. Returns matching lines with line numbers and surrounding context.\"\n\nWhat's the most effective approach to improve the agent's selection of MCP tools?",
       "options": {
@@ -7307,7 +7307,7 @@
       },
       "correct": "B",
       "explanation": "A: Anti-pattern: system prompt routing is probabilistic; agent may ignore it and still use Grep when feeling convenient.\nB: Correct — detailed MCP descriptions (dependency graph, transitive deps, cycles) clarify capability scope vs. Grep, making semantic overlap obvious.\nC: Anti-pattern: splitting into micro-tools increases tool count and ambiguity; root cause is unclear descriptions, not tool granularity.\nD: Anti-pattern: removing Grep removes a valid fallback tool; issue is selection, not availability.",
-      "source_note": "raw/other/cca-f-questions-2.json id=684 raw-topic=\"MCP Server Integration\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=true"
+      "source_note": "raw/other/cca-f-questions-2.json id=684 raw-topic=\"MCP Server Integration\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=true | v7-audit: retagged scenario 1->4"
     },
     {
       "id": "mix-685",
@@ -7324,7 +7324,7 @@
       },
       "correct": "B",
       "explanation": "A: Anti-pattern: assuming 'focus tracks' means play now risks misalignment; no validation of user intent.\nB: Correct — one clarifying question (play or configure?) disambiguates with minimal friction before taking action.\nC: Anti-pattern: jumping into preference configuration assumes configuration intent; may be wrong.\nD: Anti-pattern: creating a playlist preempts user choice; may not be what they wanted.",
-      "source_note": "raw/other/cca-f-questions-2.json id=685 raw-topic=\"User Intent Clarification\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true [remapped-domain: domain-3→domain-5 to satisfy scenario-1 allowed-domains constraint]"
+      "source_note": "raw/other/cca-f-questions-2.json id=685 raw-topic=\"User Intent Clarification\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true [remapped-domain: domain-3→domain-5 to satisfy scenario-1 allowed-domains constraint] | v7-audit: verified-ok: music reco surface, conversational-context pattern matches s1"
     },
     {
       "id": "mix-687",
@@ -7390,9 +7390,9 @@
         "C": "Enable prompt caching and continue sending the complete conversation history, using cached prefixes to reduce per-request costs while preserving all context.",
         "D": "Build a retrieval system that stores all conversation turns and uses semantic search to pull in relevant historical context only when the current query appears to reference past information."
       },
-      "correct": "B",
-      "explanation": "A: Anti-pattern: sliding window loses context users reference; asking them to re-state reduces UX and breaks continuity.\nB: Correct — progressive summarization compresses older turns, maintaining full history in condensed form while keeping recent 5-6 verbatim for coherence.\nC: Anti-pattern: prompt caching does not reduce response latency or quality; overhead from large context still applies.\nD: Anti-pattern: semantic search changes conversation semantics; retrieval may miss implicit context or recent turns users expect.",
-      "source_note": "raw/other/cca-f-questions-2.json id=692 raw-topic=\"Context Window Optimization\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true"
+      "correct": "A",
+      "explanation": "A: Correct. The stem provides exact trigger conditions for sliding window: \"94% of user messages only reference the previous 3-5 exchanges\" (most traffic fits a short window) and \"the 6% referencing earlier context typically ask about information the user could easily re-state\" (graceful acknowledgment works for the minority). A implements both: keep last 8-10 turns + acknowledge limitation when users reference beyond. Matches the D5 pattern for conversational agents where re-statement is cheap.\nB: Progressive summarization is a D5 CRITICAL anti-pattern: \"Each pass loses names, IDs, dates, amounts.\" The stem doesn't justify this — if users could \"easily re-state\" missing context, there's no reason to introduce summarization-induced specificity loss. B solves a problem the stem says doesn't exist.\nC: Prompt caching reduces per-request cost but doesn't reduce latency tied to context size — the main agent still processes 50K tokens per turn. Misses the actual bottleneck (context window size, not transfer cost).\nD: Semantic retrieval over conversation history is over-engineered for the 94% case (recent-turn traffic) and loses chronological flow. The stem's own framing indicates a simpler pattern suffices.",
+      "source_note": "raw/other/cca-f-questions-2.json id=692 raw-topic=\"Context Window Optimization\" raw-scenarioId=18 topic-domain-agree=true scenario-alias-agree=true | v7-audit: flipped B->A"
     },
     {
       "id": "mix-695",
@@ -7771,8 +7771,8 @@
     {
       "id": "mix-740",
       "source": "mix",
-      "domain": "domain-3-prompt-engineering",
-      "scenario": "6",
+      "domain": "domain-1-agentic",
+      "scenario": "3",
       "difficulty": "medium",
       "stem": "The synthesis agent completes its initial pass but flags that three key research questions remain unanswered because the web search and document analysis agents didn't find relevant information on those specific subtopics. The coordinator currently proceeds directly to report generation, producing reports with incomplete coverage. What change would most effectively improve research completeness?",
       "options": {
@@ -7783,7 +7783,7 @@
       },
       "correct": "A",
       "explanation": "A: Coordinator evaluates synthesis gaps, re-delegates with targeted queries, re-invokes synthesis — iterative refinement closes coverage gaps in research.\nB: Direct synthesis agent search tools bypass coordination; synthesis loses source provenance and cannot reliable attribute findings.\nC: Documentation does not fill gaps; users still receive incomplete research without actionable closure.\nD: Broader initial queries increase noise; focused re-queries after gap detection are more efficient.",
-      "source_note": "raw/other/cca-f-questions-2.json id=740 raw-topic=\"Iterative Refinement\" raw-scenarioId=3 topic-domain-agree=false scenario-alias-agree=false"
+      "source_note": "raw/other/cca-f-questions-2.json id=740 raw-topic=\"Iterative Refinement\" raw-scenarioId=3 topic-domain-agree=false scenario-alias-agree=false | v7-audit: retagged scenario 6->3, domain domain-3-prompt-engineering->domain-1-agentic"
     },
     {
       "id": "mix-741",
@@ -7823,7 +7823,7 @@
       "id": "mix-743",
       "source": "mix",
       "domain": "domain-4-mcp",
-      "scenario": "4",
+      "scenario": "3",
       "difficulty": "easy",
       "stem": "You've configured the system so that all four subagents have access to the complete set of 18 tools. During testing, agents frequently call tools outside their specialization—the synthesis agent attempts web searches, and the report generator tries to analyze documents. What is the primary cause of this poor tool selection behavior?",
       "options": {
@@ -7834,7 +7834,7 @@
       },
       "correct": "A",
       "explanation": "A: Tool selection accuracy degrades rapidly above 4–5 tools; at 18 tools, model cannot reliably choose correct function.\nB: Context window is secondary concern; tool selection accuracy at high counts is the root failure mode.\nC: Coordinator routing is not the issue; high tool count itself causes selection errors regardless of routing design.\nD: Role descriptions do not override model's tool selection accuracy limits; tool count reduction is the core fix.",
-      "source_note": "raw/other/cca-f-questions-2.json id=743 raw-topic=\"Tool Distribution\" raw-scenarioId=3 topic-domain-agree=false scenario-alias-agree=false"
+      "source_note": "raw/other/cca-f-questions-2.json id=743 raw-topic=\"Tool Distribution\" raw-scenarioId=3 topic-domain-agree=false scenario-alias-agree=false | v7-audit: retagged scenario 4->3"
     },
     {
       "id": "mix-746",
@@ -7891,7 +7891,7 @@
       "id": "mix-752",
       "source": "mix",
       "domain": "domain-4-mcp",
-      "scenario": "4",
+      "scenario": "3",
       "difficulty": "medium",
       "stem": "The document analysis agent has a single `analyze_document` tool that takes a document and a free-text instruction parameter. During evaluation, requests like \"extract the key financial metrics\" often return narrative summaries, while \"summarize the methodology\" sometimes returns raw data tables. The synthesis agent reports that 35% of analysis results require re-requests with clarified instructions. What's the most effective way to improve reliability?",
       "options": {
@@ -7902,7 +7902,7 @@
       },
       "correct": "A",
       "explanation": "A: Purpose-specific tools (extract_data_points, summarize_content, verify_claim_against_source) each define clear contracts — eliminates instruction ambiguity.\nB: Enum parameter helps but free-text instruction parameter still allows wide interpretation variance; tool splitting is more reliable.\nC: Detailed examples reduce variance but do not eliminate it; splitting tools is the definitive solution.\nD: Pre-classification adds a step; specific tool names force clarity without intermediaries.",
-      "source_note": "raw/other/cca-f-questions-2.json id=752 raw-topic=\"Tool Distribution\" raw-scenarioId=3 topic-domain-agree=false scenario-alias-agree=false"
+      "source_note": "raw/other/cca-f-questions-2.json id=752 raw-topic=\"Tool Distribution\" raw-scenarioId=3 topic-domain-agree=false scenario-alias-agree=false | v7-audit: retagged scenario 4->3"
     },
     {
       "id": "mix-754",
@@ -7935,8 +7935,8 @@
         "D": "Have the synthesis agent attach confidence scores to each section and flag areas with insufficient coverage for manual review."
       },
       "correct": "A",
-      "explanation": "A: Analysis agent reporting specific gaps to coordinator triggers targeted re-search with gap-informed queries — iterative closure.\nB: Pre-planning adds overhead and may miss emergent gaps discovered during analysis.\nC: Coordinator-driven re-invocation (same as A) is reasonable; gap detection at coordinator level works but agent-level reporting is clearer.\nD: Confidence scores do not drive action; structural gap closure does.",
-      "source_note": "raw/other/cca-f-questions-2.json id=755 raw-topic=\"Multi-Agent Orchestration\" raw-scenarioId=3 topic-domain-agree=true scenario-alias-agree=true"
+      "explanation": "A: Correct. The stem states \"the analysis agent frequently identifies gaps\" — the agent already knows about gaps. A has the agent EXPLICITLY SIGNAL gaps to the coordinator, which then triggers targeted searches. Matches the D1/D5 pattern of explicit structured signals over inference. The iterative refinement loop converges on sufficient coverage.\nB: Upfront task decomposition is useful but doesn't address post-search gaps. Pre-decomposition assumes you know all the needed subtopics in advance; stem shows gaps surface only during analysis.\nC: Close variant of A — coordinator reviews output for gap indicators and re-invokes search. Works, but forces the coordinator to infer from output text what the analysis agent already knows explicitly. A is cleaner because the agent-as-origin-of-signal avoids inference loss.\nD: Synthesis-time confidence scores + manual review defer the fix to humans rather than closing the automated loop. The stem is about architectural fix, not escalation.",
+      "source_note": "raw/other/cca-f-questions-2.json id=755 raw-topic=\"Multi-Agent Orchestration\" raw-scenarioId=3 topic-domain-agree=true scenario-alias-agree=true | v7-audit: kept A, refined explanation"
     },
     {
       "id": "mix-756",
@@ -8299,7 +8299,7 @@
       "id": "mix-784",
       "source": "mix",
       "domain": "domain-5-context",
-      "scenario": "6",
+      "scenario": "2",
       "difficulty": "medium",
       "stem": "An engineer asks your agent to identify untested code paths in a legacy payment processing module spanning 45 files. After reading the first 8 source files, the agent's responses are becoming noticeably less accurate—it's forgetting previously discussed code patterns and hasn't yet located all test files or traced critical payment flows. What's the most effective approach to complete this investigation?",
       "options": {
@@ -8308,9 +8308,9 @@
         "C": "Switch to using Grep to search for specific function names instead of reading full files, reducing the content loaded into context for remaining exploration.",
         "D": "Document all current findings in a summary report, clear context completely, then use that report as the sole reference for continuing the investigation."
       },
-      "correct": "B",
-      "explanation": "A: Spawning subagents incurs overhead and delay per request. Doesn't address the root cause: accumulated context degradation in the main agent's session.\nB: CORRECT: Scratchpad files persist across /clear operations, preserving key findings without reloading 45 files. Solves context pressure without spawning overhead.\nC: Grep reduces latency but sacrifices deep understanding of code structure and patterns. Inefficient for understanding legacy modules comprehensively.\nD: Summarization loses critical specifics (file names, function signatures, edge cases). Creates false confidence with incomplete understanding.",
-      "source_note": "raw/other/cca-f-questions-2.json id=784 raw-topic=\"Context Management for Large Codebases\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "correct": "A",
+      "explanation": "A: Correct. Near-verbatim match to CCA-F exam guide Task 5.4: \"Spawning subagents to investigate specific questions (e.g., 'find all test files,' 'trace refund flow dependencies') while the main agent preserves high-level coordination.\" Stem's specific framing — test-file location and payment-flow tracing — matches the substrate's exact examples. Subagents address context degradation by distributing investigation across isolated contexts while the main agent coordinates.\nB: Anti-pattern for this case. Scratchpad IS a Task 5.4 skill but applies when you're in a single long session needing memory across /clear. The stem describes distributed investigation across 45 files where the main agent is already degrading; subagent distribution is the prescribed pattern here, not scratchpad memoization.\nC: Grep sacrifices code-structure understanding for legacy modules where test files and dependencies require surrounding context to interpret. Reduces latency but at the cost of investigation depth.\nD: Summarization loses critical specifics (file names, function signatures, edge cases) — classic D5 anti-pattern. Creates false confidence with incomplete understanding.",
+      "source_note": "raw/other/cca-f-questions-2.json id=784 raw-topic=\"Context Management for Large Codebases\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: re-keyed B->A per exam-guide Task 5.4 (subagent distribution for multi-file investigation) | v7-audit: retagged scenario 6->2 (codebase exploration fits Code Gen)"
     },
     {
       "id": "mix-785",
@@ -8333,7 +8333,7 @@
       "id": "mix-786",
       "source": "mix",
       "domain": "domain-4-mcp",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "Your `post_content` tool requires user confirmation before publishing. The current workflow displays \"Ready to post to social media. Confirm?\" and analytics show users approve 98% of requests within 2 seconds. Post-mortems reveal incidents where posts went to wrong accounts, were scheduled for wrong times, or contained errors—all confirmed by users without catching the mistakes. How should you redesign the confirmation workflow?",
       "options": {
@@ -8344,7 +8344,7 @@
       },
       "correct": "B",
       "explanation": "A: Typing confirmation adds friction without revealing problem. Users will type the phrase just as fast as clicking, missing errors.\nB: CORRECT: Shows concrete post details (text, account, time, platform). Forces visual verification, catching errors users previously missed.\nC: Waiting period alone does not reveal content. Users ignore delays and approve anyway without reviewing.\nD: Auto-approval for routine posts bypasses the root cause: incomplete information in confirmation UI. No circuit-breaker for edge cases.",
-      "source_note": "raw/other/cca-f-questions-2.json id=786 raw-topic=\"Human-in-the-Loop Safeguards\" raw-scenarioId=12 topic-domain-agree=True scenario-alias-agree=True"
+      "source_note": "raw/other/cca-f-questions-2.json id=786 raw-topic=\"Human-in-the-Loop Safeguards\" raw-scenarioId=12 topic-domain-agree=True scenario-alias-agree=True | v7-audit: retagged scenario 1->4"
     },
     {
       "id": "mix-787",
@@ -8418,7 +8418,7 @@
       "id": "mix-791",
       "source": "mix",
       "domain": "domain-5-context",
-      "scenario": "6",
+      "scenario": "2",
       "difficulty": "medium",
       "stem": "During testing, you observe that in extended exploration sessions (30+ minutes), the agent starts giving inconsistent answers about code structure it discussed earlier. Engineers report having to repeat context about modules they've already explored. What's the most effective approach to address this?",
       "options": {
@@ -8429,7 +8429,7 @@
       },
       "correct": "B",
       "explanation": "A: Higher model tier does not address inconsistency. Accumulated context over 30+ minutes still causes degradation at any tier.\nB: CORRECT: Scratchpad file persists key findings external to context window. Agent references file for consistency across long sessions.\nC: Clearing context every 15 minutes forces complete re-exploration. Wastes prior investigation repeatedly.\nD: Pre-summarized representations lose exploration flexibility. Agent cannot ask follow-up questions specific to dynamic discoveries.",
-      "source_note": "raw/other/cca-f-questions-2.json id=791 raw-topic=\"Context Management for Large Codebases\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "source_note": "raw/other/cca-f-questions-2.json id=791 raw-topic=\"Context Management for Large Codebases\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: retagged scenario 6->2"
     },
     {
       "id": "mix-793",
@@ -8486,7 +8486,7 @@
       "id": "mix-798",
       "source": "mix",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "4",
       "difficulty": "easy",
       "stem": "An engineer's exploration subagent spent 30 minutes analyzing a legacy payment system, reading 47 files and documenting data flows. The session was interrupted when the engineer's connection dropped. While away, a teammate merged a PR that renamed two utility functions. The engineer wants to continue the same exploration. What's the most effective approach?",
       "options": {
@@ -8497,13 +8497,13 @@
       },
       "correct": "A",
       "explanation": "A: CORRECT: Resume preserves architectural understanding from prior 30 minutes. Inform agent of renamed functions for targeted adjustments.\nB: Fresh subagent duplicates 30 minutes of prior work. Inefficient and loses high-level understanding already built.\nC: Withholding changes allows agent to reference renamed functions by old names. Causes false conclusions about current codebase.\nD: Fresh subagent + prior transcript in prompt is awkward. Subagent hasn't 'read' files yet; transcript references files it hasn't seen.",
-      "source_note": "raw/other/cca-f-questions-2.json id=798 raw-topic=\"Session Resumption\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "source_note": "raw/other/cca-f-questions-2.json id=798 raw-topic=\"Session Resumption\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: retagged scenario 3->4"
     },
     {
       "id": "mix-799",
       "source": "mix",
       "domain": "domain-5-context",
-      "scenario": "6",
+      "scenario": "2",
       "difficulty": "hard",
       "stem": "Your agent has spent 25 minutes exploring a game engine's rendering subsystem—reading shader code, buffer management, and frame synchronization logic. An engineer now asks it to understand how the physics engine integrates with rendering for collision debug overlays. You notice recent responses reference \"typical rendering patterns\" rather than the specific `VulkanPipeline` and `FrameGraph` classes it discovered earlier.\n\nWhat's the most effective approach?",
       "options": {
@@ -8514,7 +8514,7 @@
       },
       "correct": "B",
       "explanation": "A: Continuing with targeted prompts still operates with degraded rendering context. Agent references 'typical patterns' instead of specific classes discovered.\nB: CORRECT: Summarize rendering findings, spawn physics subagent with that summary. Main conversation keeps rendering context; physics explores independently.\nC: /clear loses specific VulkanPipeline and FrameGraph knowledge. Forced to re-read and start fresh on physics integration.\nD: Spawning independent physics agent loses rendering context in that session. Manual synthesis afterwards is ad-hoc and error-prone.",
-      "source_note": "raw/other/cca-f-questions-2.json id=799 raw-topic=\"Context Management for Large Codebases\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "source_note": "raw/other/cca-f-questions-2.json id=799 raw-topic=\"Context Management for Large Codebases\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: retagged scenario 6->2"
     },
     {
       "id": "mix-801",
@@ -8563,15 +8563,15 @@
         "C": "Read any CLAUDE.md and README files first, then ask the engineer to specify which 10-15 files are most important for understanding the auth system.",
         "D": "Launch parallel subagents to explore different services simultaneously, then synthesize their findings into an architectural overview."
       },
-      "correct": "C",
-      "explanation": "A: Reading all 800+ auth-related files is overwhelming and wastes context. Unfocused exploration without guidance.\nB: Grep finds entry points, then follow imports manually. Requires multiple passes and agent-driven navigation.\nC: CORRECT: Read CLAUDE.md/README first to orient, then ask engineer for 10-15 key files. Leverages human domain knowledge, focuses exploration.\nD: Parallel subagents duplicate effort and merge findings ad-hoc. Less efficient than human-guided sequential exploration.",
-      "source_note": "raw/other/cca-f-questions-2.json id=805 raw-topic=\"Codebase Exploration Patterns\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "correct": "D",
+      "explanation": "A: Lexical search on \"auth\"/\"login\"/\"permission\"/\"token\" returns dozens of false positives and misses anything named non-obviously. Also loads full files into context — exactly the anti-pattern for 800+ file exploration.\nB: Grep + follow-imports incrementally is a viable pattern but serial — the main agent still processes all the resulting context. Runs out of window before mapping services thoroughly.\nC: Anti-pattern. The engineer \"just joined the team\" per the stem — they DON'T yet know which files define the auth system. Asking the newbie to specify priority files inverts the task the agent was asked to help with.\nD: Correct. Near-verbatim match to CCA-F exam guide Task 5.4: \"Launching parallel subagents to investigate specific questions (e.g., 'find all test files,' 'trace refund flow dependencies') while the main agent preserves high-level coordination.\" Stem's framing — 800+ files across multiple services — is the canonical \"architectural exploration\" case Task 5.4 prescribes subagents for. Main agent synthesizes per-service findings into the architecture map.",
+      "source_note": "raw/other/cca-f-questions-2.json id=805 raw-topic=\"Codebase Exploration Patterns\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: flipped C->D"
     },
     {
       "id": "mix-809",
       "source": "mix",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "An engineer used the agent yesterday to analyze a legacy authentication module, identifying two distinct refactoring approaches: extracting a microservice versus refactoring in-place. Today, they want to explore both approaches in depth—having the agent propose specific code changes for each—before deciding which to implement. What's the most effective way to structure this exploration?",
       "options": {
@@ -8582,7 +8582,7 @@
       },
       "correct": "A",
       "explanation": "A: CORRECT: fork_session creates two independent branches from prior analysis. Explore both approaches with prior context intact, then compare.\nB: Sequential exploration in same thread causes first approach's context to influence second. Confirmation bias toward first approach discovered.\nC: Fresh sessions require manual summary recreation. Loses structured continuity and forces redundant rewriting.\nD: Starting new session for second approach loses first approach's context. Requires manual context swapping between terminals.",
-      "source_note": "raw/other/cca-f-questions-2.json id=809 raw-topic=\"Session Resumption\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "source_note": "raw/other/cca-f-questions-2.json id=809 raw-topic=\"Session Resumption\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: retagged scenario 3->4"
     },
     {
       "id": "mix-810",
@@ -8622,7 +8622,7 @@
       "id": "mix-820",
       "source": "mix",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "4",
       "difficulty": "hard",
       "stem": "Your agent has analyzed a complex service module—reading 23 source files, tracing request flows, and identifying error handling patterns. A developer wants to compare two testing strategies before committing to one: end-to-end tests with mocked external services vs. snapshot tests capturing expected outputs. They need to independently develop both approaches to evaluate trade-offs. How should you manage the sessions?",
       "options": {
@@ -8633,7 +8633,7 @@
       },
       "correct": "A",
       "explanation": "A: CORRECT: fork_session from 23-file analysis creates separate branches for end-to-end vs snapshot strategies. Each evolves independently; compare after.\nB: Sequential exploration in original session means first strategy's context influences second. Biases second strategy evaluation.\nC: Fresh sessions lose 23-file architecture understanding. Forces re-reading before proposing test strategies.\nD: Exporting findings to file then creating sessions is awkward. Loses interactive context that makes strategy development faster.",
-      "source_note": "raw/other/cca-f-questions-2.json id=820 raw-topic=\"Session Resumption\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True"
+      "source_note": "raw/other/cca-f-questions-2.json id=820 raw-topic=\"Session Resumption\" raw-scenarioId=13 topic-domain-agree=True scenario-alias-agree=True | v7-audit: retagged scenario 3->4"
     },
     {
       "id": "mix-837",
@@ -9296,7 +9296,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct—explicit instructions to prefer detailed specs table + keeping single schema allows downstream systems to apply the historical accuracy precedence rule.\nB: Array field is over-engineered; adds complexity without corresponding benefit if a preference rule exists.\nC: Flagging all conflicts for manual review is expensive; historical data shows specs table is 90% reliable.\nD: Schema validation that rejects conflicts doesn't solve the problem; forces rework instead of passing through with guidance.",
-      "source_note": "raw/other/cca-f-questions-2.json id=893 raw-topic=\"Extraction Accuracy Patterns\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=true"
+      "source_note": "raw/other/cca-f-questions-2.json id=893 raw-topic=\"Extraction Accuracy Patterns\" raw-scenarioId=17 topic-domain-agree=true scenario-alias-agree=true | v7-audit: verified-ok: answer-correctness judgment call, A defensible per 90% precedence"
     },
     {
       "id": "mix-894",
