@@ -1,8 +1,8 @@
 {
   "cert_id": "cca-f",
-  "version": 2,
-  "built_at": "2026-04-21T19:03:19.373712+00:00",
-  "total": 529,
+  "version": 6,
+  "built_at": "2026-04-21T23:07:49.943843Z",
+  "total": 561,
   "domains": {
     "domain-1-agentic": {
       "num": 1,
@@ -48,19 +48,23 @@
       "name": "Code Generation with Claude Code",
       "domains": [
         "domain-2-claude-code",
-        "domain-3-prompt-engineering"
+        "domain-3-prompt-engineering",
+        "domain-5-context"
       ]
     },
     "3": {
       "name": "Multi-Agent Research System",
       "domains": [
         "domain-1-agentic",
+        "domain-4-mcp",
         "domain-5-context"
       ]
     },
     "4": {
       "name": "Developer Productivity with Claude",
       "domains": [
+        "domain-1-agentic",
+        "domain-2-claude-code",
         "domain-4-mcp"
       ]
     },
@@ -6269,6 +6273,346 @@
       "source_note": "cs id=32809"
     },
     {
+      "id": "gen-0004f92a-a1d7-48fa-b309-1c35317d1a03",
+      "source": "llm",
+      "domain": "domain-1-agentic",
+      "scenario": "3",
+      "difficulty": "hard",
+      "stem": "Scenario: Multi-Agent Research System.\n\nYour research agent extracts paper metadata and then looks up each paper's DOI via lookup_citations. In production, ~5% of runs call lookup_citations FIRST (before extract_metadata), passing an empty/partial metadata blob that causes the lookup to fail or return wrong citations. The system prompt already says \"Call extract_metadata BEFORE any citation lookup.\" Per the Playbook's \"Forcing Execution Order\" pattern, which API-level construct most reliably fixes this?",
+      "options": {
+        "A": "Rephrase the system prompt in all-caps and add \"CRITICAL - DO NOT VIOLATE\" to emphasize the ordering constraint.",
+        "B": "Add a few-shot example showing the correct ordering, then retry on failure with the error message appended.",
+        "C": "On the first API call, set tool_choice to {type: \"tool\", name: \"extract_metadata\"} so the API itself guarantees the first tool invocation.",
+        "D": "Remove lookup_citations from the available tools on the first turn; only re-enable it after extract_metadata has completed."
+      },
+      "correct": "C",
+      "explanation": "A: Prompt-begging — even emphatic — still leaves a 3%+ failure rate per the Playbook. The 5% observed is consistent with that.\nB: Few-shot + retry costs tokens per failed attempt and doesn't eliminate the probabilistic failure; it just makes it cheaper.\nC: Correct. tool_choice is an API-level constraint — the model CANNOT choose a different first tool when tool_choice forces one. This is the Playbook's \"Forcing Execution Order\" pattern: use API constraints, not prompt begging.\nD: Workable but brittle — requires per-turn tool-availability management across the orchestration layer and doesn't scale to multi-step ordering (what if step 3 requires a specific tool too?). tool_choice is cleaner.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Forcing Execution Order, p22) [orig-id playbook-domain-1-04]"
+    },
+    {
+      "id": "gen-0191ad65-331c-49d6-9701-b0b265dfc160",
+      "source": "llm",
+      "domain": "domain-4-mcp",
+      "scenario": "3",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nYou've designed an `analyze_document` tool used by multiple specialist subagents in a research pipeline. Some subagents need to extract specific facts; others need to generate summaries. You're deciding how each subagent should signal which mode it wants. Which approach aligns with the Playbook's Goal-Oriented Delegation pattern?",
+      "options": {
+        "A": "Separate tools (extract_facts, summarize_document) each with long free-text descriptions that explain every internal behavior, so the subagent picks via prompt-level reasoning over the descriptions rather than a structured parameter.",
+        "B": "One analyze_document tool with an enum parameter (analysis_type: 'extraction' | 'summarization') — keeps the interface generic while signaling intent via a structured param.",
+        "C": "One analyze_document tool with NO params — let the subagent's system prompt fully determine behavior.",
+        "D": "Two tools AND an enum param (redundant) so the subagent always has multiple ways to express intent."
+      },
+      "correct": "B",
+      "explanation": "A: Rejects the Playbook's pattern. Goal-Oriented Delegation explicitly prescribes structured enum parameters to signal intent; relying on free-text descriptions + prompt-level reasoning is the prompt-begging anti-pattern. Structured params are deterministic; description-disambiguation is probabilistic.\nB: Correct. The Playbook's \"Goal-Oriented Delegation\" pattern explicitly prescribes generic tool interfaces with enum parameters to guide behavior. Keeps the tool catalog lean while still letting the caller signal intent structurally (not via prompt text alone).\nC: No params means the tool can't differentiate intents — the subagent's prompt has to carry all the signal, which is exactly the prompt-begging problem the Playbook warns against.\nD: Redundant interfaces produce inconsistent usage — some callers use the enum, some use separate tools, drift accumulates.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Goal-Oriented Delegation, p25) [orig-id playbook-domain-4-04]"
+    },
+    {
+      "id": "gen-13cabafe-8ea2-4c7e-acc7-1eb95eee1e59",
+      "source": "llm",
+      "domain": "domain-1-agentic",
+      "scenario": "4",
+      "difficulty": "medium",
+      "stem": "Scenario: Developer Productivity with Claude.\n\nYou're helping an engineer decide between two refactoring approaches for a legacy billing module: (A) extract a microservice, or (B) refactor in place. You've been exploring both in a single long chat session, and you notice the agent's recommendations increasingly contradict earlier turns — sometimes arguing for extraction, sometimes against. The foundational analysis of the module is sound; the drift is in the approach comparison. What architectural pattern most directly resolves this?",
+      "options": {
+        "A": "Ask the agent to summarize its position at the start of every turn so it self-corrects against drift.",
+        "B": "Use fork_session to branch from the foundational analysis — one branch explores microservice extraction, the other explores in-place refactoring, each with isolated context.",
+        "C": "Instruct the agent in the system prompt to pick one approach upfront and commit to it for the remainder of the session.",
+        "D": "Set temperature to 0 to eliminate the stochasticity causing the agent to waver between positions."
+      },
+      "correct": "B",
+      "explanation": "A: Self-summarization can't fix context contamination — the contradicting content is still in the window informing every next turn.\nB: Correct. fork_session (Branching Reality pattern) creates two branches from a foundational analysis, each with isolated context. Each branch reasons cleanly about one approach; comparison happens at decision-time by reading both.\nC: Committing upfront defeats the purpose — you need the comparison. Also doesn't address the actual failure mode (context contamination).\nD: Temperature-0 doesn't prevent contradiction when the context itself contains contradictory reasoning from earlier turns. The agent will confidently contradict itself.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Branching Reality, p18) [orig-id playbook-domain-1-03]"
+    },
+    {
+      "id": "gen-255812ab-5ca1-40c0-abdc-a5b98810042a",
+      "source": "llm",
+      "domain": "domain-3-prompt-engineering",
+      "scenario": "6",
+      "difficulty": "medium",
+      "stem": "Scenario: Structured Data Extraction.\n\nYour event-metadata extraction produces an attendee_count field. For ~12% of events, the source document doesn't mention attendance — yet your model confidently outputs numbers like 500 or 1000 for these cases, and downstream analytics flag the inflated totals. You run with temperature 0 already. What change most directly eliminates the fabricated counts?",
+      "options": {
+        "A": "Switch to temperature 1 so the model becomes less confident and more likely to output null.",
+        "B": "Add an explicit prompt instruction that if attendee_count is not mentioned in the source text, return \"null\" instead of inventing a number.",
+        "C": "Remove the attendee_count field from the schema so the model has no slot to fill.",
+        "D": "Post-process the output to clamp attendee_count to zero whenever the source text is below a certain length."
+      },
+      "correct": "B",
+      "explanation": "A: Temperature 1 increases randomness — you'll get varied hallucinations, not fewer. Temperature doesn't control \"completeness bias.\"\nB: Correct. The Playbook's \"Null Handling Instruction\" pattern: models bias toward filling fields that are requested, because training data rewards completeness. Explicit null-instruction (\"return null if not stated\") overrides that bias in the prompt layer.\nC: Drops the data entirely — now you can't capture attendee counts even when they ARE in the source.\nD: Source-length heuristics are a proxy and will false-negative on short documents that DO mention attendance.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Null Handling Instruction, p9) [orig-id playbook-domain-3-03]"
+    },
+    {
+      "id": "gen-2ad69440-0ed6-402c-9bd3-ddcda0f76d04",
+      "source": "llm",
+      "domain": "domain-2-claude-code",
+      "scenario": "5",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for CI/CD.\n\nAn engineer resumes an exploration session they paused yesterday. Overnight, a teammate's PR renamed utility functions in 3 of the 12 files the agent originally read. When asked a follow-up question, the agent confidently references the OLD function names, causing its answer to be wrong. Which resumption strategy best addresses this?",
+      "options": {
+        "A": "Force the agent to re-read all 12 files from scratch at the start of the resumed session to guarantee freshness.",
+        "B": "Just resume from the previous transcript — the agent can rely on its prior analysis since most files weren't touched.",
+        "C": "Resume from the previous transcript, but explicitly pass update_context listing which files changed and summarizing the nature of the changes ('renamed utility functions') so the agent can do targeted re-analysis.",
+        "D": "Discard the prior session entirely and start fresh with no context."
+      },
+      "correct": "C",
+      "explanation": "A: Wastes tokens re-reading 9 files that didn't change; also delays getting to the actual follow-up question.\nB: Produces wrong answers. The agent confidently references stale names because it has no signal anything changed.\nC: Correct. The Playbook's \"Resumption in Dynamic Environments\" pattern: resume_session + update_context={files:[...], changes:'...'} lets the agent do targeted re-analysis only on what moved. Cheapest AND most accurate.\nD: Destroys continuity — the foundational analysis in the prior session would all have to be redone.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Resumption in Dynamic Environments, p20) [orig-id playbook-domain-2-04]"
+    },
+    {
+      "id": "gen-3592212c-96a7-42e3-abbb-8ddb6142bad6",
+      "source": "llm",
+      "domain": "domain-1-agentic",
+      "scenario": "1",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nYour agent escalates ~8% of tickets to human reviewers. Analysis shows humans spend 3-4 minutes reading the full conversation transcript before taking action, and in 15% of escalations the reviewer reports missing critical context (account status, refund amount already offered). You need to make escalations faster and more accurate. Which change most directly addresses both issues?",
+      "options": {
+        "A": "Append a one-line \"reason for escalation\" to the transcript header so the reviewer can prioritize.",
+        "B": "Pass a structured summary payload (customer_id, root_cause, amount, recommended_action) to the reviewer instead of the raw transcript.",
+        "C": "Train reviewers on speed-reading agent transcripts and add a keyboard shortcut to jump to the latest exchange.",
+        "D": "Have the agent flag \"critical context\" turns in the transcript with a visual marker the reviewer can scan."
+      },
+      "correct": "B",
+      "explanation": "A: Adds metadata but still forces the reviewer to read the transcript — doesn't reduce time or prevent missed context.\nB: Correct. The Architect's Playbook explicitly prescribes a structured handoff payload (customer_id, root_cause, amount, recommended_action). The reviewer receives exactly what they need to act, no more, no less — faster AND more consistent.\nC: Doesn't address the \"missing critical context\" problem at all; treats the symptom, not the cause.\nD: Still requires reading unstructured turns and risks the agent mis-flagging which turns matter. Structured payloads avoid both problems.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Escalation Handoff, p14) [orig-id playbook-domain-1-01]"
+    },
+    {
+      "id": "gen-403bf488-6e89-473f-8d1a-e01ee959588b",
+      "source": "llm",
+      "domain": "domain-1-agentic",
+      "scenario": "3",
+      "difficulty": "hard",
+      "stem": "Scenario: Multi-Agent Research System.\n\nYour pipeline chains 6 subagents: web-search → 2 document-analysis → synthesis → editor → publisher. Each subagent receives the full prior conversation as context so nothing gets lost. You're observing token costs per run that grow quadratically with pipeline depth, and mid-pipeline crashes (one failing subagent) cause the entire run to be discarded. What architectural change addresses both issues simultaneously?",
+      "options": {
+        "A": "Increase the context window by switching to a larger model so token growth becomes less painful.",
+        "B": "Add a retry wrapper around each subagent so crashes trigger automatic re-invocation from the same input.",
+        "C": "Replace daisy-chained message history with a shared vector store; each subagent writes findings there, and downstream agents retrieve only semantically-relevant priors via search.",
+        "D": "Compress each prior conversation by summarizing it before passing to the next subagent, reducing token cost per handoff."
+      },
+      "correct": "C",
+      "explanation": "A: A bigger context window doesn't change the O(n²) scaling — it only raises the ceiling before you hit it.\nB: Retry loops cost tokens per attempt and don't preserve prior work — a crashed synthesis agent re-runs over the same bloated inputs.\nC: Correct. Shared-vector-store architecture decouples state from invocation. Per-subagent context stays bounded (retrieve-only-what-you-need), and if one subagent crashes, prior findings persist in the store rather than evaporating with the transient message chain.\nD: Summarization is lossy and pushes the problem down one level — you're still passing growing state along, just compressed. Doesn't address crash recovery.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Shared Memory Architecture, p21) [orig-id playbook-domain-1-02]"
+    },
+    {
+      "id": "gen-54a3b8ac-ada1-4f12-9aaf-370c737583cd",
+      "source": "llm",
+      "domain": "domain-5-context",
+      "scenario": "1",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nYour support agent frequently calls lookup_order to help customers with returns. The tool returns a 40+-field JSON including shipping address, payment method, fulfillment center, carrier tracking URLs, and itemized tax breakdown. Over a 20-turn session, context window usage is 85% consumed by these verbose responses — the agent's reasoning quality degrades, and some questions fail because there's no room for the final answer. Which change most directly addresses the context pressure?",
+      "options": {
+        "A": "Reduce the agent's max output tokens so the context consumed by responses shrinks.",
+        "B": "Implement application-side filtering: extract only the relevant fields (items, purchase_date, return_window, status) from each lookup_order response BEFORE it enters the agent's context.",
+        "C": "Move to a model with a larger context window so the 40-field responses fit more comfortably.",
+        "D": "Have the agent summarize its own context every 5 turns to free space."
+      },
+      "correct": "B",
+      "explanation": "A: Shrinks output tokens but doesn't touch the bloat source (tool results). Symptomatic, not causal.\nB: Correct. The Playbook's \"Tool Context Pruning\" pattern: filter at the boundary where data enters the context, NOT inside the agent's reasoning. The API response is fine; stuffing its entirety into context is the problem.\nC: Raises the ceiling but doesn't change the growth rate — a long-enough session still hits it.\nD: Self-summarization is lossy and costs inference tokens per summarize pass. Application-side filtering is deterministic and free.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Tool Context Pruning, p12) [orig-id playbook-domain-5-04]"
+    },
+    {
+      "id": "gen-559f04d3-d66e-48df-975d-e1013476b7b5",
+      "source": "llm",
+      "domain": "domain-2-claude-code",
+      "scenario": "2",
+      "difficulty": "hard",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYou've built a custom MCP tool `analyze_dependencies` that traces import graphs across a TypeScript monorepo, alongside Claude Code's built-in Grep. Production telemetry shows the agent invokes `Grep` for dependency questions 78% of the time, even though `analyze_dependencies` would give faster, more accurate answers. What change most reliably shifts the agent's tool selection?",
+      "options": {
+        "A": "Remove Grep from the tool list when working in TypeScript repos, forcing the agent to use analyze_dependencies.",
+        "B": "Lower the temperature parameter so the agent's tool-choice behavior becomes more deterministic.",
+        "C": "Split analyze_dependencies into granular single-purpose tools (list_imports, resolve_transitive_deps, detect_circular_deps) each with descriptions that explicitly state when to prefer them over Grep.",
+        "D": "Add a system prompt instruction: \"Always prefer analyze_dependencies over Grep for import questions.\""
+      },
+      "correct": "C",
+      "explanation": "A: Removing Grep breaks every non-dependency use case. Over-correction.\nB: Temperature doesn't govern tool selection strongly enough to override a description-based preference. Also doesn't address the root cause.\nC: Correct. The Playbook's \"MCP Tool Specificity\" pattern: granular tools WITH explicit \"prefer over Grep\" language in descriptions shift the agent's selection reliably because tool-selection reasoning is driven by descriptions, not catch-all tools.\nD: System prompts are probabilistic. Observed: even emphatic prompts yield 3%+ override failures; description-level changes influence selection directly and consistently.",
+      "source_note": "raw/papers/The Architect's Playbook.md (MCP Tool Specificity, p16) [orig-id playbook-domain-2-02]"
+    },
+    {
+      "id": "gen-65cd0950-4cbe-42da-a3f9-4762682aa6ef",
+      "source": "llm",
+      "domain": "domain-5-context",
+      "scenario": "1",
+      "difficulty": "hard",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nYour agent can issue refunds via a process_refund tool. Policy states refunds above $500 require a human approver. Your system prompt reads: \"CRITICAL POLICY: NEVER call process_refund with amount > 500 USD. ALWAYS escalate to human.\" Production telemetry shows a 3% rate of process_refund calls with amounts > $500 — small, but every violation is a policy incident. Which change most reliably eliminates violations?",
+      "options": {
+        "A": "Add more emphatic warnings to the system prompt and retry the call if the model outputs a refund above $500.",
+        "B": "Fine-tune the base model on examples that demonstrate the correct escalation behavior.",
+        "C": "Implement an application-layer hook that intercepts process_refund calls. When the amount exceeds $500, block it server-side and invoke escalation. Model discretion is removed.",
+        "D": "Add a validation step AFTER the model outputs the tool call, but BEFORE execution, that checks the amount and returns an error if >$500 so the agent retries."
+      },
+      "correct": "C",
+      "explanation": "A: Even maximum-emphasis prompts leave a statistical failure rate. The Playbook measures exactly the 3% currently observed — this is a known ceiling of prompt enforcement.\nB: Fine-tuning shifts probabilities but doesn't eliminate violations. Also expensive and slow to iterate.\nC: Correct. The Playbook's \"Zero-Tolerance Compliance\" pattern: for policy thresholds, enforcement MUST live in application code where it runs 100% of the time. Prompts are probabilistic; code is deterministic.\nD: Post-model validation + retry still relies on the model to eventually pick the right action. A stubborn sequence could loop. Server-side blocking is the deterministic stop.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Zero-Tolerance Compliance, p10) [orig-id playbook-domain-5-02]"
+    },
+    {
+      "id": "gen-70c723fd-6917-4074-9c72-7ab58e7d108d",
+      "source": "llm",
+      "domain": "domain-4-mcp",
+      "scenario": "3",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nA coordinator agent dispatches research tasks to a web-search subagent. The coordinator gives detailed procedural instructions: \"Step 1: Search Bing for X. Step 2: Filter results to the first 10. Step 3: Read each and extract Y.\" For emerging topics, this rigid flow misses new sources (which surfaced last week and aren't in Bing's top 10 yet) and ignores tangential but important material. What delegation pattern best addresses both failure modes?",
+      "options": {
+        "A": "Keep the procedural steps but add more of them — specify 15 sources instead of 10, add Google Scholar as a backup search engine.",
+        "B": "Replace procedural steps with a research goal (\"coverage breadth for emerging topics\") and quality criteria (\"recency, multi-source corroboration\"). Let the subagent determine its own search strategy.",
+        "C": "Have the coordinator inspect each result and give step-by-step feedback, iterating until the subagent's research is complete.",
+        "D": "Make the subagent's tools more specific (add search_arxiv, search_hackernews) so the procedural steps adapt to topic type."
+      },
+      "correct": "B",
+      "explanation": "A: More procedural steps doesn't fix rigidity — adds more failure points that also break on emerging topics.\nB: Correct. The Playbook's \"Goal-Oriented Delegation\" pattern: the specialized subagent has MORE domain knowledge than the coordinator. Goals + quality criteria let it apply that expertise; procedural steps assume the caller knows better.\nC: Micromanagement scales poorly and defeats the purpose of delegation — if the coordinator does all the reasoning, the subagent adds nothing.\nD: More tools helps, but without the goal-oriented pattern the subagent still gets rigid prescribed steps — just with a larger menu. Doesn't address root cause.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Goal-Oriented Delegation, p25) [orig-id playbook-domain-4-03]"
+    },
+    {
+      "id": "gen-7d24f718-986e-406b-9aa7-ed73b8340d4f",
+      "source": "llm",
+      "domain": "domain-2-claude-code",
+      "scenario": "4",
+      "difficulty": "medium",
+      "stem": "Scenario: Developer Productivity with Claude.\n\nAn engineer uses Claude Code for a 90-minute architectural deep-dive through a payment service. Around the 45-minute mark, the agent starts giving inconsistent answers about components it examined earlier — claiming a module uses Redis when it actually uses Memcached, contradicting its own earlier summary. What pattern most directly resolves this?",
+      "options": {
+        "A": "Reduce the exploration session to 20 minutes and restart with a fresh agent to avoid context decay.",
+        "B": "Have the agent maintain a scratchpad.md file recording key findings (module structures, endpoints, decisions) and reference that file for subsequent questions instead of relying on message history.",
+        "C": "Enable message compression so older conversation turns are compressed into shorter summaries automatically.",
+        "D": "Ask the agent to re-read the modules in question every time a related follow-up arises."
+      },
+      "correct": "B",
+      "explanation": "A: Workable but sacrifices continuity — you lose the architectural map built so far. Also doesn't solve the underlying problem for any session longer than 20 minutes.\nB: Correct. The Playbook's \"Scratchpad Pattern\": the agent actively maintains a dense structured file with findings, architectural maps, and decisions. Subsequent questions reference the file, not the token-decayed message history.\nC: Compression is lossy; the very details that cause contradictions (Redis vs Memcached) are the fine-grained facts most likely to be dropped or mangled.\nD: Re-reading modules costs tokens for content already analyzed and doesn't address the ROOT cause (memory loss from context bloat).",
+      "source_note": "raw/papers/The Architect's Playbook.md (The Scratchpad Pattern, p19) [orig-id playbook-domain-2-03]"
+    },
+    {
+      "id": "gen-7e79b5ac-8b8b-47e9-bacc-b61bfeb76e57",
+      "source": "llm",
+      "domain": "domain-5-context",
+      "scenario": "1",
+      "difficulty": "hard",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nA customer opens a support ticket about a billing issue. The agent calls a tool and says \"Expected resolution: 24 hours.\" The customer returns 6 hours later to check status. Your session resumption code replays the full conversation history, including the old tool_result containing \"expected_resolution: 24h\". The agent then parrots \"Expected resolution: 24 hours\" without re-checking — but actual status is now \"PROCESSED\". Which resumption strategy fixes this?",
+      "options": {
+        "A": "Store a timestamp with each tool_result; show the agent tool_results older than 1 hour with a warning to re-check.",
+        "B": "Resume with full conversation history, but programmatically filter out previous tool_result messages. Keep only human/assistant turns so the agent is forced to re-fetch needed data on resumption.",
+        "C": "Cap the session to 1 hour — force customers to start a new conversation after that.",
+        "D": "Prepend a system message saying \"All previous tool results may be stale; re-check before quoting them.\""
+      },
+      "correct": "B",
+      "explanation": "A: Adds complexity and still lets the agent choose to use stale data if its heuristic judgment says \"probably still valid.\" Probabilistic.\nB: Correct. The Playbook's \"Resuming Asynchronous Sessions\" pattern: filtering tool_results isn't losing conversation — it forces a fresh lookup. Customers get current info every time, deterministically.\nC: Breaks multi-session support flows, which are a legitimate and common pattern. Blunt.\nD: System prompt instructions are probabilistic — the agent may still quote stale data. Also pollutes every future turn with a caveat.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Resuming Asynchronous Sessions, p11) [orig-id playbook-domain-5-03]"
+    },
+    {
+      "id": "gen-8b8f4190-ee03-4ae8-a226-1ec1665b7080",
+      "source": "llm",
+      "domain": "domain-2-claude-code",
+      "scenario": "4",
+      "difficulty": "medium",
+      "stem": "Scenario: Developer Productivity with Claude.\n\nA new engineer joins a team with an 800-file codebase and asks Claude Code to \"get up to speed\" on the authentication system. Claude Code's default behavior is to Read files sequentially starting from the repo root. After 45 minutes, the agent has read 120 files, the context window is nearly full, and the engineer reports the agent's summaries have grown vague and contradictory. What is the most effective course correction?",
+      "options": {
+        "A": "Increase the context window by switching to a larger model so more files fit simultaneously.",
+        "B": "Instruct the agent to read CLAUDE.md and the top-level README first, then ask the engineer which 5-10 files are most relevant to authentication, and read those in depth.",
+        "C": "Have the agent compress prior reads into short summaries to free context window space for additional files.",
+        "D": "Set a hard file-read limit of 50 files per session to prevent context window saturation."
+      },
+      "correct": "B",
+      "explanation": "A: Larger context doesn't address the real problem — indiscriminate reading still produces vague summaries because most of what's read is irrelevant to the question.\nB: Correct. The Architect's Playbook's \"Directed Codebase Exploration\" pattern: start broad (CLAUDE.md/README give the map), then pinpoint with the human engineer's filesystem knowledge. The human knows which 5-10 files define the authentication system; the agent doesn't.\nC: Summarization is lossy and doesn't fix the \"reading the wrong files\" root problem.\nD: An arbitrary cap truncates exploration at an arbitrary point — doesn't ensure the RIGHT 50 files are read.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Directed Codebase Exploration, p17) [orig-id playbook-domain-2-01]"
+    },
+    {
+      "id": "gen-b3f53a11-1710-4b85-8d6d-817dd222e407",
+      "source": "llm",
+      "domain": "domain-3-prompt-engineering",
+      "scenario": "6",
+      "difficulty": "medium",
+      "stem": "Scenario: Structured Data Extraction.\n\nYour extraction pipeline runs three specialist extractors (financial-data, news-metadata, patent-claims) whose outputs feed a synthesis extractor that produces final records for your warehouse. The raw outputs: financial extractor returns structured JSON tables, news extractor returns prose summaries, patent extractor returns bulleted lists. The synthesis extractor's final records lose table structure, drop citations, and sometimes attribute claims to the wrong source. Which architectural change best addresses all three issues?",
+      "options": {
+        "A": "Add a post-synthesis editor agent that fact-checks citations and reconstructs tables from prose summaries.",
+        "B": "Give the synthesis agent explicit instructions to preserve tables as tables, citations as citations, and not cross-attribute claims.",
+        "C": "Introduce a Format Conversion Layer that standardizes all specialist outputs to a common structured JSON intermediate (claim, evidence, source, confidence). Instruct the synthesis agent to preserve claim-source mappings verbatim.",
+        "D": "Have each specialist agent write its output directly to the final briefing's designated section, bypassing the synthesis step."
+      },
+      "correct": "C",
+      "explanation": "A: Editor-after-synthesis is too late — citations already lost in the handoff can't be reliably reconstructed from prose. Fact-checking prose against original sources is expensive and error-prone.\nB: Prompt-level exhortations don't overcome the real problem (prose is a LOSSY intermediate for tables and citations). The synthesis agent would still have to reconstruct from lossy input.\nC: Correct. The Playbook's \"Structured Intermediate Representations\" pattern: a common structured JSON intermediate with claim-source mappings survives handoffs in ways raw prose doesn't. The Citation Rule forces every specialist to emit machine-traceable evidence.\nD: Bypasses the synthesis agent entirely — loses the cross-source reasoning that synthesis provides, which is the whole point of having three specialists.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Structured Intermediate Representations, p23) [orig-id playbook-domain-3-04]"
+    },
+    {
+      "id": "gen-bd5aabdf-7fb7-4db9-9c28-ab955c7904da",
+      "source": "llm",
+      "domain": "domain-4-mcp",
+      "scenario": "1",
+      "difficulty": "hard",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nYour lookup_order tool sometimes fails — sometimes because the order-service is down (retryable), sometimes because the order genuinely doesn't exist (permanent), sometimes because the customer's auth token expired (needs re-auth). Currently, the tool throws a generic Python exception on any failure, and the agent either crashes or gives a misleading \"order not found\" reply for every failure type. What contract change best fixes this?",
+      "options": {
+        "A": "Change the tool to return a literal string \"ERROR\" when any failure occurs so the agent can detect and handle failures uniformly.",
+        "B": "Return the error message in the tool result's content field with isError: true, plus structured metadata like errorCategory (transient / permanent / auth) and isRetryable, so the agent can pick the right recovery strategy.",
+        "C": "Catch all exceptions and return an empty result, letting the agent treat failure the same as \"no order found.\"",
+        "D": "Have the tool automatically retry failed calls up to 3 times internally before returning anything to the agent."
+      },
+      "correct": "B",
+      "explanation": "A: A literal \"ERROR\" string is better than a thrown exception but still collapses all failure types into one bucket. The agent can't distinguish retryable from permanent.\nB: Correct. The Playbook's \"Graceful Tool Failure\" pattern: isError: true is the protocol-level signal; errorCategory + isRetryable give the agent enough information to pick the right recovery (retry for transient, escalate for auth, tell the user for permanent).\nC: Treating failure as \"no order found\" is exactly the misleading behavior currently observed — it produces wrong user-facing answers.\nD: Internal retries hide auth and permanent failures behind latency. The agent needs to know WHY a call failed to reason about what to do next.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Graceful Tool Failure, p13) [orig-id playbook-domain-4-02]"
+    },
+    {
+      "id": "gen-cd800c01-3199-4607-a554-c53405530a53",
+      "source": "llm",
+      "domain": "domain-3-prompt-engineering",
+      "scenario": "6",
+      "difficulty": "medium",
+      "stem": "Scenario: Structured Data Extraction.\n\nYour extraction pipeline uses a strict enum of 5 property types for a real estate dataset. In the past month you've seen validation errors on 4% of records — all for \"studio apartment\", \"converted warehouse\", \"live/work loft\", and \"mobile home\" values that don't fit your enum. Engineers want to add these to the enum, but expect MORE edge cases every quarter. What schema change best addresses this?",
+      "options": {
+        "A": "Expand the enum to include the 4 new types discovered so far, and plan for quarterly enum updates as more edge cases appear.",
+        "B": "Loosen the property_type field to accept any string, removing the enum constraint entirely.",
+        "C": "Add an \"other\" value to the enum, paired with a new property_type_detail string field that captures the specific variant.",
+        "D": "Log validation errors and use them as training data for a future fine-tuned model that recognizes more property types."
+      },
+      "correct": "C",
+      "explanation": "A: The Fragile Expansion anti-pattern. Every new edge case forces a schema migration and re-validation. Quarterly updates perpetually chase tail cases.\nB: Removes ALL validation protection. Now any garbage string passes validation — a worse failure mode than the original problem.\nC: Correct. The Playbook's \"Resilient Catch-All\" pattern: enum stays closed for the common path (preserving downstream validation), while \"other\" + detail string captures edge cases without rejection. Scales to unknown unknowns.\nD: Indirect, expensive, and doesn't solve the near-term problem. Also, fine-tuning for property types is overkill for what's ultimately a schema shape issue.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Resilient Catch-Alls, p7) [orig-id playbook-domain-3-01]"
+    },
+    {
+      "id": "gen-cff48d83-088d-47d0-a96e-8cfe30806c57",
+      "source": "llm",
+      "domain": "domain-4-mcp",
+      "scenario": "4",
+      "difficulty": "medium",
+      "stem": "Scenario: Developer Productivity with Claude.\n\nYou've shipped a custom MCP tool called `analyze_codebase` that can answer any structural question about a repo (imports, call graphs, test coverage, hotspots). Usage analytics show the agent invokes `analyze_codebase` in only 22% of relevant queries — in 78% of cases, the agent falls back to Grep or Read. What tool design change most reliably shifts agent behavior?",
+      "options": {
+        "A": "Make `analyze_codebase` the ONLY tool available (remove Grep/Read from the tool list) when the agent is in a codebase-analysis session.",
+        "B": "Split `analyze_codebase` into narrow single-purpose tools (list_imports, find_callers, detect_circular_deps, compute_test_coverage) with descriptions that explicitly say when to prefer each over Grep or Read.",
+        "C": "Add a system prompt that explicitly favors `analyze_codebase` over built-in file tools for any structural question.",
+        "D": "Increase the timeout on `analyze_codebase` so it never fails due to slow responses, making the agent more willing to invoke it."
+      },
+      "correct": "B",
+      "explanation": "A: Removes fallback options the agent legitimately needs for other tasks. Also brittle — session-boundary detection is hard.\nB: Correct. The Playbook's \"MCP Tool Specificity\" pattern: tool selection is description-driven. Concrete narrow descriptions (\"resolve transitive dependency closure for a TypeScript module\") beat vague ones (\"analyze codebase\"). Explicit prefer-over language closes the gap.\nC: System prompts are probabilistic; the Playbook measures a 3%+ override failure rate on emphatic prompts. Description-level design is deterministic.\nD: Doesn't address the ROOT cause (description vagueness). Timeout increases don't change tool selection reasoning.",
+      "source_note": "raw/papers/The Architect's Playbook.md (MCP Tool Specificity, p16) [orig-id playbook-domain-4-01]"
+    },
+    {
+      "id": "gen-d7c7953d-2480-49c1-b1cf-6d0955901fdf",
+      "source": "llm",
+      "domain": "domain-3-prompt-engineering",
+      "scenario": "6",
+      "difficulty": "hard",
+      "stem": "Scenario: Structured Data Extraction.\n\nYour invoice extraction pipeline processes PDFs and outputs line items plus a grand total. Analysis shows 18% of extracted invoices have line items whose sum does NOT match the extracted grand total — usually due to OCR misreads on individual amounts. You can't tell which field (a line item OR the total) is wrong without human review. Which schema change most effectively triages these automatically?",
+      "options": {
+        "A": "Increase OCR resolution to reduce misreads at the source, then rely on agreement between line items and total.",
+        "B": "Output both a calculated_total (derived by the model summing line items) AND a stated_total (extracted directly from the page). Flag for human review only when they disagree.",
+        "C": "Train the model to self-correct by comparing its sum against its extracted total and re-extracting when they disagree.",
+        "D": "Drop the grand total field entirely and compute it server-side from the extracted line items to avoid the inconsistency."
+      },
+      "correct": "B",
+      "explanation": "A: Better OCR reduces the error rate but doesn't eliminate it. You still have no triage mechanism for the residual errors.\nB: Correct. The Playbook's \"Schema Redundancy\" pattern: two independently-derived values (model-sum vs page-extract) become a consistency check. Agreement auto-approves; disagreement routes to human review. 82% of cases auto-flow; 18% get human attention.\nC: Self-correction still has no external ground truth — the model doesn't know WHICH of the two values is wrong, and may re-hallucinate.\nD: Loses valuable redundancy! The stated total is your check on OCR errors in the line items. Dropping it makes the problem invisible.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Schema Redundancy, p8) [orig-id playbook-domain-3-02]"
+    },
+    {
+      "id": "gen-f15005e2-967e-4e5f-8ae1-097fc009c0c4",
+      "source": "llm",
+      "domain": "domain-5-context",
+      "scenario": "6",
+      "difficulty": "medium",
+      "stem": "Scenario: Structured Data Extraction.\n\nYour nightly pipeline extracts metadata from 200,000 newly-arrived documents. The work must finish within a 30-hour SLA window but individual documents have no per-doc latency requirement. Your team initially built this on the real-time Messages API and is seeing a $48,000/month Anthropic bill. Which routing change most directly addresses cost while still meeting SLA?",
+      "options": {
+        "A": "Optimize prompts to reduce token count per document, keeping the real-time Messages API.",
+        "B": "Switch to the Message Batches API, submitting batches of documents every 6 hours containing documents from that window. Accept the batch-turnaround latency in exchange for the 50% cost reduction.",
+        "C": "Process documents serially on a single worker to minimize concurrent API cost spikes.",
+        "D": "Move to a cheaper model tier for the extraction step."
+      },
+      "correct": "B",
+      "explanation": "A: Prompt optimization is incremental and orthogonal — it trims token cost but doesn't change the fundamental API-pricing-tier mismatch. Real-time pricing for async work is still paying a premium for latency you don't need.\nB: Correct. The Playbook's \"Routing for Cost and SLA\" pattern: never default to real-time for async needs. Batch API gives 50% cost savings; submitting every 6 hours keeps batch sizes reasonable while comfortably meeting the 30h SLA.\nC: Reduces concurrency but doesn't change per-request cost. Also likely blows the 30h SLA.\nD: Possibly valid but sacrifices extraction quality — the right-sized API tier matters more than the right-sized model for a cost-vs-SLA question like this.",
+      "source_note": "raw/papers/The Architect's Playbook.md (Routing for Cost and SLA, p4) [orig-id playbook-domain-5-01]"
+    },
+    {
       "id": "mix-600",
       "source": "mix",
       "domain": "domain-5-context",
@@ -9072,6 +9416,210 @@
       "correct": "B",
       "explanation": "A: Request A (rename) is mechanical; multi-phase workflow doesn't improve a straightforward search-and-replace task.\nB: Correct—Request B (error handling) is open-ended with multiple quality dimensions; analyze → propose → implement with review ensures each dimension is addressed.\nC: They benefit unequally; mechanical tasks don't need explicit workflows.\nD: Both benefit from structured thinking, but B benefits more from explicit phases.",
       "source_note": "raw/other/cca-f-questions-2.json id=901 raw-topic=\"Task Decomposition\" raw-scenarioId=13 topic-domain-agree=true scenario-alias-agree=true"
+    },
+    {
+      "id": "official-domain-1-agentic-01",
+      "source": "official",
+      "domain": "domain-1-agentic",
+      "scenario": "1",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nProduction data shows that in 12% of cases, your agent skips get_customer entirely and calls lookup_order using only the customer's stated name, occasionally leading to misidentified accounts and incorrect refunds. What change would most effectively address this reliability issue?",
+      "options": {
+        "A": "Add a programmatic prerequisite that blocks lookup_order and process_refund calls until get_customer has returned a verified customer ID.",
+        "B": "Enhance the system prompt to state that customer verification via get_customer is mandatory before any order operations.",
+        "C": "Add few-shot examples showing the agent always calling get_customer first, even when customers volunteer order details.",
+        "D": "Implement a routing classifier that analyzes each request and enables only the subset of tools appropriate for that request type."
+      },
+      "correct": "A",
+      "explanation": "When a specific tool sequence is required for critical business logic (like verifying customer identity before processing refunds), programmatic enforcement provides deterministic guarantees that prompt-based approaches cannot. Options B and C rely on probabilistic LLM compliance, which is insufficient when errors have financial consequences. Option D addresses tool availability rather than tool ordering, which is not the actual problem.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-1-agentic-02",
+      "source": "official",
+      "domain": "domain-1-agentic",
+      "scenario": "3",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nAfter running the system on the topic \"impact of AI on creative industries,\" you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarizes papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: \"AI in digital art creation,\" \"AI in graphic design,\" and \"AI in photography.\" What is the most likely root cause?",
+      "options": {
+        "A": "The synthesis agent lacks instructions for identifying coverage gaps in the findings it receives from other agents.",
+        "B": "The coordinator agent's task decomposition is too narrow, resulting in subagent assignments that don't cover all relevant domains of the topic.",
+        "C": "The web search agent's queries are not comprehensive enough and need to be expanded to cover more creative industry sectors.",
+        "D": "The document analysis agent is filtering out sources related to non-visual creative industries due to overly restrictive relevance criteria."
+      },
+      "correct": "B",
+      "explanation": "The coordinator's logs reveal the root cause directly: it decomposed \"creative industries\" into only visual arts subtasks (digital art, graphic design, photography), completely omitting music, writing, and film. The subagents executed their assigned tasks correctly—the problem is what they were assigned. Options A, C, and D incorrectly blame downstream agents that are working correctly within their assigned scope.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-2-claude-code-01",
+      "source": "official",
+      "domain": "domain-2-claude-code",
+      "scenario": "2",
+      "difficulty": "medium",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYou want to create a custom /review slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository. Where should you create this command file?",
+      "options": {
+        "A": "In the .claude/commands/ directory in the project repository",
+        "B": "In ~/.claude/commands/ in each developer's home directory",
+        "C": "In the CLAUDE.md file at the project root",
+        "D": "In a .claude/config.json file with a commands array"
+      },
+      "correct": "A",
+      "explanation": "Project-scoped custom slash commands should be stored in the .claude/commands/ directory within the repository. These commands are version-controlled and automatically available to all developers when they clone or pull the repo. Option B (~/.claude/commands/) is for personal commands that aren't shared via version control. Option C (CLAUDE.md) is for project instructions and context, not command definitions. Option D describes a configuration mechanism that doesn't exist in Claude Code.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-2-claude-code-02",
+      "source": "official",
+      "domain": "domain-2-claude-code",
+      "scenario": "2",
+      "difficulty": "medium",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYou've been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies. Which approach should you take?",
+      "options": {
+        "A": "Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes.",
+        "B": "Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries.",
+        "C": "Use direct execution with comprehensive upfront instructions detailing exactly how each service should be structured.",
+        "D": "Begin in direct execution mode and only switch to plan mode if you encounter unexpected complexity during implementation."
+      },
+      "correct": "A",
+      "explanation": "Plan mode is designed for complex tasks involving large-scale changes, multiple valid approaches, and architectural decisions—exactly what monolith-to-microservices restructuring requires. It enables safe codebase exploration and design before committing to changes. Option B risks costly rework when dependencies are discovered late. Option C assumes you already know the right structure without exploring the code. Option D ignores that the complexity is already stated in the requirements, not something that might emerge later.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-2-claude-code-03",
+      "source": "official",
+      "domain": "domain-2-claude-code",
+      "scenario": "2",
+      "difficulty": "medium",
+      "stem": "Scenario: Code Generation with Claude Code.\n\nYour codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g., Button.test.tsx next to Button.tsx), and you want all tests to follow the same conventions regardless of location. What's the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?",
+      "options": {
+        "A": "Create rule files in .claude/rules/ with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths",
+        "B": "Consolidate all conventions in the root CLAUDE.md file under headers for each area, relying on Claude to infer which section applies",
+        "C": "Create skills in .claude/skills/ for each code type that include the relevant conventions in their SKILL.md files",
+        "D": "Place a separate CLAUDE.md file in each subdirectory containing that area's specific conventions"
+      },
+      "correct": "A",
+      "explanation": "Option A is correct because .claude/rules/ with glob patterns (e.g., **/*.test.tsx) allows conventions to be automatically applied based on file paths regardless of directory location—essential for test files spread throughout the codebase. Option B relies on inference rather than explicit matching, making it unreliable. Option C requires manual skill invocation or relies on Claude choosing to load them, contradicting the need for deterministic \"automatic\" application based on file paths. Option D can't easily handle files spread across many directories since CLAUDE.md files are directory-bound.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-2-claude-code-04",
+      "source": "official",
+      "domain": "domain-2-claude-code",
+      "scenario": "5",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for Continuous Integration.\n\nYour pipeline script runs claude \"Analyze this pull request for security issues\" but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input. What's the correct approach to run Claude Code in an automated pipeline?",
+      "options": {
+        "A": "Add the -p flag, claude -p \"Analyze this pull request for security issues\"",
+        "B": "Set the environment variable CLAUDE_HEADLESS=true before running the command",
+        "C": "Redirect stdin from /dev/null, claude \"Analyze this pull request for security issues\" < /dev/null",
+        "D": "Add the --batch flag, claude --batch \"Analyze this pull request for security issues\""
+      },
+      "correct": "A",
+      "explanation": "The -p (or --print) flag is the documented way to run Claude Code in non-interactive mode. It processes the prompt, outputs the result to stdout, and exits without waiting for user input—exactly what CI/CD pipelines require. The other options reference non-existent features (CLAUDE_HEADLESS environment variable, --batch flag) or use Unix workarounds that don't properly address Claude Code's command syntax.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-3-prompt-engineering-01",
+      "source": "official",
+      "domain": "domain-3-prompt-engineering",
+      "scenario": "5",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for Continuous Integration.\n\nYour team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings. How should you evaluate this proposal?",
+      "options": {
+        "A": "Use batch processing for the technical debt reports only; keep real-time calls for pre-merge checks.",
+        "B": "Switch both workflows to batch processing with status polling to check for completion.",
+        "C": "Keep real-time calls for both workflows to avoid batch result ordering issues.",
+        "D": "Switch both to batch processing with a timeout fallback to real-time if batches take too long."
+      },
+      "correct": "A",
+      "explanation": "The Message Batches API offers 50% cost savings but has processing times up to 24 hours with no guaranteed latency SLA. This makes it unsuitable for blocking pre-merge checks where developers wait for results, but ideal for overnight batch jobs like technical debt reports. Option B is wrong because relying on \"often faster\" completion isn't acceptable for blocking workflows. Option C reflects a misconception—batch results can be correlated using custom_id fields. Option D adds unnecessary complexity when the simpler solution is matching each API to its appropriate use case.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-3-prompt-engineering-02",
+      "source": "official",
+      "domain": "domain-3-prompt-engineering",
+      "scenario": "5",
+      "difficulty": "medium",
+      "stem": "Scenario: Claude Code for Continuous Integration.\n\nA pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback—flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR. How should you restructure the review?",
+      "options": {
+        "A": "Split into focused passes, analyze each file individually for local issues, then run a separate integration-focused pass examining cross-file data flow.",
+        "B": "Require developers to split large PRs into smaller submissions of 3-4 files before the automated review runs.",
+        "C": "Switch to a higher-tier model with a larger context window to give all 14 files adequate attention in one pass.",
+        "D": "Run three independent review passes on the full PR and only flag issues that appear in at least two of the three runs."
+      },
+      "correct": "A",
+      "explanation": "Splitting reviews into focused passes directly addresses the root cause: attention dilution when processing many files at once. File-by-file analysis ensures consistent depth, while a separate integration pass catches cross-file issues. Option B shifts burden to developers without improving the system. Option C misunderstands that larger context windows don't solve attention quality issues. Option D would actually suppress detection of real bugs by requiring consensus on issues that may only be caught intermittently.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-4-mcp-01",
+      "source": "official",
+      "domain": "domain-4-mcp",
+      "scenario": "1",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nProduction logs show the agent frequently calls get_customer when users ask about orders (e.g., \"check my order #12345\"), instead of calling lookup_order. Both tools have minimal descriptions (\"Retrieves customer information\" / \"Retrieves order details\") and accept similar identifier formats. What's the most effective first step to improve tool selection reliability?",
+      "options": {
+        "A": "Add few-shot examples to the system prompt demonstrating correct tool selection patterns, with 5-8 examples showing order-related queries routing to lookup_order.",
+        "B": "Expand each tool's description to include input formats it handles, example queries, edge cases, and boundaries explaining when to use it versus similar tools.",
+        "C": "Implement a routing layer that parses user input before each turn and pre-selects the appropriate tool based on detected keywords and identifier patterns.",
+        "D": "Consolidate both tools into a single lookup_entity tool that accepts any identifier and internally determines which backend to query."
+      },
+      "correct": "B",
+      "explanation": "Tool descriptions are the primary mechanism LLMs use for tool selection. When descriptions are minimal, models lack the context to differentiate between similar tools. Option B directly addresses this root cause with a low-effort, high-leverage fix. Few-shot examples (A) add token overhead without fixing the underlying issue. A routing layer (C) is over-engineered and bypasses the LLM's natural language understanding. Consolidating tools (D) is a valid architectural choice but requires more effort than a \"first step\" warrants when the immediate problem is inadequate descriptions.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-4-mcp-02",
+      "source": "official",
+      "domain": "domain-4-mcp",
+      "scenario": "3",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nDuring testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. Currently, when verification is needed, the synthesis agent returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with results. This adds 2-3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation. What's the most effective approach to reduce overhead while maintaining system reliability?",
+      "options": {
+        "A": "Give the synthesis agent a scoped verify_fact tool for simple lookups, while complex verifications continue delegating to the web search agent through the coordinator.",
+        "B": "Have the synthesis agent accumulate all verification needs and return them as a batch to the coordinator at the end of its pass, which then sends them all to the web search agent at once.",
+        "C": "Give the synthesis agent access to all web search tools so it can handle any verification need directly without round-trips through the coordinator.",
+        "D": "Have the web search agent proactively cache extra context around each source during initial research, anticipating what the synthesis agent might need to verify."
+      },
+      "correct": "A",
+      "explanation": "Option A applies the principle of least privilege by giving the synthesis agent only what it needs for the 85% common case (simple fact verification) while preserving the existing coordination pattern for complex cases. Option B's batching approach creates blocking dependencies since synthesis steps may depend on earlier verified facts. Option C over-provisions the synthesis agent, violating separation of concerns. Option D relies on speculative caching that cannot reliably predict what the synthesis agent will need to verify.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-5-context-01",
+      "source": "official",
+      "domain": "domain-5-context",
+      "scenario": "1",
+      "difficulty": "medium",
+      "stem": "Scenario: Customer Support Resolution Agent.\n\nYour agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions. What's the most effective way to improve escalation calibration?",
+      "options": {
+        "A": "Add explicit escalation criteria to your system prompt with few-shot examples demonstrating when to escalate versus resolve autonomously.",
+        "B": "Have the agent self-report a confidence score (1-10) before each response and automatically route requests to humans when confidence falls below a threshold.",
+        "C": "Deploy a separate classifier model trained on historical tickets to predict which requests need escalation before the main agent begins processing.",
+        "D": "Implement sentiment analysis to detect customer frustration levels and automatically escalate when negative sentiment exceeds a threshold."
+      },
+      "correct": "A",
+      "explanation": "Adding explicit escalation criteria with few-shot examples directly addresses the root cause: unclear decision boundaries. This is the proportionate first response before adding infrastructure. Option B fails because LLM self-reported confidence is poorly calibrated—the agent is already incorrectly confident on hard cases. Option C is over-engineered, requiring labeled data and ML infrastructure when prompt optimization hasn't been tried. Option D solves a different problem entirely; sentiment doesn't correlate with case complexity, which is the actual issue.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
+    },
+    {
+      "id": "official-domain-5-context-02",
+      "source": "official",
+      "domain": "domain-5-context",
+      "scenario": "3",
+      "difficulty": "medium",
+      "stem": "Scenario: Multi-Agent Research System.\n\nThe web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent. Which error propagation approach best enables intelligent recovery?",
+      "options": {
+        "A": "Return structured error context to the coordinator including the failure type, the attempted query, any partial results, and potential alternative approaches.",
+        "B": "Implement automatic retry logic with exponential backoff within the subagent, returning a generic \"search unavailable\" status only after all retries are exhausted.",
+        "C": "Catch the timeout within the subagent and return an empty result set marked as successful.",
+        "D": "Propagate the timeout exception directly to a top-level handler that terminates the entire research workflow."
+      },
+      "correct": "A",
+      "explanation": "Structured error context gives the coordinator the information it needs to make intelligent recovery decisions—whether to retry with a modified query, try an alternative approach, or proceed with partial results. Option B's generic status hides valuable context from the coordinator, preventing informed decisions. Option C suppresses the error by marking failure as success, which prevents any recovery and risks incomplete research outputs. Option D terminates the entire workflow unnecessarily when recovery strategies could succeed.",
+      "source_note": "raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md"
     }
   ]
 }

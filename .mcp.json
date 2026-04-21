@@ -3,6 +3,13 @@
     "obsidian": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "obsidian-mcp", "C:/projects/ai-kb"]
+    },
+    "docling": {
+      "command": "docling-mcp-server",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "DOCLING_MCP_KEEP_IMAGES": "true"
+      }
     }
   }
 }

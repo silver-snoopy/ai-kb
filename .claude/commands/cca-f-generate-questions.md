@@ -32,6 +32,7 @@ Read these files via the Read tool:
 - `certs/cca-f/_scenarios.md` (authoritative scenario taxonomy with CORRECT/ANTI-PATTERN pairs — the primary few-shot source)
 - `certs/cca-f/_quick-reference.md` (distractor catalog per domain)
 - `certs/cca-f/domain-<1..5>-*/anti-patterns.md` (per-domain anti-patterns)
+- `certs/cca-f/domain-<1..5>-*/official-sample-questions.md` (verbatim questions from the official CCA-F exam guide — authoritative reference for question shape, stem length, distractor style, explanation depth. Use as the primary few-shot pattern exemplar alongside `_scenarios.md`. NOT copied; used as stylistic anchor.)
 - `public/exams/cca-f/bank.json` (current bank — existing questions used for near-duplicate detection via stem-trigram overlap)
 - `raw/certsafari/cca-f-questions.json` (CertSafari substrate — grounding for topic authenticity, NOT copied verbatim)
 

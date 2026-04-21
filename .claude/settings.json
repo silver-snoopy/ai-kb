@@ -6,7 +6,8 @@
       "Bash(node:*)",
       "Bash(npm:*)",
       "Bash(npx:*)",
-      "mcp__obsidian__*"
+      "mcp__obsidian__*",
+      "mcp__docling__*"
     ]
   }
 }

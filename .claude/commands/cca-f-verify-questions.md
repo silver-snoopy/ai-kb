@@ -29,6 +29,19 @@ Runs 4 parallel reviewer subagents against a candidate JSON produced by `/cca-f-
 Read the candidate JSON. Assert:
 - Top-level keys: `generated_at`, `exam_metadata`, `questions`.
 - Each question in `questions[]` has the bank schema fields: `id` (starts with `gen-` or `mix-`), `source` ∈ `{"llm", "mix"}`, `domain` (valid vault slug), `scenario` (`"1"`..`"6"`), `difficulty`, `stem`, `options {A,B,C,D}`, `correct`, `explanation`, `source_note`. The `id` prefix must match the `source` (`gen-` ↔ `"llm"`, `mix-` ↔ `"mix"`).
+- **REJECT candidates containing `source: "official"`.** Official samples are Anthropic-authored and bypass the generator→verify→merge pipeline. They are imported directly from `certs/<cert-id>/domain-*/official-sample-questions.md` via a one-off script (see "Bank sources" below). Attempting to verify `"official"`-sourced questions as a generator candidate indicates either a misrouted ingest or an attempt to spoof authority; either way it's a structural failure.
+- **REJECT candidates containing `source: "cs"`.** CertSafari questions are imported via `scripts/build-bank.mjs`, not the generator pipeline.
+
+## Bank sources (invariant)
+
+The bank's `source` field distinguishes four origins:
+
+| Source | Origin | Prefix | How it enters the bank |
+|---|---|---|---|
+| `cs` | CertSafari import | `certsafari-*` or `cs-*` | `scripts/build-bank.mjs` (one-off CertSafari import, not generator pipeline) |
+| `llm` | LLM-generated | `gen-*` | `/cca-f-generate-questions` → this verifier → merge |
+| `mix` | Externally-authored stems + LLM-inferred answers/explanations/tags | `mix-*` | `/cca-f-answer-raw` → this verifier → merge |
+| `official` | Verbatim Anthropic-authored samples from the official CCA-F exam guide | `official-*` | Direct import from `certs/<cert-id>/domain-*/official-sample-questions.md`; bypasses the 4-reviewer verify since Anthropic-authored content IS the authority |
 - No duplicate ids within the candidate.
 - No id collisions against current `bank.json` (read bank, compare id sets).
 
