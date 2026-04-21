@@ -15,13 +15,13 @@ Generates novel CCA-F exam questions (not a full 60-Q exam — the old `/cca-f-g
 - `--domain` — optional. If provided, all questions are in that domain. Must be compatible with `--scenario` (see `bank.scenarios[S].domains`) — combining an incompatible pair is an error.
 - `--difficulty` — `e`, `m`, or `h`. If omitted, pick based on scenario: medium default, harder for deeper topics.
 - `--seed` — for reproducibility. Defaults to `Date.now()`. Logged in `exam_metadata.seed` in the output file.
-- `--out` — target path under `public/exams/cca-f/candidates/`. Defaults to `public/exams/cca-f/candidates/gen-<UTC-timestamp>-seed<seed>.json`.
+- `--out` — target path under `.tmp-ingest/candidates/`. Defaults to `.tmp-ingest/candidates/gen-<UTC-timestamp>-seed<seed>.json`.
 
 ## What to do
 
 ### 1. Parse arguments
 
-Validate. Reject `--out` paths outside `public/exams/cca-f/candidates/`. If `--scenario` and `--domain` both set, verify the domain is in `bank.scenarios[S].domains` — reject otherwise.
+Validate. Reject `--out` paths outside `.tmp-ingest/candidates/`. If `--scenario` and `--domain` both set, verify the domain is in `bank.scenarios[S].domains` — reject otherwise.
 
 ### 2. Load substrate
 

@@ -22,13 +22,13 @@ Runs 4 parallel reviewer subagents against a candidate JSON produced by `/cca-f-
 ### 1. Parse arguments
 
 - If `--calibrate`, run the calibration sub-routine (see §4).
-- Otherwise, `$ARGUMENTS` is the candidate file path. Must be under `public/exams/cca-f/candidates/`. Reject any other path.
+- Otherwise, `$ARGUMENTS` is the candidate file path. Must be under a local, gitignored scratch directory (default `.tmp-ingest/candidates/`; never under `public/`). Reject paths under `public/`.
 
 ### 2. Validate the candidate structure
 
 Read the candidate JSON. Assert:
 - Top-level keys: `generated_at`, `exam_metadata`, `questions`.
-- Each question in `questions[]` has the bank schema fields: `id` (starts with `gen-`), `source: "llm"`, `domain` (valid vault slug), `scenario` (`"1"`..`"6"`), `difficulty`, `stem`, `options {A,B,C,D}`, `correct`, `explanation`, `source_note`.
+- Each question in `questions[]` has the bank schema fields: `id` (starts with `gen-` or `mix-`), `source` ∈ `{"llm", "mix"}`, `domain` (valid vault slug), `scenario` (`"1"`..`"6"`), `difficulty`, `stem`, `options {A,B,C,D}`, `correct`, `explanation`, `source_note`. The `id` prefix must match the `source` (`gen-` ↔ `"llm"`, `mix-` ↔ `"mix"`).
 - No duplicate ids within the candidate.
 - No id collisions against current `bank.json` (read bank, compare id sets).
 
@@ -66,11 +66,10 @@ For each question, confirm:
 
 - Read `public/exams/cca-f/bank.json`.
 - Append every candidate question to `bank.questions[]`.
-- Re-sort `bank.questions` by id (diff-stable).
+- Re-sort `bank.questions` by (source, id) (diff-stable).
 - Update `bank.total`, bump `bank.version` by 1, set `bank.built_at` to current ISO.
 - Write back to `public/exams/cca-f/bank.json`.
-- Append a line to `public/exams/cca-f/_merge-log.md` (create if missing): `<ISO>` · merged `<candidate-filename>` · `<N>` questions · bank v`<old>` → v`<new>`.
-- Leave candidate file in `candidates/` for audit.
+- Leave candidate file in its local scratch directory for audit if desired; do NOT copy candidates or merge artifacts into `public/`. Provenance lives in `bank.version` + `bank.built_at` + each merged question's `source_note`.
 
 Report: number of questions merged, new bank total, new version.
 
