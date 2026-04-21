@@ -28,7 +28,7 @@ Runs 4 parallel reviewer subagents against a candidate JSON produced by `/cca-f-
 
 Read the candidate JSON. Assert:
 - Top-level keys: `generated_at`, `exam_metadata`, `questions`.
-- Each question in `questions[]` has the bank schema fields: `id` (starts with `gen-`), `source: "llm"`, `domain` (valid vault slug), `scenario` (`"1"`..`"6"`), `difficulty`, `stem`, `options {A,B,C,D}`, `correct`, `explanation`, `source_note`.
+- Each question in `questions[]` has the bank schema fields: `id` (starts with `gen-` or `mix-`), `source` ∈ `{"llm", "mix"}`, `domain` (valid vault slug), `scenario` (`"1"`..`"6"`), `difficulty`, `stem`, `options {A,B,C,D}`, `correct`, `explanation`, `source_note`. The `id` prefix must match the `source` (`gen-` ↔ `"llm"`, `mix-` ↔ `"mix"`).
 - No duplicate ids within the candidate.
 - No id collisions against current `bank.json` (read bank, compare id sets).
 
