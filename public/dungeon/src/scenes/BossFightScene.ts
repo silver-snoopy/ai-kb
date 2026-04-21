@@ -14,7 +14,7 @@ import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { renderBackdrop } from './backdrops';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
-import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
+import { paintOptionFeedback, resetOptionFeedback } from '../ui/optionFeedback';
 import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { formatSpellTooltip } from '../ui/spellTooltip';
 import { installFeelPack } from '../feel/install';
@@ -28,6 +28,19 @@ interface BossFightData {
   mode: RunMode;
   isolated: boolean;
 }
+
+// Auto-advance pacing between questions. Both paths route through
+// scheduleAdvance() so an active narrator line always finishes before the
+// next question replaces the scene.
+// - CORRECT: the answer is the expected outcome; no study needed.
+// - WRONG: red ✗ / green ✓ paint on 4 options needs a beat to scan.
+//   The full explanation lives in the post-boss mistakes review, so this
+//   is only "see the colors" time, not "read the explanation" time.
+const ADVANCE_DELAY_CORRECT_MS = 600;
+const ADVANCE_DELAY_WRONG_MS = 2000;
+// Buffer after narrator clears before the next question swaps in, so the
+// overlay fade-out doesn't collide with the scene change.
+const ADVANCE_POST_NARRATOR_BUFFER_MS = 200;
 
 export class BossFightScene extends Phaser.Scene {
   private state!: CombatState;
@@ -168,8 +181,8 @@ export class BossFightScene extends Phaser.Scene {
     }).setOrigin(0.5, 0);
 
     // Primer text (Study-the-Tome effect) — below the bubble. Wrap is
-    // 880 so post-answer explanations (~300 chars via summarizeExplanation)
-    // fit in 2–3 lines and don't bleed into the first option box below.
+    // 880 so the primer hint fits in 2–3 lines and doesn't bleed into
+    // the first option box below.
     this.primerText = this.add.text(480, 360, '', {
       fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
       wordWrap: { width: 880 }, align: 'center', fontStyle: 'italic',
@@ -542,9 +555,9 @@ export class BossFightScene extends Phaser.Scene {
       // Paint the chosen option green + ✓ so the player gets positive
       // visual confirmation of which answer was correct, AND lock
       // interactivity so the hover handlers can't revert the colors and
-      // stray clicks during the 600ms + narrator delay before advance
-      // cannot fire tryCast/submit hover-look changes. showCurrentQuestion
-      // re-enables on the next question.
+      // stray clicks during the scheduled-advance window cannot fire
+      // tryCast/submit hover-look changes. showCurrentQuestion re-enables
+      // on the next question.
       paintOptionFeedback(this.optionButtons, this.optionTexts, result.correctAnswer, choice);
       this.optionButtons.forEach(b => b.disableInteractive());
     } else {
@@ -570,10 +583,10 @@ export class BossFightScene extends Phaser.Scene {
         explanation: result.explanation,
       });
       // Inline feedback: keep stem + 4 options visible, recolor chosen option
-      // red (✗) and correct option green (✓). Options + spellbook stay
-      // interactive-looking but input is already disabled (acceptingInput=false).
-      // Explanation renders in the primerText slot between bubble and options
-      // — the only on-screen space that doesn't overlap another UI band.
+      // red (✗) and correct option green (✓). The red/green paint is the
+      // sole on-screen signal of the miss — the post-boss mistakes review
+      // (F3b) carries the full explanation. Options stay visually locked
+      // until the next question via disableInteractive below.
       paintOptionFeedback(
         this.optionButtons,
         this.optionTexts,
@@ -585,34 +598,19 @@ export class BossFightScene extends Phaser.Scene {
       // the cursor moves, AND so a stray click on a panel can't re-fire
       // submit. Re-enabled in showCurrentQuestion on the next question.
       this.optionButtons.forEach(b => b.disableInteractive());
-      // CCA-F explanations commonly run 400-1300 chars with per-option
-      // breakdowns ("A: ... B: ... C: ..."). That won't fit the ~140px
-      // gap between bubble and options. Trim to the correct-answer
-      // paragraph if the A:/B:/C:/D: structure is present, else
-      // truncate to ~300 chars. Full explanation lives in post-boss
-      // mistakes review (F3b).
-      const summary = summarizeExplanation(result.explanation, result.correctAnswer);
-      this.primerText.setColor('#e8e0d0');
-      this.primerText.setStyle({ fontStyle: 'normal' });
-      this.primerText.setText(`${summary}\n\n(click to continue — full review after the boss)`);
-      // Defer the dismiss-once registration to the next tick so it can't
-      // fire on the SAME pointerdown that triggered submit (Phaser's
-      // scene-level input.emit runs after gameobject-level handlers in
-      // the same frame; a once-listener added during a gameobject
-      // handler IS in the snapshot for the scene-level emit).
-      this.time.delayedCall(1, () => {
-        this.input.once('pointerdown', () => {
-          this.primerText.setText('');
-          this.primerText.setColor('#ffca28');
-          this.primerText.setStyle({ fontStyle: 'italic' });
-          this.advanceOrEnd();
-        });
-      });
+      this.scheduleAdvance(ADVANCE_DELAY_WRONG_MS);
       return;
     }
 
+    this.scheduleAdvance(ADVANCE_DELAY_CORRECT_MS);
+  }
+
+  /** Schedule the next-question advance. Waits at least `baseMs`, but
+   *  extends to cover any still-showing narrator line so the scene swap
+   *  doesn't cut the overlay off mid-sentence. */
+  private scheduleAdvance(baseMs: number): void {
     const narratorDelay = this.narratorOverlay?.pendingDelayMs() ?? 0;
-    const totalDelay = Math.max(600, narratorDelay + 200);  // 200ms buffer after narrator clears
+    const totalDelay = Math.max(baseMs, narratorDelay + ADVANCE_POST_NARRATOR_BUFFER_MS);
     this.time.delayedCall(totalDelay, () => this.advanceOrEnd());
   }
 

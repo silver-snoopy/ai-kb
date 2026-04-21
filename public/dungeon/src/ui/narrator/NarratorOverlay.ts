@@ -28,6 +28,10 @@ export class NarratorOverlay {
   private currentPrio: Priority | null = null;
   private activeTween: Phaser.Tweens.Tween | null = null;
   private hideTimer: Phaser.Time.TimerEvent | null = null;
+  // scene.time.now at the moment the current line started its fade-in.
+  // Used by pendingDelayMs() to report actual remaining time rather than
+  // the full hold + fade-out budget.
+  private showStartedAt = 0;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -69,6 +73,7 @@ export class NarratorOverlay {
     }
     this.state = 'SHOWING';
     this.currentPrio = priority;
+    this.showStartedAt = this.scene.time.now;
     this.textObj.setText(line);
     this.container.setVisible(true);
     this.container.setAlpha(0);
@@ -111,10 +116,15 @@ export class NarratorOverlay {
     return this.currentPrio;
   }
 
-  /** Remaining display time in ms if showing, else 0. Used by scene to delay next-question. */
+  /** Remaining display time in ms if showing, else 0. Used by scene to
+   *  delay next-question until the narrator line finishes. Computed from
+   *  when show() started so a near-finished line doesn't block advance
+   *  for the full hold + fade-out budget. */
   pendingDelayMs(): number {
     if (this.state === 'IDLE') return 0;
-    return OVERLAY_HOLD_MS + OVERLAY_FADE_OUT_MS;
+    const total = OVERLAY_FADE_IN_MS + OVERLAY_HOLD_MS + OVERLAY_FADE_OUT_MS;
+    const elapsed = this.scene.time.now - this.showStartedAt;
+    return Math.max(0, total - elapsed);
   }
 
   destroy(): void {
