@@ -29,18 +29,17 @@ interface BossFightData {
   isolated: boolean;
 }
 
-// Auto-advance pacing between questions. Both paths route through
-// scheduleAdvance() so an active narrator line always finishes before the
-// next question replaces the scene.
+// Auto-advance pacing between questions. Deterministic: the wait time
+// depends only on whether the answer was correct, never on what else is
+// happening on screen. The narrator runs as an ambient overlay and is
+// allowed to fade out across the next question — it's flavor, not a
+// modal UI, so it doesn't block pacing.
 // - CORRECT: the answer is the expected outcome; no study needed.
 // - WRONG: red ✗ / green ✓ paint on 4 options needs a beat to scan.
 //   The full explanation lives in the post-boss mistakes review, so this
 //   is only "see the colors" time, not "read the explanation" time.
-const ADVANCE_DELAY_CORRECT_MS = 600;
-const ADVANCE_DELAY_WRONG_MS = 2000;
-// Buffer after narrator clears before the next question swaps in, so the
-// overlay fade-out doesn't collide with the scene change.
-const ADVANCE_POST_NARRATOR_BUFFER_MS = 200;
+const ADVANCE_DELAY_CORRECT_MS = 1100;
+const ADVANCE_DELAY_WRONG_MS = 2200;
 
 export class BossFightScene extends Phaser.Scene {
   private state!: CombatState;
@@ -605,13 +604,11 @@ export class BossFightScene extends Phaser.Scene {
     this.scheduleAdvance(ADVANCE_DELAY_CORRECT_MS);
   }
 
-  /** Schedule the next-question advance. Waits at least `baseMs`, but
-   *  extends to cover any still-showing narrator line so the scene swap
-   *  doesn't cut the overlay off mid-sentence. */
+  /** Schedule the next-question advance. Fixed delay — the narrator
+   *  overlay is a separate ambient layer and is allowed to keep playing
+   *  over the next question if its line hasn't finished. */
   private scheduleAdvance(baseMs: number): void {
-    const narratorDelay = this.narratorOverlay?.pendingDelayMs() ?? 0;
-    const totalDelay = Math.max(baseMs, narratorDelay + ADVANCE_POST_NARRATOR_BUFFER_MS);
-    this.time.delayedCall(totalDelay, () => this.advanceOrEnd());
+    this.time.delayedCall(baseMs, () => this.advanceOrEnd());
   }
 
   private floatDamage(x: number, y: number, text: string, color: string): void {
