@@ -41,8 +41,8 @@ Claude is an **active research librarian**, not an autonomous writer. Responsibi
 | `_lint/YYYY-MM-DD-report.md` | Claude via `/lint` | No | Reports |
 | `index.md` | Claude via `/capture` and `/lint` | No | Auto-maintained catalog |
 | `dashboard.md` | GitHub Action (dashboard.yml) | No | Auto-generated |
-| `public/exams/<cert-id>/bank.json` | Claude via `scripts/build-bank.mjs` (CertSafari import) + `/cca-f-verify-questions` (LLM-generated merge) | n/a | Single unified question bank for the cert. Every question carries `domain` + `scenario` tags; `source: "certsafari" \| "llm"` distinguishes origin. Consumed by `public/practice/` and the dungeon. |
-| `public/exams/<cert-id>/candidates/**` | Claude via `/cca-f-generate-questions` | No | LLM-generated question sets awaiting verification. Merged into `bank.json` on clean review. Kept as audit trail after merge. |
+| `public/exams/<cert-id>/bank.json` | Claude via `scripts/build-bank.mjs` (CertSafari import) + `/cca-f-verify-questions` (LLM-generated or externally-authored merge) | n/a | Single unified question bank for the cert. Every question carries `domain` + `scenario` tags; `source: "cs" \| "llm" \| "mix"` distinguishes origin (CertSafari / LLM-generated / externally-authored-with-LLM-answers). Consumed by `public/practice/` and the dungeon. Provenance for each merge lives in `bank.version` + `bank.built_at` + per-question `source_note` — no separate merge log or candidates folder is kept under `public/`. |
+| `.tmp-ingest/candidates/**` | Claude via `/cca-f-generate-questions` or `/cca-f-answer-raw` (gitignored) | No | Scratch candidate JSONs awaiting `/cca-f-verify-questions`. Not tracked in git; regenerate on demand from raw sources. |
 
 ## Frontmatter contract (in-scope notes only)
 

@@ -22,7 +22,7 @@ Consumes a raw dump of "verified but unanswered" CCA-F MCQs (stems and distracto
 ### 1. Parse arguments
 
 - `$ARGUMENTS[0]` is the raw dump path (required). Must exist; default `raw/other/cca-f-questions-2.json`.
-- `--out` optional; must resolve under `public/exams/cca-f/candidates/`. Default `public/exams/cca-f/candidates/mix-<UTC-timestamp>.json` (UTC ISO, colons stripped).
+- `--out` optional; must resolve under `.tmp-ingest/candidates/`. Default `.tmp-ingest/candidates/mix-<UTC-timestamp>.json` (UTC ISO, colons stripped).
 
 ### 2. Validate raw input
 
