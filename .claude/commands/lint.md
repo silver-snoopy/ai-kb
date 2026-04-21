@@ -16,7 +16,25 @@ argument-hint: [<cert-id>|--all]
    - All `.md` files in scope:
      - `--all`: everything under `certs/`, `concepts/`, `prompts/`, `resources/`
      - `<cert-id>`: everything under `certs/<cert-id>/` plus `concepts/` (since concepts are referenced cross-cert)
-3. Run 5 checks in order:
+3. Run 6 checks in order:
+
+### Check 0 — Embedded `question` block YAML validity
+
+Scan every in-scope `.md` file for fenced ```question``` blocks. For each block, run `yaml.safe_load` on the block body. Two failure modes to catch:
+
+- **YAML parse error.** Usually caused by unquoted colons in option values (YAML interprets `A: Set tool_choice to {type: "tool", name: "x"}` as a nested mapping due to the `type:` and `name:` substrings). Fix: wrap the offending option in double-quotes or single-quotes.
+- **Missing required fields.** Each question block must have: `id`, `domain`, `difficulty`, `stem`, `options` (with A/B/C/D keys), `correct`, `explanation`, `source-note`.
+
+For each failure, emit:
+```
+[QUESTION-YAML] <path>
+  Block starting at line <N>, id: <id or "missing">
+  Error: <parse error or missing field list>
+  Suggested fix: <e.g., "wrap option C in single quotes: C: '...'">
+  Options: [apply fix / skip]
+```
+
+Rationale: the `/quiz`, `/mock-exam`, and `/cca-f-verify-questions` commands all consume these blocks. A silently-broken block yields silent downstream failures.
 
 ### Check 1 — Contradictions
 
