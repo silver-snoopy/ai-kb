@@ -1,7 +1,7 @@
 ---
 cert: cca-f
 domain: domain-2-claude-code
-status: draft
+status: done
 source: 2026-04-21-architect-playbook
 tags: [playbook, claude-code, codebase-exploration, scratchpad, session-resumption]
 links:

@@ -1,7 +1,7 @@
 ---
 cert: cca-f
 domain: domain-3-prompt-engineering
-status: draft
+status: done
 source: 2026-04-21-architect-playbook
 tags: [playbook, extraction, schema-design, few-shot, null-handling, structured-intermediates]
 links:

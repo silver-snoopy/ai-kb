@@ -1,7 +1,7 @@
 ---
 cert: cca-f
 domain: domain-1-agentic
-status: draft
+status: done
 source: 2026-04-21-architect-playbook
 tags: [playbook, patterns, multi-agent, escalation, fork-session]
 links:

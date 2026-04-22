@@ -1,7 +1,7 @@
 ---
 cert: cca-f
 domain: domain-5-context
-status: draft
+status: done
 source: 2026-04-21-architect-playbook
 tags: [playbook, context-management, reliability, batch-api, hitl, compliance, retry]
 links:

@@ -1,7 +1,7 @@
 ---
 cert: cca-f
 domain: domain-4-mcp
-status: draft
+status: done
 source: 2026-04-21-architect-playbook
 tags: [playbook, tool-design, mcp, granularity, error-handling, delegation]
 links:
