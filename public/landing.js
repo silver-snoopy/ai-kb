@@ -1,33 +1,16 @@
 // public/landing.js — populates question-bank stats on the landing page.
-// Falls back gracefully if questions.json is missing or localStorage lacks srs state.
+// Reads from the unified bank at exams/cca-f/bank.json (the same source the
+// Practice and Dungeon surfaces use). Fails silently if the bank is missing.
 
 async function populate() {
   try {
-    const res = await fetch('questions.json');
+    const res = await fetch('exams/cca-f/bank.json');
     if (!res.ok) return;
-    const data = await res.json();
+    const bank = await res.json();
     const totalEl = document.getElementById('stat-total');
     const domainEl = document.getElementById('stat-domains');
-    if (totalEl) totalEl.textContent = String(data.total);
-    if (domainEl) domainEl.textContent = String(Object.keys(data.by_domain || {}).length);
-
-    // SRS stats
-    const dueEl = document.getElementById('stat-due');
-    const masteredEl = document.getElementById('stat-mastered');
-    let state = null;
-    try { state = JSON.parse(localStorage.getItem('srs-state') || 'null'); } catch { /* ignore */ }
-    const cards = (state && state.cards) || {};
-    const ids = new Set(data.questions.map(q => q.id));
-    const today = new Date().toISOString().slice(0, 10);
-    let due = 0, mastered = 0;
-    for (const q of data.questions) {
-      const c = cards[q.id];
-      if (!c) { due++; continue; }
-      if (c.due && c.due <= today) due++;
-      if (c.reps >= 3 && (c.last_rating === 'good' || c.last_rating === 'easy')) mastered++;
-    }
-    if (dueEl) dueEl.textContent = String(due);
-    if (masteredEl) masteredEl.textContent = String(mastered);
+    if (totalEl) totalEl.textContent = String(bank.total);
+    if (domainEl) domainEl.textContent = String(Object.keys(bank.domains || {}).length);
   } catch { /* ignore — leave placeholders */ }
 }
 
