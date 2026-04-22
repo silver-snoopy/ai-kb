@@ -1,8 +1,8 @@
 {
   "cert_id": "cca-f",
-  "version": 7,
-  "built_at": "2026-04-21T23:42:56.803644Z",
-  "total": 561,
+  "version": 8,
+  "built_at": "2026-04-22T04:08:55.624716Z",
+  "total": 557,
   "domains": {
     "domain-1-agentic": {
       "num": 1,
@@ -105,7 +105,7 @@
       "id": "cs-domain-1-agentic-23979",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "An engineering team is using Claude to review massive pull requests spanning over 50 files. They notice that while Claude catches local syntax errors, it frequently misses subtle cross-file dependency issues and suffers from attention dilution, hallucinating variable names from unrelated files. How should the architect redesign the review workflow?",
       "options": {
@@ -116,13 +116,13 @@
       },
       "correct": "A",
       "explanation": "A: Correct. This is a classic decomposition strategy (Map-Reduce pattern). By splitting the task into local per-file passes, the architect reduces the context noise and attention dilution for individual file logic. The subsequent integration pass focuses specifically on the interaction between summarized symbols, allowing the model to focus on cross-file dependencies without the 'dilution' of full file contents.\nB: Incorrect. While adaptive decomposition is useful in some agentic workflows, allowing the model to decide 'which files are important' before it has fully analyzed the PR risks missing the 'subtle' dependencies mentioned in the prompt. It doesn't guarantee a comprehensive review of the entire code change.\nC: Incorrect. Running batches 'completely independently' is the fastest way to lose cross-file context. Dependencies between files in Batch 1 and Batch 2 would be entirely invisible to the model, failing the primary requirement of the redesign.\nD: Incorrect. Increasing temperature increases stochasticity (randomness), which generally increases hallucinations rather than reducing them. Furthermore, forcing all 50 files into a single prompt (even with XML tags) causes the 'attention dilution' and 'middle-of-the-context' neglect mentioned in the problem description.",
-      "source_note": "cs id=23979"
+      "source_note": "cs id=23979 | v8-audit: retagged scenario 1->4"
     },
     {
       "id": "cs-domain-1-agentic-23980",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "An architect is designing an agentic system to add comprehensive unit tests to a massive, undocumented legacy codebase. The task is highly open-ended, and the dependencies between modules are unknown. What is the optimal decomposition strategy for this workflow?",
       "options": {
@@ -133,7 +133,7 @@
       },
       "correct": "B",
       "explanation": "A: Implementing a fixed prompt chain that iterates alphabetically is brittle and ignores actual code structure or dependency relationships. This approach is rigid and fails to adapt when complex cross-file dependencies are encountered, likely leading to low-quality tests or system failure.\nB: This strategy uses a discovery-driven approach suitable for open-ended tasks with unknown dependencies. By mapping the codebase and identifying high-impact areas first, the system can prioritize critical modules and refine its strategy as it learns more about the codebase's interdependencies, allowing for efficient and accurate decomposition of a massive task.\nC: Attempting to process an entire massive codebase in a single context window is impractical due to token limits and the high risk of hallucination or detail loss. This method lacks the iterative discovery needed for undocumented code and usually results in shallow or incorrect outputs.\nD: While parallelization increases throughput, deploying agents without a prior understanding of the codebase leads to inconsistent assumptions and failure to handle integration points. A map-reduce approach alone cannot resolve the complex, unknown dependencies inherent in legacy systems without an initial coordination and mapping phase.",
-      "source_note": "cs id=23980"
+      "source_note": "cs id=23980 | v8-audit: retagged scenario 1->4"
     },
     {
       "id": "cs-domain-1-agentic-23981",
@@ -207,7 +207,7 @@
       "id": "cs-domain-1-agentic-23985",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "A data engineering team wants an agent to migrate a complex, undocumented ETL pipeline from an old framework to a new one. The scripts heavily rely on each other in non-obvious ways. Which approach represents the best open-ended task decomposition strategy?",
       "options": {
@@ -218,13 +218,13 @@
       },
       "correct": "C",
       "explanation": "A: Starting with the first script without understanding the global dependency graph is overly reactive and brittle. This approach leads to cascading failures and repeated rework as hidden interactions and cross-file dependencies surface later in the process.\nB: Using a fixed prompt chain for sequential translation is too rigid for undocumented, tightly coupled pipelines. It assumes a level of independence that doesn't exist here, and a post-hoc integration pass is likely to be costly and error-prone when trying to resolve non-obvious dependencies after the fact.\nC: This approach represents the best decomposition strategy for complex, open-ended tasks. By first mapping the pipeline structure and identifying the critical path, the agent creates a global view that supports prioritized, adaptive migration. This enables targeted decomposition, incremental verification, and the handling of non-obvious interactions before committing to translations.\nD: Running a parallel map-reduce job ignores the coordination required for interdependent scripts. While parallelization can save time, in a tightly coupled system it results in inconsistent interfaces and significant reconciliation effort, often leading to total integration failure.",
-      "source_note": "cs id=23985"
+      "source_note": "cs id=23985 | v8-audit: retagged scenario 1->4"
     },
     {
       "id": "cs-domain-1-agentic-23986",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "A development team implemented a per-file analysis agent for code reviews. It successfully catches local syntax errors and style violations. However, it fails to detect when a function signature change in `utils.py` breaks a function call in `main.py`. What architectural addition is required to solve this?",
       "options": {
@@ -235,7 +235,7 @@
       },
       "correct": "B",
       "explanation": "A: Dynamic adaptive decomposition refers to changing the strategy of how tasks are broken down based on the nature of the input. While it allows for flexibility, it does not inherently provide the cross-file context or dependency-aware checks needed to detect boundary issues between files.\nB: Correct. Adding a cross-file integration pass is a standard architectural pattern for modular agentic systems. By consuming the outputs of localized agents and using a dependency graph, this pass can specifically check call sites against updated definitions (the 'boundaries'), ensuring that changes in one module do not break dependencies in another.\nC: Combining files is a non-scalable, brittle workaround that conflates concerns and may introduce new complexities or exceed the LLM's context window. It ignores modularity principles and is impractical for large codebases.\nD: While using a single prompt might work for small projects, it is not an architecturally sound solution for a production development environment. It risks exceeding model context limits and lacks the explicit, structured integration logic provided by a dedicated pass informed by a dependency graph.",
-      "source_note": "cs id=23986"
+      "source_note": "cs id=23986 | v8-audit: retagged scenario 1->4"
     },
     {
       "id": "cs-domain-1-agentic-23987",
@@ -258,7 +258,7 @@
       "id": "cs-domain-1-agentic-23988",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "1",
+      "scenario": "4",
       "difficulty": "medium",
       "stem": "An agent is tasked with optimizing cloud infrastructure costs. It begins by analyzing EC2 instances. During the analysis, the agent discovers that several expensive instances are tied to an undocumented, legacy Auto Scaling Group (ASG) that was not in its initial scope. How should an adaptive investigation plan handle this discovery?",
       "options": {
@@ -269,7 +269,7 @@
       },
       "correct": "D",
       "explanation": "A: Ignoring the ASG violates the principles of adaptive planning and risks incomplete analysis or unsafe recommendations. In a cloud environment, if an agent recommends terminating instances managed by an ASG without acknowledging the ASG, those instances will simply be recreated, leading to a loop of wasted effort and potential instability.\nB: While human-in-the-loop is a valuable safety mechanism, halting execution entirely upon the discovery of a new entity is overly conservative. An effective adaptive agent should first attempt to autonomously gather data and map dependencies to provide a more complete picture, only escalating if it lacks the permissions or confidence to resolve the ambiguity.\nC: Merging documentation is a static analysis or tooling step. It may consolidate existing knowledge but does not address the functional requirement of discovering live configurations or runtime dependencies in the cloud environment. The agent needs to query the infrastructure, not just documentation.\nD: This is the correct adaptive response. Adaptive investigation allows the agent to dynamically expand its scope by generating new subtasks when unexpected constraints or entities are discovered. Investigating the ASG's configuration ensures the agent understands the ownership and scaling policies of the instances before making optimization recommendations, thereby ensuring the final plan is safe and accurate.",
-      "source_note": "cs id=23988"
+      "source_note": "cs id=23988 | v8-audit: retagged scenario 1->4"
     },
     {
       "id": "cs-domain-1-agentic-24001",
@@ -842,12 +842,12 @@
       "options": {
         "A": "Implement a self-correction loop where the bot double-checks its own work before finalizing the payout.",
         "B": "Remove the `issue_payout` tool from the LLM entirely. Instead, have the LLM call an `approve_claim` tool, and let the backend application logic deterministically trigger the payout system based on the claim status.",
-        "C": "Rely on prompt-based guidance but switch to a more capable model like Claude 3.5 Sonnet to achieve 100% deterministic compliance.",
+        "C": "Rely on prompt-based guidance but switch to a more capable model like Claude Opus to achieve 100% deterministic compliance.",
         "D": "Add a mandatory user confirmation step where the user must type 'I agree' before the bot can call the payout tool."
       },
       "correct": "B",
-      "explanation": "A: Implementing a self-correction loop keeps the decision and enforcement inside the LLM's non-deterministic behavior. While self-checking can reduce errors, it cannot guarantee a zero failure rate as the model may hallucinate that it followed the rules even when it did not.\nB: This is the 'Enforcement' or 'Hard Guardrail' pattern. By moving the sensitive action (payout) to the backend application logic, you ensure that compliance rules are executed by deterministic code rather than probabilistic model logic. The LLM acts as the orchestrator, but the authoritative system of record enforces the business rules.\nC: Upgrading to a more capable model like Claude 3.5 Sonnet improves performance and instruction following, but no LLM is 100% deterministic. Critical compliance requirements should never rely solely on model capability if a deterministic programmatic alternative exists.\nD: Adding a user confirmation step (Human-in-the-loop) adds friction and a safety layer, but it does not address the architectural flaw. Users can make mistakes or be social-engineered, and the final execution still relies on the LLM's non-deterministic decision to call the tool.",
-      "source_note": "cs id=24094"
+      "explanation": "A: Implementing a self-correction loop keeps the decision and enforcement inside the LLM's non-deterministic behavior. While self-checking can reduce errors, it cannot guarantee a zero failure rate as the model may hallucinate that it followed the rules even when it did not.\nB: This is the 'Enforcement' or 'Hard Guardrail' pattern. By moving the sensitive action (payout) to the backend application logic, you ensure that compliance rules are executed by deterministic code rather than probabilistic model logic. The LLM acts as the orchestrator, but the authoritative system of record enforces the business rules.\nC: Upgrading to a more capable model like Claude Opus improves performance and instruction following, but no LLM is 100% deterministic. Critical compliance requirements should never rely solely on model capability if a deterministic programmatic alternative exists.\nD: Adding a user confirmation step (Human-in-the-loop) adds friction and a safety layer, but it does not address the architectural flaw. Users can make mistakes or be social-engineered, and the final execution still relies on the LLM's non-deterministic decision to call the tool.",
+      "source_note": "cs id=24094 | v8-audit: stale-term: Claude 3.5 Sonnet -> Claude Opus (current frontier generic)"
     },
     {
       "id": "cs-domain-1-agentic-24133",
@@ -859,12 +859,12 @@
       "options": {
         "A": "Update the system prompt with few-shot examples demonstrating how to convert Unix epoch and DD-MM-YYYY formats into ISO 8601 before calculating SLAs.",
         "B": "Implement a PostToolUse hook that detects the tool source, parses the specific date format into a standard ISO 8601 string, and replaces the raw output before returning the result to the model.",
-        "C": "Implement a PreToolCall hook to inject a requested_format=\"ISO8601\" parameter into the outgoing tool arguments for all three carrier tools.",
+        "C": "Implement a PreToolUse hook to inject a requested_format=\"ISO8601\" parameter into the outgoing tool arguments for all three carrier tools.",
         "D": "Create a separate DateConverter tool and instruct the model in the system prompt to call it every time it receives a date from the logistics tools."
       },
       "correct": "B",
-      "explanation": "A: While few-shot examples can improve model performance, they do not provide a technical guarantee. Relying on the model to perform manual data normalization is brittle, increases token usage, and is prone to reasoning errors, especially when handling multiple legacy formats.\nB: Implementing a PostToolUse hook is the architectural best practice for data normalization in agentic workflows. By intercepting the tool output and standardizing the date formats before the data reaches the model, you ensure that the model always receives consistent, high-quality data. This centralizes the logic and decouples data parsing from the LLM's reasoning.\nC: A PreToolCall hook modifies tool arguments before they are sent. However, this solution assumes that the underlying third-party MCP tools are designed to accept and process a format parameter, which is unlikely for heterogeneous regional carrier APIs. It does not solve the problem if the tool cannot change its output format.\nD: Creating an additional tool increases the complexity of the agentic loop, adds latency, and increases cost. It also relies on the model consistently deciding to call the converter tool, which introduces a point of failure if the model attempts to calculate the SLA using the raw data directly.",
-      "source_note": "cs id=24133"
+      "explanation": "A: While few-shot examples can improve model performance, they do not provide a technical guarantee. Relying on the model to perform manual data normalization is brittle, increases token usage, and is prone to reasoning errors, especially when handling multiple legacy formats.\nB: Implementing a PostToolUse hook is the architectural best practice for data normalization in agentic workflows. By intercepting the tool output and standardizing the date formats before the data reaches the model, you ensure that the model always receives consistent, high-quality data. This centralizes the logic and decouples data parsing from the LLM's reasoning.\nC: A PreToolUse hook modifies tool arguments before they are sent. However, this solution assumes that the underlying third-party MCP tools are designed to accept and process a format parameter, which is unlikely for heterogeneous regional carrier APIs. It does not solve the problem if the tool cannot change its output format.\nD: Creating an additional tool increases the complexity of the agentic loop, adds latency, and increases cost. It also relies on the model consistently deciding to call the converter tool, which introduces a point of failure if the model attempts to calculate the SLA using the raw data directly.",
+      "source_note": "cs id=24133 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-24134",
@@ -876,12 +876,12 @@
       "options": {
         "A": "Decrease the model's temperature to 0.0 to ensure deterministic adherence to the system prompt instructions regarding the $500 limit.",
         "B": "Implement a PostToolUse hook that checks the API response for the reversed amount and immediately calls a `revert_transaction` tool if it exceeds $500.",
-        "C": "Implement a PreToolCall hook on the `reverse_fee` tool that inspects the `amount` argument, blocks the execution if it exceeds 500, and returns a system message triggering the human escalation workflow.",
+        "C": "Implement a PreToolUse hook on the `reverse_fee` tool that inspects the `amount` argument, blocks the execution if it exceeds 500, and returns a system message triggering the human escalation workflow.",
         "D": "Fine-tune the model on a dataset of 10,000 fee reversal scenarios where amounts over $500 are explicitly routed to human managers."
       },
       "correct": "C",
-      "explanation": "A: Lowering the model's temperature to 0.0 reduces randomness but does not provide a guarantee of adherence to business rules. Compliance must be enforced at the orchestration layer through deterministic hooks or guards rather than relying on the probabilistic sampling parameters of the LLM.\nB: A PostToolUse hook is reactive, meaning the unauthorized transaction has already occurred before the system attempts to revert it. This creates significant compliance, auditing, and customer-impact risks. Strict enforcement requires blocking disallowed actions before execution.\nC: A PreToolCall hook allows the orchestration layer to inspect tool arguments (like the reversal amount) before the tool is executed. This provides a deterministic, programmatic boundary that can block execution and trigger a human-in-the-loop escalation workflow, ensuring the rule is never bypassed.\nD: Fine-tuning is probabilistic and cannot guarantee 100% adherence to specific numerical constraints. Architectural controls (like SDK hooks) are the correct solution for provable, auditable enforcement of hard business rules.",
-      "source_note": "cs id=24134"
+      "explanation": "A: Lowering the model's temperature to 0.0 reduces randomness but does not provide a guarantee of adherence to business rules. Compliance must be enforced at the orchestration layer through deterministic hooks or guards rather than relying on the probabilistic sampling parameters of the LLM.\nB: A PostToolUse hook is reactive, meaning the unauthorized transaction has already occurred before the system attempts to revert it. This creates significant compliance, auditing, and customer-impact risks. Strict enforcement requires blocking disallowed actions before execution.\nC: A PreToolUse hook allows the orchestration layer to inspect tool arguments (like the reversal amount) before the tool is executed. This provides a deterministic, programmatic boundary that can block execution and trigger a human-in-the-loop escalation workflow, ensuring the rule is never bypassed.\nD: Fine-tuning is probabilistic and cannot guarantee 100% adherence to specific numerical constraints. Architectural controls (like SDK hooks) are the correct solution for provable, auditable enforcement of hard business rules.",
+      "source_note": "cs id=24134 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-24135",
@@ -892,13 +892,13 @@
       "stem": "An IT operations agent diagnoses server health using multiple legacy APIs. The APIs return heterogeneous status codes: API 1 returns `0` for success, API 2 returns `200`, and API 3 returns `OK`. The model frequently misinterprets `0` as a failure state, leading to unnecessary escalation alerts. What is the most robust architectural solution?",
       "options": {
         "A": "Modify the system prompt to include a comprehensive mapping table of all possible status codes for each legacy API.",
-        "B": "Use a PreToolCall hook to intercept the request and route it through a middleware proxy that standardizes the API responses at the network level.",
+        "B": "Use a PreToolUse hook to intercept the request and route it through a middleware proxy that standardizes the API responses at the network level.",
         "C": "Instruct the model to call a `verify_status` tool immediately after receiving a `0` to confirm if it represents a success or failure.",
         "D": "Implement a PostToolUse hook that maps the heterogeneous status codes to a unified schema (e.g., `{\"status\": \"SUCCESS\"}`) before passing the tool result to the model."
       },
       "correct": "D",
-      "explanation": "A: Modifying the system prompt is brittle and consumes valuable context window space. It relies on the model's ability to consistently follow instructions and perform logic-based mapping, which is prone to error compared to deterministic code-based solutions.\nB: A PreToolCall hook typically intercepts the request before it is sent. Routing requests through a network-level middleware proxy adds significant infrastructure complexity and latency. Normalization is better handled within the agent's application layer using SDK hooks designed for data transformation.\nC: Requiring a verification tool call increases latency, token costs, and complexity. It attempts to solve a deterministic data normalization problem through model behavior, which remains fragile and less robust than automated hooks.\nD: Implementing a PostToolUse hook is the most robust solution. It allows for deterministic normalization of tool outputs before they reach the LLM. By mapping heterogeneous legacy codes into a unified schema (e.g., 'SUCCESS'), you remove ambiguity and ensure the model consistently receives clear, standardized information, following best practices for agentic orchestration.",
-      "source_note": "cs id=24135"
+      "explanation": "A: Modifying the system prompt is brittle and consumes valuable context window space. It relies on the model's ability to consistently follow instructions and perform logic-based mapping, which is prone to error compared to deterministic code-based solutions.\nB: A PreToolUse hook typically intercepts the request before it is sent. Routing requests through a network-level middleware proxy adds significant infrastructure complexity and latency. Normalization is better handled within the agent's application layer using SDK hooks designed for data transformation.\nC: Requiring a verification tool call increases latency, token costs, and complexity. It attempts to solve a deterministic data normalization problem through model behavior, which remains fragile and less robust than automated hooks.\nD: Implementing a PostToolUse hook is the most robust solution. It allows for deterministic normalization of tool outputs before they reach the LLM. By mapping heterogeneous legacy codes into a unified schema (e.g., 'SUCCESS'), you remove ambiguity and ensure the model consistently receives clear, standardized information, following best practices for agentic orchestration.",
+      "source_note": "cs id=24135 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-24139",
@@ -908,48 +908,48 @@
       "difficulty": "medium",
       "stem": "A travel booking agent frequently generates the `search_flights` tool call with natural language dates (e.g., 'next Friday'). The external flight API strictly requires a `YYYY-MM-DD` format and crashes if provided anything else. Prompting the model to format dates correctly works 90% of the time. How can you deterministically prevent the external API from crashing due to bad date formats?",
       "options": {
-        "A": "Implement a PreToolCall hook that validates the date string against a `YYYY-MM-DD` regex. If it fails, block the API call and return a validation error to the model, forcing it to correct the format.",
+        "A": "Implement a PreToolUse hook that validates the date string against a `YYYY-MM-DD` regex. If it fails, block the API call and return a validation error to the model, forcing it to correct the format.",
         "B": "Implement a PostToolUse hook that catches the API crash, converts the date using a Python library, and automatically re-triggers the tool call.",
         "C": "Add a negative constraint to the system prompt: 'CRITICAL: Never use natural language dates. You will be penalized if you do not use YYYY-MM-DD.'",
         "D": "Change the tool schema to accept a `natural_language_date` string and rely on the external flight API's internal NLP engine to parse it."
       },
       "correct": "A",
-      "explanation": "A: Correct. Implementing a PreToolCall hook provides a deterministic validation layer that intercepts the model's output before it reaches the external system. By validating the date format against a regex or code-based logic, you ensure the API never receives malformed input. If validation fails, blocking the call and providing feedback to the model allows it to correct the parameter format before a network request is ever made.\nB: Incorrect. A PostToolUse hook executes after the tool has already been called. Since the external API crashes upon receiving an invalid format, the crash would have already occurred by the time this hook runs. This is a reactive error-handling strategy rather than a proactive prevention method.\nC: Incorrect. Prompting is probabilistic and non-deterministic. While negative constraints and system prompts can improve performance, they do not guarantee 100% compliance. The scenario specifically states that prompting is only 90% effective, so it cannot fulfill the requirement of deterministically preventing crashes.\nD: Incorrect. This approach contradicts the problem statement, which specifies that the external API strictly requires YYYY-MM-DD and crashes otherwise. Unless the API itself is updated to support natural language, changing the tool schema without a normalization layer will result in continued crashes.",
-      "source_note": "cs id=24139"
+      "explanation": "A: Correct. Implementing a PreToolUse hook provides a deterministic validation layer that intercepts the model's output before it reaches the external system. By validating the date format against a regex or code-based logic, you ensure the API never receives malformed input. If validation fails, blocking the call and providing feedback to the model allows it to correct the parameter format before a network request is ever made.\nB: Incorrect. A PostToolUse hook executes after the tool has already been called. Since the external API crashes upon receiving an invalid format, the crash would have already occurred by the time this hook runs. This is a reactive error-handling strategy rather than a proactive prevention method.\nC: Incorrect. Prompting is probabilistic and non-deterministic. While negative constraints and system prompts can improve performance, they do not guarantee 100% compliance. The scenario specifically states that prompting is only 90% effective, so it cannot fulfill the requirement of deterministically preventing crashes.\nD: Incorrect. This approach contradicts the problem statement, which specifies that the external API strictly requires YYYY-MM-DD and crashes otherwise. Unless the API itself is updated to support natural language, changing the tool schema without a normalization layer will result in continued crashes.",
+      "source_note": "cs id=24139 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-24140",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "A cloud infrastructure agent uses a `get_container_logs` tool. The tool often returns up to 20MB of raw JSON logs, which exceeds the model's context window and causes token limit errors. The agent only needs to analyze log lines marked as 'ERROR' or 'FATAL'. What is the most efficient way to handle this data?",
       "options": {
         "A": "Update the system prompt to instruct the model to only request logs that contain 'ERROR' or 'FATAL'.",
-        "B": "Implement a PreToolCall hook that intercepts the request and changes the tool name to `get_error_logs`.",
+        "B": "Implement a PreToolUse hook that intercepts the request and changes the tool name to `get_error_logs`.",
         "C": "Implement a PostToolUse hook that parses the 20MB JSON response, filters the array for entries matching 'ERROR' or 'FATAL', and returns only the filtered subset to the model.",
         "D": "Increase the `max_tokens` parameter in the agent's configuration to accommodate the 20MB payload."
       },
       "correct": "C",
-      "explanation": "A: Updating the system prompt influences the model's behavior but does not change the programmatic output of the tool. The `get_container_logs` tool would still return the full 20MB payload to the orchestrator, and if that payload is passed into the conversation history, it will still exceed the context window.\nB: While a PreToolCall hook can intercept and modify requests, this solution assumes a specialized `get_error_logs` tool exists and is available. It relies on tool redirection rather than addressing the core requirement of data normalization for the existing workflow.\nC: Correct. A PostToolUse hook is the standard architectural pattern for data normalization. It allows the orchestration layer to intercept the large raw response from the tool and filter or transform it before it is sent to the LLM. This significantly reduces the token count and ensures the model only receives the relevant 'ERROR' or 'FATAL' lines, staying within the context window limits.\nD: Increasing the `max_tokens` parameter generally refers to the model's output limit, not its input (context window). Furthermore, 20MB of raw logs could represent millions of tokens, which is far beyond the capacity of current model context windows and would be prohibitively expensive and slow to process.",
-      "source_note": "cs id=24140"
+      "explanation": "A: Updating the system prompt influences the model's behavior but does not change the programmatic output of the tool. The `get_container_logs` tool would still return the full 20MB payload to the orchestrator, and if that payload is passed into the conversation history, it will still exceed the context window.\nB: While a PreToolUse hook can intercept and modify requests, this solution assumes a specialized `get_error_logs` tool exists and is available. It relies on tool redirection rather than addressing the core requirement of data normalization for the existing workflow.\nC: Correct. A PostToolUse hook is the standard architectural pattern for data normalization. It allows the orchestration layer to intercept the large raw response from the tool and filter or transform it before it is sent to the LLM. This significantly reduces the token count and ensures the model only receives the relevant 'ERROR' or 'FATAL' lines, staying within the context window limits.\nD: Increasing the `max_tokens` parameter generally refers to the model's output limit, not its input (context window). Furthermore, 20MB of raw logs could represent millions of tokens, which is far beyond the capacity of current model context windows and would be prohibitively expensive and slow to process.",
+      "source_note": "cs id=24140 | v8-audit: retagged scenario 3->1 + hook-terminology-fix"
     },
     {
       "id": "cs-domain-1-agentic-24141",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "An e-commerce agent can issue store credit using the `issue_credit` tool. Company policy requires that the agent must have successfully executed the `verify_fraud_status` tool in the same session before issuing credit. The model occasionally skips the fraud check to save time. How can you enforce this multi-tool dependency deterministically?",
       "options": {
         "A": "Combine `verify_fraud_status` and `issue_credit` into a single tool so the model cannot call them separately.",
         "B": "Add a PostToolUse hook to `issue_credit` that asynchronously triggers `verify_fraud_status` and revokes the credit if fraud is detected.",
         "C": "Use a few-shot prompt containing examples of the agent being reprimanded for skipping the fraud check.",
-        "D": "Implement a PreToolCall hook on `issue_credit` that checks the orchestrator's session state for a `fraud_check_passed` flag. If missing, it blocks the call and returns an instruction to perform the check first."
+        "D": "Implement a PreToolUse hook on `issue_credit` that checks the orchestrator's session state for a `fraud_check_passed` flag. If missing, it blocks the call and returns an instruction to perform the check first."
       },
       "correct": "D",
-      "explanation": "A: While combining tools enforces the sequence by construction, it is a heavy-handed approach that sacrifices modularity and reusability. It forces code-level coupling and prevents other workflows from utilizing the fraud check independently without issuing credit.\nB: A PostToolUse hook triggers after the credit has already been issued, which violates the company policy requiring the check *before* issuance. Asynchronous remediation does not prevent the policy violation and can introduce race conditions.\nC: Few-shot prompting and model reprimands are probabilistic methods. They rely on the LLM's adherence to instructions rather than architectural constraints, meaning they cannot provide a deterministic guarantee against skipping steps.\nD: A PreToolCall hook on `issue_credit` allows the orchestrator to intercept the call and inspect session state for a specific flag (e.g., `fraud_check_passed`). If the flag is missing, the hook can block execution and provide immediate feedback to the model, ensuring the dependency is deterministically enforced at the infrastructure level.",
-      "source_note": "cs id=24141"
+      "explanation": "A: While combining tools enforces the sequence by construction, it is a heavy-handed approach that sacrifices modularity and reusability. It forces code-level coupling and prevents other workflows from utilizing the fraud check independently without issuing credit.\nB: A PostToolUse hook triggers after the credit has already been issued, which violates the company policy requiring the check *before* issuance. Asynchronous remediation does not prevent the policy violation and can introduce race conditions.\nC: Few-shot prompting and model reprimands are probabilistic methods. They rely on the LLM's adherence to instructions rather than architectural constraints, meaning they cannot provide a deterministic guarantee against skipping steps.\nD: A PreToolUse hook on `issue_credit` allows the orchestrator to intercept the call and inspect session state for a specific flag (e.g., `fraud_check_passed`). If the flag is missing, the hook can block execution and provide immediate feedback to the model, ensuring the dependency is deterministically enforced at the infrastructure level.",
+      "source_note": "cs id=24141 | v8-audit: retagged scenario 3->1 + hook-terminology-fix"
     },
     {
       "id": "cs-domain-1-agentic-24142",
@@ -960,19 +960,19 @@
       "stem": "A procurement agent aggregates component prices from three regional suppliers (US, EU, JP) using three different MCP tools. The tools return prices in USD, EUR, and JPY respectively. The model struggles to accurately identify the cheapest supplier due to fluctuating exchange rates. What is the best architectural pattern to solve this?",
       "options": {
         "A": "Instruct the model to call a `get_exchange_rate` tool before making any price comparisons.",
-        "B": "Implement a PreToolCall hook that injects `currency=\"USD\"` into the arguments of the EU and JP supplier tools.",
+        "B": "Implement a PreToolUse hook that injects `currency=\"USD\"` into the arguments of the EU and JP supplier tools.",
         "C": "Implement a PostToolUse hook on all three supplier tools that intercepts the response, fetches the live exchange rate, converts the price to a base currency (e.g., USD), and appends the normalized price to the tool result.",
         "D": "Fine-tune the model on historical exchange rate data so it can perform the conversions natively in its latent space."
       },
       "correct": "C",
       "explanation": "A: While this approach could work, it is brittle and adds significant complexity by requiring the model to manage multiple sequential tool calls and perform manual arithmetic. This increases the chance of reasoning errors and consumes more tokens compared to automated normalization.\nB: This approach assumes that the underlying MCP tools support a currency argument, which is often not the case for fixed regional APIs. It also modifies the tool's intended semantics and makes the system less flexible for handling tools that only return canonical local data.\nC: This is the ideal architectural pattern for data normalization. By using a PostToolUse hook, the conversion happens transparently and consistently before the data is presented to the model. This centralizes the business logic, reduces the model's cognitive load, and ensures that the LLM only deals with comparable, normalized values.\nD: Fine-tuning on historical data is inappropriate for highly dynamic data like exchange rates. The model's knowledge would be stale immediately, and it lacks the precision and auditability required for financial procurement tasks.",
-      "source_note": "cs id=24142"
+      "source_note": "cs id=24142 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-24160",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "A travel booking system uses a pre-configured sequence in its code: `SearchFlights` -> `SelectCheapest` -> `BookFlight`. A user requests a flight, but adds 'Only book if it's under $500, otherwise just tell me the price.' The pre-configured sequence executes and books a $600 flight anyway. How should the architect redesign this to support the user's request?",
       "options": {
@@ -983,7 +983,7 @@
       },
       "correct": "B",
       "explanation": "A: Adding a tool to a hardcoded sequence remains a rigid architectural approach. It fails to leverage the model's reasoning capabilities to interpret varied user constraints and requires manual updates to the code for every new type of user condition.\nB: A model-driven agentic loop allows Claude to observe the output of one tool (SearchFlights), reason about it in the context of the user's specific prompt (the $500 limit), and autonomously decide the next action. This provides the flexibility needed to handle dynamic constraints that fixed chains or DAGs cannot easily accommodate.\nC: Attempting to parse free-text output from an LLM to drive application logic is brittle and prone to failure if the model changes its phrasing. It also keeps the decision-making logic outside of the agent's context, leading to a fragmented architecture.\nD: While structured output (JSON) is useful, using external scripts to orchestrate the final tool call creates a disjointed system. This approach prevents the agent from performing self-correction or multi-step reasoning within a single conversational turn.",
-      "source_note": "cs id=24160"
+      "source_note": "cs id=24160 | v8-audit: retagged scenario 3->1"
     },
     {
       "id": "cs-domain-1-agentic-24163",
@@ -1006,7 +1006,7 @@
       "id": "cs-domain-1-agentic-24165",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "A cybersecurity agent uses a `scan_port` tool. The developer executes the tool and appends the result as a plain text string to the end of the last `user` message, rather than using a structured `tool_result` block. During testing, Claude begins hallucinating tool outputs and loses track of which ports it has already scanned. Why does this implementation cause model degradation?",
       "options": {
@@ -1017,7 +1017,7 @@
       },
       "correct": "B",
       "explanation": "A: While structured tool results can include an `is_error` flag, its absence is not the primary cause of reasoning failure or the loss of state regarding scanned ports. The degradation stems from structural misalignment, not the lack of a specific boolean flag.\nB: Correct. Claude's Messages API requires a structured action-observation loop where a `tool_use` (from the assistant) is followed by a `tool_result` (from the user). The `tool_result` block MUST contain a `tool_use_id` that matches the assistant's request. This linkage provides provenance and allows the model to reliably map observations back to specific actions. Without it, the model loses the logical thread, leading to hallucinations and a failure to maintain accurate state.\nC: This is incorrect because `tool_result` blocks are actually intended to be placed within messages with the `user` role. The problem is not the role of the message, but the format of the content—specifically, the lack of a structured tool block and metadata linkage.\nD: Hallucinations in tool-use scenarios are typically a result of context and provenance loss. While plain text might be processed differently than structured blocks, the degradation is a cognitive reasoning failure rather than a mechanical bypass of internal safety filters.",
-      "source_note": "cs id=24165"
+      "source_note": "cs id=24165 | v8-audit: retagged scenario 3->1"
     },
     {
       "id": "cs-domain-1-agentic-24166",
@@ -1040,7 +1040,7 @@
       "id": "cs-domain-1-agentic-24169",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "An autonomous DevOps agent attempts to restart a server using a `restart_instance` tool. The tool execution fails because the instance ID provided by Claude is invalid. The developer wants Claude to autonomously realize the mistake, analyze the error, and try a different instance ID. How should the agentic loop handle this failure?",
       "options": {
@@ -1051,7 +1051,7 @@
       },
       "correct": "B",
       "explanation": "A: Terminating the loop and requesting manual input prevents the agent from performing autonomous diagnosis or recovery. This approach forces human intervention for recoverable errors and disrupts the flow of an agentic architecture.\nB: According to Anthropic's tool-use specifications, the correct way to handle a tool failure is to append a `tool_result` block with the error message and set `is_error: true`. This provides Claude with structured context about the failure, enabling it to analyze the mistake and choose an alternative action or instance ID in the next iteration.\nC: Deleting the previous `tool_use` message removes the provenance of the failure. Without the history of the failed attempt, Claude cannot learn from the mistake and may repeat the same error. Maintaining the full conversation history is essential for iterative reasoning.\nD: Modifying the system prompt and restarting the conversation is an inefficient and heavy-handed approach. It discards useful execution history and state, making debugging harder and potentially causing the model to lose track of the original objective.",
-      "source_note": "cs id=24169"
+      "source_note": "cs id=24169 | v8-audit: retagged scenario 3->1"
     },
     {
       "id": "cs-domain-1-agentic-24170",
@@ -1227,7 +1227,7 @@
       "id": "cs-domain-1-agentic-24234",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "A security researcher is using an agentic system powered by Claude to analyze a potential software vulnerability. They need to generate a Proof of Concept (PoC) exploit to verify the finding, but they also want to design a mitigation strategy without the offensive code contaminating the defensive recommendations or the session's permanent history. Which session management approach is most effective for this scenario?",
       "options": {
@@ -1238,13 +1238,13 @@
       },
       "correct": "C",
       "explanation": "A: Asking an LLM to \"forget\" information within a single session is unreliable. In-session forgetting is not a guaranteed isolation mechanism, and sensitive exploit details may still influence subsequent outputs or be retained in the session context, leading to contamination.\nB: While starting a new session provides isolation, it is inefficient and error-prone. Manually re-explaining the vulnerability context loses the architectural benefits of state management and increases the risk of missing critical details that the agent had already identified.\nC: Forking a session from a common baseline is the architectural best practice for this scenario. It allows both workstreams (offensive PoC and defensive mitigation) to benefit from the existing vulnerability analysis while ensuring that the specific outputs of the PoC branch do not bleed into the mitigation branch. This ensures clean isolation, auditability, and independent development.\nD: This option refers to a non-existent flag. Standard session management and orchestration APIs do not use a '--isolate' flag with resume to achieve state branching; instead, they utilize explicit forking or checkpointing mechanisms.",
-      "source_note": "cs id=24234"
+      "source_note": "cs id=24234 | v8-audit: retagged scenario 3->1"
     },
     {
       "id": "cs-domain-1-agentic-24235",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "When managing an agentic session for system administration tasks, why might an architect avoid resuming a session that has been inactive for a significant period (e.g., 24 hours) using only the existing conversation history?",
       "options": {
@@ -1255,7 +1255,7 @@
       },
       "correct": "B",
       "explanation": "A: Claude does not have a universal hard-coded 24-hour continuous session limit. Session lifetimes are typically determined by the hosting platform, API configuration, or the specific orchestration implementation rather than an intrinsic model constraint.\nB: Resuming a session with stale tool outputs (e.g., disk usage or directory listings from 24 hours ago) can mislead the agent. The environment may have changed significantly, and the model might make incorrect decisions based on artifacts that no longer reflect the current system state. Proper resumption workflows should re-run tools or validate the state to avoid acting on stale information.\nC: The ability to resume sessions using SSH tools is a function of the orchestration layer and tool integration. There is no inherent restriction in Claude or standard agentic patterns that prevents resuming such sessions, provided the state and connectivity are managed correctly by the developer.\nD: While fork_session is a valuable pattern for branching tasks or parallel exploration, it is not the only supported method for long-running tasks. Other strategies include session checkpoints, context injection, and explicitly re-validating environment state upon resumption.",
-      "source_note": "cs id=24235"
+      "source_note": "cs id=24235 | v8-audit: retagged scenario 3->1"
     },
     {
       "id": "cs-domain-1-agentic-24237",
@@ -1295,7 +1295,7 @@
       "id": "cs-domain-1-agentic-24239",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "An AI architect is currently managing two active sessions: Session A, which contains a large volume of raw system logs, and Session B, which contains the historical context and ongoing reasoning for a root cause analysis. The architect now needs to continue the root cause investigation and also begin a separate architecture analysis for a proposed fix. Which session management strategy is most appropriate?",
       "options": {
@@ -1306,7 +1306,7 @@
       },
       "correct": "B",
       "explanation": "A: Resuming Session A is inefficient because log-heavy contexts often contain stale or noisy data that can saturate the context window and cause 'lost in the middle' issues. Furthermore, mixing a resumed session with a new log query session for the same task is redundant and risks context leakage.\nB: This approach aligns with session management best practices. Resuming Session B preserves the valuable reasoning and narrative history of the investigation (stable context). Starting a new session for the architecture analysis ensures a clean, focused context window for the new task, isolating it from the investigation's history and preventing token waste.\nC: This is incorrect because LLMs like Claude do not automatically identify or purge stale or irrelevant data from an existing context window. Resuming a session filled with old, large-scale logs would likely clutter the reasoning and increase latency/costs without providing additional benefit.\nD: While starting new sessions is sometimes necessary, it is overly conservative in this case. Resuming Session B is preferred because starting a new session for the investigation would require re-supplying the history and reasoning, losing useful continuity and increasing overhead.",
-      "source_note": "cs id=24239"
+      "source_note": "cs id=24239 | v8-audit: retagged scenario 3->1"
     },
     {
       "id": "cs-domain-1-agentic-24240",
@@ -1339,8 +1339,8 @@
         "D": "Implement a `PostToolUse` hook that applies a regex pattern to the raw tool result, masking all SSNs before the payload is appended to the model's context."
       },
       "correct": "D",
-      "explanation": "A: Incorrect. While prompt engineering is crucial for guiding model behavior, relying on a system prompt for a strict security requirement like PII redaction is not a robust or reliable control. The model may not consistently follow the instruction, leading to accidental data exposure.\nB: Incorrect. According to documentation, a `PreToolUse` hook can inspect tool inputs and block the execution of a tool, but it cannot dynamically modify the parameters of the tool call itself. This implementation describes a capability that is not a documented feature of Anthropic's agentic framework.\nC: Incorrect. This approach is inefficient, increases cost and latency, and introduces another non-deterministic step where an LLM could fail to redact the sensitive data. A deterministic, code-based solution is strongly preferred for security-critical tasks.\nD: Correct. A `PostToolUse` hook fires after a tool has executed but before its output is added to the model's context. Research confirms this hook can be used to transform outputs and sanitize data. By applying a regex pattern here, you can deterministically mask the SSNs, ensuring the sensitive data never enters the LLM's context window, which directly satisfies the security requirement.",
-      "source_note": "cs id=27620"
+      "explanation": "A: Incorrect. System-prompt-based PII redaction is probabilistic and unreliable for strict security requirements — the model may not consistently follow the instruction, leading to accidental data exposure in downstream logging or responses.\nB: Incorrect, but for a different reason than capability. While PreToolUse hooks CAN modify tool arguments, adding `exclude_fields=[\"SSN\"]` only helps if the database API honors that parameter — if the API always returns full employee profiles regardless, a pre-request filter does not prevent SSNs from reaching the context. PostToolUse (option D) sanitizes the response AFTER the tool returns data, protecting the context regardless of what the tool backend does.\nC: Incorrect. A secondary LLM for summarization still relies on a probabilistic model to redact PII. It adds latency and cost without providing a deterministic guarantee; the second LLM may still fail to omit SSNs.\nD: Correct. A PostToolUse hook applies deterministic regex/code-level masking to the raw tool result before the payload is appended to the model's context. This is the documented Anthropic pattern for response-side PII redaction: the code-level guarantee satisfies the strict requirement that the LLM never receives unredacted SSNs.",
+      "source_note": "cs id=27620 | v8-audit: explanation B rewrite: correct the fabricated capability claim; PreToolUse can modify args, the real issue is response-vs-request scope"
     },
     {
       "id": "cs-domain-1-agentic-28725",
@@ -1413,8 +1413,8 @@
     {
       "id": "cs-domain-1-agentic-31370",
       "source": "cs",
-      "domain": "domain-1-agentic",
-      "scenario": "1",
+      "domain": "domain-2-claude-code",
+      "scenario": "2",
       "difficulty": "medium",
       "stem": "A developer is using an interactive Claude Code session to work on a large repository. After building up significant context about the project's architecture, the developer takes a break and modifies two files, `App.tsx` and `Router.tsx`, locally. To generate accurate unit tests for these modifications, what is the most effective strategy for the developer to take upon returning to the Claude Code session?",
       "options": {
@@ -1425,7 +1425,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct. The research indicates that resuming a session is the recommended way to maintain context continuity. By explicitly telling Claude which files have changed, the developer provides specific, targeted information, which is more efficient than a broad re-exploration and allows Claude to accurately update its understanding before generating tests.\nB: Incorrect. While resuming the session is the correct first step, asking Claude to re-explore the entire repository is inefficient for updating context on a few known file changes. The research notes that for comprehensive analysis of cascading changes, the dedicated `Claude Code Review` feature for pull requests is the most robust and recommended tool.\nC: Incorrect. Starting a new session would discard all the valuable project-level context Claude had previously built. According to the research, Claude Code operates at the project level, understanding how different modules connect. Losing this context would likely result in incomplete or inaccurate unit tests.\nD: Incorrect. The provided research does not mention a `/fork` command or a `fork_session` feature for branching sessions or automatically detecting local file changes. The documented method for continuing work is to resume an existing session, which preserves the conversation history and context.",
-      "source_note": "cs id=31370"
+      "source_note": "cs id=31370 | v8-audit: retagged scenario 1->2, domain domain-1-agentic->domain-2-claude-code"
     },
     {
       "id": "cs-domain-1-agentic-32438",
@@ -1472,11 +1472,11 @@
         "A": "Instruct the model to call a `write_audit_log` tool immediately after every successful `execute_trade` call.",
         "B": "Use a PostToolUse hook to parse the model's final text response for trade details and write those details to the WORM database.",
         "C": "Modify the system prompt to require the model to output a structured JSON log block at the end of its turn, which the application parses and saves.",
-        "D": "Implement a PreToolCall hook on `execute_trade` that synchronously writes the intercepted arguments and a system timestamp to the WORM database before allowing the tool to execute."
+        "D": "Implement a PreToolUse hook on `execute_trade` that synchronously writes the intercepted arguments and a system timestamp to the WORM database before allowing the tool to execute."
       },
       "correct": "D",
       "explanation": "A: Incorrect. This approach still relies on the model to reliably perform the logging action. The model could fail to call `write_audit_log`, call it with hallucinated arguments, or be interrupted, leading to the same missing or inaccurate logs the problem describes.\nB: Incorrect. This method is unreliable because it depends on the model's final narrative output. As the research notes, models can \"confabulate\" or hallucinate, meaning the text summary may not accurately reflect the actual arguments passed to the `execute_trade` tool.\nC: Incorrect. While prompting for structured output is a good practice, it does not guarantee compliance. The model could still hallucinate the contents of the JSON block or fail to generate it, and there is no guarantee the JSON reflects the actual parameters sent to the tool.\nD: Correct. This is the most robust and reliable method. By intercepting the tool call before execution, the application layer—not the model—is responsible for logging. This captures the exact arguments the model intended to use and a reliable system-generated timestamp, creating an immutable, non-repudiable audit trail as recommended for compliance. Research confirms this is a highly recommended approach for sensitive operations.",
-      "source_note": "cs id=32813"
+      "source_note": "cs id=32813 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-32814",
@@ -1488,29 +1488,29 @@
       "options": {
         "A": "Add a PostToolUse hook to the `cancel_subscription` tool that checks the user tier in the response and automatically emails the retention team.",
         "B": "Update the `cancel_subscription` tool description to explicitly forbid the model from using it on Enterprise customers, forcing it to use the `transfer_to_specialist` tool instead.",
-        "C": "Implement a PreToolCall hook on `cancel_subscription` that checks the user's tier from the session context, aborts the tool call if 'Enterprise', and yields a control signal to the orchestrator to initiate the retention workflow.",
+        "C": "Implement a PreToolUse hook on `cancel_subscription` that checks the user's tier from the session context, aborts the tool call if 'Enterprise', and yields a control signal to the orchestrator to initiate the retention workflow.",
         "D": "Create a PostToolUse hook that intercepts the successful cancellation message and rewrites it to tell the user a retention specialist will contact them."
       },
       "correct": "C",
-      "explanation": "A: Incorrect. A `PostToolUse` hook executes *after* the tool has already run. In this scenario, the subscription would have already been canceled, which violates the primary requirement to prevent the cancellation for 'Enterprise' users.\nB: Incorrect. Relying on the model's interpretation of a tool description is not a reliable or secure method for enforcing critical business rules. A deterministic control flow mechanism is required to guarantee that the cancellation is blocked, as the model could still potentially call the forbidden tool.\nC: Correct. This is the recommended approach. According to research, `PreToolCall` hooks (or similar middleware in frameworks like LangChain) are designed to intercept and control tool execution *before* it happens. This allows for checking conditions from the session context, aborting the action (e.g., with an exit code of `2` in Claude Code), and signaling the orchestrator to redirect to a different workflow, precisely matching the requirements.\nD: Incorrect. This approach is flawed because the `cancel_subscription` tool would have already completed its action by the time a `PostToolUse` hook runs. Rewriting the message is deceptive to the user and fails to prevent the actual cancellation from occurring.",
-      "source_note": "cs id=32814"
+      "explanation": "A: Incorrect. A `PostToolUse` hook executes *after* the tool has already run. In this scenario, the subscription would have already been canceled, which violates the primary requirement to prevent the cancellation for 'Enterprise' users.\nB: Incorrect. Relying on the model's interpretation of a tool description is not a reliable or secure method for enforcing critical business rules. A deterministic control flow mechanism is required to guarantee that the cancellation is blocked, as the model could still potentially call the forbidden tool.\nC: Correct. This is the recommended approach. According to research, `PreToolUse` hooks (or similar middleware in frameworks like LangChain) are designed to intercept and control tool execution *before* it happens. This allows for checking conditions from the session context, aborting the action (e.g., with an exit code of `2` in Claude Code), and signaling the orchestrator to redirect to a different workflow, precisely matching the requirements.\nD: Incorrect. This approach is flawed because the `cancel_subscription` tool would have already completed its action by the time a `PostToolUse` hook runs. Rewriting the message is deceptive to the user and fails to prevent the actual cancellation from occurring.",
+      "source_note": "cs id=32814 | v8-audit: hook terminology PreToolCall->PreToolUse"
     },
     {
       "id": "cs-domain-1-agentic-32816",
       "source": "cs",
       "domain": "domain-1-agentic",
-      "scenario": "3",
+      "scenario": "1",
       "difficulty": "medium",
       "stem": "A marketing agent uses a `send_sms` tool connected to a third-party API. The API strictly limits requests to 10 per minute. If the agent exceeds this, the API bans the account for 24 hours. The agent sometimes generates a loop of rapid tool calls, risking a ban. How can you protect the API account using Anthropic's tool use features?",
       "options": {
         "A": "Add a system prompt instruction: 'Do not call `send_sms` more than 10 times per minute. Keep track of your calls.'",
-        "B": "Implement a `PreToolCall` hook that checks a local token bucket rate limiter. If the limit is reached, the hook blocks the execution and returns a simulated tool result telling the model to wait.",
-        "C": "Implement a `PostToolCall` hook that checks the API's response headers for rate limit warnings and tells the model to sleep.",
+        "B": "Implement a `PreToolUse` hook that checks a local token bucket rate limiter. If the limit is reached, the hook blocks the execution and returns a simulated tool result telling the model to wait.",
+        "C": "Implement a `PostToolUse` hook that checks the API's response headers for rate limit warnings and tells the model to sleep.",
         "D": "Configure the orchestrator to automatically terminate the agent session if it detects more than 10 tool calls in a single turn."
       },
       "correct": "B",
-      "explanation": "A: Incorrect. While system prompts can guide the model's behavior, they are not a reliable enforcement mechanism for strict, hard limits. The model may fail to adhere to the instruction, especially in complex scenarios or loops, leaving the API account vulnerable to being banned.\nB: Correct. According to documentation, hooks can be used for enforcement to intercept AI behavior and block non-compliant actions before they occur. A `PreToolCall` hook runs before the tool is executed, making it the ideal place to implement a preventative, client-side rate limiter like a token bucket. Blocking the call and informing the model allows for graceful handling without risking the API account.\nC: Incorrect. A `PostToolCall` hook executes *after* the API call has already been made. This approach is reactive, not preventative. By the time this hook runs, the call that exceeds the rate limit may have already been sent, resulting in an immediate account ban. This method cannot prevent the ban from happening.\nD: Incorrect. This is a blunt and disruptive approach. It terminates the entire session, leading to a poor user experience and loss of context. A `PreToolCall` hook provides a much more granular and graceful solution by managing the rate of calls without ending the user's task.",
-      "source_note": "cs id=32816"
+      "explanation": "A: Incorrect. While system prompts can guide the model's behavior, they are not a reliable enforcement mechanism for strict, hard limits. The model may fail to adhere to the instruction, especially in complex scenarios or loops, leaving the API account vulnerable to being banned.\nB: Correct. According to documentation, hooks can be used for enforcement to intercept AI behavior and block non-compliant actions before they occur. A `PreToolUse` hook runs before the tool is executed, making it the ideal place to implement a preventative, client-side rate limiter like a token bucket. Blocking the call and informing the model allows for graceful handling without risking the API account.\nC: Incorrect. A `PostToolUse` hook executes *after* the API call has already been made. This approach is reactive, not preventative. By the time this hook runs, the call that exceeds the rate limit may have already been sent, resulting in an immediate account ban. This method cannot prevent the ban from happening.\nD: Incorrect. This is a blunt and disruptive approach. It terminates the entire session, leading to a poor user experience and loss of context. A `PreToolUse` hook provides a much more granular and graceful solution by managing the rate of calls without ending the user's task.",
+      "source_note": "cs id=32816 | v8-audit: retagged scenario 3->1 + hook-terminology-fix"
     },
     {
       "id": "cs-domain-1-agentic-32828",
@@ -1522,12 +1522,12 @@
       "options": {
         "A": "Place the regulatory requirement in the system prompt, instructing the model to always verify age and consent before calling the tool.",
         "B": "Implement the validation logic directly within the `book_appointment` tool's backend code to check the patient's age and `consent_flag` before finalizing the booking.",
-        "C": "Use a `PreToolCall` hook to inspect the tool's arguments, blocking the call and returning an error if the age and consent rule is violated.",
+        "C": "Use a `PreToolUse` hook to inspect the tool's arguments, blocking the call and returning an error if the age and consent rule is violated.",
         "D": "Implement a separate, recurring process that audits the booking database every 5 minutes and automatically cancels any non-compliant appointments."
       },
-      "correct": "B",
-      "explanation": "A: Incorrect. While system prompts are essential for guiding the model's behavior, they do not provide a deterministic guarantee. Relying solely on instructions is insufficient for a strict, 100% compliance requirement, as the model's adherence is probabilistic.\nB: Correct. This is the most robust and recommended approach. Implementing validation logic inside the tool's own code provides a deterministic, server-side check that is not subject to the probabilistic nature of the LLM. Anthropic's documentation recommends performing checks on `tool_arguments` within the tool's implementation for critical validation.\nC: Incorrect. While `PreToolCall` (or `PreToolUse`) hooks are designed for pre-execution validation, research indicates they have limitations for this use case. They cannot modify tool inputs directly, and reported bugs suggest the blocking mechanism may not be 100% reliable, making this approach less robust than in-tool validation for a critical compliance requirement.\nD: Incorrect. This is a reactive, not a preventative, control. The non-compliant booking has already been made, representing a compliance failure. The requirement is to prevent the failure from occurring in the first place, not to clean it up after the fact.",
-      "source_note": "cs id=32828"
+      "correct": "C",
+      "explanation": "A: Incorrect. System prompts provide probabilistic behavior guidance and cannot deliver 100% deterministic compliance. Exam guide Task 1.5 and The Architect's Playbook both document that even emphatic \"CRITICAL POLICY\" prompts yield ~3% residual failure rates.\nB: Tool-backend validation IS a valid deterministic check (server-side code runs 100% of the time). However, it fires AFTER the LLM has decided to call the tool; if the tool-backend raises an error back to the loop, the agent then has to reason about the error. The exam guide's canonical pattern for pre-execution compliance is the PreToolUse hook (option C), which intercepts the call BEFORE the tool runs, cleanly short-circuiting policy violations.\nC: Correct. Per exam guide Task 1.5: \"tool call interception hooks that block policy-violating actions (e.g., refunds exceeding $500) and redirect to alternative workflows.\" PreToolUse hooks inspect tool arguments deterministically, block non-compliant calls pre-execution, and are the recommended architectural pattern for 100%-compliance requirements. Matches sibling questions cs-24134, cs-24141, cs-32813, cs-32814 which all mark the hook-based answer correct for identical framing.\nD: Post-booking auditing is reactive — non-compliant bookings exist for up to 5 minutes before being cancelled. Creates a window where patients/staff see invalid appointments. Fails the 100%-prevention requirement.",
+      "source_note": "cs id=32828 | v8-audit: hook terminology PreToolCall->PreToolUse | v8-audit: re-keyed B->C per exam-guide Task 1.5 (PreToolUse hook is the documented deterministic-enforcement pattern)"
     },
     {
       "id": "cs-domain-1-agentic-32835",
@@ -1890,7 +1890,7 @@
       "id": "cs-domain-2-claude-code-24020",
       "source": "cs",
       "domain": "domain-2-claude-code",
-      "scenario": "5",
+      "scenario": "2",
       "difficulty": "medium",
       "stem": "A frontend developer is tasked with setting up a Kubernetes cluster with an Istio service mesh. The developer has zero experience with infrastructure-as-code or Kubernetes networking. They want to use Claude to generate the necessary YAML configuration files. Which prompting strategy should the developer use to ensure a secure and appropriate architecture?",
       "options": {
@@ -1901,7 +1901,7 @@
       },
       "correct": "B",
       "explanation": "A: Incorrect. While this approach might generate standard functional YAML files, it fails to account for the specific context of the application. Production readiness depends on application-specific traffic patterns and security policies; without clarification, the generated YAML may include unsafe defaults or miss required controls like mTLS, specific network policies, or resource limits.\nB: Correct. This strategy leverages an interactive, iterative approach where Claude acts as a subject matter expert to gather essential context before generation. By asking targeted questions about traffic, security, and scale, Claude can ensure the generated manifests are tailored to the application's actual needs, reducing misconfiguration risk and supporting progressive refinement toward a secure architecture.\nC: Incorrect. While educational, reading a tutorial and attempting manual drafting is highly time-consuming and error-prone for a developer with no experience. This approach ignores the efficiency and safety provided by an AI assistant capable of expert-guided generation and refinement based on specific technical requirements.\nD: Incorrect. Frontend source code typically lacks the necessary operational, networking, and security context required for infrastructure configuration. Inferring infrastructure requirements solely from source code is fragile and likely to result in incomplete or insecure configurations that miss external dependencies and runtime constraints.",
-      "source_note": "cs id=24020"
+      "source_note": "cs id=24020 | v8-audit: retagged scenario 5->2"
     },
     {
       "id": "cs-domain-2-claude-code-24021",
@@ -2308,8 +2308,8 @@
         "D": "Use the `context: fork` option in the existing project skill to branch the logic for their specific user ID."
       },
       "correct": "B",
-      "explanation": "A: Editing the team-wide skill directly will change the shared repository file and can introduce conflicts for other team members. Adding the file to .gitignore does not untrack a file that is already committed, so this doesn't reliably prevent version-control issues and risks accidental commits of personal changes.\nB: Placing a customized skill in the user-specific directory (~/.claude/skills/) allows the developer to maintain a personal variant of the skill. This keeps the modifications local to the developer's machine, avoids version-control conflicts in the project repo, and preserves the shared team skill for the rest of the contributors while allowing daily use of the personal checklist.\nC: The global ~/.claude/CLAUDE.md file is used for providing high-level instructions and global project context to Claude, not for defining or overriding the specific logic of slash command skills. It lacks the structure required to define a new command or properly override an existing skill's behavior.\nD: There is no supported 'context: fork' option in the Claude Code skill specification for branching logic based on user ID. Attempting to use non-existent configuration options would not work, and modifying the project skill file still introduces potential conflicts and unintended shared changes.",
-      "source_note": "cs id=24306"
+      "explanation": "A: Incorrect. Editing the team-shared skill directly changes the repository file and causes version-control conflicts for other team members. Adding an already-tracked file to `.gitignore` does not untrack it, so personal edits risk accidental commit.\nB: Correct. Placing a customized skill variant at `~/.claude/skills/my-review-pr/SKILL.md` uses Anthropic's documented user-scoped skill directory. Personal modifications stay local to the developer's machine, avoid version-control conflicts in the project repo, and preserve the team-shared version at `.claude/skills/review-pr/`.\nC: Incorrect. `~/.claude/CLAUDE.md` provides global context (persistent instructions across all projects) but is not a skill. It cannot replace or override the logic of an existing project skill — the slash command will still run the project version.\nD: Incorrect. `context: fork` IS a documented frontmatter option in skills — it runs the skill in an isolated sub-agent context (preventing chat-history inference in parallel explorations). However, it does NOT branch logic on user ID; there is no built-in mechanism for per-user skill variants via project-level frontmatter. The canonical pattern for per-developer customization is user-scoped skills at `~/.claude/skills/` (option B).",
+      "source_note": "cs id=24306 | v8-audit: explanation D rewrite: correct the false denial that context: fork exists; explain its real purpose"
     },
     {
       "id": "cs-domain-2-claude-code-24307",
@@ -2375,9 +2375,9 @@
         "C": "Add `allowed-tools: [PromptUser]` to the frontmatter to ensure Claude has permission to ask questions.",
         "D": "Add `context: fork` to the frontmatter so the skill runs in isolation and cannot read previous chat history."
       },
-      "correct": "D",
-      "explanation": "A: Adding an `argument-hint` to the frontmatter provides a visual hint or placeholder in the CLI UI for the user, but it does not modify Claude's reasoning or prevent it from using available chat history to infer missing parameters.\nB: While project-scoped commands in `.claude/commands/` are handled differently than skills, simply moving the logic there does not inherently enforce strict argument validation by the LLM unless a specific validation schema is implemented, and it does not address the core issue of information leakage from the chat history.\nC: This is incorrect as `allowed-tools: [PromptUser]` is not a standard configuration property in Claude Code skills. Claude does not require a specific tool permission to ask for user input; it does so through natural dialogue.\nD: Correct. In Claude Code, the `context` frontmatter property controls the scope of the conversation history visible to a skill. By setting `context: fork` (or `none`), the skill's execution is isolated from the previous conversation history. This ensures Claude cannot see or infer the region from earlier messages, forcing it to adhere to the instruction to ask the user when the parameter is not provided in the current turn.",
-      "source_note": "cs id=24312"
+      "correct": "A",
+      "explanation": "A: Correct. `argument-hint` in the skill's frontmatter is the Anthropic-documented mechanism (exam guide Task 3.2) for declaring that a skill requires a specific parameter. When the skill is invoked without the argument, the CLI prompts the user at parse time — before Claude sees the request — making enforcement deterministic and independent of the LLM's inference behavior.\nB: While `.claude/commands/` commands differ from skills, moving the logic there does not inherently enforce strict argument validation unless a validation schema is added, and it does not address the core problem of Claude inferring a missing parameter from chat history.\nC: `allowed-tools` specifies which tools a skill may invoke. There is no documented `PromptUser` tool — this answer fabricates a tool name. Claude asking clarifying questions is an emitted text behavior, not a tool permission.\nD: `context: fork` IS a documented frontmatter option that isolates the skill in a sub-agent context (preventing chat-history inference), so it would secondarily address the symptom. However, its primary purpose is context isolation for parallelism; the purpose-built mechanism for parameter prompting is `argument-hint` (option A).",
+      "source_note": "cs id=24312 | v8-audit: re-keyed D->A per exam-guide Task 3.2 (argument-hint is the purpose-built parameter-prompt mechanism)"
     },
     {
       "id": "cs-domain-2-claude-code-24313",
@@ -2567,23 +2567,6 @@
       "source_note": "cs id=27611"
     },
     {
-      "id": "cs-domain-2-claude-code-27616",
-      "source": "cs",
-      "domain": "domain-2-claude-code",
-      "scenario": "5",
-      "difficulty": "medium",
-      "stem": "A development team wants to integrate Claude into their CI/CD pipeline to automatically analyze code complexity. To ensure the analysis results can be programmatically parsed and used in subsequent pipeline steps, the output must strictly adhere to a predefined JSON schema. Which API parameter should be used in the request to Claude to enforce this structured output?",
-      "options": {
-        "A": "A system prompt that includes the instruction \"Always respond in JSON format matching the following schema: ...\".",
-        "B": "The `output_config.format` parameter, with `type` set to `json_schema` and the schema definition provided.",
-        "C": "The `tool_choice` parameter, with the `type` set to `json_tool` and the schema provided as the tool definition.",
-        "D": "The top-level `json_schema` parameter in the API request body."
-      },
-      "correct": "B",
-      "explanation": "A: Incorrect. While providing instructions in a prompt can guide the model, it does not guarantee that the output will be valid JSON or strictly adhere to the schema. For programmatic use cases like a CI/CD pipeline, a more reliable enforcement mechanism is required.\nB: Correct. According to Anthropic's documentation, the `output_config.format` parameter with `type: \"json_schema\"` is the officially supported method to constrain the model's output to a specific JSON schema. This ensures the response is always valid, machine-readable JSON, which is essential for automated downstream processing in a CI/CD pipeline.\nC: Incorrect. The `tool_choice` parameter is used to force the model to call a specific tool (function). While tool definitions use a JSON schema for their inputs, this parameter's purpose is to invoke a function, not to format the model's final text response into a specific JSON structure.\nD: Incorrect. The Claude Messages API does not have a top-level `json_schema` parameter. The correct way to specify a schema is by nesting it within the `output_config.format` parameter, as this is the designated mechanism for controlling structured outputs.",
-      "source_note": "cs id=27616"
-    },
-    {
       "id": "cs-domain-2-claude-code-28009",
       "source": "cs",
       "domain": "domain-2-claude-code",
@@ -2614,25 +2597,8 @@
         "D": "In the project's `CLAUDE.md` file, using the `context: fork` frontmatter option."
       },
       "correct": "B",
-      "explanation": "A: Incorrect. Instructions in a project's `CLAUDE.md` file provide persistent context for all interactions within that project. This would cause Claude to consider the translation rules at all times, which is the opposite of the desired on-demand behavior. Conditional markdown blocks are not a standard feature for controlling instruction invocation.\nB: Correct. According to Anthropic's documentation, custom skills are the recommended way to encapsulate specialized instructions. To ensure a skill is only invoked on-demand by the user (e.g., with a slash command) and not automatically by the model, the `disable-model-invocation: true` flag should be set in the `SKILL.md` frontmatter. This prevents Claude from accidentally applying the translation logic during unrelated tasks.\nC: Incorrect. The official mechanism for creating reusable, on-demand instructions is a 'skill', which is defined in a `SKILL.md` file, not a 'command' in a separate `commands` directory. While skills can be user-scoped, this option describes an incorrect file structure and mechanism.\nD: Incorrect. The `context: fork` option is not a documented feature for `CLAUDE.md` frontmatter. Placing the instructions in the main project `CLAUDE.md` file would make them part of the default context, leading to the unwanted behavior of Claude applying them during all tasks.",
-      "source_note": "cs id=28016"
-    },
-    {
-      "id": "cs-domain-2-claude-code-28363",
-      "source": "cs",
-      "domain": "domain-2-claude-code",
-      "scenario": "5",
-      "difficulty": "medium",
-      "stem": "A DevOps engineer is building a CI/CD pipeline that uses an Anthropic model to generate documentation updates. The pipeline requires the model's output to be a JSON object containing a specific array of strings. The current implementation sometimes produces malformed JSON or an incorrect structure. According to Anthropic's documentation, what is the most reliable method to ensure the model consistently returns valid JSON that adheres to the required schema?",
-      "options": {
-        "A": "Use the \"Structured Outputs\" feature by defining a JSON schema for the desired array structure and including it in the `output_config.format` parameter of the API request.",
-        "B": "Add a detailed example of the desired JSON array format to the system prompt and instruct the model to follow it precisely.",
-        "C": "Include a `CLAUDE.md` file in the project with a section dedicated to output formatting, showing an example of the correct JSON array.",
-        "D": "Implement a post-processing script that validates the model's output and attempts to correct it by wrapping single objects in an array."
-      },
-      "correct": "A",
-      "explanation": "A: Correct. According to Anthropic's documentation, the \"Structured Outputs\" feature is the officially recommended and most reliable method for ensuring model output conforms to a specific JSON schema. By providing the schema in the `output_config.format` parameter, you guarantee that the model's response will be valid JSON that matches your defined structure, eliminating parsing errors and schema non-compliance.\nB: Incorrect. While providing examples in the prompt (prompt engineering) can guide the model, it does not guarantee compliance. The model might still deviate from the requested format. The research indicates that the API-native \"Structured Outputs\" feature provides more robust enforcement than prompt engineering alone.\nC: Incorrect. The research specifies that `CLAUDE.md` files are used by Claude Code to load project context and guide the model's understanding. They are not a mechanism for the strict enforcement of output formats like a JSON schema. Relying on this for format consistency is not the recommended approach.\nD: Incorrect. While a post-processing script is a possible workaround, it is not the recommended best practice. This approach adds complexity and fragility to the pipeline and does not solve the root cause of inconsistent output. The native \"Structured Outputs\" feature is a more direct and reliable solution provided by the Anthropic API.",
-      "source_note": "cs id=28363"
+      "explanation": "A: Incorrect. Instructions in `CLAUDE.md` provide persistent context for all interactions within that project — Claude considers the translation rules at all times, which is the opposite of the desired on-demand behavior. \"Conditional markdown blocks\" are not a CLAUDE.md feature.\nB: Correct. Custom skills in `.claude/skills/translate-vue/SKILL.md` are invoked ON-DEMAND via slash command (e.g., `/translate-vue`). They do not apply automatically during other tasks, which matches the team's requirement exactly: translation happens only when explicitly requested, not during React maintenance work. Keeping the skill out of `CLAUDE.md` avoids persistent context bleed while still making it discoverable and reusable across the team.\nC: Incorrect. A user-scoped command in `~/.claude/commands/` is only available to that one user, not shared with the team. Distribution via a gist is manual and breaks reproducibility; team-shared logic belongs in `.claude/` (project-scoped).\nD: Incorrect. `context: fork` is a skill frontmatter option (not a CLAUDE.md directive). Applying it to CLAUDE.md content would have no effect — the directive does not exist at that layer.",
+      "source_note": "cs id=28016 | v8-audit: explanation B rewrite: remove fabricated `disable-model-invocation: true` flag; slash commands are inherently on-demand"
     },
     {
       "id": "cs-domain-2-claude-code-28370",
@@ -2684,40 +2650,6 @@
       "correct": "C",
       "explanation": "A: Incorrect. While infrastructure issues like 'output corruption' can cause inconsistent output, as noted in a September 2025 postmortem, the described pattern of degradation over a single, long session is a classic symptom of the agent's context window filling up and 'forgetting' initial instructions, which is a more likely and immediate cause to investigate.\nB: Incorrect. According to Anthropic's best practices, this action would worsen the problem. Moving all rules into `CLAUDE.md` forces them into the context for every task, which bloats the context window and can accelerate context expiration, rather than prevent it. The recommended approach is to keep `CLAUDE.md` concise and use `.claude/rules/` for path-filtered, specific instructions.\nC: Correct. This is the most direct troubleshooting step to diagnose the problem. The behavior described is a strong indicator of context expiration, where the agent 'forgets' earlier instructions as the conversation history grows. Inspecting the agent's active context or memory would verify if the files containing the TypeScript rules are no longer loaded, confirming the root cause of the behavioral degradation.\nD: Incorrect. While SDK version mismatches can cause type inconsistencies, this issue would be present from the start of the session, not appear gradually over several hours. The scenario states that the project files haven't changed, so a package version conflict would not suddenly manifest in the middle of a single, continuous session.",
       "source_note": "cs id=28734"
-    },
-    {
-      "id": "cs-domain-2-claude-code-28767",
-      "source": "cs",
-      "domain": "domain-2-claude-code",
-      "scenario": "2",
-      "difficulty": "medium",
-      "stem": "A lead engineer wants to ensure that all new hires automatically have Claude Code configured to use the company's proprietary internal package registry. The solution must be centrally managed and require no manual configuration on the new hires' machines. Which approach aligns with Anthropic's recommended practices for enterprise environments?",
-      "options": {
-        "A": "Commit a `.claude/settings.json` file containing the registry configuration to the root of every company repository.",
-        "B": "Provide an onboarding script that appends the registry configuration to each new hire's user-specific `~/.claude/settings.json` file.",
-        "C": "Use a central management tool (MDM) or OS-level policies to deploy a managed settings file or apply the configuration directly, for example, via Windows Registry keys.",
-        "D": "Add the registry instructions to a `CLAUDE.md` file and use a server-managed setting to push this file to all new hires."
-      },
-      "correct": "C",
-      "explanation": "A: Incorrect. While using a project-specific `.claude/settings.json` file is a valid way to configure Claude Code for a particular project, it is not a centrally managed solution for a user. This approach would not apply the setting globally for the new hire and would require maintaining the configuration file across all repositories.\nB: Incorrect. Although this would configure the tool for the user, it relies on modifying a user-level configuration file via a script. The official documentation recommends a more robust, centrally managed approach for enterprise environments that prevents users from accidentally overriding critical settings.\nC: Correct. According to official documentation, Claude Code supports managed settings for centralized enterprise control. This can be achieved through file-based settings in system directories or via MDM/OS-level policies, such as using the `HKLM\\SOFTWARE\\Policies\\ClaudeCode` Registry key on Windows. This method enforces the configuration for all users on a machine without requiring any manual setup.\nD: Incorrect. The `CLAUDE.md` file's purpose is to provide rules for correcting Claude's mistakes and teaching it to avoid them in the future. It is not used for tool configuration, such as setting a package registry. Configuration settings belong in a `settings.json` file.",
-      "source_note": "cs id=28767"
-    },
-    {
-      "id": "cs-domain-2-claude-code-28768",
-      "source": "cs",
-      "domain": "domain-2-claude-code",
-      "scenario": "2",
-      "difficulty": "medium",
-      "stem": "A data engineering team uses a custom tool, invoked as `/migrate-schema`, to manage database migrations. The tool requires a `table_name` parameter to function correctly. When developers forget to provide the table name, the tool fails. How can an architect ensure that Claude's tool-use call always includes the required `table_name` parameter and that the model doesn't attempt to run the tool without it?",
-      "options": {
-        "A": "Define an `input_schema` for the `/migrate-schema` tool that specifies `table_name` as a required property, and enable strict tool use mode by setting `strict: true` in the tool definition.",
-        "B": "Add `require-args: true` to the project's `CLAUDE.md` file.",
-        "C": "Use the Structured Outputs feature by setting `output_config.format` to `json` in the API call.",
-        "D": "Increase the size of the database schema passed to the model using the `_meta[\"anthropic/maxResultSizeChars\"]` annotation."
-      },
-      "correct": "A",
-      "explanation": "A: Correct. According to Anthropic's documentation, the standard way to define the parameters a tool accepts is by providing a JSON schema in the `input_schema` field. To guarantee the model's output conforms to this schema, you should also enable strict tool use mode by adding `strict: true` to the tool definition. This combination ensures the model will not attempt a tool call without the required `table_name` parameter.\nB: Incorrect. Research of official documentation confirms that `require-args: true` is not a valid or recognized configuration for `CLAUDE.md` files. The `CLAUDE.md` file is used to provide high-level, persistent context and project conventions to Claude, not for defining strict argument validation for tools.\nC: Incorrect. The Structured Outputs feature is used to constrain the model's final response to the user into a specific JSON schema. It does not enforce the structure of arguments for a tool call that happens mid-turn. The correct feature for defining and enforcing tool parameters is Tool Use with an `input_schema` and `strict: true`.\nD: Incorrect. The `_meta[\"anthropic/maxResultSizeChars\"]` annotation is a feature of Claude Code used to override the default size limit for tool results passed back to the model. This is useful for preventing truncation of large outputs, such as a database schema, but it is unrelated to enforcing required input arguments for a tool.",
-      "source_note": "cs id=28768"
     },
     {
       "id": "cs-domain-2-claude-code-31724",
@@ -2801,8 +2733,8 @@
         "D": "Create a single `CLAUDE.md` file at the root and add YAML frontmatter to specify the conditional path: `---\npaths: [\"infrastructure/**/*.tf\"]\n---`."
       },
       "correct": "A",
-      "explanation": "A: Correct. Anthropic documentation specifies that Claude Code supports a hierarchical context system using `CLAUDE.md` files. Placing a `CLAUDE.md` file in a subdirectory provides domain-specific rules for that part of the repository, which are merged with any global rules from a `CLAUDE.md` file at the repository root.\nB: Incorrect. The research explicitly notes that the `@claude-path` syntax does not appear in any official Anthropic documentation. The correct mechanism for path-based context is the physical location of the `CLAUDE.md` file, not an in-file directive.\nC: Incorrect. The `.claude/settings.json` file is used for configuring Claude Code settings, such as creating allowlists for shell commands to reduce permission prompts. It is not used for defining the scope of contextual guidelines from `.md` files.\nD: Incorrect. While some documentation tools use YAML frontmatter for metadata, this is not the documented mechanism for applying conditional context in `CLAUDE.md` files. The correct approach is to leverage the hierarchical file placement system.",
-      "source_note": "cs id=32815"
+      "explanation": "A: Correct. Claude Code's hierarchical `CLAUDE.md` system: placing a `CLAUDE.md` file in a subdirectory (`infrastructure/CLAUDE.md`) scopes its guidance to work happening in that directory subtree. The subdirectory file is merged with any root-level `CLAUDE.md` for a combined context when Claude works inside `infrastructure/`.\nB: Incorrect. There is no `@claude-path` directive in Anthropic's documentation. In-file path-scoping is not a CLAUDE.md feature — the scoping mechanism is file location.\nC: Incorrect. `.claude/settings.json` controls harness configuration (permissions, env vars, hooks), not CLAUDE.md → path mappings. This answer fabricates a settings feature that does not exist.\nD: Incorrect for CLAUDE.md. YAML `paths:` frontmatter IS a documented feature but belongs in `.claude/rules/` files, not `CLAUDE.md`. For path-conditional rules via rules/, this would work; for CLAUDE.md, the canonical mechanism is the hierarchical file-location system (option A).",
+      "source_note": "cs id=32815 | v8-audit: explanation D rewrite: clarify that YAML paths: frontmatter exists in .claude/rules/ but not in CLAUDE.md"
     },
     {
       "id": "cs-domain-3-prompt-engineering-24077",
@@ -2903,8 +2835,8 @@
         "D": "Switch to a smaller, faster model for the generation step to naturally limit the verbosity of the output."
       },
       "correct": "C",
-      "explanation": "A: Frequency penalties are designed to reduce the repetition of specific tokens or phrases. They do not guide the model toward a specific structural format (like a checklist) or effectively curb overall verbosity when the model believes descriptive prose is the correct response.\nB: While a two-step 'chaining' process can help distill information, it does not guarantee that the final output will adhere to the specific 'checklist' formatting requirements. If the instructions in the second call are the same ones already failing in the zero-shot attempt, the model may still produce paragraphs.\nC: Few-shot prompting is the most powerful technique for controlling style, tone, and structure. By providing concrete examples of input (post-mortem) and the desired output (concise checklist), the model learns the pattern of the expected response, which is significantly more effective than descriptive instructions alone.\nD: Switching to a smaller model is not a reliable method for controlling output length or format. In fact, smaller models often have harder times following complex formatting constraints than larger, more capable models like Claude 3 Opus or Sonnet.",
-      "source_note": "cs id=24092"
+      "explanation": "A: Frequency penalties are designed to reduce the repetition of specific tokens or phrases. They do not guide the model toward a specific structural format (like a checklist) or effectively curb overall verbosity when the model believes descriptive prose is the correct response.\nB: While a two-step 'chaining' process can help distill information, it does not guarantee that the final output will adhere to the specific 'checklist' formatting requirements. If the instructions in the second call are the same ones already failing in the zero-shot attempt, the model may still produce paragraphs.\nC: Few-shot prompting is the most powerful technique for controlling style, tone, and structure. By providing concrete examples of input (post-mortem) and the desired output (concise checklist), the model learns the pattern of the expected response, which is significantly more effective than descriptive instructions alone.\nD: Switching to a smaller model is not a reliable method for controlling output length or format. In fact, smaller models often have harder times following complex formatting constraints than larger, more capable models like Claude Opus 4.7 or Claude Sonnet 4.6.",
+      "source_note": "cs id=24092 | v8-audit: stale-term: Claude 3 Opus or Sonnet -> current model names"
     },
     {
       "id": "cs-domain-3-prompt-engineering-24093",
@@ -2927,7 +2859,7 @@
       "id": "cs-domain-3-prompt-engineering-24095",
       "source": "cs",
       "domain": "domain-3-prompt-engineering",
-      "scenario": "5",
+      "scenario": "6",
       "difficulty": "medium",
       "stem": "An AI agent categorizes financial transactions for a budgeting app. It struggles with ambiguous purchases, such as transactions at 'Target', which could be categorized as 'Groceries', 'Electronics', or 'Home Goods' depending on the surrounding context of the user's spending habits. How can you best improve the agent's accuracy in these ambiguous scenarios?",
       "options": {
@@ -2938,7 +2870,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct. Few-shot examples that include the reasoning process provide the model with concrete patterns and teach it which contextual cues (such as transaction amount or history) matter most. This leverages Claude's ability to learn from specific instances to resolve ambiguity without needing hundreds of training examples.\nB: Incorrect. While routing to a 'Miscellaneous' category avoids incorrect labels, it does not improve the model's accuracy or intelligence. It increases manual review workload and reduces the overall value of the automation.\nC: Incorrect. While Chain-of-Thought (CoT) can help the model reason, providing it without few-shot examples lacks the specific guidance or 'ground truth' logic needed to resolve industry-specific or user-specific ambiguities consistently.\nD: Incorrect. A rule-based system is too brittle for stores like Target that sell a wide variety of goods. This approach ignores the context of the specific purchase and user habits, leading to systematic misclassification of non-grocery items.",
-      "source_note": "cs id=24095"
+      "source_note": "cs id=24095 | v8-audit: retagged scenario 5->6"
     },
     {
       "id": "cs-domain-3-prompt-engineering-24096",
@@ -3165,7 +3097,7 @@
       "id": "cs-domain-3-prompt-engineering-24161",
       "source": "cs",
       "domain": "domain-3-prompt-engineering",
-      "scenario": "6",
+      "scenario": "5",
       "difficulty": "medium",
       "stem": "A company uses Claude as a code analysis tool to detect potential bugs. The tool extracts findings into a structured format. Developers who review the findings can dismiss them as false positives. To improve the tool, the engineering team wants to identify which specific detection patterns are causing the most false positives. How should the extraction schema and feedback loop be designed to achieve this?",
       "options": {
@@ -3176,7 +3108,7 @@
       },
       "correct": "B",
       "explanation": "A: Incorrect. Requiring developers to write a detailed paragraph creates high friction and produces unstructured free-text data that is difficult to aggregate and analyze at scale. Structured labels or fields are far more reliable for measuring dismissal rates and automating improvement workflows.\nB: Correct. Including a dedicated `detected_pattern` field for each finding and logging it upon dismissal allows for straightforward aggregation of dismissal counts and rates per specific pattern. This structured approach provides the necessary granularity to pinpoint which specific rules or prompts produce the most false positives, enabling targeted updates.\nC: Incorrect. Logging only a coarse `finding_type` loses the granularity needed to distinguish which specific detection patterns are problematic. While lower cardinality data is easier to manage, it prevents the specific per-pattern analysis required to resolve high false-positive rates.\nD: Incorrect. Post-hoc clustering of dismissed findings can provide insights but is more complex, less precise, and subject to noise compared with proactively capturing a structured `detected_pattern` field. It is more efficient to log specific identifiers at the time of dismissal for direct analysis.",
-      "source_note": "cs id=24161"
+      "source_note": "cs id=24161 | v8-audit: retagged scenario 6->5"
     },
     {
       "id": "cs-domain-3-prompt-engineering-24162",
@@ -3786,9 +3718,9 @@
         "C": "Use tool_choice: {\"type\": \"auto\"} so Claude can explain in text which fields are missing before calling the tool.",
         "D": "Create separate tools for each possible combination of fields and use tool_choice: {\"type\": \"any\"}."
       },
-      "correct": "B",
-      "explanation": "A: While keeping fields optional maintains schema integrity, it relies entirely on the model's diligence. As noted in the problem description, this approach leads to omission (laziness), where the model ignores values present in the text because there is no structural requirement to include them.\nB: This is the most effective architectural solution for high-precision extraction. Making fields 'required' in the JSON schema creates a structural constraint that forces the model to address every field, effectively eliminating omission. Providing a specific placeholder (like 'N/A' or '0') for missing data gives the model a safe alternative to hallucination when the information is truly absent.\nC: Using tool_choice: 'auto' gives the model the option to bypass the tool entirely or provide a conversational preamble. It does not address the internal consistency of the JSON payload itself and introduces unnecessary latency and token usage.\nD: Creating separate tools for every combination of fields is not a scalable solution. It leads to a 'combinatorial explosion' that makes the schema difficult to maintain and consumes excessive context window space, while making it harder for the model to choose the correct tool.",
-      "source_note": "cs id=24333"
+      "correct": "A",
+      "explanation": "A: Correct. Per CCA-F exam guide Task 4.3: \"Designing schema fields as optional (nullable) when source documents may not contain the information, preventing the model from fabricating values to satisfy required fields.\" Pairing optional schema with an explicit system-prompt instruction (\"extract these values if present\") addresses the omission failure mode without inducing fabrication. This is also consistent with the sibling question cs-domain-3-prompt-engineering-24327 in the same bank.\nB: Anti-pattern. Required-fields + placeholder values (\"0\" or \"N/A\") is structurally required-without-placeholder: the model must output something for every field and will hallucinate plausible values when the source is silent. Using \"0\" for missing numerics is especially dangerous — downstream systems cannot distinguish \"absent\" from \"zero\".\nC: `tool_choice: {\"type\": \"auto\"}` allows the model to return text instead of calling the tool. Useful for open-ended reasoning but does not solve schema completeness — the model can still omit values from the tool call even when \"auto\" permits text fallback.\nD: Combinatorial explosion (N fields → 2^N tools) does not scale and introduces its own correctness risks (wrong tool selected for the combination of fields actually present in the document). Not a documented Anthropic pattern.",
+      "source_note": "cs id=24333 | v8-audit: re-keyed B->A per exam-guide Task 4.3 (optional schema + prompt-instruction for fabrication prevention)"
     },
     {
       "id": "cs-domain-3-prompt-engineering-24334",
@@ -4969,7 +4901,7 @@
       "domain": "domain-4-mcp",
       "scenario": "4",
       "difficulty": "medium",
-      "stem": "You are analyzing a hypothetical software engineering scenario. A core calculation function `computeTax` is defined in `math.ts`. It is imported into `utils.ts` and re-exported as `getTax`. `getTax` is then imported into `invoice.ts` and re-exported as `calculateInvoiceTax`. If you need to modify the original `computeTax` logic and verify all downstream usages, which of the following are valid strategies?",
+      "stem": "You are analyzing a hypothetical software engineering scenario. A core calculation function `computeTax` is defined in `math.ts`. It is imported into `utils.ts` and re-exported as `getTax`. `getTax` is then imported into `invoice.ts` and re-exported as `calculateInvoiceTax`. If you need to modify the original `computeTax` logic and verify all downstream usages BEFORE making the modification, which of the following is the most systematic manual-tracing strategy?",
       "options": {
         "A": "Read `math.ts` to understand the function. Grep for `computeTax` to find `utils.ts`. Read `utils.ts` to find the `getTax` re-export. Grep for `getTax` to find `invoice.ts`. Read `invoice.ts` to find the `calculateInvoiceTax` re-export. Finally, Grep for `calculateInvoiceTax` to find all its usages.",
         "B": "Use a file search tool (Glob) to find all files containing the word 'tax', then read all of them to mentally map out the dependencies.",
@@ -4977,8 +4909,8 @@
         "D": "Use an automated refactoring approach: Rename `computeTax` to `computeTax_v2` in `math.ts`, and then run the full test suite. The resulting compilation errors and test failures will identify all downstream dependencies."
       },
       "correct": "A",
-      "explanation": "A: This is a correct and methodical, albeit manual, approach. It correctly follows the chain of re-exports (`computeTax` -> `getTax` -> `calculateInvoiceTax`), which is crucial for understanding the full impact of a change. Failing to trace re-exports is a common source of bugs, so this diligent, step-by-step verification is a valid engineering practice.\nB: This approach is incorrect because it is imprecise and inefficient. Searching for a generic term like 'tax' will return many irrelevant results from comments, documentation, and unrelated variables, making it difficult to isolate the specific dependency chain of the `computeTax` function.\nC: This is incorrect and dangerous. The scenario explicitly describes that `computeTax` is re-exported under different names. A search for only the original function name will miss all downstream dependencies that import the re-exported versions, leading to unverified and potentially broken code.\nD: This is a valid and common software engineering strategy for identifying all usages of a function. By renaming the source function, you intentionally 'break the build,' allowing the compiler, linter, or test runner to automatically report every location that needs to be updated. This is often faster and more reliable than manual tracing.",
-      "source_note": "cs id=31739"
+      "explanation": "A: Correct. Directly trace the chain of re-exports (`computeTax` -> `getTax` -> `calculateInvoiceTax`) by alternating Read (to identify the new name at each re-export boundary) with Grep (to find the next set of consumers). This is systematic, precise, and works regardless of test coverage.\nB: Incorrect. Searching for a generic term like 'tax' returns many irrelevant matches (comments, documentation, unrelated variables like `taxRate`), making the dependency map noisy and unreliable. Read-all-and-mentally-map does not scale.\nC: Incorrect and unsafe. Searching only for the original symbol `computeTax` misses files that reference it through re-exports (`getTax`, `calculateInvoiceTax`). The downstream `invoice.ts` would be missed by this strategy — exactly the bug the question is trying to prevent.\nD: Works in a codebase with comprehensive test coverage but is indirect and destructive for pre-modification tracing: it requires a rename-then-rebuild cycle and surfaces only usages covered by tests (missing untested callers, dynamic dispatch, and external packages that import the function). For pre-modification tracing — the question's focus — option A's direct manual trace is more reliable, especially in untested paths.",
+      "source_note": "cs id=31739 | v8-audit: stem tightened (most systematic manual strategy) + explanation D rewritten to explain A preference"
     },
     {
       "id": "cs-domain-4-mcp-32440",
@@ -5511,7 +5443,7 @@
       "id": "cs-domain-5-context-24102",
       "source": "cs",
       "domain": "domain-5-context",
-      "scenario": "6",
+      "scenario": "3",
       "difficulty": "medium",
       "stem": "During an automated security audit of a custom cryptography implementation, the coordinating agent correctly identifies a proprietary hashing function in the first 10 minutes. However, an hour later, when generating the final vulnerability report, the agent incorrectly states the system uses standard SHA-256 and misses a critical flaw related to the proprietary function. What is the root cause and the most appropriate architectural solution?",
       "options": {
@@ -5522,7 +5454,7 @@
       },
       "correct": "A",
       "explanation": "A: Correct. This behavior illustrates context degradation or ephemeral memory loss. In long-running tasks or large context windows, early findings can be 'lost in the middle' or overwritten as new information flows in. Implementing a durable 'scratchpad' or a structured log of key findings ensures that critical discoveries are preserved and explicitly referenced during the final synthesis phase, regardless of how much time has passed.\nB: Incorrect. LLM temperature controls the randomness and creativity of the output, not its ability to retain or recall factual information from earlier in the session. Increasing the temperature would likely increase the probability of hallucinations, potentially making the incorrect statement about SHA-256 even more likely.\nC: Incorrect. Centralizing all work in the main agent often exacerbates context issues by filling the context window more quickly with verbose logs. Subagent delegation is a standard scaling pattern; the failure here is not the delegation itself, but the lack of a mechanism to persist and pass forward the specific key discoveries made by subagents.\nD: Incorrect. While crash recovery manifests and JSON Schema validation are important for system robustness and fault tolerance, they ensure the system can restart correctly after a crash. They do not address semantic context drift or the agent's failure to incorporate specific findings into a report during a successful execution.",
-      "source_note": "cs id=24102"
+      "source_note": "cs id=24102 | v8-audit: retagged scenario 6->3"
     },
     {
       "id": "cs-domain-5-context-24103",
@@ -5749,7 +5681,7 @@
       "id": "cs-domain-5-context-24202",
       "source": "cs",
       "domain": "domain-5-context",
-      "scenario": "1",
+      "scenario": "6",
       "difficulty": "medium",
       "stem": "An HR application aggregates feedback from 15 different peers into a single prompt for Claude to generate a performance review. The generated reviews consistently highlight feedback from the first two and last two peers, but completely ignore feedback from peers 3 through 13. Which prompt engineering technique will best mitigate this position effect?",
       "options": {
@@ -5760,7 +5692,7 @@
       },
       "correct": "B",
       "explanation": "A: Randomizing the order of feedback merely redistributes the bias across different peers over multiple runs but does not solve the underlying 'lost-in-the-middle' phenomenon for a single generation. This leads to inconsistent and unreliable outputs across different users.\nB: Using explicit, distinct section headers (often implemented as XML tags in Claude best practices) helps the model navigate long context windows and attend to specific sections more effectively. Placing a summary at the beginning leverages the 'primacy' effect, ensuring key points are captured while the structural headers mitigate the loss of detail in the middle.\nC: Constraints on the output format (like a JSON array) do not improve the model's attention to the input context. The model might hallucinate or provide shallow content to fill the required 15 elements if it hasn't properly processed the input feedback from peers 3 through 13.\nD: Removing line breaks and structure typically increases the 'noise' within the prompt and increases cognitive load for the model. This makes it harder for the model to distinguish between different feedback sources and usually exacerbates the problem of ignoring middle content.",
-      "source_note": "cs id=24202"
+      "source_note": "cs id=24202 | v8-audit: retagged scenario 1->6"
     },
     {
       "id": "cs-domain-5-context-24203",
@@ -5783,7 +5715,7 @@
       "id": "cs-domain-5-context-24204",
       "source": "cs",
       "domain": "domain-5-context",
-      "scenario": "1",
+      "scenario": "3",
       "difficulty": "medium",
       "stem": "A cybersecurity incident response system uses a 'log analyzer' agent that reads raw server logs and passes its findings to a 'remediation' agent. The log analyzer includes its step-by-step chain of thought ('First I looked at port 80, then I noticed an anomaly on port 443...') in its output. The remediation agent frequently fails to generate a script because its context window is filled with the log analyzer's internal monologue. How should the architect optimize this interaction?",
       "options": {
@@ -5794,7 +5726,7 @@
       },
       "correct": "D",
       "explanation": "A: Incorrect. Stripping chain-of-thought with regular expressions is brittle and error-prone because LLM outputs can vary in format. This approach also places an unnecessary processing burden on the remediation agent rather than addressing the data volume at the source.\nB: Incorrect. Increasing max_tokens would allow the log analyzer to be even more verbose, which directly exacerbates the remediation agent's context window exhaustion.\nC: Incorrect. Bypassing the analyzer removes the essential filtering and reasoning step. Sending raw logs directly to the remediation agent would likely overwhelm it with irrelevant data, leading to higher latency and increased error rates.\nD: Correct. Modifying the agent-to-agent interface to use a structured, machine-readable format like JSON is an architectural best practice. By omitting the internal reasoning chain (monologue) and only passing the necessary findings, the architect reduces token consumption, improves reliability, and establishes a clear interface contract.",
-      "source_note": "cs id=24204"
+      "source_note": "cs id=24204 | v8-audit: retagged scenario 1->3"
     },
     {
       "id": "cs-domain-5-context-24253",
@@ -6123,7 +6055,7 @@
       "id": "cs-domain-5-context-24290",
       "source": "cs",
       "domain": "domain-5-context",
-      "scenario": "1",
+      "scenario": "6",
       "difficulty": "medium",
       "stem": "A company wants to set a confidence threshold for automating customer support ticket categorization. They have a labeled validation set of 1,000 tickets. The business states that misclassifying a high-priority 'Urgent' ticket is 10 times more costly than having a human review a correctly classified ticket. What is the best methodology for the architect to determine the optimal confidence threshold for the 'Urgent' category?",
       "options": {
@@ -6134,7 +6066,7 @@
       },
       "correct": "D",
       "explanation": "A: Incorrect. Using the average confidence score is an arbitrary metric that does not account for the trade-offs between false positives and false negatives, nor does it incorporate the asymmetric cost structure (10x) specified by the business.\nB: Incorrect. Accuracy is often a misleading metric for classification tasks with asymmetric costs or class imbalance. It treats all errors equally, which fails to protect against the high cost of misclassifying 'Urgent' tickets compared to the lower cost of human review.\nC: Incorrect. The F1-score provides a balance between precision and recall but generally treats them with equal weight (harmonic mean). It does not allow for the specific 10:1 cost weighting required by the business constraints.\nD: Correct. This methodology, known as cost-benefit analysis or cost-sensitive calibration, directly incorporates business requirements into the technical decision. By calculating the total expected cost for various thresholds based on the 10x penalty, the architect can select the threshold that minimizes the actual business risk.",
-      "source_note": "cs id=24290"
+      "source_note": "cs id=24290 | v8-audit: retagged scenario 1->6"
     },
     {
       "id": "cs-domain-5-context-24292",
@@ -6191,7 +6123,7 @@
       "id": "cs-domain-5-context-24297",
       "source": "cs",
       "domain": "domain-5-context",
-      "scenario": "1",
+      "scenario": "6",
       "difficulty": "medium",
       "stem": "An architect analyzes a fraud detection model's performance. They find that when the model predicts 'fraudulent' with confidence 0.85-0.90, it is correct only 60% of the time. When confidence is 0.95-1.0, it is correct 98% of the time. The current workflow sends any claim with fraud confidence > 0.85 to an investigator. Based on this confidence calibration analysis, what is the most effective change to the workflow?",
       "options": {
@@ -6202,7 +6134,7 @@
       },
       "correct": "C",
       "explanation": "A: Keeping the threshold at 0.85 maintains a high volume of low-precision cases in the investigator's queue. While providing visibility of the score helps with triage, it does not sufficiently leverage the calibration data to optimize the routing logic or reduce the unnecessary false-positive burden on the primary investigation team.\nB: Lowering the threshold to 0.75 prioritized recall over precision, which is counterproductive in this scenario. Given that the 0.85-0.90 band already has poor precision (60%), adding even lower-confidence alerts would substantially increase false positives and investigator workload without a proportionate benefit.\nC: This is the most effective approach as it leverages the model's calibrated confidence levels to triage work. Directing very high-precision cases (0.95-1.0) to the primary team reduces wasted effort on false positives, while a separate, lower-priority workflow for 0.85-0.95 cases ensures these potential frauds are still addressed without overwhelming the main team's resources.\nD: Discarding the confidence scores entirely ignores valuable performance data. Since the model is highly reliable (98% accuracy) at high confidence levels, the scores should be used to prioritize work rather than being abandoned, which would result in an inefficient and costly manual review of all flags.",
-      "source_note": "cs id=24297"
+      "source_note": "cs id=24297 | v8-audit: retagged scenario 1->6"
     },
     {
       "id": "cs-domain-5-context-28723",
