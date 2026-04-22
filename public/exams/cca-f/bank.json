@@ -1,8 +1,8 @@
 {
   "cert_id": "cca-f",
-  "version": 8,
-  "built_at": "2026-04-22T04:08:55.624716Z",
-  "total": 557,
+  "version": 9,
+  "built_at": "2026-04-22T04:22:43.042853Z",
+  "total": 554,
   "domains": {
     "domain-1-agentic": {
       "num": 1,
@@ -1377,23 +1377,6 @@
       "source_note": "cs id=28727"
     },
     {
-      "id": "cs-domain-1-agentic-28729",
-      "source": "cs",
-      "domain": "domain-1-agentic",
-      "scenario": "3",
-      "difficulty": "medium",
-      "stem": "A market research platform needs to analyze competitor pricing across five different e-commerce websites simultaneously to reduce overall system latency. Currently, a coordinator agent analyzes one website, waits for the result, and then moves to the next. How can the architect redesign the system to execute these tasks concurrently using an agentic framework?",
-      "options": {
-        "A": "Modify the coordinator's system prompt to instruct it to emit multiple, independent `Task` tool calls within a single response turn, with each call targeting one of the five websites.",
-        "B": "Update the `AgentDefinition` of the subagent to include `execution_mode: parallel` and pass an array of five URLs in a single `Task` tool call.",
-        "C": "Use fork-based session management to branch the coordinator's state into five parallel threads before invoking the `Task` tool.",
-        "D": "Configure the coordinator to use the `Message Batches API` to process the five URLs asynchronously."
-      },
-      "correct": "A",
-      "explanation": "A: Correct. The recommended and most common approach for parallelizing distinct tasks is to have the orchestrating agent generate multiple, independent tool calls in a single response. The underlying agent framework then executes these calls concurrently, significantly reducing latency compared to a sequential process. Research indicates this is the standard pattern for parallel task execution.\nB: Incorrect. While a custom tool could be designed to accept an array and process it internally in parallel, this is not the standard orchestration pattern. The documented approach for parallelizing distinct tasks is for the coordinator to generate multiple, separate tool calls, not a single call with an array of inputs.\nC: Incorrect. The provided research does not describe a \"fork-based session management\" feature for this type of parallelization. The primary mechanism for this scenario is parallel tool calling within a single session, which is a more direct and standard approach than forking the entire session state.\nD: Incorrect. This confuses two different concepts. The `Message Batches API` is used for submitting large volumes of independent API requests for asynchronous processing to reduce costs. It is not a tool for orchestrating subagents within a single, coordinated, and interactive task like the one described.",
-      "source_note": "cs id=28729"
-    },
-    {
       "id": "cs-domain-1-agentic-28733",
       "source": "cs",
       "domain": "domain-1-agentic",
@@ -1528,40 +1511,6 @@
       "correct": "C",
       "explanation": "A: Incorrect. System prompts provide probabilistic behavior guidance and cannot deliver 100% deterministic compliance. Exam guide Task 1.5 and The Architect's Playbook both document that even emphatic \"CRITICAL POLICY\" prompts yield ~3% residual failure rates.\nB: Tool-backend validation IS a valid deterministic check (server-side code runs 100% of the time). However, it fires AFTER the LLM has decided to call the tool; if the tool-backend raises an error back to the loop, the agent then has to reason about the error. The exam guide's canonical pattern for pre-execution compliance is the PreToolUse hook (option C), which intercepts the call BEFORE the tool runs, cleanly short-circuiting policy violations.\nC: Correct. Per exam guide Task 1.5: \"tool call interception hooks that block policy-violating actions (e.g., refunds exceeding $500) and redirect to alternative workflows.\" PreToolUse hooks inspect tool arguments deterministically, block non-compliant calls pre-execution, and are the recommended architectural pattern for 100%-compliance requirements. Matches sibling questions cs-24134, cs-24141, cs-32813, cs-32814 which all mark the hook-based answer correct for identical framing.\nD: Post-booking auditing is reactive — non-compliant bookings exist for up to 5 minutes before being cancelled. Creates a window where patients/staff see invalid appointments. Fails the 100%-prevention requirement.",
       "source_note": "cs id=32828 | v8-audit: hook terminology PreToolCall->PreToolUse | v8-audit: re-keyed B->C per exam-guide Task 1.5 (PreToolUse hook is the documented deterministic-enforcement pattern)"
-    },
-    {
-      "id": "cs-domain-1-agentic-32835",
-      "source": "cs",
-      "domain": "domain-1-agentic",
-      "scenario": "1",
-      "difficulty": "medium",
-      "stem": "A developer is building an autonomous research agent. To determine when the agent has finished its research, the developer's code checks if the assistant's response contains the phrase 'Research complete:'. If this phrase is found, the agent's main loop terminates. What is the architectural assessment of this approach?",
-      "options": {
-        "A": "This is a best practice, provided the system prompt strongly enforces the exact phrasing of 'Research complete:' using XML tags.",
-        "B": "This is an anti-pattern because it relies on parsing non-deterministic natural language for control flow. The developer should instead instruct the model to call a specific tool, such as `research_complete()`, to signal task completion.",
-        "C": "This is an anti-pattern; the developer should instead evaluate if `stop_reason` equals `end_turn` to safely and deterministically terminate the loop.",
-        "D": "This is an anti-pattern; the developer should instead check for a specific `stop_sequence` like `</research_complete>` in the API request."
-      },
-      "correct": "B",
-      "explanation": "A: Incorrect. This is an anti-pattern. While strong prompting and XML tags can increase the likelihood of the model producing the desired phrase, it does not guarantee it. Relying on parsing a model's non-deterministic natural language output for critical control flow is unreliable and can lead to unpredictable behavior.\nB: Correct. This approach is an anti-pattern. According to Anthropic's best practices, critical control flow should be managed by deterministic rules, not by parsing non-deterministic model output. The recommended approach is to use Tool Use (also known as function calling), instructing the model to call a specific tool like `research_complete()` to provide a structured, reliable signal that the task is finished.\nC: Incorrect. The `stop_reason` of `end_turn` indicates that the model completed its turn of generation naturally. In a multi-step agentic workflow, research may require many turns. Terminating the loop on the first `end_turn` would prematurely stop the agent before its overall task is complete.\nD: Incorrect. While using a `stop_sequence` is more deterministic than parsing a natural language phrase, it is not the recommended architectural pattern for this use case. Tool Use is superior because it provides a structured way for the model to signal completion and can include structured data in its response (e.g., a summary or list of sources). Tool Use is the preferred method for managing agentic control flow.",
-      "source_note": "cs id=32835"
-    },
-    {
-      "id": "cs-domain-1-agentic-32836",
-      "source": "cs",
-      "domain": "domain-1-agentic",
-      "scenario": "1",
-      "difficulty": "medium",
-      "stem": "A developer is building an autonomous research agent. To determine when the agent has finished its research, the developer's code checks if the assistant's response contains the phrase 'Research complete:'. If this phrase is found, the agent's main loop terminates. What is the architectural assessment of this approach?",
-      "options": {
-        "A": "This is a best practice, provided the system prompt strongly enforces the exact phrasing of 'Research complete:' using XML tags.",
-        "B": "This is an anti-pattern because it relies on parsing non-deterministic natural language for control flow. The developer should instead instruct the model to call a specific tool, such as `research_complete()`, to signal task completion.",
-        "C": "This is an anti-pattern; the developer should instead evaluate if `stop_reason` equals `end_turn` to safely and deterministically terminate the loop.",
-        "D": "This is an anti-pattern; the developer should instead check for a specific `stop_sequence` like `</research_complete>` in the API request."
-      },
-      "correct": "B",
-      "explanation": "A: Incorrect. Relying on parsing natural language for control flow is a known anti-pattern, as model outputs are non-deterministic. Even with strong prompting and XML tags, the model may not consistently produce the exact string, leading to a brittle and unreliable system. The architecturally sound approach is to use a deterministic mechanism.\nB: Correct. According to Anthropic's documentation and best practices, parsing natural language for control flow is unreliable. The recommended approach is to use the tool-use feature. Defining a `research_complete()` tool provides a structured, deterministic, and machine-readable signal for task completion. When the model calls this tool, the API responds with `stop_reason: \"tool_use\"`, which is the proper way to handle agentic control flow.\nC: Incorrect. The `stop_reason` `end_turn` indicates that the model has finished generating its content for a single API call. In a multi-step agentic loop, this would happen after every turn, causing the agent to terminate prematurely. It does not signify that the overall task is complete.\nD: Incorrect. While using a `stop_sequence` can halt text generation, it is a less robust and less explicit mechanism for agentic control flow compared to tool calling. Tool calling is the purpose-built feature for having the model signal a specific, structured action. It provides a clearer, more reliable architectural pattern for managing agent state and task completion.",
-      "source_note": "cs id=32836"
     },
     {
       "id": "cs-domain-2-claude-code-23989",
