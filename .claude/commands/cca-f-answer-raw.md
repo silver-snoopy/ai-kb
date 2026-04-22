@@ -42,13 +42,15 @@ Read via the Read tool:
 
 - `CLAUDE.md` (vault conventions + stale-terms list)
 - `certs/cca-f/meta.yaml` (exam params, domain weights)
-- `certs/cca-f/_scenarios.md` (authoritative scenario taxonomy — CORRECT / ANTI-PATTERN pairs; primary grounding)
+- `raw/anthropic-docs/2026-04-18-cca-f-exam-guide.md` (AUTHORITATIVE CCA-F exam guide — read the "Scenario N: <name>" sections with their "Primary domains:" lines as the ground-truth for scenario↔domain mapping; if your stem-inferred scenario's "Primary domains" list doesn't include your stem-inferred domain, re-examine — the exam guide is the anchor for tag assignments.)
+- `certs/cca-f/_scenarios.md` (authoritative scenario taxonomy — CORRECT / ANTI-PATTERN pairs; primary grounding for answer inference)
 - `certs/cca-f/_quick-reference.md` (distractor catalog per domain)
 - `certs/cca-f/domain-1-agentic/anti-patterns.md`
 - `certs/cca-f/domain-2-claude-code/anti-patterns.md`
 - `certs/cca-f/domain-3-prompt-engineering/anti-patterns.md`
 - `certs/cca-f/domain-4-mcp/anti-patterns.md`
 - `certs/cca-f/domain-5-context/anti-patterns.md`
+- `certs/cca-f/domain-<1..5>-*/official-sample-questions.md` (verbatim Anthropic-authored sample questions — authoritative reference for exam question SHAPE: stem length, scenario-prefix framing, distractor style, explanation depth. Use as the primary style anchor alongside `_scenarios.md`. Do NOT copy verbatim; use as stylistic exemplar.)
 - `public/exams/cca-f/bank.json` (for `scenarios[S].domains` constraint + near-duplicate stem-trigram check)
 
 ### 4. Per-question inference + answer (stem primary, raw hints supportive)
