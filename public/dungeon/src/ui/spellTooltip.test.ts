@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { formatSpellTooltip } from './spellTooltip';
+import { describe, expect, it } from 'vitest';
 import { SPELLS } from '../config';
+import { formatSpellTooltip } from './spellTooltip';
 
 describe('formatSpellTooltip', () => {
   it('joins name and tagline on two lines', () => {

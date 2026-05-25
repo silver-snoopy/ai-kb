@@ -1,5 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { computeHoldMs, OVERLAY_FADE_IN_MS, OVERLAY_HOLD_MS, OVERLAY_FADE_OUT_MS, OVERLAY_ABORT_FADE_MS } from './NarratorOverlay';
+import { describe, expect, it } from 'vitest';
+import {
+  OVERLAY_ABORT_FADE_MS,
+  OVERLAY_FADE_IN_MS,
+  OVERLAY_FADE_OUT_MS,
+  OVERLAY_HOLD_MS,
+  computeHoldMs,
+} from './NarratorOverlay';
 
 describe('NarratorOverlay constants', () => {
   it('exports fade + hold timings', () => {

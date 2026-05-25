@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  STORAGE_KEY_PREFIX,
+  deleteSaveState,
   initSaveState,
   loadSaveState,
-  saveSaveState,
   recordCampaignVictory,
-  deleteSaveState,
-  STORAGE_KEY_PREFIX,
+  saveSaveState,
 } from './saveState';
 
 describe('saveState', () => {
@@ -44,7 +44,10 @@ describe('saveState', () => {
   });
 
   it('loadSaveState returns null on unknown version', () => {
-    localStorage.setItem(STORAGE_KEY_PREFIX + 'cca-f', JSON.stringify({ version: 99, cert_id: 'cca-f' }));
+    localStorage.setItem(
+      STORAGE_KEY_PREFIX + 'cca-f',
+      JSON.stringify({ version: 99, cert_id: 'cca-f' }),
+    );
     expect(loadSaveState('cca-f')).toBeNull();
   });
 
@@ -71,7 +74,7 @@ describe('saveState', () => {
     const v = recordCampaignVictory(s, 'ng-plus');
     expect(v.unlocked_spells).toContain('doubleshot');
     // amplify was already unlocked; don't duplicate
-    expect(v.unlocked_spells.filter(x => x === 'amplify')).toHaveLength(1);
+    expect(v.unlocked_spells.filter((x) => x === 'amplify')).toHaveLength(1);
   });
 
   it('recordCampaignVictory on ng-plus-plus adds no new spell (Focus removed 2026-04-20)', () => {
@@ -111,7 +114,13 @@ describe('saveState', () => {
     const loaded = loadSaveState('cca-f');
     expect(loaded).not.toBeNull();
     expect(loaded!.unlocked_spells).not.toContain('focus');
-    expect(loaded!.unlocked_spells).toEqual(['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot']);
+    expect(loaded!.unlocked_spells).toEqual([
+      'echo',
+      'study-the-tome',
+      'memorize',
+      'amplify',
+      'doubleshot',
+    ]);
   });
 
   it('deleteSaveState removes the entry', () => {

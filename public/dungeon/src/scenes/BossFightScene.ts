@@ -1,27 +1,41 @@
 import Phaser from 'phaser';
+import { ProceduralBGM } from '../audio/bgm';
 import { BOSSES, GAME_CONFIG, SPELLS } from '../config';
-import { downloadSessionLog } from '../game/sessionExport';
-import { initCombat, resolveAnswer, isBossDefeated, isHeroDead } from '../game/combat';
 import { pickQuestionsForFight, questionsForDomain } from '../data/questionLoader';
-import { canCast, castSpell, createSpellbook, grantBossDefeatReward } from '../game/spellbook';
-import type { Spellbook } from '../game/spellbook';
-import type { Bank, BossDefinition, CombatState, MissedQuestion, Question, RunMode, SessionLog, SpellId } from '../types';
+import { installFeelPack } from '../feel/install';
+import { initCombat, isBossDefeated, isHeroDead, resolveAnswer } from '../game/combat';
 import type { Campaign } from '../game/dungeon';
 import { advanceFloor, isCampaignComplete } from '../game/dungeon';
-import { readActiveRun, writeActiveRun, clearActiveRun, restoreQuestionPool } from '../game/runSave';
-import { ProceduralBGM } from '../audio/bgm';
-import { mountAudioToggles, REGISTRY_BGM_MUTED } from '../ui/audioToggles';
-import { renderBackdrop } from './backdrops';
-import { fadeIn, fadeToScene } from '../ui/transitions';
+import {
+  clearActiveRun,
+  readActiveRun,
+  restoreQuestionPool,
+  writeActiveRun,
+} from '../game/runSave';
+import { downloadSessionLog } from '../game/sessionExport';
+import { canCast, castSpell, createSpellbook, grantBossDefeatReward } from '../game/spellbook';
+import type { Spellbook } from '../game/spellbook';
+import type {
+  Bank,
+  BossDefinition,
+  CombatState,
+  MissedQuestion,
+  Question,
+  RunMode,
+  SessionLog,
+  SpellId,
+} from '../types';
+import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
-import { paintOptionFeedback, resetOptionFeedback } from '../ui/optionFeedback';
 import { mountDemoBadgeIfActive } from '../ui/demoBadge';
-import { formatSpellTooltip } from '../ui/spellTooltip';
-import { installFeelPack } from '../feel/install';
-import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
+import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
 import { NARRATOR_LINES } from '../ui/narrator/lines';
+import { paintOptionFeedback, resetOptionFeedback } from '../ui/optionFeedback';
+import { formatSpellTooltip } from '../ui/spellTooltip';
+import { fadeIn, fadeToScene } from '../ui/transitions';
+import { renderBackdrop } from './backdrops';
 
 interface BossFightData {
   bossId: string;
@@ -82,7 +96,7 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   init(data: BossFightData): void {
-    const boss = BOSSES.find(b => b.id === data.bossId);
+    const boss = BOSSES.find((b) => b.id === data.bossId);
     if (!boss) throw new Error(`Unknown boss: ${data.bossId}`);
     this.boss = boss;
     this.mode = data.mode;
@@ -118,10 +132,14 @@ export class BossFightScene extends Phaser.Scene {
     if (restoredQuestions) {
       this.questions = restoredQuestions;
       this.currentQuestionIdx = save!.inBoss!.currentQuestionIdx;
-      this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: save!.inBoss!.bossMaxHp });
+      this.state = initCombat({
+        heroMaxHp: GAME_CONFIG.HERO_MAX_HP,
+        bossMaxHp: save!.inBoss!.bossMaxHp,
+      });
       this.state.heroHp = save!.inBoss!.heroHp;
       this.state.bossHp = save!.inBoss!.bossHp;
-      this.state.questionHistory = restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
+      this.state.questionHistory =
+        restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
     } else {
       this.questions = pickQuestionsForFight(domainPool, maxQuestions);
       this.currentQuestionIdx = 0;
@@ -157,9 +175,13 @@ export class BossFightScene extends Phaser.Scene {
     renderBackdrop(this, this.boss.id);
 
     // Boss name at top center
-    this.add.text(480, 30, this.boss.name, {
-      fontSize: '24px', color: '#f5e4b3', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.add
+      .text(480, 30, this.boss.name, {
+        fontSize: '24px',
+        color: '#f5e4b3',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // --- Speech bubble (question area) ---
     // Filled rectangle body
@@ -174,33 +196,52 @@ export class BossFightScene extends Phaser.Scene {
     tail.strokeTriangle(720, 330, 760, 330, 740, 310);
 
     // Question text inside bubble
-    this.questionText = this.add.text(480, 145, '', {
-      fontSize: '16px', color: '#f0e8d8', fontFamily: 'monospace',
-      wordWrap: { width: 580 }, align: 'center',
-    }).setOrigin(0.5, 0);
+    this.questionText = this.add
+      .text(480, 145, '', {
+        fontSize: '16px',
+        color: '#f0e8d8',
+        fontFamily: 'monospace',
+        wordWrap: { width: 580 },
+        align: 'center',
+      })
+      .setOrigin(0.5, 0);
 
     // Primer text (Study-the-Tome effect) — below the bubble. Wrap is
     // 880 so the primer hint fits in 2–3 lines and doesn't bleed into
     // the first option box below.
-    this.primerText = this.add.text(480, 360, '', {
-      fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
-      wordWrap: { width: 880 }, align: 'center', fontStyle: 'italic',
-    }).setOrigin(0.5, 0);
+    this.primerText = this.add
+      .text(480, 360, '', {
+        fontSize: '13px',
+        color: '#ffca28',
+        fontFamily: 'monospace',
+        wordWrap: { width: 880 },
+        align: 'center',
+        fontStyle: 'italic',
+      })
+      .setOrigin(0.5, 0);
 
     // --- Hero sprite (left) ---
     this.heroSprite = this.add.image(120, 330, 'hero').setScale(3);
 
     // Hero HP hearts below sprite. Slightly smaller than before so the
     // label stack under the hero is a compact 2-line group.
-    this.heroHpText = this.add.text(120, 405, '', {
-      fontSize: '12px', color: '#8bc34a', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.heroHpText = this.add
+      .text(120, 405, '', {
+        fontSize: '12px',
+        color: '#8bc34a',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // Hero name label \u2014 intentionally tiny so it reads as a subtitle
     // rather than competing with the HP text above it.
-    this.add.text(120, 420, 'WARLOCK', {
-      fontSize: '9px', color: '#808090', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.add
+      .text(120, 420, 'WARLOCK', {
+        fontSize: '9px',
+        color: '#808090',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // --- Boss sprite (right) ---
     const bossKey = `boss-${this.boss.id}`;
@@ -209,15 +250,25 @@ export class BossFightScene extends Phaser.Scene {
 
     // Boss HP hearts below boss sprite \u2014 match the hero HP scale so both
     // sides read as symmetric status lines.
-    this.bossHpText = this.add.text(840, 405, '', {
-      fontSize: '12px', color: '#ff6b6b', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.bossHpText = this.add
+      .text(840, 405, '', {
+        fontSize: '12px',
+        color: '#ff6b6b',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // Taunt text below boss
-    this.tauntText = this.add.text(840, 450, '', {
-      fontSize: '12px', color: '#d0c090', fontFamily: 'monospace', fontStyle: 'italic',
-      wordWrap: { width: 260 }, align: 'center',
-    }).setOrigin(0.5, 0);
+    this.tauntText = this.add
+      .text(840, 450, '', {
+        fontSize: '12px',
+        color: '#d0c090',
+        fontFamily: 'monospace',
+        fontStyle: 'italic',
+        wordWrap: { width: 260 },
+        align: 'center',
+      })
+      .setOrigin(0.5, 0);
 
     // --- Option buttons ---
     // Box height 50 + 48px pitch fits a 2-line wrapped answer cleanly
@@ -231,15 +282,20 @@ export class BossFightScene extends Phaser.Scene {
       const btn = this.add.rectangle(480, y, 900, 50, 0x1a1a2a);
       btn.setStrokeStyle(2, 0x4a4a6a);
       btn.setInteractive({ useHandCursor: true });
-      attachRectHover(btn,
+      attachRectHover(
+        btn,
         { fill: 0x1a1a2a, stroke: 0x4a4a6a },
         { fill: 0x2a2a3a, stroke: 0x8b8bc4 },
       );
       this.optionButtons.push(btn);
-      const txt = this.add.text(50, y, '', {
-        fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
-        wordWrap: { width: 870, useAdvancedWrap: true },
-      }).setOrigin(0, 0.5);
+      const txt = this.add
+        .text(50, y, '', {
+          fontSize: '13px',
+          color: '#d0d0da',
+          fontFamily: 'monospace',
+          wordWrap: { width: 870, useAdvancedWrap: true },
+        })
+        .setOrigin(0, 0.5);
       this.optionTexts.push(txt);
       btn.on('pointerdown', () => this.submit(letter));
       this.input.keyboard?.on(`keydown-${letter}`, () => this.submit(letter));
@@ -257,13 +313,17 @@ export class BossFightScene extends Phaser.Scene {
       const x = idx < 3 ? 100 + idx * 280 : 240 + (idx - 3) * 280;
       const y = idx < 3 ? 650 : 682;
       const btn = this.add.text(x, y, '', {
-        fontSize: '13px', color: '#ffca28', fontFamily: 'monospace',
-        backgroundColor: '#1a1a2a', padding: { x: 8, y: 4 },
+        fontSize: '13px',
+        color: '#ffca28',
+        fontFamily: 'monospace',
+        backgroundColor: '#1a1a2a',
+        padding: { x: 8, y: 4 },
       });
       btn.setInteractive({ useHandCursor: true });
       // Hover feedback: brighter bg + text color when castable. Inactive
       // (0 charges) spells stay dim \u2014 attachTextHover's predicate gates it.
-      attachTextHover(btn,
+      attachTextHover(
+        btn,
         { bg: '#1a1a2a', color: '#ffca28' },
         { bg: '#3a2f10', color: '#ffe070' },
         () => (this.spellbook[id] ?? 0) > 0,
@@ -279,10 +339,15 @@ export class BossFightScene extends Phaser.Scene {
     // Shared tooltip (one Container, repopulated per hover). High depth so
     // it renders above spell buttons + backdrop, hidden by default.
     this.spellTooltipBg = this.add.rectangle(0, 0, 180, 50, 0x1a1a2a).setStrokeStyle(1, 0xffca28);
-    this.spellTooltipText = this.add.text(0, 0, '', {
-      fontSize: '12px', color: '#e0e0ea', fontFamily: 'monospace',
-      wordWrap: { width: 164, useAdvancedWrap: true }, align: 'center',
-    }).setOrigin(0.5);
+    this.spellTooltipText = this.add
+      .text(0, 0, '', {
+        fontSize: '12px',
+        color: '#e0e0ea',
+        fontFamily: 'monospace',
+        wordWrap: { width: 164, useAdvancedWrap: true },
+        align: 'center',
+      })
+      .setOrigin(0.5);
     this.spellTooltip = this.add.container(0, 0, [this.spellTooltipBg, this.spellTooltipText]);
     this.spellTooltip.setDepth(1000);
     this.spellTooltip.setVisible(false);
@@ -369,15 +434,17 @@ export class BossFightScene extends Phaser.Scene {
       },
       spellbook: { ...this.spellbook },
       heroHpCarryover: this.state.heroHp,
-      inBoss: options.endOfFight ? null : {
-        bossId: this.boss.id,
-        questionIds: this.questions.map(q => q.id),
-        currentQuestionIdx: this.currentQuestionIdx,
-        heroHp: this.state.heroHp,
-        bossHp: this.state.bossHp,
-        bossMaxHp: this.state.bossMaxHp,
-        questionHistoryIds: this.state.questionHistory.map(q => q.id),
-      },
+      inBoss: options.endOfFight
+        ? null
+        : {
+            bossId: this.boss.id,
+            questionIds: this.questions.map((q) => q.id),
+            currentQuestionIdx: this.currentQuestionIdx,
+            heroHp: this.state.heroHp,
+            bossHp: this.state.bossHp,
+            bossMaxHp: this.state.bossMaxHp,
+            questionHistoryIds: this.state.questionHistory.map((q) => q.id),
+          },
     });
   }
 
@@ -401,7 +468,7 @@ export class BossFightScene extends Phaser.Scene {
     const bgHeight = Math.max(44, this.spellTooltipText.height + 12);
     this.spellTooltipBg.setSize(180, bgHeight);
     const centerX = btn.x + btn.width / 2;
-    const tooltipCenterY = btn.y - (bgHeight / 2) - 6;
+    const tooltipCenterY = btn.y - bgHeight / 2 - 6;
     this.spellTooltip.setPosition(centerX, tooltipCenterY);
     this.spellTooltip.setVisible(true);
   }
@@ -431,7 +498,10 @@ export class BossFightScene extends Phaser.Scene {
       });
 
       if (spell === 'echo' && this.state.questionHistory.length > 0) {
-        const prior = this.state.questionHistory[Math.floor(Math.random() * this.state.questionHistory.length)]!;
+        const prior =
+          this.state.questionHistory[
+            Math.floor(Math.random() * this.state.questionHistory.length)
+          ]!;
         this.questions[this.currentQuestionIdx] = prior;
         this.showCurrentQuestion();
       }
@@ -478,7 +548,7 @@ export class BossFightScene extends Phaser.Scene {
     // recolored them via paintOptionFeedback, or disabled their input
     // via disableInteractive — restore all three so the next question
     // presents a clean slate.
-    this.optionButtons.forEach(b => {
+    this.optionButtons.forEach((b) => {
       b.setVisible(true);
       b.setInteractive({ useHandCursor: true });
     });
@@ -504,7 +574,7 @@ export class BossFightScene extends Phaser.Scene {
     const elapsed = Date.now() - this.questionStartMs;
     const result = resolveAnswer(this.state, choice);
     const sessionLog: SessionLog = this.registry.get('sessionLog');
-    const existing = sessionLog.questions.find(x => x.question_id === q.id);
+    const existing = sessionLog.questions.find((x) => x.question_id === q.id);
     if (existing) {
       existing.was_correct = result.wasCorrect;
       existing.time_elapsed_ms = elapsed;
@@ -545,12 +615,17 @@ export class BossFightScene extends Phaser.Scene {
         if (hpPct <= tRatio && notYetEmitted) {
           this.events.emit('boss-phase-crossed', { threshold: t, bossId: this.boss.id });
           this.lastPhaseEmitted = t;
-          break;  // lowest crossed threshold wins; skip remaining higher thresholds
+          break; // lowest crossed threshold wins; skip remaining higher thresholds
         }
       }
       this.bossSprite.setTint(0xff6b6b);
       this.time.delayedCall(200, () => this.bossSprite.clearTint());
-      this.floatDamage(this.bossSprite.x, this.bossSprite.y - 40, `-${result.damageDealt}`, '#ff6b6b');
+      this.floatDamage(
+        this.bossSprite.x,
+        this.bossSprite.y - 40,
+        `-${result.damageDealt}`,
+        '#ff6b6b',
+      );
       // Paint the chosen option green + ✓ so the player gets positive
       // visual confirmation of which answer was correct, AND lock
       // interactivity so the hover handlers can't revert the colors and
@@ -558,7 +633,7 @@ export class BossFightScene extends Phaser.Scene {
       // tryCast/submit hover-look changes. showCurrentQuestion re-enables
       // on the next question.
       paintOptionFeedback(this.optionButtons, this.optionTexts, result.correctAnswer, choice);
-      this.optionButtons.forEach(b => b.disableInteractive());
+      this.optionButtons.forEach((b) => b.disableInteractive());
     } else {
       // Hero takes damage
       this.sound.play('sfx-hit-hero', { volume: 0.5 });
@@ -586,17 +661,12 @@ export class BossFightScene extends Phaser.Scene {
       // sole on-screen signal of the miss — the post-boss mistakes review
       // (F3b) carries the full explanation. Options stay visually locked
       // until the next question via disableInteractive below.
-      paintOptionFeedback(
-        this.optionButtons,
-        this.optionTexts,
-        result.correctAnswer,
-        choice,
-      );
+      paintOptionFeedback(this.optionButtons, this.optionTexts, result.correctAnswer, choice);
       // Lock in the painted colors: disable interactivity on the option
       // panels so their hover handlers can't repaint back to navy when
       // the cursor moves, AND so a stray click on a panel can't re-fire
       // submit. Re-enabled in showCurrentQuestion on the next question.
-      this.optionButtons.forEach(b => b.disableInteractive());
+      this.optionButtons.forEach((b) => b.disableInteractive());
       this.scheduleAdvance(ADVANCE_DELAY_WRONG_MS);
       return;
     }
@@ -612,10 +682,16 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private floatDamage(x: number, y: number, text: string, color: string): void {
-    const t = this.add.text(x, y, text, {
-      fontSize: '28px', color, fontFamily: 'monospace', fontStyle: 'bold',
-      stroke: '#000000', strokeThickness: 3,
-    }).setOrigin(0.5);
+    const t = this.add
+      .text(x, y, text, {
+        fontSize: '28px',
+        color,
+        fontFamily: 'monospace',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5);
     this.tweens.add({
       targets: t,
       y: y - 50,
@@ -656,8 +732,8 @@ export class BossFightScene extends Phaser.Scene {
     });
 
     this.questionText.setText(`🏆 ${this.boss.name} DEFEATED\n\n(click for reward)`);
-    this.optionTexts.forEach(t => t.setText(''));
-    this.optionButtons.forEach(b => b.setVisible(false));
+    this.optionTexts.forEach((t) => t.setText(''));
+    this.optionButtons.forEach((b) => b.setVisible(false));
     this.input.once('pointerdown', () => this.grantReward());
   }
 
@@ -666,7 +742,9 @@ export class BossFightScene extends Phaser.Scene {
     const chosen = choices[Math.floor(Math.random() * choices.length)]!;
     grantBossDefeatReward(this.spellbook, chosen);
 
-    this.questionText.setText(`📜 Reward: +1 charge of ${SPELLS[chosen].name}\n\n(click to descend)`);
+    this.questionText.setText(
+      `📜 Reward: +1 charge of ${SPELLS[chosen].name}\n\n(click to descend)`,
+    );
     this.refreshSpellUI();
     this.input.once('pointerdown', () => this.onFightEnd('victory'));
   }
@@ -683,9 +761,11 @@ export class BossFightScene extends Phaser.Scene {
       ease: 'Cubic.easeIn',
     });
 
-    this.questionText.setText(`💀 YOU DIED\n\n${this.boss.name} claims another scholar.\n\n(click to return to Hub)`);
-    this.optionTexts.forEach(t => t.setText(''));
-    this.optionButtons.forEach(b => b.setVisible(false));
+    this.questionText.setText(
+      `💀 YOU DIED\n\n${this.boss.name} claims another scholar.\n\n(click to return to Hub)`,
+    );
+    this.optionTexts.forEach((t) => t.setText(''));
+    this.optionButtons.forEach((b) => b.setVisible(false));
     const sessionLog: SessionLog = this.registry.get('sessionLog');
     sessionLog.result = 'death';
     sessionLog.ended_at = new Date().toISOString();
@@ -733,8 +813,12 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private updateHp(): void {
-    const bossHearts = '❤️'.repeat(Math.max(0, this.state.bossHp)) + '🖤'.repeat(this.state.bossMaxHp - this.state.bossHp);
-    const heroHearts = '❤️'.repeat(Math.max(0, this.state.heroHp)) + '🖤'.repeat(this.state.heroMaxHp - this.state.heroHp);
+    const bossHearts =
+      '❤️'.repeat(Math.max(0, this.state.bossHp)) +
+      '🖤'.repeat(this.state.bossMaxHp - this.state.bossHp);
+    const heroHearts =
+      '❤️'.repeat(Math.max(0, this.state.heroHp)) +
+      '🖤'.repeat(this.state.heroMaxHp - this.state.heroHp);
     this.bossHpText.setText(`BOSS ${bossHearts}`);
     this.heroHpText.setText(`HERO ${heroHearts}`);
 

@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
-import { HubScene } from './scenes/HubScene';
 import { BossFightScene } from './scenes/BossFightScene';
-import { InterstitialScene } from './scenes/InterstitialScene';
 import { CampaignCompleteScene } from './scenes/CampaignCompleteScene';
+import { HubScene } from './scenes/HubScene';
+import { InterstitialScene } from './scenes/InterstitialScene';
 import { TomeScene } from './scenes/TomeScene';
 
 const config: Phaser.Types.Core.GameConfig = {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Minimal harness — we test the emit contract, not Phaser rendering.
 // Construct a stub Phaser.Scene-like object with .events.emit spied.

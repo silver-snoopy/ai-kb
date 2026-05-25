@@ -9,22 +9,42 @@
 //
 // Output: public/questions.json at repo root.
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parse as parseYaml } from 'yaml';
 import { glob } from 'glob';
+import { parse as parseYaml } from 'yaml';
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const vault = resolve(scriptDir, '..');
 
 // Domain metadata (slug -> display). Pulled from certs/cca-f/meta.yaml.
 const DOMAIN_META = {
-  'domain-1-agentic':           { num: 1, name: 'Agentic Architecture & Orchestration', weight: 0.27, color: '#f39c4a' }, // orange
-  'domain-2-claude-code':       { num: 2, name: 'Claude Code Configuration & Workflows', weight: 0.20, color: '#a87cf0' }, // purple
-  'domain-3-prompt-engineering':{ num: 3, name: 'Prompt Engineering & Structured Output', weight: 0.20, color: '#5db5f0' }, // blue
-  'domain-4-mcp':               { num: 4, name: 'Tool Design & MCP Integration', weight: 0.18, color: '#5ad1a0' }, // green
-  'domain-5-context':           { num: 5, name: 'Context Management & Reliability', weight: 0.15, color: '#e85d75' }, // pink
+  'domain-1-agentic': {
+    num: 1,
+    name: 'Agentic Architecture & Orchestration',
+    weight: 0.27,
+    color: '#f39c4a',
+  }, // orange
+  'domain-2-claude-code': {
+    num: 2,
+    name: 'Claude Code Configuration & Workflows',
+    weight: 0.2,
+    color: '#a87cf0',
+  }, // purple
+  'domain-3-prompt-engineering': {
+    num: 3,
+    name: 'Prompt Engineering & Structured Output',
+    weight: 0.2,
+    color: '#5db5f0',
+  }, // blue
+  'domain-4-mcp': { num: 4, name: 'Tool Design & MCP Integration', weight: 0.18, color: '#5ad1a0' }, // green
+  'domain-5-context': {
+    num: 5,
+    name: 'Context Management & Reliability',
+    weight: 0.15,
+    color: '#e85d75',
+  }, // pink
 };
 
 // Tolerates Windows CRLF line endings and trailing whitespace/info-string after
@@ -60,7 +80,7 @@ function extractQuestionsFromText(text, sourcePath) {
       if (q.source_note) q.source_note = sanitizeSourceNote(q.source_note);
       if (typeof q.options === 'object' && !Array.isArray(q.options)) {
         // normalize options dict {A,B,C,D} to array [A,B,C,D] for UI consumption
-        q.options_array = ['A', 'B', 'C', 'D'].map(k => q.options[k]).filter(Boolean);
+        q.options_array = ['A', 'B', 'C', 'D'].map((k) => q.options[k]).filter(Boolean);
       } else if (Array.isArray(q.options)) {
         q.options_array = q.options;
       }
@@ -107,4 +127,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

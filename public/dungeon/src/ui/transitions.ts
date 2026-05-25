@@ -4,7 +4,7 @@
 // the current abrupt snap between bosses that reads as a cut rather than a
 // "descend to the next floor" beat.
 
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 const FADE_IN_MS = 350;
 const FADE_OUT_MS = 400;

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 export function computeHitStopMs(damage: number): number {
   const raw = Math.sqrt(Math.max(0, damage)) * 25;

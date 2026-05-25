@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import type { Priority } from './types';
 
 export const OVERLAY_FADE_IN_MS = 300;
@@ -49,14 +49,16 @@ export class NarratorOverlay {
     this.bg = this.scene.add.rectangle(0, 0, width, height, 0x0f0a1a, 0.96);
     this.bg.setStrokeStyle(1, 0x3a2f50, 0.6);
     this.accent = this.scene.add.rectangle(-width / 2 + 2, 0, 3, height - 8, 0x8a6ac0, 1);
-    this.textObj = this.scene.add.text(0, 0, '', {
-      fontSize: '14px',
-      fontFamily: 'Georgia, serif',
-      fontStyle: 'italic',
-      color: '#c8b8e0',
-      wordWrap: { width: width - 40 },
-      align: 'center',
-    }).setOrigin(0.5);
+    this.textObj = this.scene.add
+      .text(0, 0, '', {
+        fontSize: '14px',
+        fontFamily: 'Georgia, serif',
+        fontStyle: 'italic',
+        color: '#c8b8e0',
+        wordWrap: { width: width - 40 },
+        align: 'center',
+      })
+      .setOrigin(0.5);
     this.container.add([this.bg, this.accent, this.textObj]);
     this.container.setAlpha(0);
     this.container.setVisible(false);
@@ -85,13 +87,21 @@ export class NarratorOverlay {
       duration: OVERLAY_FADE_IN_MS,
       ease: 'Sine.easeOut',
     });
-    this.hideTimer = this.scene.time.delayedCall(OVERLAY_FADE_IN_MS + OVERLAY_HOLD_MS, () => this.hide(false));
+    this.hideTimer = this.scene.time.delayedCall(OVERLAY_FADE_IN_MS + OVERLAY_HOLD_MS, () =>
+      this.hide(false),
+    );
   }
 
   hide(abort: boolean): void {
     if (this.state === 'IDLE' || this.state === 'HIDING') return;
-    if (this.hideTimer) { this.hideTimer.remove(false); this.hideTimer = null; }
-    if (this.activeTween) { this.activeTween.stop(); this.activeTween = null; }
+    if (this.hideTimer) {
+      this.hideTimer.remove(false);
+      this.hideTimer = null;
+    }
+    if (this.activeTween) {
+      this.activeTween.stop();
+      this.activeTween = null;
+    }
     this.state = 'HIDING';
     const duration = abort ? OVERLAY_ABORT_FADE_MS : OVERLAY_FADE_OUT_MS;
     this.scene.tweens.add({

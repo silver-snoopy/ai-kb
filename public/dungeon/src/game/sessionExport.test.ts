@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { sessionFilename } from './sessionExport';
+import { describe, expect, it } from 'vitest';
 import type { SessionLog } from '../types';
+import { sessionFilename } from './sessionExport';
 
 function dummyLog(overrides: Partial<SessionLog> = {}): SessionLog {
   return {
@@ -35,6 +35,8 @@ describe('sessionExport.sessionFilename', () => {
 
   it('varies with mode', () => {
     expect(sessionFilename(dummyLog({ mode: 'ng-plus' }))).toContain('_ng-plus_');
-    expect(sessionFilename(dummyLog({ mode: 'ng-plus-plus-plus' }))).toContain('_ng-plus-plus-plus_');
+    expect(sessionFilename(dummyLog({ mode: 'ng-plus-plus-plus' }))).toContain(
+      '_ng-plus-plus-plus_',
+    );
   });
 });

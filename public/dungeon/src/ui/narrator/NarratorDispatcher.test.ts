@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
 import Phaser from 'phaser';
+import { describe, expect, it, vi } from 'vitest';
 import { NarratorDispatcher } from './NarratorDispatcher';
 import { LinePool } from './linePool';
 import type { NarratorLine } from './types';
@@ -33,7 +33,7 @@ function makeMockOverlay() {
     }),
     isShowing: () => state.showing,
     currentPriority: () => state.priority,
-    pendingDelayMs: () => state.showing ? 2900 : 0,
+    pendingDelayMs: () => (state.showing ? 2900 : 0),
     destroy: vi.fn(),
   };
   return { overlay, calls };
@@ -46,7 +46,7 @@ describe('NarratorDispatcher', () => {
     const { overlay, calls } = makeMockOverlay();
     const d = new NarratorDispatcher(emitter as any, pool, overlay as any);
     emitter.emit('battle-start', { bossId: 'the-orchestrator' });
-    expect(calls.some(c => c.method === 'show' && c.args[0] === 'bs-orc')).toBe(true);
+    expect(calls.some((c) => c.method === 'show' && c.args[0] === 'bs-orc')).toBe(true);
     d.destroy();
   });
 
@@ -56,7 +56,7 @@ describe('NarratorDispatcher', () => {
     const { overlay, calls } = makeMockOverlay();
     new NarratorDispatcher(emitter as any, pool, overlay as any);
     emitter.emit('boss-phase-crossed', { threshold: 66, bossId: 'the-orchestrator' });
-    expect(calls.find(c => c.method === 'show')!.args[0]).toBe('p66-orc');
+    expect(calls.find((c) => c.method === 'show')!.args[0]).toBe('p66-orc');
   });
 
   it('higher-priority event preempts lower-priority via hide(abort=true)', () => {
@@ -67,7 +67,7 @@ describe('NarratorDispatcher', () => {
     emitter.emit('spell-cast', { spellId: 'echo', bossId: 'the-orchestrator' });
     emitter.emit('boss-defeated', { bossId: 'the-orchestrator' });
     // overlay.show was called twice; second call had higher priority (7 > 1)
-    const shows = calls.filter(c => c.method === 'show');
+    const shows = calls.filter((c) => c.method === 'show');
     expect(shows).toHaveLength(2);
     expect(shows[1]!.args[1]).toBeGreaterThan(shows[0]!.args[1]);
   });

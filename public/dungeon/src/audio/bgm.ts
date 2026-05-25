@@ -12,9 +12,9 @@
 type PhaserSoundManager = { context?: AudioContext };
 
 interface BossTrack {
-  root: number;      // Hz of note 0 of the scale
-  seq: number[];     // semitone offsets from root for the slow walk
-  tempoMs: number;   // interval between melodic notes
+  root: number; // Hz of note 0 of the scale
+  seq: number[]; // semitone offsets from root for the slow walk
+  tempoMs: number; // interval between melodic notes
   wave: OscillatorType;
   droneWave: OscillatorType;
   droneGain: number; // sustained level of the pad layer
@@ -39,7 +39,7 @@ const TRACKS: Record<string, BossTrack> = {
     tempoMs: 1200,
     wave: 'triangle',
     droneWave: 'sine',
-    droneGain: 0.010,
+    droneGain: 0.01,
   },
   'the-grammarian': {
     // D3 Dorian drift — candlelit library, barely-there motion.
@@ -132,7 +132,7 @@ export class ProceduralBGM {
       g.gain.exponentialRampToValueAtTime(0.0001, now + (track.tempoMs / 1000) * 0.9);
       osc.connect(g).connect(mg);
       osc.start(now);
-      osc.stop(now + (track.tempoMs / 1000));
+      osc.stop(now + track.tempoMs / 1000);
       this.step = (this.step + 1) % track.seq.length;
     };
 
@@ -155,7 +155,11 @@ export class ProceduralBGM {
     const stopAt = cx ? cx.currentTime + 0.2 : 0;
     for (const o of toStop) {
       if (o) {
-        try { o.stop(stopAt); } catch { /* already stopped */ }
+        try {
+          o.stop(stopAt);
+        } catch {
+          /* already stopped */
+        }
       }
     }
     setTimeout(() => {

@@ -1,11 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { createSpellbook, castSpell, canCast } from './spellbook';
+import { describe, expect, it } from 'vitest';
 import type { CombatState } from '../types';
+import { canCast, castSpell, createSpellbook } from './spellbook';
 
 function dummyState(): CombatState {
   return {
-    heroHp: 3, heroMaxHp: 3,
-    bossHp: 5, bossMaxHp: 5,
+    heroHp: 3,
+    heroMaxHp: 3,
+    bossHp: 5,
+    bossMaxHp: 5,
     currentQuestion: null,
     questionHistory: [],
     pendingDamageMultiplier: 1,

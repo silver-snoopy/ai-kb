@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 export const DUST_BURST_COUNT = 4;
 export const DUST_BURST_INTERVAL_MS = 2500;
@@ -27,6 +27,8 @@ export function installAmbientDust(scene: Phaser.Scene): () => void {
     frequency: DUST_BURST_INTERVAL_MS / DUST_BURST_COUNT,
     quantity: 1,
   });
-  emitter.setDepth(-5);  // behind everything but the backdrop
-  return () => { emitter.destroy(); };
+  emitter.setDepth(-5); // behind everything but the backdrop
+  return () => {
+    emitter.destroy();
+  };
 }

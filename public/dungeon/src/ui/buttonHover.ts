@@ -8,7 +8,7 @@
 //     `active` predicate lets unavailable spells skip the hover effect so
 //     dim buttons don't pretend to be clickable.
 
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 export interface RectHoverStyle {
   fill: number;

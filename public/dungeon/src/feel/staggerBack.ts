@@ -1,12 +1,19 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 export const STAGGER_PX = 12;
 export const STAGGER_KNOCK_MS = 120;
 export const STAGGER_RECOVER_MS = 200;
 
-interface FeelTargets { heroSprite: Phaser.GameObjects.Image; bossSprite: Phaser.GameObjects.Image; }
+interface FeelTargets {
+  heroSprite: Phaser.GameObjects.Image;
+  bossSprite: Phaser.GameObjects.Image;
+}
 
-function stagger(scene: Phaser.Scene, target: Phaser.GameObjects.Image, direction: 'left' | 'right'): void {
+function stagger(
+  scene: Phaser.Scene,
+  target: Phaser.GameObjects.Image,
+  direction: 'left' | 'right',
+): void {
   const origX = target.x;
   // Cancel any in-flight stagger tween; snap to origin to prevent drift.
   const existing = (target as any).__staggerOrigX as number | undefined;
@@ -26,7 +33,9 @@ function stagger(scene: Phaser.Scene, target: Phaser.GameObjects.Image, directio
         x: baseX,
         duration: STAGGER_RECOVER_MS,
         ease: 'Cubic.easeIn',
-        onComplete: () => { delete (target as any).__staggerOrigX; },
+        onComplete: () => {
+          delete (target as any).__staggerOrigX;
+        },
       });
     },
   });

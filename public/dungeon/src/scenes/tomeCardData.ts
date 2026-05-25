@@ -1,11 +1,11 @@
-import type { Spell, SpellId } from '../types';
 import { SPELLS } from '../config';
+import type { Spell, SpellId } from '../types';
 
 export interface TomeCardData {
   locked: boolean;
-  name: string;       // spell name, or '???????' when locked
-  subtitle: string;   // e.g. "uncommon · first-run" or "locked · ng-plus"
-  body: string;       // spell description, or unlock hint when locked
+  name: string; // spell name, or '???????' when locked
+  subtitle: string; // e.g. "uncommon · first-run" or "locked · ng-plus"
+  body: string; // spell description, or unlock hint when locked
 }
 
 const UNLOCK_COPY: Record<Spell['unlockedIn'], string> = {

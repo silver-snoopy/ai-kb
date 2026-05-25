@@ -1,11 +1,15 @@
 /* public/practice/style.css — practice-specific page styles on top of tokens.css */
 
-.main { padding-bottom: var(--space-3xl); }
+.main {
+  padding-bottom: var(--space-3xl);
+}
 
 /* Hero framing belongs to the pre-session setup screen only. Once a session
    starts (quiz in progress or results), hide it so the question flow owns
    the viewport. Toggled from app.js via body.is-session-active. */
-body.is-session-active .page-header { display: none; }
+body.is-session-active .page-header {
+  display: none;
+}
 
 /* Stagger the filter chips on load (skill §4: no instant list mount) */
 .filter-chips {
@@ -16,22 +20,41 @@ body.is-session-active .page-header { display: none; }
 .filter-chips .filter-chip {
   animation: cascade-in 420ms var(--ease-out) both;
 }
-.filter-chips .filter-chip:nth-child(1) { animation-delay: 260ms; }
-.filter-chips .filter-chip:nth-child(2) { animation-delay: 305ms; }
-.filter-chips .filter-chip:nth-child(3) { animation-delay: 350ms; }
-.filter-chips .filter-chip:nth-child(4) { animation-delay: 395ms; }
-.filter-chips .filter-chip:nth-child(5) { animation-delay: 440ms; }
-.filter-chips .filter-chip:nth-child(6) { animation-delay: 485ms; }
+.filter-chips .filter-chip:nth-child(1) {
+  animation-delay: 260ms;
+}
+.filter-chips .filter-chip:nth-child(2) {
+  animation-delay: 305ms;
+}
+.filter-chips .filter-chip:nth-child(3) {
+  animation-delay: 350ms;
+}
+.filter-chips .filter-chip:nth-child(4) {
+  animation-delay: 395ms;
+}
+.filter-chips .filter-chip:nth-child(5) {
+  animation-delay: 440ms;
+}
+.filter-chips .filter-chip:nth-child(6) {
+  animation-delay: 485ms;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .filter-chips, .filter-chips .filter-chip { animation: none !important; }
+  .filter-chips,
+  .filter-chips .filter-chip {
+    animation: none !important;
+  }
 }
 
 /* ============================================================
    SETUP SCREEN
    ============================================================ */
 
-.setup { display: flex; flex-direction: column; gap: var(--space-xl); }
+.setup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
 
 .section-label {
   font-family: var(--font-mono);
@@ -62,9 +85,8 @@ body.is-session-active .page-header { display: none; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 2px;
-  transition: border-color var(--dur-fast) var(--ease-out),
-              background var(--dur-fast) var(--ease-out),
-              color var(--dur-fast) var(--ease-out);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast)
+    var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
 .filter-chip:hover {
@@ -94,11 +116,21 @@ body.is-session-active .page-header { display: none; }
   flex-shrink: 0;
 }
 
-.filter-chip[data-axis="domain"][data-value="domain-1-agentic"]            { --chip-color: var(--domain-1); }
-.filter-chip[data-axis="domain"][data-value="domain-2-claude-code"]        { --chip-color: var(--domain-2); }
-.filter-chip[data-axis="domain"][data-value="domain-3-prompt-engineering"] { --chip-color: var(--domain-3); }
-.filter-chip[data-axis="domain"][data-value="domain-4-mcp"]                { --chip-color: var(--domain-4); }
-.filter-chip[data-axis="domain"][data-value="domain-5-context"]            { --chip-color: var(--domain-5); }
+.filter-chip[data-axis="domain"][data-value="domain-1-agentic"] {
+  --chip-color: var(--domain-1);
+}
+.filter-chip[data-axis="domain"][data-value="domain-2-claude-code"] {
+  --chip-color: var(--domain-2);
+}
+.filter-chip[data-axis="domain"][data-value="domain-3-prompt-engineering"] {
+  --chip-color: var(--domain-3);
+}
+.filter-chip[data-axis="domain"][data-value="domain-4-mcp"] {
+  --chip-color: var(--domain-4);
+}
+.filter-chip[data-axis="domain"][data-value="domain-5-context"] {
+  --chip-color: var(--domain-5);
+}
 
 .filter-chip__count {
   font-family: var(--font-mono);
@@ -152,9 +184,14 @@ body.is-session-active .page-header { display: none; }
   letter-spacing: var(--tracking-wide);
 }
 
-.quiz-head .tracker .mono { color: var(--ink); font-weight: 500; }
+.quiz-head .tracker .mono {
+  color: var(--ink);
+  font-weight: 500;
+}
 
-.quiz-progress { margin-bottom: var(--space-xl); }
+.quiz-progress {
+  margin-bottom: var(--space-xl);
+}
 
 .question {
   padding: var(--space-xl) 0;
@@ -197,8 +234,8 @@ body.is-session-active .page-header { display: none; }
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
   color: var(--ink);
-  transition: border-color var(--dur-fast) var(--ease-out),
-              background var(--dur-fast) var(--ease-out);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast)
+    var(--ease-out);
 }
 
 .option:hover:not(:disabled) {
@@ -206,7 +243,9 @@ body.is-session-active .page-header { display: none; }
   background: var(--surface-sunk);
 }
 
-.option:disabled { cursor: default; }
+.option:disabled {
+  cursor: default;
+}
 
 .option__letter {
   display: inline-flex;
@@ -224,7 +263,9 @@ body.is-session-active .page-header { display: none; }
   border-radius: 2px;
 }
 
-.option__text { padding-top: 1px; }
+.option__text {
+  padding-top: 1px;
+}
 
 /* Revealed states */
 .option.is-correct {
@@ -249,7 +290,9 @@ body.is-session-active .page-header { display: none; }
   border-color: var(--danger);
 }
 
-.option.is-muted { opacity: 0.45; }
+.option.is-muted {
+  opacity: 0.45;
+}
 
 /* ---------- Verdict (feedback) ---------- */
 
@@ -270,8 +313,12 @@ body.is-session-active .page-header { display: none; }
   color: var(--ink-muted);
 }
 
-.verdict--correct .verdict__label { color: var(--success); }
-.verdict--wrong   .verdict__label { color: var(--danger); }
+.verdict--correct .verdict__label {
+  color: var(--success);
+}
+.verdict--wrong .verdict__label {
+  color: var(--danger);
+}
 
 .verdict__body {
   font-size: var(--text-sm);
@@ -280,8 +327,12 @@ body.is-session-active .page-header { display: none; }
   margin: 0 0 var(--space-sm);
 }
 
-.verdict__body p { margin: 0 0 var(--space-xs); }
-.verdict__body p:last-child { margin: 0; }
+.verdict__body p {
+  margin: 0 0 var(--space-xs);
+}
+.verdict__body p:last-child {
+  margin: 0;
+}
 
 .verdict__source {
   font-family: var(--font-mono);
@@ -303,7 +354,9 @@ body.is-session-active .page-header { display: none; }
    RESULTS SCREEN
    ============================================================ */
 
-.results { padding-block: var(--space-md) 0; }
+.results {
+  padding-block: var(--space-md) 0;
+}
 
 .score {
   padding: var(--space-xl) 0;
@@ -389,10 +442,16 @@ body.is-session-active .page-header { display: none; }
   margin: 0;
 }
 
-.domain-row dt { margin: 0; }
-.domain-row dd { margin: 0; }
+.domain-row dt {
+  margin: 0;
+}
+.domain-row dd {
+  margin: 0;
+}
 
-.domain-row__name { color: var(--ink); }
+.domain-row__name {
+  color: var(--ink);
+}
 
 .domain-row__score,
 .domain-row__pct {
@@ -424,7 +483,10 @@ body.is-session-active .page-header { display: none; }
   margin-bottom: var(--space-xl);
 }
 
-.weakness .mono { color: var(--ink); font-weight: 500; }
+.weakness .mono {
+  color: var(--ink);
+  font-weight: 500;
+}
 
 .results-actions {
   display: flex;
@@ -465,13 +527,30 @@ body.is-session-active .page-header { display: none; }
    ============================================================ */
 
 @media (max-width: 640px) {
-  .session-setup { flex-direction: column; align-items: stretch; }
-  .session-setup .btn { width: 100%; }
-  .score__main { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
-  .domain-row { grid-template-columns: auto 1fr auto; }
-  .domain-row__pct { display: none; }
-  .quiz-foot { justify-content: stretch; }
-  .quiz-foot .btn { flex: 1; }
+  .session-setup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .session-setup .btn {
+    width: 100%;
+  }
+  .score__main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+  .domain-row {
+    grid-template-columns: auto 1fr auto;
+  }
+  .domain-row__pct {
+    display: none;
+  }
+  .quiz-foot {
+    justify-content: stretch;
+  }
+  .quiz-foot .btn {
+    flex: 1;
+  }
 }
 
 /* --- picker page --- */

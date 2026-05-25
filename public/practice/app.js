@@ -5,18 +5,13 @@
 // domain + scenario tags). Filter UI lets the user intersect domain and
 // scenario selections; disabled chips prevent empty-pool sessions.
 
-import {
-  filterBank,
-  countByAxis,
-  buildDrillSession,
-  buildMockExam,
-} from '../exams/arrangement.js';
+import { buildDrillSession, buildMockExam, countByAxis, filterBank } from '../exams/arrangement.js';
 
 const app = document.getElementById('app');
 
 let bank = null;
-let selectedDomains = new Set();    // empty = all
-let selectedScenarios = new Set();  // empty = all
+const selectedDomains = new Set(); // empty = all
+const selectedScenarios = new Set(); // empty = all
 let quiz = null; // { questions, current, answers, startedAt }
 
 // ---------- data load ----------
@@ -141,7 +136,7 @@ function renderSetup() {
     </section>
   `;
 
-  app.querySelectorAll('.filter-chip').forEach(chip => {
+  app.querySelectorAll('.filter-chip').forEach((chip) => {
     if (chip.hasAttribute('disabled')) return;
     chip.addEventListener('click', () => {
       const axis = chip.dataset.axis;
@@ -157,7 +152,7 @@ function renderSetup() {
   app.querySelector('#mock-btn')?.addEventListener('click', startMockExam);
   app.querySelector('#start-btn')?.focus();
 
-  setKeyHandler(e => {
+  setKeyHandler((e) => {
     if (e.key === 'Enter' && count > 0) startQuiz();
   });
 }
@@ -202,42 +197,46 @@ function renderQuestion() {
   const correct = q.correct;
   const revealed = given !== null;
 
-  const options = ['A', 'B', 'C', 'D'].map(letter => {
-    const text = q.options?.[letter];
-    if (text == null || text === '') return '';
-    let cls = 'option';
-    if (revealed) {
-      if (letter === correct) cls += ' is-correct';
-      else if (letter === given) cls += ' is-wrong';
-      else cls += ' is-muted';
-    }
-    return `<li>
+  const options = ['A', 'B', 'C', 'D']
+    .map((letter) => {
+      const text = q.options?.[letter];
+      if (text == null || text === '') return '';
+      let cls = 'option';
+      if (revealed) {
+        if (letter === correct) cls += ' is-correct';
+        else if (letter === given) cls += ' is-wrong';
+        else cls += ' is-muted';
+      }
+      return `<li>
       <button class="${cls}" data-letter="${letter}" ${revealed ? 'disabled' : ''}>
         <span class="option__letter">${letter}</span>
         <span class="option__text">${escapeHtml(text)}</span>
       </button>
     </li>`;
-  }).join('');
+    })
+    .join('');
 
-  const verdict = revealed ? `
+  const verdict = revealed
+    ? `
     <div class="verdict ${given === correct ? 'verdict--correct' : 'verdict--wrong'}">
       <p class="verdict__label">
-        ${given === correct
-          ? 'Correct'
-          : `Incorrect &middot; answer is ${correct}`}
+        ${given === correct ? 'Correct' : `Incorrect &middot; answer is ${correct}`}
       </p>
       ${q.explanation ? `<div class="verdict__body">${formatProse(q.explanation)}</div>` : ''}
       ${q.source_note ? `<p class="verdict__source">${escapeHtml(q.source_note)}</p>` : ''}
     </div>
-  ` : '';
+  `
+    : '';
 
-  const footer = revealed ? `
+  const footer = revealed
+    ? `
     <div class="quiz-foot">
       <button class="btn btn--primary" id="next-btn">
         ${quiz.current + 1 < total ? 'Next question' : 'See results'}
       </button>
     </div>
-  ` : '';
+  `
+    : '';
 
   const scenarioName = bank.scenarios?.[q.scenario]?.name ?? `Scenario ${q.scenario}`;
 
@@ -268,7 +267,7 @@ function renderQuestion() {
     ${footer}
   `;
 
-  app.querySelectorAll('.option').forEach(btn => {
+  app.querySelectorAll('.option').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (quiz.answers[quiz.current] !== null) return;
       quiz.answers[quiz.current] = btn.dataset.letter;
@@ -282,7 +281,7 @@ function renderQuestion() {
   nextBtn?.addEventListener('click', advance);
   (revealed ? nextBtn : app.querySelector('.option'))?.focus();
 
-  setKeyHandler(e => {
+  setKeyHandler((e) => {
     if (!revealed) {
       const idx = ['1', '2', '3', '4'].indexOf(e.key);
       if (idx !== -1) {
@@ -299,19 +298,25 @@ function renderQuestion() {
 
 function advance() {
   const total = quiz.questions.length;
-  if (quiz.current + 1 < total) { quiz.current++; renderQuestion(); }
-  else { renderResults(); }
+  if (quiz.current + 1 < total) {
+    quiz.current++;
+    renderQuestion();
+  } else {
+    renderResults();
+  }
 }
 
 // ---------- results ----------
 
 function renderMissedQuestions(wrong) {
-  if (wrong.length === 0) return '<p class="text-soft">No missed questions — all answered items were correct.</p>';
-  const items = wrong.map(({ q, given }) => {
-    const correctText = q.options[q.correct] ?? '';
-    const givenText = given != null ? (q.options[given] ?? '') : '(unanswered)';
-    const stem = q.stem.length > 300 ? q.stem.slice(0, 300) + '…' : q.stem;
-    return `
+  if (wrong.length === 0)
+    return '<p class="text-soft">No missed questions — all answered items were correct.</p>';
+  const items = wrong
+    .map(({ q, given }) => {
+      const correctText = q.options[q.correct] ?? '';
+      const givenText = given != null ? (q.options[given] ?? '') : '(unanswered)';
+      const stem = q.stem.length > 300 ? q.stem.slice(0, 300) + '…' : q.stem;
+      return `
       <li class="missed-item">
         <p class="missed-item__stem">${escapeHtml(stem)}</p>
         <dl class="missed-item__ans">
@@ -324,7 +329,8 @@ function renderMissedQuestions(wrong) {
         </details>
       </li>
     `;
-  }).join('');
+    })
+    .join('');
   return `
     <details class="missed-section">
       <summary><strong>${wrong.length}</strong> missed question${wrong.length === 1 ? '' : 's'}</summary>
@@ -337,7 +343,7 @@ function renderResults() {
   clearKeyHandler();
   document.body.classList.add('is-session-active');
   const answered = quiz.answers.map((a, i) => ({ q: quiz.questions[i], given: a }));
-  const correctCount = answered.filter(x => x.given === x.q.correct).length;
+  const correctCount = answered.filter((x) => x.given === x.q.correct).length;
   const total = answered.length;
   const pct = Math.round((correctCount / total) * 100);
   const pass = pct >= 72;
@@ -350,7 +356,7 @@ function renderResults() {
     if (given === q.correct) perDomain[slug].correct++;
   }
 
-  const wrong = answered.filter(x => x.given !== null && x.given !== x.q.correct);
+  const wrong = answered.filter((x) => x.given !== null && x.given !== x.q.correct);
   let existing = [];
   try {
     const raw = localStorage.getItem('weakness-queue');
@@ -363,7 +369,7 @@ function renderResults() {
   }
   const merged = [...existing];
   for (const { q, given } of wrong) {
-    if (!merged.find(e => e.id === q.id)) {
+    if (!merged.find((e) => e.id === q.id)) {
       merged.push({
         id: q.id,
         domain: q.domain,
@@ -375,7 +381,11 @@ function renderResults() {
       });
     }
   }
-  try { localStorage.setItem('weakness-queue', JSON.stringify(merged)); } catch { /* ignore */ }
+  try {
+    localStorage.setItem('weakness-queue', JSON.stringify(merged));
+  } catch {
+    /* ignore */
+  }
 
   const rows = Object.entries(perDomain)
     .sort(([a], [b]) => (bank.domains[a]?.num ?? 99) - (bank.domains[b]?.num ?? 99))
@@ -391,7 +401,8 @@ function renderResults() {
         <dd class="domain-row__score">${correct} / ${t}</dd>
         <dd class="domain-row__pct">${p}%</dd>
       </div>`;
-    }).join('');
+    })
+    .join('');
 
   app.innerHTML = `
     <section class="results">
@@ -409,12 +420,16 @@ function renderResults() {
 
       ${renderMissedQuestions(wrong)}
 
-      ${wrong.length ? `
+      ${
+        wrong.length
+          ? `
         <p class="weakness">
           Saved <span class="mono">${wrong.length}</span> wrong answer${wrong.length === 1 ? '' : 's'} to the local weakness queue
           &middot; <span class="mono">${merged.length}</span> total.
         </p>
-      ` : ''}
+      `
+          : ''
+      }
 
       <div class="results-actions">
         <button class="btn btn--primary" id="retry-btn">Another session</button>
@@ -429,7 +444,7 @@ function renderResults() {
   app.querySelector('#review-wrong-btn')?.addEventListener('click', () => {
     if (!wrong.length) return;
     quiz = {
-      questions: wrong.map(w => w.q),
+      questions: wrong.map((w) => w.q),
       current: 0,
       answers: new Array(wrong.length).fill(null),
       startedAt: Date.now(),
@@ -468,10 +483,14 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
-function escapeAttr(s) { return escapeHtml(s); }
+function escapeAttr(s) {
+  return escapeHtml(s);
+}
 
 function formatStem(stem) {
-  return escapeHtml(stem).replace(/\n\n+/g, '</p><p class="question__stem">').replace(/\n/g, '<br>');
+  return escapeHtml(stem)
+    .replace(/\n\n+/g, '</p><p class="question__stem">')
+    .replace(/\n/g, '<br>');
 }
 
 function formatProse(text) {

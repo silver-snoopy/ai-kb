@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 const LS_KEY = 'stc:debug-visible';
 
@@ -28,21 +28,20 @@ export function saveDebugVisible(visible: boolean): void {
  * with the current visible state on every click (and once synchronously
  * with the persisted state, so the caller can seed the initial render).
  */
-export function mountDebugToggle(
-  scene: Phaser.Scene,
-  onToggle: (visible: boolean) => void,
-): void {
+export function mountDebugToggle(scene: Phaser.Scene, onToggle: (visible: boolean) => void): void {
   let visible = loadDebugVisible();
   const label = () => (visible ? '\uD83D\uDC1B on' : '\uD83D\uDC1B off');
   const color = () => (visible ? '#ffca28' : '#5a5a6a');
 
-  const btn = scene.add.text(16, 16, label(), {
-    fontSize: '14px',
-    color: color(),
-    fontFamily: 'monospace',
-    backgroundColor: '#1a1a2a',
-    padding: { x: 8, y: 4 },
-  }).setInteractive({ useHandCursor: true });
+  const btn = scene.add
+    .text(16, 16, label(), {
+      fontSize: '14px',
+      color: color(),
+      fontFamily: 'monospace',
+      backgroundColor: '#1a1a2a',
+      padding: { x: 8, y: 4 },
+    })
+    .setInteractive({ useHandCursor: true });
 
   btn.on('pointerdown', () => {
     visible = !visible;

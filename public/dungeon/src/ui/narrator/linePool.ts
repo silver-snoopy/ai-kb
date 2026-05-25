@@ -1,4 +1,4 @@
-import type { NarratorLine, Trigger, BossId } from './types';
+import type { BossId, NarratorLine, Trigger } from './types';
 
 const LAST_N = 3;
 const EMERGENCY_LINE = 'The chamber holds its breath.';
@@ -13,14 +13,14 @@ export class LinePool {
 
   pick(trigger: Trigger, bossId?: BossId): string {
     // 1. Try boss-specific for this trigger.
-    let candidates = this.lines.filter(l => l.trigger === trigger && l.bossId === bossId);
+    let candidates = this.lines.filter((l) => l.trigger === trigger && l.bossId === bossId);
     // 2. Fall back to generic if no boss-specific.
     if (candidates.length === 0 && bossId !== undefined) {
-      candidates = this.lines.filter(l => l.trigger === trigger && l.bossId === undefined);
+      candidates = this.lines.filter((l) => l.trigger === trigger && l.bossId === undefined);
     }
     // 3. Fall back to filler if pool for trigger empty.
     if (candidates.length === 0) {
-      candidates = this.lines.filter(l => l.trigger === 'filler' && l.bossId === undefined);
+      candidates = this.lines.filter((l) => l.trigger === 'filler' && l.bossId === undefined);
     }
     // 4. Emergency hardcoded if still nothing.
     if (candidates.length === 0) {
@@ -28,7 +28,7 @@ export class LinePool {
     }
     // 5. Apply last-N exclusion.
     const recentForTrigger = this.recent.get(trigger) ?? [];
-    let eligible = candidates.filter(l => !recentForTrigger.includes(l.text));
+    let eligible = candidates.filter((l) => !recentForTrigger.includes(l.text));
     if (eligible.length === 0) {
       // Reset window and retry.
       this.recent.set(trigger, []);

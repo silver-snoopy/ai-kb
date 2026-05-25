@@ -17,8 +17,8 @@
  */
 export function mulberry32(seed) {
   let s = seed >>> 0;
-  return function () {
-    s = (s + 0x6D2B79F5) >>> 0;
+  return () => {
+    s = (s + 0x6d2b79f5) >>> 0;
     let t = s;
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
@@ -36,7 +36,7 @@ export function normalizeSeed(seed) {
     return h >>> 0;
   }
   // undefined → use a time-based seed so casual callers still get variety
-  return (Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
+  return (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
 }
 
 function shuffle(arr, rng) {
@@ -61,7 +61,7 @@ function shuffle(arr, rng) {
 export function filterBank(bank, { domains, scenarios } = {}) {
   const domainSet = domains?.length ? new Set(domains) : null;
   const scenarioSet = scenarios?.length ? new Set(scenarios) : null;
-  return bank.questions.filter(q => {
+  return bank.questions.filter((q) => {
     if (domainSet && !domainSet.has(q.domain)) return false;
     if (scenarioSet && !scenarioSet.has(q.scenario)) return false;
     return true;
@@ -164,7 +164,7 @@ export function buildMockExam(bank, opts = {}) {
   }
   // Fill any remaining slots from the non-exhausted domains (round-robin).
   let remaining = size - allocated;
-  const fillable = domainIds.filter(d => (byDomain[d]?.length || 0) > domainQuotas[d]);
+  const fillable = domainIds.filter((d) => (byDomain[d]?.length || 0) > domainQuotas[d]);
   let i = 0;
   while (remaining > 0 && fillable.length > 0) {
     const d = fillable[i % fillable.length];
@@ -199,7 +199,7 @@ function resolveWeights(bank, domainWeights) {
   if (domainWeights === 'flat') {
     const ids = Object.keys(bank.domains || {});
     const w = ids.length > 0 ? 1 / ids.length : 0;
-    return Object.fromEntries(ids.map(id => [id, w]));
+    return Object.fromEntries(ids.map((id) => [id, w]));
   }
   if (typeof domainWeights === 'object' && domainWeights != null) return domainWeights;
   throw new Error(`Unknown domainWeights: ${domainWeights}`);

@@ -11,7 +11,9 @@ async function populate() {
     const domainEl = document.getElementById('stat-domains');
     if (totalEl) totalEl.textContent = String(bank.total);
     if (domainEl) domainEl.textContent = String(Object.keys(bank.domains || {}).length);
-  } catch { /* ignore — leave placeholders */ }
+  } catch {
+    /* ignore — leave placeholders */
+  }
 }
 
 populate();

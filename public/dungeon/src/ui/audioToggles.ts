@@ -3,7 +3,7 @@
 // Persisted to localStorage and the Phaser scene registry so the state
 // survives scene transitions.
 
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 const BGM_STORAGE_KEY = 'stc:bgm-muted';
 const SFX_STORAGE_KEY = 'stc:sfx-muted';
@@ -88,8 +88,8 @@ export function mountAudioToggles(
     return t;
   };
 
-  const bgmLabel = (): string => bgmMuted() ? '\uD83D\uDD07 BGM' : '\uD83C\uDFB5 BGM';
-  const sfxLabel = (): string => sfxMuted() ? '\uD83D\uDD07 SFX' : '\uD83D\uDD0A SFX';
+  const bgmLabel = (): string => (bgmMuted() ? '\uD83D\uDD07 BGM' : '\uD83C\uDFB5 BGM');
+  const sfxLabel = (): string => (sfxMuted() ? '\uD83D\uDD07 SFX' : '\uD83D\uDD0A SFX');
 
   const bgm = makeButton(935, bgmLabel);
   const sfx = makeButton(855, sfxLabel);

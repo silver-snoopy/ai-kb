@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import {
-  discoverCerts,
   countNotesInDomain,
   daysUntil,
+  discoverCerts,
   parseMockExam,
   sparkline,
 } from './dashboard.mjs';
@@ -19,7 +19,9 @@ describe('dashboard', () => {
     const vault = await makeTempVault();
     const cert = join(vault, 'certs', 'cca-f');
     await mkdir(cert, { recursive: true });
-    await writeFile(join(cert, 'meta.yaml'), `id: cca-f
+    await writeFile(
+      join(cert, 'meta.yaml'),
+      `id: cca-f
 name: Test Cert
 provider: Anthropic
 target_date: '2026-05-31'
@@ -33,7 +35,8 @@ exam:
 domains:
   - { id: domain-1, name: D1, weight: 1.0 }
 resources: []
-`);
+`,
+    );
     const certs = await discoverCerts(vault);
     expect(certs).toHaveLength(1);
     expect(certs[0].id).toBe('cca-f');
@@ -43,20 +46,26 @@ resources: []
     const vault = await makeTempVault();
     const d = join(vault, 'certs', 'cca-f', 'domain-1');
     await mkdir(d, { recursive: true });
-    await writeFile(join(d, 'note1.md'), `---
+    await writeFile(
+      join(d, 'note1.md'),
+      `---
 cert: cca-f
 domain: domain-1
 status: done
 ---
 
-Body`);
-    await writeFile(join(d, 'note2.md'), `---
+Body`,
+    );
+    await writeFile(
+      join(d, 'note2.md'),
+      `---
 cert: cca-f
 domain: domain-1
 status: in-progress
 ---
 
-Body`);
+Body`,
+    );
     // file without frontmatter should NOT be counted
     await writeFile(join(d, 'README.md'), '# README\nno frontmatter here');
 
@@ -73,7 +82,9 @@ Body`);
   it('parses mock exam frontmatter', async () => {
     const vault = await makeTempVault();
     const r = join(vault, 'report.md');
-    await writeFile(r, `---
+    await writeFile(
+      r,
+      `---
 cert: cca-f
 mode: study
 date: 2026-04-18T10:00:00Z
@@ -82,7 +93,8 @@ total: 60
 pass: false
 ---
 
-Body`);
+Body`,
+    );
     const info = await parseMockExam(r);
     expect(info.score).toBe(42);
     expect(info.total).toBe(60);
