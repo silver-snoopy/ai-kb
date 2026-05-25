@@ -1348,7 +1348,7 @@ if (document.readyState === 'loading') {
 
 <script>
 /* ===========================================
-   PHASE 4 — Slide 3 card-stack reveal hook
+   PHASE 4.1 — Slide 3 card-stack reveal hook
    Click or Space/ArrowRight while slide 3 is active:
    reveal next card (or punchline) in order.
    When all 6 are revealed, further input advances to slide 4.
@@ -1364,9 +1364,24 @@ if (document.readyState === 'loading') {
 
   let nextIndex = 0;
 
+  // Maintain our own visibility flag — SlidePresentation's .visible class
+  // is set-once and never removed, so we can't rely on it to know when
+  // to stop intercepting input.
+  let slideIsVisible = false;
+  const resetObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      slideIsVisible = entry.isIntersecting;
+      if (!entry.isIntersecting) {
+        // Slide left viewport — reset for next entry so the reveal can replay
+        nextIndex = 0;
+        sequence.forEach(el => el.classList.remove('revealed'));
+      }
+    });
+  }, { threshold: 0.5 });  // match SlidePresentation's threshold so flag tracks the same trigger
+  resetObserver.observe(slide);
+
   function isSlideActive() {
-    // SlidePresentation toggles .visible on the active slide via IntersectionObserver
-    return slide.classList.contains('visible');
+    return slideIsVisible;
   }
 
   function revealNext() {
@@ -1376,9 +1391,11 @@ if (document.readyState === 'loading') {
     return true;
   }
 
-  // Click handler — only intercept while slide 3 is active and cards remain
+  // Click handler — only intercept while slide 3 is active and cards remain.
+  // Guard against nav-dot / chrome clicks that originate outside the slide.
   document.addEventListener('click', (e) => {
     if (!isSlideActive()) return;
+    if (!slide.contains(e.target)) return; // don't intercept nav-dot / chrome clicks
     if (nextIndex < sequence.length) {
       e.stopPropagation();
       revealNext();
@@ -1395,19 +1412,6 @@ if (document.readyState === 'loading') {
       revealNext();
     }
   }, true /* capture phase — must run BEFORE the SlidePresentation keydown handler */);
-
-  // Reset state if user navigates back to slide 3 (so the reveal can be re-done)
-  // Useful for rehearsal. Detect leave via Intersection Observer.
-  const resetObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) {
-        // Slide left viewport — reset for next entry
-        nextIndex = 0;
-        sequence.forEach(el => el.classList.remove('revealed'));
-      }
-    });
-  }, { threshold: 0 });
-  resetObserver.observe(slide);
 })();
 </script>
 
