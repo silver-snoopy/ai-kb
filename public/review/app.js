@@ -17,7 +17,7 @@ let session = null; // { cards, current, initialLength, revealed, reviewedIds, m
 async function load() {
   try {
     const res = await fetch('../questions.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
     renderLanding();
   } catch (e) {
@@ -58,7 +58,7 @@ function todayUtcIso() {
 }
 
 function addDaysUtcIso(isoDate, days) {
-  const d = new Date(isoDate + 'T00:00:00Z');
+  const d = new Date(`${isoDate}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + Math.max(0, Math.round(days)));
   return d.toISOString().slice(0, 10);
 }
@@ -99,7 +99,7 @@ function applyRating(questionId, rating) {
       break;
     }
     default:
-      throw new Error('Unknown rating: ' + rating);
+      throw new Error(`Unknown rating: ${rating}`);
   }
 
   ease = Math.max(1.3, Math.min(3.0, ease));
@@ -143,10 +143,10 @@ function previewIntervalLabel(rating, cardState) {
 }
 
 function fmtDays(d) {
-  if (d < 7) return d + 'd';
-  if (d < 30) return Math.max(1, Math.round(d / 7)) + 'w';
-  if (d < 365) return Math.max(1, Math.round(d / 30)) + 'mo';
-  return Math.max(1, Math.round(d / 365)) + 'y';
+  if (d < 7) return `${d}d`;
+  if (d < 30) return `${Math.max(1, Math.round(d / 7))}w`;
+  if (d < 365) return `${Math.max(1, Math.round(d / 30))}mo`;
+  return `${Math.max(1, Math.round(d / 365))}y`;
 }
 
 function isDueToday(card) {
@@ -162,10 +162,10 @@ function isMastered(card) {
 function computeStats(state) {
   const today = todayUtcIso();
   const total = data.questions.length;
-  let dueToday = 0,
-    newCount = 0,
-    reviewedToday = 0,
-    mastered = 0;
+  let dueToday = 0;
+  let newCount = 0;
+  let reviewedToday = 0;
+  let mastered = 0;
   for (const q of data.questions) {
     const card = state.cards[q.id];
     if (!card) {

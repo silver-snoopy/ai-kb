@@ -20,7 +20,7 @@ async function load() {
   const src = new URLSearchParams(location.search).get('src') || '../exams/cca-f/bank.json';
   try {
     const res = await fetch(src);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     bank = await res.json();
     renderSetup();
   } catch (e) {
@@ -287,7 +287,7 @@ function renderQuestion() {
       if (idx !== -1) {
         const letter = ['A', 'B', 'C', 'D'][idx];
         const btn = app.querySelector(`.option[data-letter="${letter}"]`);
-        btn && btn.click();
+        btn?.click();
       }
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -315,7 +315,7 @@ function renderMissedQuestions(wrong) {
     .map(({ q, given }) => {
       const correctText = q.options[q.correct] ?? '';
       const givenText = given != null ? (q.options[given] ?? '') : '(unanswered)';
-      const stem = q.stem.length > 300 ? q.stem.slice(0, 300) + '…' : q.stem;
+      const stem = q.stem.length > 300 ? `${q.stem.slice(0, 300)}…` : q.stem;
       return `
       <li class="missed-item">
         <p class="missed-item__stem">${escapeHtml(stem)}</p>

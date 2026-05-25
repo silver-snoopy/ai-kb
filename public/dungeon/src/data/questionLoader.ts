@@ -42,16 +42,17 @@ export function pickQuestionsForFight(
   if (pool.length === 0) {
     throw new Error(`pickQuestionsForFight: pool is empty; cannot pick ${n} questions`);
   }
-  if (pool.length < n) {
+  let workingPool = pool;
+  if (workingPool.length < n) {
     const padded: Question[] = [];
-    while (padded.length < n) padded.push(...pool);
-    pool = padded.slice(0, Math.max(n, pool.length));
+    while (padded.length < n) padded.push(...workingPool);
+    workingPool = padded.slice(0, Math.max(n, workingPool.length));
   }
 
   const byDifficulty = {
-    easy: pool.filter((q) => q.difficulty === 'easy'),
-    medium: pool.filter((q) => q.difficulty === 'medium'),
-    hard: pool.filter((q) => q.difficulty === 'hard'),
+    easy: workingPool.filter((q) => q.difficulty === 'easy'),
+    medium: workingPool.filter((q) => q.difficulty === 'medium'),
+    hard: workingPool.filter((q) => q.difficulty === 'hard'),
   };
 
   const firstHalfCount = Math.ceil(n / 2);

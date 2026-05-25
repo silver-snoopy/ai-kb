@@ -73,7 +73,7 @@ function extractQuestionsFromText(text, sourcePath) {
       if (!q.id || !q.stem || !q.options || !q.correct) continue;
       q.source_file = sourcePath.replace(/certsafari/gi, 'cs');
       if (typeof q.id === 'string' && q.id.startsWith('certsafari-')) {
-        q.id = 'cs-' + q.id.slice('certsafari-'.length);
+        q.id = `cs-${q.id.slice('certsafari-'.length)}`;
       }
       if (q.source === 'certsafari') q.source = 'cs';
       if (q['source-note']) q['source-note'] = sanitizeSourceNote(q['source-note']);

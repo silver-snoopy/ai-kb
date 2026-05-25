@@ -39,13 +39,13 @@ describe('saveState', () => {
   });
 
   it('loadSaveState returns null on malformed JSON', () => {
-    localStorage.setItem(STORAGE_KEY_PREFIX + 'cca-f', '{not valid json');
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}cca-f`, '{not valid json');
     expect(loadSaveState('cca-f')).toBeNull();
   });
 
   it('loadSaveState returns null on unknown version', () => {
     localStorage.setItem(
-      STORAGE_KEY_PREFIX + 'cca-f',
+      `${STORAGE_KEY_PREFIX}cca-f`,
       JSON.stringify({ version: 99, cert_id: 'cca-f' }),
     );
     expect(loadSaveState('cca-f')).toBeNull();
@@ -110,7 +110,7 @@ describe('saveState', () => {
       eternal_dungeon_unlocked: true,
       title_earned: 'Archmage',
     };
-    localStorage.setItem(STORAGE_KEY_PREFIX + 'cca-f', JSON.stringify(stale));
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}cca-f`, JSON.stringify(stale));
     const loaded = loadSaveState('cca-f');
     expect(loaded).not.toBeNull();
     expect(loaded!.unlocked_spells).not.toContain('focus');

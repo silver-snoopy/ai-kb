@@ -16,9 +16,13 @@ function stagger(
 ): void {
   const origX = target.x;
   // Cancel any in-flight stagger tween; snap to origin to prevent drift.
-  const existing = (target as any).__staggerOrigX as number | undefined;
+  // We attach a transient marker property to the Phaser GameObject to track
+  // the baseline x across re-entrant calls. Phaser does not type custom
+  // properties on its objects, so we use `unknown` cast + property access.
+  type WithStagger = { __staggerOrigX?: number };
+  const existing = (target as unknown as WithStagger).__staggerOrigX;
   const baseX = existing ?? origX;
-  (target as any).__staggerOrigX = baseX;
+  (target as unknown as WithStagger).__staggerOrigX = baseX;
   scene.tweens.killTweensOf(target);
   target.x = baseX;
   const offset = direction === 'left' ? -STAGGER_PX : STAGGER_PX;
@@ -34,7 +38,7 @@ function stagger(
         duration: STAGGER_RECOVER_MS,
         ease: 'Cubic.easeIn',
         onComplete: () => {
-          delete (target as any).__staggerOrigX;
+          (target as unknown as WithStagger).__staggerOrigX = undefined;
         },
       });
     },

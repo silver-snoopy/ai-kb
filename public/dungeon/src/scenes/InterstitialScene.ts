@@ -285,9 +285,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.beat = 'primer';
     this.titleText.setText('📖 Primer');
     this.bodyText.setText(
-      `${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\n` +
-        `Its domain: ${this.nextBoss.domain}.\n\n` +
-        `Gather yourself — your next trial begins on the next keypress.`,
+      `${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\nIts domain: ${this.nextBoss.domain}.\n\nGather yourself — your next trial begins on the next keypress.`,
     );
     this.optionTexts.forEach((t) => t.setText(''));
     this.optionPanels.forEach((p) => p.setVisible(false));

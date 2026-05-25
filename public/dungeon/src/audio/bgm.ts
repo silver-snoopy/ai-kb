@@ -119,7 +119,7 @@ export class ProceduralBGM {
       const mg = this.masterGain;
       if (!cx || !mg) return;
       const note = track.seq[this.step] ?? 0;
-      const freq = track.root * Math.pow(2, note / 12);
+      const freq = track.root * 2 ** (note / 12);
       const osc = cx.createOscillator();
       const g = cx.createGain();
       osc.type = track.wave;

@@ -10,6 +10,7 @@ export class NarratorDispatcher {
   private bus: EventBus;
   private pool: LinePool;
   private overlay: NarratorOverlay;
+  // biome-ignore lint/suspicious/noExplicitAny: Phaser EventEmitter accepts untyped callbacks; handler payload shape is enforced at each call site in wire()
   private handlers: Array<[string, (...args: any[]) => void]> = [];
 
   constructor(bus: EventBus, pool: LinePool, overlay: NarratorOverlay) {
@@ -31,6 +32,7 @@ export class NarratorDispatcher {
     this.on('spell-cast', (p: { bossId: BossId }) => this.fire('spell-cast', p.bossId));
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: Phaser EventEmitter accepts untyped callbacks; handler payload shape is enforced at each call site in wire()
   private on(event: string, handler: (...args: any[]) => void): void {
     this.bus.on(event, handler);
     this.handlers.push([event, handler]);

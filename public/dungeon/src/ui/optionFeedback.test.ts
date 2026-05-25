@@ -141,7 +141,7 @@ D: Wrong, no such ParallelTask tool exists.`;
   });
 
   it('handles multi-line per-option paragraphs', () => {
-    const exp = `A: first line of A\n   and a continuation of A\nB: B is correct\nC: c stuff`;
+    const exp = 'A: first line of A\n   and a continuation of A\nB: B is correct\nC: c stuff';
     expect(summarizeExplanation(exp, 'A')).toContain('first line of A');
     expect(summarizeExplanation(exp, 'A')).toContain('continuation of A');
   });

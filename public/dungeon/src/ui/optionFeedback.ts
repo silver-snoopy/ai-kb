@@ -58,16 +58,15 @@ export function paintOptionFeedback(
 export function summarizeExplanation(explanation: string, correct: Letter, maxChars = 300): string {
   const perOption = /(^|\n)([ABCD]):\s*([^\n]+(?:\n(?![ABCD]:)[^\n]*)*)/g;
   const matches: Record<string, string> = {};
-  let m: RegExpExecArray | null;
-  while ((m = perOption.exec(explanation)) !== null) {
+  for (const m of explanation.matchAll(perOption)) {
     matches[m[2]!] = m[3]!.trim();
   }
   const hit = matches[correct];
   if (hit) {
-    return `${correct}) ${hit.length <= maxChars ? hit : hit.slice(0, maxChars - 1) + '\u2026'}`;
+    return `${correct}) ${hit.length <= maxChars ? hit : `${hit.slice(0, maxChars - 1)}\u2026`}`;
   }
   const trimmed = explanation.trim();
-  return trimmed.length <= maxChars ? trimmed : trimmed.slice(0, maxChars - 1) + '\u2026';
+  return trimmed.length <= maxChars ? trimmed : `${trimmed.slice(0, maxChars - 1)}\u2026`;
 }
 
 /**

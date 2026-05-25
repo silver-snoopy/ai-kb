@@ -228,7 +228,7 @@ export async function renderDashboard(vaultRoot, now = new Date()) {
 }
 
 export async function writeDashboard(vaultRoot, outputPath = null) {
-  outputPath = outputPath || join(vaultRoot, 'dashboard.md');
+  const resolvedOutputPath = outputPath || join(vaultRoot, 'dashboard.md');
   const newContent = await renderDashboard(vaultRoot);
 
   const stripTs = (s) =>
@@ -237,13 +237,13 @@ export async function writeDashboard(vaultRoot, outputPath = null) {
       .filter((l) => !l.startsWith('_Last updated:'))
       .join('\n');
 
-  if (existsSync(outputPath)) {
-    const old = await readFile(outputPath, 'utf-8');
+  if (existsSync(resolvedOutputPath)) {
+    const old = await readFile(resolvedOutputPath, 'utf-8');
     if (stripTs(old) === stripTs(newContent)) {
       return false;
     }
   }
-  await writeFile(outputPath, newContent, 'utf-8');
+  await writeFile(resolvedOutputPath, newContent, 'utf-8');
   return true;
 }
 

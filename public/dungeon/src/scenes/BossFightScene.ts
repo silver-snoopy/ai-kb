@@ -527,8 +527,8 @@ export class BossFightScene extends Phaser.Scene {
   }
 
   private generatePrimer(q: Question): string {
-    const firstSentence = q.explanation.split('.')[0] + '.';
-    return firstSentence.length < 180 ? firstSentence : firstSentence.slice(0, 180) + '...';
+    const firstSentence = `${q.explanation.split('.')[0]}.`;
+    return firstSentence.length < 180 ? firstSentence : `${firstSentence.slice(0, 180)}...`;
   }
 
   private nextQuestion(): void {
