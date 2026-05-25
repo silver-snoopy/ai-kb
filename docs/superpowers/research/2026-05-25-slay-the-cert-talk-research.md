@@ -1,7 +1,7 @@
 # Slay the Cert — Talk Research
 
 **Date:** 2026-05-25
-**Purpose:** Source material for the 15-min "Slay the Cert" meetup talk on 2026-06-13. Audience: fellow engineers at user's company. Three-act structure: AI slop critique → gamification answer → AI as engineering force-multiplier.
+**Purpose:** Source material for the 15-min "Slay the Cert" meetup talk on 2026-06-03. Audience: fellow engineers at user's company. Three-act structure: AI slop critique → gamification answer → AI as engineering force-multiplier.
 **Related:** [Talk design spec](../specs/2026-05-25-slay-the-cert-talk-design.md), [Existing gamification research](./2026-04-18-gamification-research.md), [Slay the Cert ship spec](../specs/2026-04-18-slay-the-cert-gamification-design.md)
 
 ---
@@ -115,7 +115,7 @@ The dungeon's design choices, grouped for the slide. Each item cross-referenced 
 
 ## 5. Real-user testimonials (Act II/III bridge — slide 10)
 
-User has received unprompted testimonials from CCA-F candidates who used the live dungeon to prep for the exam. Phase 2 task: curate 2-3 strongest quotes into `talks/2026-06-13-slay-the-cert/assets/testimonials.md`.
+User has received unprompted testimonials from CCA-F candidates who used the live dungeon to prep for the exam. Phase 2 task: curate 2-3 strongest quotes into `talks/2026-06-03-slay-the-cert/assets/testimonials.md`.
 
 **Selection criteria:**
 - Specific behavior change ("I came back to it daily for a week") beats generic praise ("great game").

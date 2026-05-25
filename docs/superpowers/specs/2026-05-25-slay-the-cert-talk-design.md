@@ -5,7 +5,7 @@
 **Status:** Draft pending user approval
 **Talk title:** Slay the Cert
 **Sub-line:** *A warlock, a workflow, and a force multiplier.*
-**Talk date:** Saturday 2026-06-13 (19 days from spec date)
+**Talk date:** Wednesday 2026-06-03 (8 days from spec date — date corrected 2026-05-26)
 **Audience:** Fellow engineers at user's company, in English
 **Format:** Meetup (warm + casual, not formal)
 **Length:** 15 minutes target (can shorten to 10 if needed)
@@ -58,7 +58,7 @@ A 15-min meetup talk using the Slay the Cert dungeon as the concrete example of 
 | R9 | Title: "Slay the Cert" with sub-line "A warlock, a workflow, and a force multiplier." | Q5 |
 | R10 | Visual preset: "Creative Voltage" across all slides | Q6 |
 | R11 | Act III references spec-driven-dev workflow as handoff to colleagues' talk | Q4 |
-| R12 | Talk date: Saturday 2026-06-13 | User correction |
+| R12 | Talk date: Wednesday 2026-06-03 (corrected 2026-05-26) | User correction |
 | R13 | Public master deck committed; company-branded variant gitignored under `talks/**/branded/` | User revision post-Chunk 2 |
 | R14 | Real-user testimonials slide added (slide 10, post-demo) — strongest evidence the design works | User addition post-Chunk 3 |
 
@@ -77,7 +77,7 @@ c:\projects\ai-kb\
 │       └── 2026-05-25-slay-the-cert-talk-design.md     ← committed (this file)
 │
 └── talks\                                              ← public master committed
-    └── 2026-06-13-slay-the-cert\
+    └── 2026-06-03-slay-the-cert\
         ├── slides.html                                 ← public master (committed)
         ├── assets\                                     ← committed (public)
         │   ├── slop-montage\*.png                      ← competitor screenshots
@@ -169,17 +169,17 @@ Detailed enough to write each slide in Phase 3. Visual + animation notes inline.
 
 | Phase | Goal | Estimated time | Day |
 |---|---|---|---|
-| 1 | This spec + writing-plans output | 1 day | Day 1 (2026-05-25) |
-| 2 | Fetch slop screenshots; curate testimonials (anonymize unless opted-in); finalize research doc | 1-2 days | Days 2-3 |
-| 3 | Run `/frontend-slides`; first-pass all 15 slides | 2-3 days | Days 4-6 |
-| 4 | Custom animations: card-stack JS + achievement-pop JS | 1 day | Day 7 |
-| 5 | Demo prep: rehearse alt-tab path; record + base64-inline the GIF fallback | 1 day | Day 8 |
-| 6 | 3 timed dry-runs; trim to fit 15 min | 3-4 days | Days 9-12 |
-| 7 | Visual + copy polish from dry-run feedback | 2-3 days | Days 13-15 |
-| 8 | Final rehearsals + brief deck review | 3-4 days | Days 16-19 |
-| **Talk** | **Slay the Cert at meetup** | — | **2026-06-13** |
+| 1 | This spec + writing-plans output | done | 2026-05-25 (Day 0) |
+| 2 | Fetch slop screenshots; curate testimonials; finalize research doc | done (testimonials still pending) | 2026-05-26 (Day 1) |
+| 3 | Run `/frontend-slides`; first-pass + style iteration | in progress | 2026-05-26 → 27 (Days 1-2) |
+| 4 | Custom animations: card-stack JS + achievement-pop JS | done | 2026-05-25 (Day 0) |
+| 5 | Demo prep: record + base64-inline GIF | **NEEDS USER** | 2026-05-28 (Day 3) |
+| 6 | 2-3 timed dry-runs; trim to fit 15 min | | 2026-05-29 to 30 (Days 4-5) |
+| 7 | Visual + copy polish from dry-run feedback | | 2026-05-31 (Day 6) |
+| 8 | Branded variant + final rehearsal | | 2026-06-01 to 02 (Days 7-8) |
+| **Talk** | **Slay the Cert at meetup** | — | **2026-06-03 (Wed)** |
 
-Buffer: ~3-4 days of slack across phases.
+Buffer: ~1 day total. Tight schedule due to corrected date.
 
 ---
 
@@ -192,7 +192,8 @@ Buffer: ~3-4 days of slack across phases.
 | Audience doesn't recognize "Slay the Spire" reference | Title visual + warlock sprite + dungeon demo do enough work; reference is bonus, not load-bearing |
 | Spec-driven-dev overlaps with friends' talk | Slide 11 is one slide + explicit verbal handoff |
 | frontend-slides custom JS doesn't compose with style preset | Phase 4 has 1-day buffer; fallback to scroll-triggered stagger (built-in) if click-driven fails |
-| Slop-site URLs go down or change before 2026-06-13 | Phase 2 screenshots freeze content as static images |
+| Slop-site URLs go down or change before 2026-06-03 | Phase 2 screenshots freeze content as static images |
+| Date compression to 8 days | Phase 5 GIF + Phase 2.3 testimonials are the load-bearing user-action items; both must land by Thu 2026-05-28. If either slips, Phase 6 dry-runs compress further. |
 | Branded deck variant accidentally committed | `talks/**/branded/` + `talks/**/notes.md` in .gitignore from Phase 1; verify before each commit |
 | Testimonial attribution leaks personal info | Default to anonymize ("CCA-F candidate, May 2026"); attribute only with explicit opt-in confirmation per quotee |
 | Senior-Manager-appropriate tone slips into snark | Phase 7 copy polish reviews every slide for tone; tone-check is a phase deliverable |
