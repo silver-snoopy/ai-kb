@@ -737,6 +737,12 @@ export class BossFightScene extends Phaser.Scene {
     const heroHearts = '❤️'.repeat(Math.max(0, this.state.heroHp)) + '🖤'.repeat(this.state.heroMaxHp - this.state.heroHp);
     this.bossHpText.setText(`BOSS ${bossHearts}`);
     this.heroHpText.setText(`HERO ${heroHearts}`);
+
+    if (this.state.heroHp === 1) {
+      this.heroSprite.setTexture('hero-desperate');
+    } else {
+      this.heroSprite.setTexture('hero');
+    }
   }
 
   private showResult(kind: 'victory' | 'death' | 'draw'): void {
