@@ -115,7 +115,7 @@ The dungeon's design choices, grouped for the slide. Each item cross-referenced 
 
 ## 5. Real-user testimonials (Act II/III bridge — slide 10)
 
-User has received unprompted testimonials from CCA-F candidates who used the live dungeon to prep for the exam. Phase 2 task: curate 2-3 strongest quotes into `talks/2026-06-03-slay-the-cert/assets/testimonials.md`.
+User has received unprompted testimonials from CCA-F candidates who used the live dungeon to prep for the exam. Phase 2 task: curate 2-3 strongest quotes into `public/talks/2026-06-03-slay-the-cert/assets/testimonials.md`.
 
 **Selection criteria:**
 - Specific behavior change ("I came back to it daily for a week") beats generic praise ("great game").

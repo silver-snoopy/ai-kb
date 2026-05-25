@@ -56,6 +56,7 @@ public/dungeon/public/assets/_dropzone/*.zip
 .playwright-mcp/
 stc-*.png
 
-# Talk decks — public master slides committed; company-branded variants stay local
-talks/**/branded/
-talks/**/notes.md
+# Talk decks — public master slides committed (and now deployable via Pages);
+# company-branded variants + speaker notes stay local
+public/talks/**/branded/
+public/talks/**/notes.md

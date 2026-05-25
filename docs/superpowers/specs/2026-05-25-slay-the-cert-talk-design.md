@@ -28,7 +28,7 @@ A 15-min meetup talk using the Slay the Cert dungeon as the concrete example of 
 
 - Not a deep-dive on spec-driven development — colleagues' follow-up talk covers that. Act III references the workflow loop as a handoff.
 - Not an academic gamification review. One anchor stat per beat; research doc is the appendix.
-- Not auto-deployed via GitHub Pages. Public master deck file is committable as a portfolio artifact, but the talk itself runs from a local browser; no live URL is served from this repo for the deck.
+- Not designed for general public consumption — the deck is a talk-day artifact + post-talk portfolio piece; no broad marketing target.
 - Not a sales pitch for any tooling. Claude Code skills mentioned are illustrative.
 - Not a Slay-the-Cert product launch. Game is shipped (since 2026-04-19) and serves as evidence, not announcement.
 
@@ -59,8 +59,9 @@ A 15-min meetup talk using the Slay the Cert dungeon as the concrete example of 
 | R10 | Visual preset: "Creative Voltage" across all slides | Q6 |
 | R11 | Act III references spec-driven-dev workflow as handoff to colleagues' talk | Q4 |
 | R12 | Talk date: Wednesday 2026-06-03 (corrected 2026-05-26) | User correction |
-| R13 | Public master deck committed; company-branded variant gitignored under `talks/**/branded/` | User revision post-Chunk 2 |
+| R13 | Public master deck committed; company-branded variant gitignored under `public/talks/**/branded/` | User revision post-Chunk 2 |
 | R14 | Real-user testimonials slide added (slide 10, post-demo) — strongest evidence the design works | User addition post-Chunk 3 |
+| R15 | Deck deployable via GitHub Pages — relocated to `public/talks/2026-06-03-slay-the-cert/` (2026-05-26) | User request |
 
 ---
 
@@ -76,7 +77,7 @@ c:\projects\ai-kb\
 │   └── specs\
 │       └── 2026-05-25-slay-the-cert-talk-design.md     ← committed (this file)
 │
-└── talks\                                              ← public master committed
+└── public\talks\                                       ← public master committed; deploys via Pages
     └── 2026-06-03-slay-the-cert\
         ├── slides.html                                 ← public master (committed)
         ├── assets\                                     ← committed (public)
@@ -98,8 +99,8 @@ c:\projects\ai-kb\
 | Custom animations | ~20-line per-slide JS hooks | Card-stack reveal (Act I), achievement-pop (Act II) |
 | Demo runtime | Local Vite dev server (`npm run dev`) on `:5173` | Same as dungeon dev; no network risk |
 | Fallback | Base64-inlined GIF (6-sec boss-fight loop) | Survives dev-server or network failure |
-| Slides hosting (Phase 2 only) | `npx serve talks/.../` on `:8080` | Enables iframe embed of `localhost:5173` |
-| Version control | Spec + research + master deck committed; `talks/**/branded/` + `talks/**/notes.md` gitignored | Public master is shareable as a portfolio artifact; branded variant + private speaker notes stay local |
+| Slides hosting (Phase 2 only) | `npx serve public/talks/.../` on `:8080` | Enables iframe embed of `localhost:5173` |
+| Version control | Spec + research + master deck committed under `public/talks/`; `public/talks/**/branded/` + `public/talks/**/notes.md` gitignored | Public master deployable via Pages as portfolio artifact; branded variant + private speaker notes stay local |
 
 ### 3.3 Three-act story arc (15 min)
 
@@ -194,7 +195,7 @@ Buffer: ~1 day total. Tight schedule due to corrected date.
 | frontend-slides custom JS doesn't compose with style preset | Phase 4 has 1-day buffer; fallback to scroll-triggered stagger (built-in) if click-driven fails |
 | Slop-site URLs go down or change before 2026-06-03 | Phase 2 screenshots freeze content as static images |
 | Date compression to 8 days | Phase 5 GIF + Phase 2.3 testimonials are the load-bearing user-action items; both must land by Thu 2026-05-28. If either slips, Phase 6 dry-runs compress further. |
-| Branded deck variant accidentally committed | `talks/**/branded/` + `talks/**/notes.md` in .gitignore from Phase 1; verify before each commit |
+| Branded deck variant accidentally committed | `public/talks/**/branded/` + `public/talks/**/notes.md` in .gitignore from Phase 1; verify before each commit |
 | Testimonial attribution leaks personal info | Default to anonymize ("CCA-F candidate, May 2026"); attribute only with explicit opt-in confirmation per quotee |
 | Senior-Manager-appropriate tone slips into snark | Phase 7 copy polish reviews every slide for tone; tone-check is a phase deliverable |
 
