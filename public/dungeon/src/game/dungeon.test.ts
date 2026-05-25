@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { createCampaign, advanceFloor, isCampaignComplete } from './dungeon';
+import { describe, expect, it } from 'vitest';
 import { BOSSES } from '../config';
+import { advanceFloor, createCampaign, isCampaignComplete } from './dungeon';
 
 describe('dungeon', () => {
   it('creates a campaign with 5 bosses in random order', () => {
     const c = createCampaign('first-run', 42);
     expect(c.bossOrder).toHaveLength(5);
-    const ids = BOSSES.map(b => b.id).sort();
+    const ids = BOSSES.map((b) => b.id).sort();
     expect([...c.bossOrder].sort()).toEqual(ids);
     expect(c.floorsCleared).toBe(0);
   });

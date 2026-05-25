@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { fadeToScene } from '../ui/transitions';
 import { loadBank } from '../data/questionLoader';
-import { loadSaveState, initSaveState, saveSaveState } from '../game/saveState';
+import { initSaveState, loadSaveState, saveSaveState } from '../game/saveState';
+import { fadeToScene } from '../ui/transitions';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -34,11 +34,13 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('sfx-death', 'assets/audio/sfx-death.ogg');
 
     // Progress indicator
-    const progressText = this.add.text(480, 380, 'Loading assets...', {
-      fontSize: '16px',
-      color: '#a0a0b0',
-      fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    const progressText = this.add
+      .text(480, 380, 'Loading assets...', {
+        fontSize: '16px',
+        color: '#a0a0b0',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // Simple progress bar
     const barBg = this.add.rectangle(480, 410, 400, 12, 0x2a2a3a);
@@ -59,17 +61,21 @@ export class BootScene extends Phaser.Scene {
   }
 
   async create(): Promise<void> {
-    this.add.text(480, 280, 'Slay the Cert', {
-      fontSize: '48px',
-      color: '#e0e0ea',
-      fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.add
+      .text(480, 280, 'Slay the Cert', {
+        fontSize: '48px',
+        color: '#e0e0ea',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
-    const status = this.add.text(480, 340, 'Loading question bank...', {
-      fontSize: '20px',
-      color: '#a0a0b0',
-      fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    const status = this.add
+      .text(480, 340, 'Loading question bank...', {
+        fontSize: '20px',
+        color: '#a0a0b0',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // Absorb the bank fetch that PickerScene used to do. Prefer the
     // committed local-dev copy at ./data/bank.json; CI overlays the

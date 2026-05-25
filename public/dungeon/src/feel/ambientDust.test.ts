@@ -1,8 +1,10 @@
-import { describe, it, expect, vi } from 'vitest';
 import Phaser from 'phaser';
+import { describe, expect, it, vi } from 'vitest';
 import {
-  DUST_BURST_COUNT, DUST_BURST_INTERVAL_MS,
-  DUST_LIFETIME_MIN_MS, DUST_LIFETIME_MAX_MS,
+  DUST_BURST_COUNT,
+  DUST_BURST_INTERVAL_MS,
+  DUST_LIFETIME_MAX_MS,
+  DUST_LIFETIME_MIN_MS,
   installAmbientDust,
 } from './ambientDust';
 

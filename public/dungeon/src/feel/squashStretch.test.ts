@@ -1,6 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
 import Phaser from 'phaser';
-import { SQUASH_SCALE_X, SQUASH_SCALE_Y, SQUASH_DURATION_MS, installSquashStretch } from './squashStretch';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  SQUASH_DURATION_MS,
+  SQUASH_SCALE_X,
+  SQUASH_SCALE_Y,
+  installSquashStretch,
+} from './squashStretch';
 
 describe('squashStretch', () => {
   it('exports expected scale constants', () => {
@@ -19,8 +24,13 @@ describe('squashStretch', () => {
     const fakeScene = {
       events: emitter,
       tweens: {
-        killTweensOf: (t: any) => { killCalls.push(t); },
-        add: (cfg: any) => { addCalls.push(cfg); return cfg; },
+        killTweensOf: (t: any) => {
+          killCalls.push(t);
+        },
+        add: (cfg: any) => {
+          addCalls.push(cfg);
+          return cfg;
+        },
       },
     } as unknown as Phaser.Scene;
 
@@ -29,7 +39,7 @@ describe('squashStretch', () => {
     emitter.emit('answer-correct', { damage: 1, bossHpPct: 0.8, bossMaxHp: 10 });
 
     // killTweensOf must be called on bossSprite both times to prevent stacking
-    expect(killCalls.filter(t => t === bossSprite)).toHaveLength(2);
+    expect(killCalls.filter((t) => t === bossSprite)).toHaveLength(2);
     // And scene.tweens.add is called twice
     expect(addCalls).toHaveLength(2);
   });
@@ -42,7 +52,9 @@ describe('squashStretch', () => {
     const fakeScene = {
       events: emitter,
       tweens: {
-        killTweensOf: (t: any) => { killCalls.push(t); },
+        killTweensOf: (t: any) => {
+          killCalls.push(t);
+        },
         add: () => ({}),
       },
     } as unknown as Phaser.Scene;

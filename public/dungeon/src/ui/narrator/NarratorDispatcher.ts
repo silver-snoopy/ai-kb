@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import type { NarratorOverlay } from './NarratorOverlay';
 import type { LinePool } from './linePool';
 import type { BossId, Trigger } from './types';
@@ -10,6 +10,7 @@ export class NarratorDispatcher {
   private bus: EventBus;
   private pool: LinePool;
   private overlay: NarratorOverlay;
+  // biome-ignore lint/suspicious/noExplicitAny: Phaser EventEmitter accepts untyped callbacks; handler payload shape is enforced at each call site in wire()
   private handlers: Array<[string, (...args: any[]) => void]> = [];
 
   constructor(bus: EventBus, pool: LinePool, overlay: NarratorOverlay) {
@@ -22,7 +23,8 @@ export class NarratorDispatcher {
   private wire(): void {
     this.on('battle-start', (p: { bossId: BossId }) => this.fire('battle-start', p.bossId));
     this.on('boss-phase-crossed', (p: { threshold: 66 | 33 | 10; bossId: BossId }) => {
-      const trigger: Trigger = p.threshold === 10 ? 'phase-10' : p.threshold === 33 ? 'phase-33' : 'phase-66';
+      const trigger: Trigger =
+        p.threshold === 10 ? 'phase-10' : p.threshold === 33 ? 'phase-33' : 'phase-66';
       this.fire(trigger, p.bossId);
     });
     this.on('boss-defeated', (p: { bossId: BossId }) => this.fire('boss-defeated', p.bossId));
@@ -30,6 +32,7 @@ export class NarratorDispatcher {
     this.on('spell-cast', (p: { bossId: BossId }) => this.fire('spell-cast', p.bossId));
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: Phaser EventEmitter accepts untyped callbacks; handler payload shape is enforced at each call site in wire()
   private on(event: string, handler: (...args: any[]) => void): void {
     this.bus.on(event, handler);
     this.handlers.push([event, handler]);

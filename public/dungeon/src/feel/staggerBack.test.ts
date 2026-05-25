@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { STAGGER_PX, STAGGER_KNOCK_MS, STAGGER_RECOVER_MS } from './staggerBack';
+import { describe, expect, it } from 'vitest';
+import { STAGGER_KNOCK_MS, STAGGER_PX, STAGGER_RECOVER_MS } from './staggerBack';
 
 describe('staggerBack', () => {
   it('exports expected timing constants', () => {

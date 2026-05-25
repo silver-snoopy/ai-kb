@@ -1,15 +1,15 @@
 // public/exams/arrangement.test.mjs
 // Run: node --test public/exams/arrangement.test.mjs
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 import {
-  mulberry32,
-  normalizeSeed,
-  filterBank,
-  countByAxis,
   buildDrillSession,
   buildMockExam,
+  countByAxis,
+  filterBank,
+  mulberry32,
+  normalizeSeed,
 } from './arrangement.js';
 
 // Minimal fixture bank: 2 domains, 2 scenarios, enough questions to test
@@ -18,26 +18,32 @@ function makeBank() {
   const questions = [];
   let n = 1;
   // domain-1-agentic, scenarios 1 and 3
-  for (let i = 0; i < 10; i++) questions.push({ id: `q${n++}`, domain: 'domain-1-agentic', scenario: '1' });
-  for (let i = 0; i < 10; i++) questions.push({ id: `q${n++}`, domain: 'domain-1-agentic', scenario: '3' });
+  for (let i = 0; i < 10; i++)
+    questions.push({ id: `q${n++}`, domain: 'domain-1-agentic', scenario: '1' });
+  for (let i = 0; i < 10; i++)
+    questions.push({ id: `q${n++}`, domain: 'domain-1-agentic', scenario: '3' });
   // domain-4-mcp, scenario 4
-  for (let i = 0; i < 6; i++) questions.push({ id: `q${n++}`, domain: 'domain-4-mcp', scenario: '4' });
+  for (let i = 0; i < 6; i++)
+    questions.push({ id: `q${n++}`, domain: 'domain-4-mcp', scenario: '4' });
   // domain-5-context, scenarios 1 and 3 and 6
-  for (let i = 0; i < 4; i++) questions.push({ id: `q${n++}`, domain: 'domain-5-context', scenario: '1' });
-  for (let i = 0; i < 4; i++) questions.push({ id: `q${n++}`, domain: 'domain-5-context', scenario: '3' });
-  for (let i = 0; i < 4; i++) questions.push({ id: `q${n++}`, domain: 'domain-5-context', scenario: '6' });
+  for (let i = 0; i < 4; i++)
+    questions.push({ id: `q${n++}`, domain: 'domain-5-context', scenario: '1' });
+  for (let i = 0; i < 4; i++)
+    questions.push({ id: `q${n++}`, domain: 'domain-5-context', scenario: '3' });
+  for (let i = 0; i < 4; i++)
+    questions.push({ id: `q${n++}`, domain: 'domain-5-context', scenario: '6' });
   return {
     cert_id: 'test',
     domains: {
-      'domain-1-agentic':  { weight: 0.5 },
-      'domain-4-mcp':      { weight: 0.3 },
-      'domain-5-context':  { weight: 0.2 },
+      'domain-1-agentic': { weight: 0.5 },
+      'domain-4-mcp': { weight: 0.3 },
+      'domain-5-context': { weight: 0.2 },
     },
     scenarios: {
-      '1': { name: 'Scenario 1', domains: ['domain-1-agentic', 'domain-5-context', 'domain-4-mcp'] },
-      '3': { name: 'Scenario 3', domains: ['domain-1-agentic', 'domain-5-context'] },
-      '4': { name: 'Scenario 4', domains: ['domain-4-mcp'] },
-      '6': { name: 'Scenario 6', domains: ['domain-5-context'] },
+      1: { name: 'Scenario 1', domains: ['domain-1-agentic', 'domain-5-context', 'domain-4-mcp'] },
+      3: { name: 'Scenario 3', domains: ['domain-1-agentic', 'domain-5-context'] },
+      4: { name: 'Scenario 4', domains: ['domain-4-mcp'] },
+      6: { name: 'Scenario 6', domains: ['domain-5-context'] },
     },
     questions,
   };
@@ -135,7 +141,10 @@ test('buildDrillSession is deterministic given a seed', () => {
   const bank = makeBank();
   const a = buildDrillSession(bank, { size: 5, seed: 42 });
   const b = buildDrillSession(bank, { size: 5, seed: 42 });
-  assert.deepEqual(a.map(q => q.id), b.map(q => q.id));
+  assert.deepEqual(
+    a.map((q) => q.id),
+    b.map((q) => q.id),
+  );
 });
 
 test('buildDrillSession respects filters', () => {
@@ -163,18 +172,25 @@ test('buildMockExam is deterministic given a seed', () => {
   const bank = makeBank();
   const a = buildMockExam(bank, { seed: 42, size: 20, scenarioCount: 3 });
   const b = buildMockExam(bank, { seed: 42, size: 20, scenarioCount: 3 });
-  assert.deepEqual(a.map(q => q.id), b.map(q => q.id));
+  assert.deepEqual(
+    a.map((q) => q.id),
+    b.map((q) => q.id),
+  );
 });
 
 test('buildMockExam drift: same seed + different bank → different output', () => {
   const smallBank = makeBank();
   const biggerBank = makeBank();
   // Extend bank with new questions.
-  for (let i = 0; i < 5; i++) biggerBank.questions.push({ id: `new${i}`, domain: 'domain-1-agentic', scenario: '1' });
+  for (let i = 0; i < 5; i++)
+    biggerBank.questions.push({ id: `new${i}`, domain: 'domain-1-agentic', scenario: '1' });
   const a = buildMockExam(smallBank, { seed: 42, size: 20, scenarioCount: 3 });
   const b = buildMockExam(biggerBank, { seed: 42, size: 20, scenarioCount: 3 });
   // Shouldn't be identical — documented drift behavior.
-  assert.notDeepEqual(a.map(q => q.id), b.map(q => q.id));
+  assert.notDeepEqual(
+    a.map((q) => q.id),
+    b.map((q) => q.id),
+  );
 });
 
 test('buildMockExam returns requested size (or all available)', () => {
@@ -187,7 +203,7 @@ test('buildMockExam returns requested size (or all available)', () => {
 test('buildMockExam only draws from picked scenarios', () => {
   const bank = makeBank();
   const out = buildMockExam(bank, { seed: 1, size: 100, scenarioCount: 2 });
-  const usedScenarios = new Set(out.map(q => q.scenario));
+  const usedScenarios = new Set(out.map((q) => q.scenario));
   assert.ok(usedScenarios.size <= 2, `expected at most 2 scenarios, got ${usedScenarios.size}`);
 });
 

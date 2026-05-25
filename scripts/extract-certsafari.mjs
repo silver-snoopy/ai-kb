@@ -15,10 +15,10 @@
 // - Uses provided user-id; doesn't pollute the user's real quiz history in any unsafe way.
 // - Writes immutable raw JSON + per-domain markdown with ```question blocks.
 
-import { writeFile, mkdir } from 'node:fs/promises';
-import { join, dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Parse --domain <slug> from argv. Positional arg (if any and not a flag)
 // stays compatible with the legacy `node extract-certsafari.mjs <uid>` form.
@@ -27,8 +27,14 @@ let cliDomain = null;
 const positional = [];
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
-  if (a === '--domain') { cliDomain = argv[++i]; continue; }
-  if (a.startsWith('--domain=')) { cliDomain = a.slice('--domain='.length); continue; }
+  if (a === '--domain') {
+    cliDomain = argv[++i];
+    continue;
+  }
+  if (a.startsWith('--domain=')) {
+    cliDomain = a.slice('--domain='.length);
+    continue;
+  }
   positional.push(a);
 }
 
@@ -45,25 +51,34 @@ const BASE = 'https://www.certsafari.com';
 // browser session originating from the CCA-F practice page.
 const HEADERS = {
   'Content-Type': 'application/json',
-  'Referer': 'https://www.certsafari.com/anthropic/claude-certified-architect',
-  'Origin': 'https://www.certsafari.com',
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  Referer: 'https://www.certsafari.com/anthropic/claude-certified-architect',
+  Origin: 'https://www.certsafari.com',
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 };
 // CertSafari/exam-guide domain numbering differs from this vault's meta.yaml
 // numbering (vault clusters domains by weight tier). The `name` field is the
 // CertSafari API identifier; `id` is the vault folder slug to write into.
 const DOMAINS = [
-  { name: 'Domain 1: Agentic Architecture & Orchestration',   count: 86, id: 'domain-1-agentic' },
-  { name: 'Domain 2: Tool Design & MCP Integration',          count: 60, id: 'domain-4-mcp' },
-  { name: 'Domain 3: Claude Code Configuration & Workflows',  count: 73, id: 'domain-2-claude-code' },
-  { name: 'Domain 4: Prompt Engineering & Structured Output', count: 72, id: 'domain-3-prompt-engineering' },
-  { name: 'Domain 5: Context Management & Reliability',       count: 72, id: 'domain-5-context' },
+  { name: 'Domain 1: Agentic Architecture & Orchestration', count: 86, id: 'domain-1-agentic' },
+  { name: 'Domain 2: Tool Design & MCP Integration', count: 60, id: 'domain-4-mcp' },
+  {
+    name: 'Domain 3: Claude Code Configuration & Workflows',
+    count: 73,
+    id: 'domain-2-claude-code',
+  },
+  {
+    name: 'Domain 4: Prompt Engineering & Structured Output',
+    count: 72,
+    id: 'domain-3-prompt-engineering',
+  },
+  { name: 'Domain 5: Context Management & Reliability', count: 72, id: 'domain-5-context' },
 ];
-const PACING_MS = 2600;      // ~23 req/min — stays under the per-minute limit
-const COOLDOWN_MS = 30_000;  // 30s between domains so we don't stack bursts
+const PACING_MS = 2600; // ~23 req/min — stays under the per-minute limit
+const COOLDOWN_MS = 30_000; // 30s between domains so we don't stack bursts
 const RATE_LIMIT_BACKOFF_MS = 65_000; // full per-minute window reset
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function createQuiz(domain, count) {
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -81,7 +96,9 @@ async function createQuiz(domain, count) {
     });
     if (res.ok) return res.json();
     if (res.status === 429) {
-      console.error(`  create-quiz 429 \u2014 cooling for ${RATE_LIMIT_BACKOFF_MS / 1000}s (attempt ${attempt + 1}/3)`);
+      console.error(
+        `  create-quiz 429 \u2014 cooling for ${RATE_LIMIT_BACKOFF_MS / 1000}s (attempt ${attempt + 1}/3)`,
+      );
       await sleep(RATE_LIMIT_BACKOFF_MS);
       continue;
     }
@@ -115,11 +132,13 @@ async function getNextQuestion(quizId) {
 async function extractDomain(d) {
   console.log(`\n\u2192 ${d.name}: target=${d.count}`);
   const createJson = await createQuiz(d.name, d.count);
-  if (!createJson.data?.quiz) throw new Error(`no quiz in response: ${JSON.stringify(createJson).slice(0, 200)}`);
+  if (!createJson.data?.quiz)
+    throw new Error(`no quiz in response: ${JSON.stringify(createJson).slice(0, 200)}`);
   const quizId = createJson.data.quiz.id;
   const expectedIds = new Set(createJson.data.quiz.question_ids || []);
   const collected = new Map();
-  if (createJson.data.first_question) collected.set(createJson.data.first_question.id, createJson.data.first_question);
+  if (createJson.data.first_question)
+    collected.set(createJson.data.first_question.id, createJson.data.first_question);
   let stalls = 0;
   let attempts = 0;
   const maxAttempts = expectedIds.size * 3 + 10;
@@ -152,29 +171,37 @@ async function extractDomain(d) {
     }
   }
   console.log(`\n  \u2713 ${collected.size}/${expectedIds.size} collected in ${attempts} attempts`);
-  return Array.from(collected.values()).map(q => ({ ...q, _domain_slug: d.id }));
+  return Array.from(collected.values()).map((q) => ({ ...q, _domain_slug: d.id }));
 }
 
 function toQuestionBlock(q, index, domainSlug) {
-  const correctLetter = (q.correct_answers?.[0] ?? 'A');
-  const optsLines = ['A', 'B', 'C', 'D'].map((l, idx) => `  ${l}: ${JSON.stringify(q.options[idx] || '')}`).join('\n');
+  const correctLetter = q.correct_answers?.[0] ?? 'A';
+  const optsLines = ['A', 'B', 'C', 'D']
+    .map((l, idx) => `  ${l}: ${JSON.stringify(q.options[idx] || '')}`)
+    .join('\n');
   const explParts = (q.explanations || [])
-    .map(e => `  ${e.option}: ${e.explanation.replace(/\n/g, ' ')}`)
+    .map((e) => `  ${e.option}: ${e.explanation.replace(/\n/g, ' ')}`)
     .join('\n');
   const explanation = explParts || 'See CertSafari.';
-  const stemIndented = q.question.split('\n').map(l => `  ${l}`).join('\n');
-  const explIndented = explanation.split('\n').map(l => `  ${l}`).join('\n');
+  const stemIndented = q.question
+    .split('\n')
+    .map((l) => `  ${l}`)
+    .join('\n');
+  const explIndented = explanation
+    .split('\n')
+    .map((l) => `  ${l}`)
+    .join('\n');
   return [
     '```question',
     `id: certsafari-${domainSlug}-${String(index + 1).padStart(3, '0')}`,
     `domain: ${domainSlug}`,
-    `difficulty: medium`,
-    `stem: |`,
+    'difficulty: medium',
+    'stem: |',
     stemIndented,
-    `options:`,
+    'options:',
     optsLines,
     `correct: ${correctLetter}`,
-    `explanation: |`,
+    'explanation: |',
     explIndented,
     `source-note: raw/certsafari/cca-f-questions.json (certsafari_id=${q.id})`,
     '```',
@@ -187,7 +214,9 @@ async function loadExisting(rawPath) {
     const { readFile } = await import('node:fs/promises');
     const j = JSON.parse(await readFile(rawPath, 'utf8'));
     return Array.isArray(j.questions) ? j.questions : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 async function main() {
@@ -197,18 +226,20 @@ async function main() {
 
   // Resume: load anything already collected from prior runs, merge by question id.
   const existing = await loadExisting(rawPath);
-  const byId = new Map(existing.map(q => [q.id, q]));
+  const byId = new Map(existing.map((q) => [q.id, q]));
   const existingByDomain = {};
-  for (const q of existing) existingByDomain[q._domain_slug] = (existingByDomain[q._domain_slug] || 0) + 1;
-  if (existing.length) console.log(`Resume mode: ${existing.length} questions already collected — ${JSON.stringify(existingByDomain)}`);
+  for (const q of existing)
+    existingByDomain[q._domain_slug] = (existingByDomain[q._domain_slug] || 0) + 1;
+  if (existing.length)
+    console.log(
+      `Resume mode: ${existing.length} questions already collected — ${JSON.stringify(existingByDomain)}`,
+    );
 
   // With --domain, process just that one (lets user rotate VPN per domain
   // to spread across IP quotas). Without it, iterate all five as before.
-  const selected = cliDomain
-    ? DOMAINS.filter(d => d.id === cliDomain)
-    : DOMAINS;
+  const selected = cliDomain ? DOMAINS.filter((d) => d.id === cliDomain) : DOMAINS;
   if (cliDomain && selected.length === 0) {
-    const valid = DOMAINS.map(d => d.id).join(', ');
+    const valid = DOMAINS.map((d) => d.id).join(', ');
     console.error(`Unknown --domain "${cliDomain}". Valid: ${valid}`);
     process.exit(1);
   }
@@ -232,18 +263,25 @@ async function main() {
   const all = Array.from(byId.values());
 
   await mkdir(dirname(rawPath), { recursive: true });
-  await writeFile(rawPath, JSON.stringify({
-    extracted_at: new Date().toISOString(),
-    source: 'https://www.certsafari.com/anthropic/claude-certified-architect',
-    certificate: 'claude-certified-architect',
-    vendor: 'anthropic',
-    total: all.length,
-    questions: all,
-  }, null, 2));
+  await writeFile(
+    rawPath,
+    JSON.stringify(
+      {
+        extracted_at: new Date().toISOString(),
+        source: 'https://www.certsafari.com/anthropic/claude-certified-architect',
+        certificate: 'claude-certified-architect',
+        vendor: 'anthropic',
+        total: all.length,
+        questions: all,
+      },
+      null,
+      2,
+    ),
+  );
   console.log(`\n\u2713 Raw archive: ${rawPath} (${all.length} questions)`);
 
   for (const d of DOMAINS) {
-    const qs = all.filter(q => q._domain_slug === d.id);
+    const qs = all.filter((q) => q._domain_slug === d.id);
     if (!qs.length) continue;
     const header = [
       '---',
@@ -269,4 +307,7 @@ async function main() {
   console.log(`\nDone. Total: ${all.length} questions.`);
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

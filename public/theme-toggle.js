@@ -7,16 +7,24 @@
 // Contract: pages must include an element with id="theme-toggle" (a button).
 // This script wires its click handler and updates its aria-pressed attribute.
 
-(function () {
+(() => {
   const STORAGE_KEY = 'ai-kb-theme';
   const root = document.documentElement;
 
   function getStored() {
-    try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
   }
 
   function setStored(v) {
-    try { localStorage.setItem(STORAGE_KEY, v); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, v);
+    } catch {
+      /* ignore */
+    }
   }
 
   function effectiveTheme() {

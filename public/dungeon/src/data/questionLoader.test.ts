@@ -1,26 +1,38 @@
-import { describe, it, expect } from 'vitest';
-import { pickQuestionsForFight, shuffleBossOrder } from './questionLoader';
+import { describe, expect, it } from 'vitest';
 import type { Question } from '../types';
+import { pickQuestionsForFight, shuffleBossOrder } from './questionLoader';
 
 function makeQ(id: string, difficulty: 'easy' | 'medium' | 'hard'): Question {
   return {
-    id, source: 'cs', domain: 'd1', scenario: '1', difficulty,
-    stem: 'stem', options: { A: 'a', B: 'b', C: 'c', D: 'd' },
-    correct: 'A', explanation: 'e', source_note: 't.md',
+    id,
+    source: 'cs',
+    domain: 'd1',
+    scenario: '1',
+    difficulty,
+    stem: 'stem',
+    options: { A: 'a', B: 'b', C: 'c', D: 'd' },
+    correct: 'A',
+    explanation: 'e',
+    source_note: 't.md',
   };
 }
 
 describe('questionLoader', () => {
   it('picks N questions, easier first then harder', () => {
     const pool: Question[] = [
-      makeQ('e1', 'easy'), makeQ('e2', 'easy'),
-      makeQ('m1', 'medium'), makeQ('m2', 'medium'),
-      makeQ('h1', 'hard'), makeQ('h2', 'hard'),
+      makeQ('e1', 'easy'),
+      makeQ('e2', 'easy'),
+      makeQ('m1', 'medium'),
+      makeQ('m2', 'medium'),
+      makeQ('h1', 'hard'),
+      makeQ('h2', 'hard'),
     ];
     const picks = pickQuestionsForFight(pool, 6, seeded(42));
     expect(picks).toHaveLength(6);
-    const firstHalfDifficulties = picks.slice(0, 3).map(q => q.difficulty);
-    const easyMediumCount = firstHalfDifficulties.filter(d => d === 'easy' || d === 'medium').length;
+    const firstHalfDifficulties = picks.slice(0, 3).map((q) => q.difficulty);
+    const easyMediumCount = firstHalfDifficulties.filter(
+      (d) => d === 'easy' || d === 'medium',
+    ).length;
     expect(easyMediumCount).toBeGreaterThanOrEqual(2);
   });
 

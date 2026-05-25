@@ -26,11 +26,7 @@ export const BOSSES: BossDefinition[] = [
         'The dispatch aligns. I grant you that.',
         'A legion stands corrected.',
       ],
-      wrong: [
-        'Disorder. As expected.',
-        'Your coordination falters.',
-        'The patterns escape you.',
-      ],
+      wrong: ['Disorder. As expected.', 'Your coordination falters.', 'The patterns escape you.'],
     },
     environmentColor: 0x2d1b4e,
   },
@@ -93,7 +89,8 @@ export const SPELLS: Record<import('./types').SpellId, Spell> = {
   'study-the-tome': {
     id: 'study-the-tome',
     name: 'Study the Tome',
-    description: 'Before next question, reveal a 3-sentence primer from the source note. Context only, no answer.',
+    description:
+      'Before next question, reveal a 3-sentence primer from the source note. Context only, no answer.',
     tagline: 'Read a primer first.',
     tier: 'uncommon',
     effect: { type: 'primer' },
@@ -102,7 +99,8 @@ export const SPELLS: Record<import('./types').SpellId, Spell> = {
   memorize: {
     id: 'memorize',
     name: 'Memorize',
-    description: 'No combat effect. Adds current question to the session log flagged for weakness-queue.',
+    description:
+      'No combat effect. Adds current question to the session log flagged for weakness-queue.',
     tagline: 'Flag for weakness queue.',
     tier: 'rare',
     effect: { type: 'weakness-queue' },

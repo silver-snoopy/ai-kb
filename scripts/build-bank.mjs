@@ -16,9 +16,9 @@
 // (merge-by-id) and only rebuilds questions, domains, scenarios structure.
 // Use scripts/classify-scenarios.mjs to fill scenario tags after this.
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
@@ -27,46 +27,66 @@ const vault = resolve(scriptDir, '..');
 // Upstream domain name → vault slug. Authoritative reference lives in the
 // local memory note on the upstream source's API shape.
 const DOMAIN_SLUG = {
-  'Domain 1: Agentic Architecture & Orchestration':   'domain-1-agentic',
-  'Domain 2: Tool Design & MCP Integration':          'domain-4-mcp',
-  'Domain 3: Claude Code Configuration & Workflows':  'domain-2-claude-code',
+  'Domain 1: Agentic Architecture & Orchestration': 'domain-1-agentic',
+  'Domain 2: Tool Design & MCP Integration': 'domain-4-mcp',
+  'Domain 3: Claude Code Configuration & Workflows': 'domain-2-claude-code',
   'Domain 4: Prompt Engineering & Structured Output': 'domain-3-prompt-engineering',
-  'Domain 5: Context Management & Reliability':       'domain-5-context',
+  'Domain 5: Context Management & Reliability': 'domain-5-context',
 };
 
 const DOMAIN_META = {
-  'domain-1-agentic':            { num: 1, name: 'Agentic Architecture & Orchestration',   weight: 0.27, color: '#f39c4a' },
-  'domain-2-claude-code':        { num: 2, name: 'Claude Code Configuration & Workflows',  weight: 0.20, color: '#a87cf0' },
-  'domain-3-prompt-engineering': { num: 3, name: 'Prompt Engineering & Structured Output', weight: 0.20, color: '#5db5f0' },
-  'domain-4-mcp':                { num: 4, name: 'Tool Design & MCP Integration',          weight: 0.18, color: '#5ad1a0' },
-  'domain-5-context':            { num: 5, name: 'Context Management & Reliability',       weight: 0.15, color: '#e85d75' },
+  'domain-1-agentic': {
+    num: 1,
+    name: 'Agentic Architecture & Orchestration',
+    weight: 0.27,
+    color: '#f39c4a',
+  },
+  'domain-2-claude-code': {
+    num: 2,
+    name: 'Claude Code Configuration & Workflows',
+    weight: 0.2,
+    color: '#a87cf0',
+  },
+  'domain-3-prompt-engineering': {
+    num: 3,
+    name: 'Prompt Engineering & Structured Output',
+    weight: 0.2,
+    color: '#5db5f0',
+  },
+  'domain-4-mcp': { num: 4, name: 'Tool Design & MCP Integration', weight: 0.18, color: '#5ad1a0' },
+  'domain-5-context': {
+    num: 5,
+    name: 'Context Management & Reliability',
+    weight: 0.15,
+    color: '#e85d75',
+  },
 };
 
 // Scenario taxonomy: from certs/cca-f/_scenarios.md (6 scenarios, each lists
 // the domains it tests). Embedded inline so the bank builder doesn't need to
 // parse the markdown — keep in sync if the spec ever changes.
 const SCENARIO_META = {
-  '1': {
+  1: {
     name: 'Customer Support Resolution Agent',
     domains: ['domain-1-agentic', 'domain-4-mcp', 'domain-5-context'],
   },
-  '2': {
+  2: {
     name: 'Code Generation with Claude Code',
     domains: ['domain-2-claude-code', 'domain-3-prompt-engineering'],
   },
-  '3': {
+  3: {
     name: 'Multi-Agent Research System',
     domains: ['domain-1-agentic', 'domain-5-context'],
   },
-  '4': {
+  4: {
     name: 'Developer Productivity with Claude',
     domains: ['domain-4-mcp'],
   },
-  '5': {
+  5: {
     name: 'Claude Code for CI/CD',
     domains: ['domain-2-claude-code', 'domain-3-prompt-engineering'],
   },
-  '6': {
+  6: {
     name: 'Structured Data Extraction',
     domains: ['domain-3-prompt-engineering', 'domain-5-context'],
   },
@@ -79,11 +99,18 @@ function transformQuestion(rawQ) {
   if (!Array.isArray(rawQ.options) || rawQ.options.length !== 4) {
     throw new Error(`Question ${rawQ.id}: expected 4 options, got ${rawQ.options?.length}`);
   }
-  const optionsObj = { A: rawQ.options[0], B: rawQ.options[1], C: rawQ.options[2], D: rawQ.options[3] };
+  const optionsObj = {
+    A: rawQ.options[0],
+    B: rawQ.options[1],
+    C: rawQ.options[2],
+    D: rawQ.options[3],
+  };
 
   const correct = rawQ.correct_answers?.[0];
   if (!correct || !['A', 'B', 'C', 'D'].includes(correct)) {
-    throw new Error(`Question ${rawQ.id}: invalid correct_answers=${JSON.stringify(rawQ.correct_answers)}`);
+    throw new Error(
+      `Question ${rawQ.id}: invalid correct_answers=${JSON.stringify(rawQ.correct_answers)}`,
+    );
   }
 
   // Flatten explanations into "A: ... B: ... C: ... D: ..." so
@@ -92,7 +119,7 @@ function transformQuestion(rawQ) {
   const explanation = (rawQ.explanations || [])
     .slice()
     .sort((a, b) => a.option.localeCompare(b.option))
-    .map(e => `${e.option}: ${e.explanation}`)
+    .map((e) => `${e.option}: ${e.explanation}`)
     .join('\n');
 
   return {
@@ -163,7 +190,9 @@ async function main() {
       existing = JSON.parse(await readFile(outPath, 'utf-8'));
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.warn(`  could not parse existing bank.json; proceeding with fresh build: ${e.message}`);
+      console.warn(
+        `  could not parse existing bank.json; proceeding with fresh build: ${e.message}`,
+      );
     }
   }
   const output = existing ? mergeScenarioTags(fresh, existing) : fresh;
@@ -174,7 +203,7 @@ async function main() {
   // Per-domain breakdown for the log
   const byDomain = {};
   for (const q of output.questions) byDomain[q.domain] = (byDomain[q.domain] || 0) + 1;
-  const tagged = output.questions.filter(q => q.scenario != null).length;
+  const tagged = output.questions.filter((q) => q.scenario != null).length;
 
   // eslint-disable-next-line no-console
   console.log(`\u2713 ${outPath}`);
@@ -185,4 +214,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

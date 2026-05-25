@@ -1,11 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import {
-  initCombat,
-  resolveAnswer,
-  isBossDefeated,
-  isHeroDead,
-} from './combat';
+import { describe, expect, it } from 'vitest';
 import type { Question } from '../types';
+import { initCombat, isBossDefeated, isHeroDead, resolveAnswer } from './combat';
 
 const dummyQuestion: Question = {
   id: 'q1',

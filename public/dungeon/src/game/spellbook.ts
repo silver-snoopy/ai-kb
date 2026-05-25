@@ -1,5 +1,5 @@
-import type { CombatState, RunMode, SpellId } from '../types';
 import { SPELLS } from '../config';
+import type { CombatState, RunMode, SpellId } from '../types';
 
 export type Spellbook = Record<SpellId, number>;
 

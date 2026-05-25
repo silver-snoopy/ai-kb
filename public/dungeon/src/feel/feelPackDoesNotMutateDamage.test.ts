@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import Phaser from 'phaser';
+import { describe, expect, it } from 'vitest';
 import { installHitStop } from './hitStop';
 import { installShakeGrading } from './shakeGrading';
 
@@ -18,7 +18,9 @@ describe('Feel Pack does not mutate damage (R6)', () => {
     installShakeGrading(fakeScene);
 
     const observed: Array<{ event: string; payload: any }> = [];
-    emitter.on('answer-correct', (p: any) => observed.push({ event: 'answer-correct', payload: p }));
+    emitter.on('answer-correct', (p: any) =>
+      observed.push({ event: 'answer-correct', payload: p }),
+    );
     emitter.on('answer-wrong', (p: any) => observed.push({ event: 'answer-wrong', payload: p }));
 
     // Fire a series of events with known damage values.
@@ -27,10 +29,10 @@ describe('Feel Pack does not mutate damage (R6)', () => {
     emitter.emit('answer-wrong', { heroHpRemaining: 2 });
 
     // Observed damage values must exactly match what was emitted.
-    const correctEvents = observed.filter(o => o.event === 'answer-correct');
+    const correctEvents = observed.filter((o) => o.event === 'answer-correct');
     expect(correctEvents[0]!.payload.damage).toBe(1);
     expect(correctEvents[1]!.payload.damage).toBe(3);
-    const wrongEvents = observed.filter(o => o.event === 'answer-wrong');
+    const wrongEvents = observed.filter((o) => o.event === 'answer-wrong');
     expect(wrongEvents[0]!.payload.heroHpRemaining).toBe(2);
   });
 });

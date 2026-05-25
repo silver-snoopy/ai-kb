@@ -13,5 +13,5 @@ if (typeof HTMLCanvasElement !== 'undefined') {
     putImageData: noop,
   };
   // @ts-ignore override for test environment
-  HTMLCanvasElement.prototype.getContext = function () { return stub2d as any; };
+  HTMLCanvasElement.prototype.getContext = () => stub2d as any;
 }

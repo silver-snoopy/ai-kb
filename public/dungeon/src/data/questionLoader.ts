@@ -8,7 +8,7 @@ import type { Bank, Question } from '../types';
  *
  * See: docs/superpowers/specs/2026-04-20-unified-question-bank-design.md §A
  */
-export async function loadBank(url: string = './data/bank.json'): Promise<Bank> {
+export async function loadBank(url = './data/bank.json'): Promise<Bank> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load bank.json: ${res.status}`);
   const bank = (await res.json()) as Bank;
@@ -26,7 +26,7 @@ export async function loadBank(url: string = './data/bank.json'): Promise<Bank> 
  * to scope the per-boss pool.
  */
 export function questionsForDomain(bank: Bank, domain: string): Question[] {
-  return bank.questions.filter(q => q.domain === domain);
+  return bank.questions.filter((q) => q.domain === domain);
 }
 
 /**
@@ -42,16 +42,17 @@ export function pickQuestionsForFight(
   if (pool.length === 0) {
     throw new Error(`pickQuestionsForFight: pool is empty; cannot pick ${n} questions`);
   }
-  if (pool.length < n) {
+  let workingPool = pool;
+  if (workingPool.length < n) {
     const padded: Question[] = [];
-    while (padded.length < n) padded.push(...pool);
-    pool = padded.slice(0, Math.max(n, pool.length));
+    while (padded.length < n) padded.push(...workingPool);
+    workingPool = padded.slice(0, Math.max(n, workingPool.length));
   }
 
   const byDifficulty = {
-    easy: pool.filter(q => q.difficulty === 'easy'),
-    medium: pool.filter(q => q.difficulty === 'medium'),
-    hard: pool.filter(q => q.difficulty === 'hard'),
+    easy: workingPool.filter((q) => q.difficulty === 'easy'),
+    medium: workingPool.filter((q) => q.difficulty === 'medium'),
+    hard: workingPool.filter((q) => q.difficulty === 'hard'),
   };
 
   const firstHalfCount = Math.ceil(n / 2);
@@ -65,7 +66,10 @@ export function pickQuestionsForFight(
 
   function pickFromPool(pool: Question[], count: number): Question[] {
     const out: Question[] = [];
-    const shuffled = shuffle(pool.filter(q => !usedIds.has(q.id)), rng);
+    const shuffled = shuffle(
+      pool.filter((q) => !usedIds.has(q.id)),
+      rng,
+    );
     for (const q of shuffled) {
       if (out.length >= count) break;
       out.push(q);

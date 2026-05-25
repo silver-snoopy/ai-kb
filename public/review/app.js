@@ -17,7 +17,7 @@ let session = null; // { cards, current, initialLength, revealed, reviewedIds, m
 async function load() {
   try {
     const res = await fetch('../questions.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
     renderLanding();
   } catch (e) {
@@ -39,12 +39,18 @@ function loadState() {
     if (parsed && typeof parsed === 'object' && parsed.cards && typeof parsed.cards === 'object') {
       return { version: parsed.version || 1, cards: parsed.cards };
     }
-  } catch { /* corrupt — reset */ }
+  } catch {
+    /* corrupt — reset */
+  }
   return { version: 1, cards: {} };
 }
 
 function saveState(state) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
 }
 
 function todayUtcIso() {
@@ -52,7 +58,7 @@ function todayUtcIso() {
 }
 
 function addDaysUtcIso(isoDate, days) {
-  const d = new Date(isoDate + 'T00:00:00Z');
+  const d = new Date(`${isoDate}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + Math.max(0, Math.round(days)));
   return d.toISOString().slice(0, 10);
 }
@@ -78,14 +84,14 @@ function applyRating(questionId, rating) {
       dueIn = interval;
       break;
     case 'good': {
-      const next = (interval === 0) ? 4 : Math.max(1, Math.round(interval * ease));
+      const next = interval === 0 ? 4 : Math.max(1, Math.round(interval * ease));
       interval = next;
       reps = reps + 1;
       dueIn = interval;
       break;
     }
     case 'easy': {
-      const base = (interval === 0) ? 4 : interval;
+      const base = interval === 0 ? 4 : interval;
       ease = Math.min(3.0, ease + 0.15);
       interval = Math.max(1, Math.round(base * ease * 1.3));
       reps = reps + 1;
@@ -93,45 +99,54 @@ function applyRating(questionId, rating) {
       break;
     }
     default:
-      throw new Error('Unknown rating: ' + rating);
+      throw new Error(`Unknown rating: ${rating}`);
   }
 
   ease = Math.max(1.3, Math.min(3.0, ease));
   const due = rating === 'again' ? today : addDaysUtcIso(today, dueIn);
 
-  state.cards[questionId] = { ease, interval, reps, due, last_rating: rating, last_reviewed_at: nowIso };
+  state.cards[questionId] = {
+    ease,
+    interval,
+    reps,
+    due,
+    last_rating: rating,
+    last_reviewed_at: nowIso,
+  };
   saveState(state);
   return state.cards[questionId];
 }
 
 function previewIntervalLabel(rating, cardState) {
   const prev = cardState || { ease: 2.5, interval: 0, reps: 0 };
-  let { ease, interval } = prev;
+  const { ease, interval } = prev;
   let days;
   switch (rating) {
-    case 'again': return '<1d';
+    case 'again':
+      return '<1d';
     case 'hard':
       days = Math.max(1, Math.round((interval || 1) * 1.2));
       break;
     case 'good':
-      days = (interval === 0) ? 4 : Math.max(1, Math.round(interval * ease));
+      days = interval === 0 ? 4 : Math.max(1, Math.round(interval * ease));
       break;
     case 'easy': {
-      const base = (interval === 0) ? 4 : interval;
+      const base = interval === 0 ? 4 : interval;
       const nextEase = Math.min(3.0, ease + 0.15);
       days = Math.max(1, Math.round(base * nextEase * 1.3));
       break;
     }
-    default: return '';
+    default:
+      return '';
   }
   return fmtDays(days);
 }
 
 function fmtDays(d) {
-  if (d < 7) return d + 'd';
-  if (d < 30) return Math.max(1, Math.round(d / 7)) + 'w';
-  if (d < 365) return Math.max(1, Math.round(d / 30)) + 'mo';
-  return Math.max(1, Math.round(d / 365)) + 'y';
+  if (d < 7) return `${d}d`;
+  if (d < 30) return `${Math.max(1, Math.round(d / 7))}w`;
+  if (d < 365) return `${Math.max(1, Math.round(d / 30))}mo`;
+  return `${Math.max(1, Math.round(d / 365))}y`;
 }
 
 function isDueToday(card) {
@@ -146,11 +161,18 @@ function isMastered(card) {
 
 function computeStats(state) {
   const today = todayUtcIso();
-  let total = data.questions.length;
-  let dueToday = 0, newCount = 0, reviewedToday = 0, mastered = 0;
+  const total = data.questions.length;
+  let dueToday = 0;
+  let newCount = 0;
+  let reviewedToday = 0;
+  let mastered = 0;
   for (const q of data.questions) {
     const card = state.cards[q.id];
-    if (!card) { newCount++; dueToday++; continue; }
+    if (!card) {
+      newCount++;
+      dueToday++;
+      continue;
+    }
     if (card.due <= today) dueToday++;
     if (card.last_reviewed_at && card.last_reviewed_at.slice(0, 10) === today) reviewedToday++;
     if (isMastered(card)) mastered++;
@@ -182,8 +204,9 @@ function renderLanding() {
     </div>
   `;
 
-  const body = stats.dueToday > 0
-    ? `<div class="queue-cta">
+  const body =
+    stats.dueToday > 0
+      ? `<div class="queue-cta">
          <div class="queue-cta__copy">
            <h2><span class="mono">${stats.dueToday}</span> card${stats.dueToday === 1 ? '' : 's'} in the queue</h2>
            <p><span class="mono">${stats.newCount}</span> new &middot; <span class="mono">${stats.dueToday - stats.newCount}</span> returning for another pass.</p>
@@ -193,7 +216,7 @@ function renderLanding() {
            <span class="queue-cta__hint">Space reveals &middot; 1&ndash;4 rates</span>
          </div>
        </div>`
-    : `<div class="all-caught-up">
+      : `<div class="all-caught-up">
          <h2>Nothing due today.</h2>
          <p>Come back tomorrow, or drill wrong answers in <a href="../practice/">Practice</a> to surface new cards.</p>
          <a href="../practice/" class="btn btn--secondary">Open practice</a>
@@ -213,7 +236,7 @@ function renderLanding() {
   startBtn?.addEventListener('click', startSession);
   startBtn?.focus();
 
-  setKeyHandler(e => {
+  setKeyHandler((e) => {
     if (startBtn && !startBtn.disabled && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       startSession();
@@ -225,7 +248,7 @@ function renderLanding() {
 
 function pickQueue() {
   const state = loadState();
-  const due = data.questions.filter(q => isDueToday(state.cards[q.id]));
+  const due = data.questions.filter((q) => isDueToday(state.cards[q.id]));
   // Shuffle
   const a = [...due];
   for (let i = a.length - 1; i > 0; i--) {
@@ -237,7 +260,10 @@ function pickQueue() {
 
 function startSession() {
   const queue = pickQueue();
-  if (!queue.length) { renderLanding(); return; }
+  if (!queue.length) {
+    renderLanding();
+    return;
+  }
   session = {
     cards: queue,
     current: 0,
@@ -291,7 +317,7 @@ function renderCard() {
   });
 
   if (session.revealed) {
-    app.querySelectorAll('.rating-btn').forEach(btn => {
+    app.querySelectorAll('.rating-btn').forEach((btn) => {
       btn.addEventListener('click', () => handleRating(btn.dataset.rating));
     });
     // focus first rating button
@@ -302,9 +328,12 @@ function renderCard() {
     prompt?.focus();
   }
 
-  setKeyHandler(e => {
+  setKeyHandler((e) => {
     if (!session.revealed) {
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); reveal(); }
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        reveal();
+      }
       return;
     }
     const idx = ['1', '2', '3', '4'].indexOf(e.key);
@@ -343,20 +372,24 @@ function renderRevealed(q, cardState) {
         <span class="reveal__text">${escapeHtml(correctText)}</span>
       </div>
 
-      ${q.explanation ? `
+      ${
+        q.explanation
+          ? `
         <div class="reveal__why">
           <p class="reveal__why-label">Why</p>
           <div class="reveal__body">${formatProse(q.explanation)}</div>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       ${src ? `<p class="reveal__source">${escapeHtml(src)}</p>` : ''}
 
       <div class="rating-row" role="group" aria-label="Rate how well you knew this">
         ${rating('again', 'Again', '1')}
-        ${rating('hard',  'Hard',  '2')}
-        ${rating('good',  'Good',  '3')}
-        ${rating('easy',  'Easy',  '4')}
+        ${rating('hard', 'Hard', '2')}
+        ${rating('good', 'Good', '3')}
+        ${rating('easy', 'Easy', '4')}
       </div>
     </section>
   `;
@@ -398,9 +431,11 @@ function renderSessionDone() {
          <span class="mono">${stats.dueToday}</span> still due &middot;
          <span class="mono">${stats.mastered}</span> mastered.</p>
       <div class="session-done__actions">
-        ${stats.dueToday > 0
-          ? `<button class="btn btn--primary" id="continue-btn">Continue</button>`
-          : `<button class="btn btn--primary" id="home-btn">Back to overview</button>`}
+        ${
+          stats.dueToday > 0
+            ? `<button class="btn btn--primary" id="continue-btn">Continue</button>`
+            : `<button class="btn btn--primary" id="home-btn">Back to overview</button>`
+        }
         <a class="btn btn--secondary" href="../practice/">Switch to practice</a>
       </div>
     </section>
@@ -440,10 +475,14 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
-function escapeAttr(s) { return escapeHtml(s); }
+function escapeAttr(s) {
+  return escapeHtml(s);
+}
 
 function formatStem(stem) {
-  return escapeHtml(stem).replace(/\n\n+/g, '</p><p class="flashcard__stem">').replace(/\n/g, '<br>');
+  return escapeHtml(stem)
+    .replace(/\n\n+/g, '</p><p class="flashcard__stem">')
+    .replace(/\n/g, '<br>');
 }
 
 function formatProse(text) {

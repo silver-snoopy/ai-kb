@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { getTomeCardData, CODEX_SPELL_ORDER } from './tomeCardData';
+import { describe, expect, it } from 'vitest';
 import type { SpellId } from '../types';
+import { CODEX_SPELL_ORDER, getTomeCardData } from './tomeCardData';
 
 describe('tomeCardData', () => {
   it('CODEX_SPELL_ORDER lists the 5 current spells in unlock-tier order', () => {

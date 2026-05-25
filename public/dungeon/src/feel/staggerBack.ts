@@ -1,17 +1,28 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 export const STAGGER_PX = 12;
 export const STAGGER_KNOCK_MS = 120;
 export const STAGGER_RECOVER_MS = 200;
 
-interface FeelTargets { heroSprite: Phaser.GameObjects.Image; bossSprite: Phaser.GameObjects.Image; }
+interface FeelTargets {
+  heroSprite: Phaser.GameObjects.Image;
+  bossSprite: Phaser.GameObjects.Image;
+}
 
-function stagger(scene: Phaser.Scene, target: Phaser.GameObjects.Image, direction: 'left' | 'right'): void {
+function stagger(
+  scene: Phaser.Scene,
+  target: Phaser.GameObjects.Image,
+  direction: 'left' | 'right',
+): void {
   const origX = target.x;
   // Cancel any in-flight stagger tween; snap to origin to prevent drift.
-  const existing = (target as any).__staggerOrigX as number | undefined;
+  // We attach a transient marker property to the Phaser GameObject to track
+  // the baseline x across re-entrant calls. Phaser does not type custom
+  // properties on its objects, so we use `unknown` cast + property access.
+  type WithStagger = { __staggerOrigX?: number };
+  const existing = (target as unknown as WithStagger).__staggerOrigX;
   const baseX = existing ?? origX;
-  (target as any).__staggerOrigX = baseX;
+  (target as unknown as WithStagger).__staggerOrigX = baseX;
   scene.tweens.killTweensOf(target);
   target.x = baseX;
   const offset = direction === 'left' ? -STAGGER_PX : STAGGER_PX;
@@ -26,7 +37,9 @@ function stagger(scene: Phaser.Scene, target: Phaser.GameObjects.Image, directio
         x: baseX,
         duration: STAGGER_RECOVER_MS,
         ease: 'Cubic.easeIn',
-        onComplete: () => { delete (target as any).__staggerOrigX; },
+        onComplete: () => {
+          (target as unknown as WithStagger).__staggerOrigX = undefined;
+        },
       });
     },
   });

@@ -11,7 +11,7 @@ export interface Campaign {
 
 export function createCampaign(mode: RunMode, seed: number): Campaign {
   const rng = makeSeededRng(seed);
-  const bossIds = BOSSES.map(b => b.id);
+  const bossIds = BOSSES.map((b) => b.id);
   const bossOrder = shuffleBossOrder(bossIds, rng);
   return { mode, bossOrder, floorsCleared: 0, seed };
 }

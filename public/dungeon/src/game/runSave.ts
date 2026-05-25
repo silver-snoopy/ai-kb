@@ -81,7 +81,7 @@ export function restoreQuestionPool<Q extends { id: string }>(
   savedIds: string[],
   pool: Q[],
 ): Q[] | null {
-  const byId = new Map(pool.map(q => [q.id, q]));
+  const byId = new Map(pool.map((q) => [q.id, q]));
   const out: Q[] = [];
   for (const id of savedIds) {
     const q = byId.get(id);
@@ -100,7 +100,8 @@ function isRunSave(v: unknown): v is RunSave {
   const c = o['campaign'];
   if (!c || typeof c !== 'object') return false;
   const cc = c as Record<string, unknown>;
-  if (!Array.isArray(cc['bossOrder']) || !cc['bossOrder'].every(x => typeof x === 'string')) return false;
+  if (!Array.isArray(cc['bossOrder']) || !cc['bossOrder'].every((x) => typeof x === 'string'))
+    return false;
   if (typeof cc['floorsCleared'] !== 'number') return false;
   if (typeof cc['mode'] !== 'string') return false;
   const sb = o['spellbook'];
@@ -110,12 +111,17 @@ function isRunSave(v: unknown): v is RunSave {
     if (!b || typeof b !== 'object') return false;
     const bb = b as Record<string, unknown>;
     if (typeof bb['bossId'] !== 'string') return false;
-    if (!Array.isArray(bb['questionIds']) || !bb['questionIds'].every(x => typeof x === 'string')) return false;
+    if (!Array.isArray(bb['questionIds']) || !bb['questionIds'].every((x) => typeof x === 'string'))
+      return false;
     if (typeof bb['currentQuestionIdx'] !== 'number') return false;
     if (typeof bb['heroHp'] !== 'number') return false;
     if (typeof bb['bossHp'] !== 'number') return false;
     if (typeof bb['bossMaxHp'] !== 'number') return false;
-    if (!Array.isArray(bb['questionHistoryIds']) || !bb['questionHistoryIds'].every(x => typeof x === 'string')) return false;
+    if (
+      !Array.isArray(bb['questionHistoryIds']) ||
+      !bb['questionHistoryIds'].every((x) => typeof x === 'string')
+    )
+      return false;
   }
   return true;
 }

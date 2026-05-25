@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 /**
  * Mount a persistent "(DEMO)" badge in the bottom-left corner if the
@@ -7,12 +7,15 @@ import Phaser from 'phaser';
  */
 export function mountDemoBadgeIfActive(scene: Phaser.Scene): void {
   if (!scene.registry.get('demoRun')) return;
-  scene.add.text(16, 700, '(DEMO)', {
-    fontSize: '11px',
-    color: '#ffca28',
-    fontFamily: 'monospace',
-    fontStyle: 'italic',
-    backgroundColor: '#1a1a2a',
-    padding: { x: 6, y: 3 },
-  }).setOrigin(0, 1).setDepth(1000);
+  scene.add
+    .text(16, 700, '(DEMO)', {
+      fontSize: '11px',
+      color: '#ffca28',
+      fontFamily: 'monospace',
+      fontStyle: 'italic',
+      backgroundColor: '#1a1a2a',
+      padding: { x: 6, y: 3 },
+    })
+    .setOrigin(0, 1)
+    .setDepth(1000);
 }

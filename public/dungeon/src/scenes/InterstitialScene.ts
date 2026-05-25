@@ -1,10 +1,14 @@
 import Phaser from 'phaser';
 import { BOSSES } from '../config';
-import type { Bank, MissedQuestion, Question, RunMode, BossDefinition } from '../types';
-import { fadeIn, fadeToScene } from '../ui/transitions';
+import type { Bank, BossDefinition, MissedQuestion, Question, RunMode } from '../types';
 import { attachRectHover } from '../ui/buttonHover';
-import { paintOptionFeedback, resetOptionFeedback, summarizeExplanation } from '../ui/optionFeedback';
 import { mountDemoBadgeIfActive } from '../ui/demoBadge';
+import {
+  paintOptionFeedback,
+  resetOptionFeedback,
+  summarizeExplanation,
+} from '../ui/optionFeedback';
+import { fadeIn, fadeToScene } from '../ui/transitions';
 
 interface InterstitialData {
   previousBossId: string;
@@ -52,9 +56,12 @@ export class InterstitialScene extends Phaser.Scene {
   }
 
   init(data: InterstitialData): void {
-    const prev = BOSSES.find(b => b.id === data.previousBossId);
-    const next = BOSSES.find(b => b.id === data.nextBossId);
-    if (!prev || !next) throw new Error(`Unknown boss in InterstitialScene: prev=${data.previousBossId} next=${data.nextBossId}`);
+    const prev = BOSSES.find((b) => b.id === data.previousBossId);
+    const next = BOSSES.find((b) => b.id === data.nextBossId);
+    if (!prev || !next)
+      throw new Error(
+        `Unknown boss in InterstitialScene: prev=${data.previousBossId} next=${data.nextBossId}`,
+      );
     this.previousBoss = prev;
     this.nextBoss = next;
     this.mode = data.mode;
@@ -64,7 +71,7 @@ export class InterstitialScene extends Phaser.Scene {
     this.beat = 'narrative';
 
     const bank: Bank = this.registry.get('bank');
-    const pool = bank?.questions.filter(q => q.domain === prev.domain) ?? [];
+    const pool = bank?.questions.filter((q) => q.domain === prev.domain) ?? [];
     this.recallQuestion = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)]! : null;
   }
 
@@ -82,16 +89,25 @@ export class InterstitialScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(0x0a0a14);
     fadeIn(this);
 
-    this.titleText = this.add.text(480, 80, '', {
-      fontSize: '28px', color: '#f5e4b3', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.titleText = this.add
+      .text(480, 80, '', {
+        fontSize: '28px',
+        color: '#f5e4b3',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     // Body text \u2014 shrunk from 18 to 16 and word-wrap widened so long
     // recall stems use the full scene width without clipping.
-    this.bodyText = this.add.text(480, 170, '', {
-      fontSize: '16px', color: '#e0e0ea', fontFamily: 'monospace',
-      wordWrap: { width: 900, useAdvancedWrap: true }, align: 'center',
-    }).setOrigin(0.5, 0);
+    this.bodyText = this.add
+      .text(480, 170, '', {
+        fontSize: '16px',
+        color: '#e0e0ea',
+        fontFamily: 'monospace',
+        wordWrap: { width: 900, useAdvancedWrap: true },
+        align: 'center',
+      })
+      .setOrigin(0.5, 0);
 
     // Options \u2014 now with a dark panel behind each row + wordWrap so long
     // answers don't run past the canvas right edge. 48px row pitch so a
@@ -102,11 +118,12 @@ export class InterstitialScene extends Phaser.Scene {
       const y = 395 + idx * 48;
       const panel = this.add.rectangle(480, y, 900, 44, 0x1a1a2a);
       panel.setStrokeStyle(1, 0x3a3a4a);
-      panel.setVisible(false);  // only shown on the recall beat
+      panel.setVisible(false); // only shown on the recall beat
       panel.setInteractive({ useHandCursor: true });
       // Hover feedback so the recall panel behaves like the combat
       // options \u2014 brighten on cursor enter, restore on leave.
-      attachRectHover(panel,
+      attachRectHover(
+        panel,
         { fill: 0x1a1a2a, stroke: 0x3a3a4a },
         { fill: 0x2a2a3a, stroke: 0x8b8bc4 },
         1,
@@ -114,19 +131,29 @@ export class InterstitialScene extends Phaser.Scene {
       // Click also answers the recall, matching the keyboard path.
       panel.on('pointerdown', () => this.onRecallChoice(letter));
       this.optionPanels.push(panel);
-      const txt = this.add.text(50, y, '', {
-        fontSize: '13px', color: '#d0d0da', fontFamily: 'monospace',
-        wordWrap: { width: 870, useAdvancedWrap: true },
-      }).setOrigin(0, 0.5);
+      const txt = this.add
+        .text(50, y, '', {
+          fontSize: '13px',
+          color: '#d0d0da',
+          fontFamily: 'monospace',
+          wordWrap: { width: 870, useAdvancedWrap: true },
+        })
+        .setOrigin(0, 0.5);
       this.optionTexts.push(txt);
       this.input.keyboard?.on(`keydown-${letter}`, () => this.onRecallChoice(letter));
       this.input.keyboard?.on(`keydown-${idx + 1}`, () => this.onRecallChoice(letter));
     });
 
-    this.hintText = this.add.text(480, 600, '', {
-      fontSize: '14px', color: '#808090', fontFamily: 'monospace', fontStyle: 'italic',
-      wordWrap: { width: 900, useAdvancedWrap: true }, align: 'center',
-    }).setOrigin(0.5, 0);
+    this.hintText = this.add
+      .text(480, 600, '', {
+        fontSize: '14px',
+        color: '#808090',
+        fontFamily: 'monospace',
+        fontStyle: 'italic',
+        wordWrap: { width: 900, useAdvancedWrap: true },
+        align: 'center',
+      })
+      .setOrigin(0.5, 0);
 
     this.input.on('pointerdown', () => this.onPointer());
     this.input.keyboard?.on('keydown-SPACE', () => this.onPointer());
@@ -174,11 +201,11 @@ export class InterstitialScene extends Phaser.Scene {
     this.titleText.setText('✨ Descent');
     this.bodyText.setText(
       `You descended from ${this.previousBoss.name}'s lair.\n\n` +
-      `Ahead: ${this.nextBoss.theme.toLowerCase()}.\n\n` +
-      `${this.nextBoss.name} awaits.`,
+        `Ahead: ${this.nextBoss.theme.toLowerCase()}.\n\n` +
+        `${this.nextBoss.name} awaits.`,
     );
-    this.optionTexts.forEach(t => t.setText(''));
-    this.optionPanels.forEach(p => p.setVisible(false));
+    this.optionTexts.forEach((t) => t.setText(''));
+    this.optionPanels.forEach((p) => p.setVisible(false));
     this.resetHintStyle();
     this.hintText.setText('(press Space / Enter / click to continue)');
 
@@ -219,16 +246,14 @@ export class InterstitialScene extends Phaser.Scene {
 
     const q = this.recallQuestion;
     this.titleText.setText('📚 Recall');
-    this.bodyText.setText(
-      `From your victory over ${this.previousBoss.name}:\n\n${q.stem}`,
-    );
+    this.bodyText.setText(`From your victory over ${this.previousBoss.name}:\n\n${q.stem}`);
     const letters: Array<'A' | 'B' | 'C' | 'D'> = ['A', 'B', 'C', 'D'];
     this.optionTexts.forEach((t, i) => {
       const letter = letters[i]!;
       t.setText(`${letter}) ${q.options[letter]}`);
     });
     // Recall options re-enable input (mistakes-review may have disabled them).
-    this.optionPanels.forEach(p => {
+    this.optionPanels.forEach((p) => {
       p.setVisible(true);
       p.setInteractive({ useHandCursor: true });
     });
@@ -250,8 +275,8 @@ export class InterstitialScene extends Phaser.Scene {
     const correct = choice === q.correct;
     const prefix = correct ? '✓ Correct' : `✗ Incorrect. Correct: ${q.correct}`;
     this.bodyText.setText(`${prefix}\n\n${q.explanation}`);
-    this.optionTexts.forEach(t => t.setText(''));
-    this.optionPanels.forEach(p => p.setVisible(false));
+    this.optionTexts.forEach((t) => t.setText(''));
+    this.optionPanels.forEach((p) => p.setVisible(false));
     this.resetHintStyle();
     this.hintText.setText('(press Space / Enter / click to continue)');
   }
@@ -260,12 +285,10 @@ export class InterstitialScene extends Phaser.Scene {
     this.beat = 'primer';
     this.titleText.setText('📖 Primer');
     this.bodyText.setText(
-      `${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\n` +
-      `Its domain: ${this.nextBoss.domain}.\n\n` +
-      `Gather yourself — your next trial begins on the next keypress.`,
+      `${this.nextBoss.name} guards ${this.nextBoss.theme.toLowerCase()}.\n\nIts domain: ${this.nextBoss.domain}.\n\nGather yourself — your next trial begins on the next keypress.`,
     );
-    this.optionTexts.forEach(t => t.setText(''));
-    this.optionPanels.forEach(p => p.setVisible(false));
+    this.optionTexts.forEach((t) => t.setText(''));
+    this.optionPanels.forEach((p) => p.setVisible(false));
     this.resetHintStyle();
     this.hintText.setText('(press Space / Enter / click to begin the fight)');
 
@@ -344,7 +367,7 @@ export class InterstitialScene extends Phaser.Scene {
       const letter = letters[i]!;
       t.setText(`${letter}) ${miss.options[letter]}`);
     });
-    this.optionPanels.forEach(p => {
+    this.optionPanels.forEach((p) => {
       p.setVisible(true);
       // Disable interactivity \u2014 this is review, not a quiz.
       p.disableInteractive();
@@ -356,9 +379,10 @@ export class InterstitialScene extends Phaser.Scene {
     // the canvas floor (y=720). Full explanation is still available via
     // the session log download / post-run review.
     const summary = summarizeExplanation(miss.explanation, miss.correct, 350);
-    const advance = n < total
-      ? '(press Space / Enter / click for next mistake)'
-      : '(press Space / Enter / click to continue)';
+    const advance =
+      n < total
+        ? '(press Space / Enter / click for next mistake)'
+        : '(press Space / Enter / click to continue)';
     this.hintText.setColor('#e8e0d0');
     this.hintText.setStyle({ fontStyle: 'normal' });
     this.hintText.setText(`${summary}\n\n${advance}`);

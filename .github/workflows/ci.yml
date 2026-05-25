@@ -1,0 +1,35 @@
+name: CI (lint + test)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            public/dungeon/package-lock.json
+
+      - name: Install root deps (Biome)
+        run: npm install --no-audit --no-fund
+
+      - name: Install dungeon deps
+        run: cd public/dungeon && npm install --no-audit --no-fund
+
+      - name: Lint (Biome check — format + rules)
+        run: npm run lint
+
+      - name: Test (Vitest in dungeon)
+        run: cd public/dungeon && npm test

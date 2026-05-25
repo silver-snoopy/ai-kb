@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 export function computeShakeIntensity(damage: number, bossMaxHp: number): number {
   const ratio = Math.max(0, damage) / Math.max(1, bossMaxHp);
@@ -13,7 +13,10 @@ export function computeShakeDuration(damage: number): number {
 
 export function installShakeGrading(scene: Phaser.Scene): () => void {
   const onCorrect = (p: { damage: number; bossMaxHp: number }) => {
-    scene.cameras.main.shake(computeShakeDuration(p.damage), computeShakeIntensity(p.damage, p.bossMaxHp));
+    scene.cameras.main.shake(
+      computeShakeDuration(p.damage),
+      computeShakeIntensity(p.damage, p.bossMaxHp),
+    );
   };
   const onWrong = () => {
     scene.cameras.main.shake(120, 0.008);

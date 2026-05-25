@@ -39,62 +39,62 @@ const TILE_DISPLAY_SCALE = 2;
 // the floor band sits under the hero/boss sprite ground plane. The top 70px
 // is intentionally left clear so the boss-name text has an uncluttered
 // banner strip above the wall pattern.
-const WALL_BAND_Y = 140;   // center of the 140-tall wall band (y=70..210)
+const WALL_BAND_Y = 140; // center of the 140-tall wall band (y=70..210)
 const WALL_BAND_HEIGHT = 140;
 // Canvas grew 640\u2192720. Floor band extends to the new canvas bottom so the
 // extra space doesn't leave a black strip under the floor tiles.
-const FLOOR_BAND_Y = 580;  // center of the 280-tall floor band (y=440..720)
+const FLOOR_BAND_Y = 580; // center of the 280-tall floor band (y=440..720)
 const FLOOR_BAND_HEIGHT = 280;
 
 export const BACKDROPS: Record<string, Backdrop> = {
   'the-orchestrator': {
     // Throne hall with chess-piece attendants \u2014 grey stone, torches, throne-center.
-    wallTile: 17,      // plain grey stone wall
-    floorTile: 36,     // grey flagstone floor
+    wallTile: 17, // plain grey stone wall
+    floorTile: 36, // grey flagstone floor
     props: [
-      { tile: 30, x: 120, y: 180 },  // torch left
-      { tile: 30, x: 840, y: 180 },  // torch right
-      { tile: 66, x: 480, y: 430 },  // chest (throne stand-in, center)
+      { tile: 30, x: 120, y: 180 }, // torch left
+      { tile: 30, x: 840, y: 180 }, // torch right
+      { tile: 66, x: 480, y: 430 }, // chest (throne stand-in, center)
     ],
   },
   'the-compiler-king': {
     // Iron workshop; command sigils. Darker tones, anvil front-center.
-    wallTile: 11,      // iron panel wall
-    floorTile: 36,     // grey floor
+    wallTile: 11, // iron panel wall
+    floorTile: 36, // grey floor
     props: [
-      { tile: 14, x: 300, y: 430 },  // anvil left-center
-      { tile: 14, x: 660, y: 430 },  // anvil right-center
-      { tile: 30, x: 480, y: 180 },  // torch center-top
+      { tile: 14, x: 300, y: 430 }, // anvil left-center
+      { tile: 14, x: 660, y: 430 }, // anvil right-center
+      { tile: 30, x: 480, y: 180 }, // torch center-top
     ],
   },
   'the-grammarian': {
     // Library of carved stone scrolls. Pattern floor + chests standing in for bookshelves.
-    wallTile: 17,      // grey stone
-    floorTile: 62,     // pattern floor (reads like a rug)
+    wallTile: 17, // grey stone
+    floorTile: 62, // pattern floor (reads like a rug)
     props: [
-      { tile: 66, x: 160, y: 430 },  // chest (book-cache) left
-      { tile: 66, x: 800, y: 430 },  // chest right
-      { tile: 78, x: 480, y: 440 },  // bed-tile (reading chaise in spec spirit)
+      { tile: 66, x: 160, y: 430 }, // chest (book-cache) left
+      { tile: 66, x: 800, y: 430 }, // chest right
+      { tile: 78, x: 480, y: 440 }, // bed-tile (reading chaise in spec spirit)
     ],
   },
   'the-tool-smith': {
     // Forge surrounded by schemas-as-runes. Sand floor, wood walls, anvil-heavy.
-    wallTile: 7,       // wood/iron wall
-    floorTile: 48,     // sand/tan floor
+    wallTile: 7, // wood/iron wall
+    floorTile: 48, // sand/tan floor
     props: [
-      { tile: 14, x: 180, y: 430 },  // anvil left
-      { tile: 14, x: 780, y: 430 },  // anvil right
-      { tile: 30, x: 480, y: 180 },  // torch/forge-fire center-top
+      { tile: 14, x: 180, y: 430 }, // anvil left
+      { tile: 14, x: 780, y: 430 }, // anvil right
+      { tile: 30, x: 480, y: 180 }, // torch/forge-fire center-top
     ],
   },
   'the-memory-kraken': {
     // Flooded archive; sinking context-shelves. Tan floor reads as submerged; chests sinking.
-    wallTile: 17,      // grey stone
-    floorTile: 48,     // tan (damp)
+    wallTile: 17, // grey stone
+    floorTile: 48, // tan (damp)
     props: [
-      { tile: 66, x: 160, y: 440 },  // chest (shelf-fragment) left
-      { tile: 66, x: 480, y: 440 },  // chest center
-      { tile: 66, x: 800, y: 440 },  // chest right
+      { tile: 66, x: 160, y: 440 }, // chest (shelf-fragment) left
+      { tile: 66, x: 480, y: 440 }, // chest center
+      { tile: 66, x: 800, y: 440 }, // chest right
     ],
   },
 };
@@ -113,17 +113,23 @@ export function renderBackdrop(scene: Phaser.Scene, bossId: string): void {
 
   // Wall band along the top.
   const wall = scene.add.tileSprite(
-    480, WALL_BAND_Y,
-    960, WALL_BAND_HEIGHT,
-    'td-tiles', bg.wallTile,
+    480,
+    WALL_BAND_Y,
+    960,
+    WALL_BAND_HEIGHT,
+    'td-tiles',
+    bg.wallTile,
   );
   wall.setTileScale(TILE_DISPLAY_SCALE);
 
   // Floor band along the bottom.
   const floor = scene.add.tileSprite(
-    480, FLOOR_BAND_Y,
-    960, FLOOR_BAND_HEIGHT,
-    'td-tiles', bg.floorTile,
+    480,
+    FLOOR_BAND_Y,
+    960,
+    FLOOR_BAND_HEIGHT,
+    'td-tiles',
+    bg.floorTile,
   );
   floor.setTileScale(TILE_DISPLAY_SCALE);
 

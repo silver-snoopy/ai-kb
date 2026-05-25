@@ -1,22 +1,21 @@
 import Phaser from 'phaser';
-import { createCampaign } from '../game/dungeon';
-import { createSpellbook } from '../game/spellbook';
-import type { Campaign } from '../game/dungeon';
-import type { RunMode, SaveStateV1 } from '../types';
 import { BOSSES } from '../config';
+import { loadBank } from '../data/questionLoader';
+import { createCampaign } from '../game/dungeon';
+import type { Campaign } from '../game/dungeon';
+import { type RunSave, clearActiveRun, readActiveRun } from '../game/runSave';
+import { createSpellbook } from '../game/spellbook';
+import type { RunMode, SaveStateV1 } from '../types';
+import type { Bank } from '../types';
 import { mountAudioToggles } from '../ui/audioToggles';
-import { fadeIn, fadeToScene } from '../ui/transitions';
 import { attachRectHover } from '../ui/buttonHover';
 import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
-import { readActiveRun, clearActiveRun, type RunSave } from '../game/runSave';
-import { loadBank } from '../data/questionLoader';
-import type { Bank } from '../types';
+import { fadeIn, fadeToScene } from '../ui/transitions';
 
 function continueButtonLabel(save: RunSave): string {
   const floor = save.campaign.floorsCleared + 1;
-  const currentBossId = save.inBoss?.bossId
-    ?? save.campaign.bossOrder[save.campaign.floorsCleared];
-  const bossName = BOSSES.find(b => b.id === currentBossId)?.name ?? currentBossId ?? '???';
+  const currentBossId = save.inBoss?.bossId ?? save.campaign.bossOrder[save.campaign.floorsCleared];
+  const bossName = BOSSES.find((b) => b.id === currentBossId)?.name ?? currentBossId ?? '???';
   const where = save.inBoss ? 'mid-fight' : 'approaching';
   return `Continue (Floor ${floor} · ${bossName}, ${where})`;
 }
@@ -36,10 +35,14 @@ function nextModeFor(save: SaveStateV1): RunMode {
 
 function modeLabel(mode: RunMode): string {
   switch (mode) {
-    case 'first-run': return 'first run';
-    case 'ng-plus': return 'NG+';
-    case 'ng-plus-plus': return 'NG++';
-    case 'ng-plus-plus-plus': return 'NG+++';
+    case 'first-run':
+      return 'first run';
+    case 'ng-plus':
+      return 'NG+';
+    case 'ng-plus-plus':
+      return 'NG++';
+    case 'ng-plus-plus-plus':
+      return 'NG+++';
   }
 }
 
@@ -74,19 +77,32 @@ export class HubScene extends Phaser.Scene {
     // the user can pre-mute before entering a boss fight.
     mountAudioToggles(this);
 
-    this.add.text(480, 50, '\uD83C\uDFF0 Gates of the Archive', {
-      fontSize: '36px', color: '#e0e0ea', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.add
+      .text(480, 50, '\uD83C\uDFF0 Gates of the Archive', {
+        fontSize: '36px',
+        color: '#e0e0ea',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     if (save.title_earned) {
-      this.add.text(480, 95, `Title: ${save.title_earned}`, {
-        fontSize: '16px', color: '#f5e4b3', fontFamily: 'monospace', fontStyle: 'italic',
-      }).setOrigin(0.5);
+      this.add
+        .text(480, 95, `Title: ${save.title_earned}`, {
+          fontSize: '16px',
+          color: '#f5e4b3',
+          fontFamily: 'monospace',
+          fontStyle: 'italic',
+        })
+        .setOrigin(0.5);
     }
 
-    this.add.text(480, 135, 'The Tower of Trials awaits.', {
-      fontSize: '16px', color: '#a0a0b0', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.add
+      .text(480, 135, 'The Tower of Trials awaits.', {
+        fontSize: '16px',
+        color: '#a0a0b0',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     const mode = nextModeFor(save);
     // Eternal Dungeon (NG+++) tier retired 2026-04-20 with Focus removal;
@@ -102,40 +118,56 @@ export class HubScene extends Phaser.Scene {
       const continueBtn = this.add.rectangle(480, 210, 500, 64, 0x1b4e2d);
       continueBtn.setStrokeStyle(3, 0x8bc34a);
       continueBtn.setInteractive({ useHandCursor: true });
-      attachRectHover(continueBtn,
+      attachRectHover(
+        continueBtn,
         { fill: 0x1b4e2d, stroke: 0x8bc34a },
         { fill: 0x2d7a4a, stroke: 0xb0e070 },
         3,
       );
-      this.add.text(480, 210, continueLabel, {
-        fontSize: '18px', color: '#e0e0ea', fontFamily: 'monospace',
-      }).setOrigin(0.5);
+      this.add
+        .text(480, 210, continueLabel, {
+          fontSize: '18px',
+          color: '#e0e0ea',
+          fontFamily: 'monospace',
+        })
+        .setOrigin(0.5);
       continueBtn.on('pointerdown', () => this.resumeActiveRun(activeRun));
 
       const newBtn = this.add.rectangle(480, 286, 320, 44, 0x2d1b4e);
       newBtn.setStrokeStyle(2, 0x8b7cc4);
       newBtn.setInteractive({ useHandCursor: true });
-      attachRectHover(newBtn,
+      attachRectHover(
+        newBtn,
         { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
         { fill: 0x4a2d7a, stroke: 0xc4a0ff },
       );
-      this.add.text(480, 286, 'New Game (discards current run)', {
-        fontSize: '13px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
-      }).setOrigin(0.5);
+      this.add
+        .text(480, 286, 'New Game (discards current run)', {
+          fontSize: '13px',
+          color: '#c0c0d0',
+          fontFamily: 'monospace',
+          fontStyle: 'italic',
+        })
+        .setOrigin(0.5);
       newBtn.on('pointerdown', () => this.confirmNewGame(mode));
     } else {
       // No save — single big button as before.
       const newBtn = this.add.rectangle(480, 230, 500, 80, 0x2d1b4e);
       newBtn.setStrokeStyle(3, 0x8b7cc4);
       newBtn.setInteractive({ useHandCursor: true });
-      attachRectHover(newBtn,
+      attachRectHover(
+        newBtn,
         { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
         { fill: 0x4a2d7a, stroke: 0xc4a0ff },
         3,
       );
-      this.add.text(480, 230, beginLabel, {
-        fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
-      }).setOrigin(0.5);
+      this.add
+        .text(480, 230, beginLabel, {
+          fontSize: '22px',
+          color: '#e0e0ea',
+          fontFamily: 'monospace',
+        })
+        .setOrigin(0.5);
       newBtn.on('pointerdown', () => this.beginCampaign(mode));
     }
 
@@ -149,21 +181,30 @@ export class HubScene extends Phaser.Scene {
     const codexBtn = this.add.rectangle(480, codexY, 240, 36, 0x1a1a2a);
     codexBtn.setStrokeStyle(2, 0xffca28);
     codexBtn.setInteractive({ useHandCursor: true });
-    attachRectHover(codexBtn,
+    attachRectHover(
+      codexBtn,
       { fill: 0x1a1a2a, stroke: 0xffca28 },
       { fill: 0x3a2f10, stroke: 0xffe070 },
     );
-    this.add.text(480, codexY, '\uD83D\uDCD6 The Archmage\u2019s Codex', {
-      fontSize: '14px', color: '#ffca28', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    this.add
+      .text(480, codexY, '\uD83D\uDCD6 The Archmage\u2019s Codex', {
+        fontSize: '14px',
+        color: '#ffca28',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
     codexBtn.on('pointerdown', () => fadeToScene(this, 'TomeScene', {}));
 
     if (save.parchment_earned) {
       // Parchment label sits ~30px below the Codex so it moves with it when
       // an active run shifts the Codex down.
-      this.add.text(480, codexY + 30, '\uD83D\uDCDC Golden Parchment earned', {
-        fontSize: '14px', color: '#f5e4b3', fontFamily: 'monospace',
-      }).setOrigin(0.5);
+      this.add
+        .text(480, codexY + 30, '\uD83D\uDCDC Golden Parchment earned', {
+          fontSize: '14px',
+          color: '#f5e4b3',
+          fontFamily: 'monospace',
+        })
+        .setOrigin(0.5);
     }
 
     // Debug surfaces live in a dedicated container so the bug-icon toggle
@@ -173,15 +214,22 @@ export class HubScene extends Phaser.Scene {
     if (isDebugEnabled()) {
       const debugLayer = this.add.container(0, 0);
 
-      debugLayer.add(this.add.text(480, 420, '(debug) preview boss rooms', {
-        fontSize: '12px', color: '#808090', fontFamily: 'monospace', fontStyle: 'italic',
-      }).setOrigin(0.5));
+      debugLayer.add(
+        this.add
+          .text(480, 420, '(debug) preview boss rooms', {
+            fontSize: '12px',
+            color: '#808090',
+            fontFamily: 'monospace',
+            fontStyle: 'italic',
+          })
+          .setOrigin(0.5),
+      );
 
       const debugBosses: Array<{ id: string; label: string }> = [
-        { id: 'the-orchestrator',  label: 'Orch.' },
+        { id: 'the-orchestrator', label: 'Orch.' },
         { id: 'the-compiler-king', label: 'Comp-K' },
-        { id: 'the-grammarian',    label: 'Gram.' },
-        { id: 'the-tool-smith',    label: 'Tool-S' },
+        { id: 'the-grammarian', label: 'Gram.' },
+        { id: 'the-tool-smith', label: 'Tool-S' },
         { id: 'the-memory-kraken', label: 'Kraken' },
       ];
       debugBosses.forEach((b, idx) => {
@@ -190,13 +238,18 @@ export class HubScene extends Phaser.Scene {
         const btn = this.add.rectangle(x, y, 150, 38, 0x1b2d4e);
         btn.setStrokeStyle(2, 0x6a7aa4);
         btn.setInteractive({ useHandCursor: true });
-        attachRectHover(btn,
+        attachRectHover(
+          btn,
           { fill: 0x1b2d4e, stroke: 0x6a7aa4 },
           { fill: 0x2d4a7a, stroke: 0xa0b4e0 },
         );
-        const label = this.add.text(x, y, b.label, {
-          fontSize: '14px', color: '#d0d0da', fontFamily: 'monospace',
-        }).setOrigin(0.5);
+        const label = this.add
+          .text(x, y, b.label, {
+            fontSize: '14px',
+            color: '#d0d0da',
+            fontFamily: 'monospace',
+          })
+          .setOrigin(0.5);
         btn.on('pointerdown', () => {
           fadeToScene(this, 'BossFightScene', { bossId: b.id, mode, isolated: true });
         });
@@ -207,13 +260,19 @@ export class HubScene extends Phaser.Scene {
       const interBtn = this.add.rectangle(480, 525, 320, 34, 0x2d1b4e);
       interBtn.setStrokeStyle(2, 0x7a6aa4);
       interBtn.setInteractive({ useHandCursor: true });
-      attachRectHover(interBtn,
+      attachRectHover(
+        interBtn,
         { fill: 0x2d1b4e, stroke: 0x7a6aa4 },
         { fill: 0x4a2d7a, stroke: 0xc4a0ff },
       );
-      const interLabel = this.add.text(480, 525, '(debug) preview interstitial', {
-        fontSize: '12px', color: '#c0c0d0', fontFamily: 'monospace', fontStyle: 'italic',
-      }).setOrigin(0.5);
+      const interLabel = this.add
+        .text(480, 525, '(debug) preview interstitial', {
+          fontSize: '12px',
+          color: '#c0c0d0',
+          fontFamily: 'monospace',
+          fontStyle: 'italic',
+        })
+        .setOrigin(0.5);
       interBtn.on('pointerdown', () => {
         fadeToScene(this, 'InterstitialScene', {
           previousBossId: 'the-orchestrator',
@@ -233,13 +292,19 @@ export class HubScene extends Phaser.Scene {
       const demoBtn = this.add.rectangle(480, 575, 360, 36, 0x4e3a1b);
       demoBtn.setStrokeStyle(2, 0xffca28);
       demoBtn.setInteractive({ useHandCursor: true });
-      attachRectHover(demoBtn,
+      attachRectHover(
+        demoBtn,
         { fill: 0x4e3a1b, stroke: 0xffca28 },
         { fill: 0x6a5028, stroke: 0xffe070 },
       );
-      const demoLabel = this.add.text(480, 575, '(debug) start demo campaign (fake questions)', {
-        fontSize: '12px', color: '#ffe070', fontFamily: 'monospace', fontStyle: 'italic',
-      }).setOrigin(0.5);
+      const demoLabel = this.add
+        .text(480, 575, '(debug) start demo campaign (fake questions)', {
+          fontSize: '12px',
+          color: '#ffe070',
+          fontFamily: 'monospace',
+          fontStyle: 'italic',
+        })
+        .setOrigin(0.5);
       demoBtn.on('pointerdown', () => this.beginDemoCampaign());
       debugLayer.add(demoBtn);
       debugLayer.add(demoLabel);
@@ -256,7 +321,7 @@ export class HubScene extends Phaser.Scene {
     const inBossId = save.inBoss?.bossId;
     const nextBossIdx = save.campaign.floorsCleared;
     const currentBossId = inBossId ?? save.campaign.bossOrder[nextBossIdx];
-    if (!currentBossId || !BOSSES.find(b => b.id === currentBossId)) {
+    if (!currentBossId || !BOSSES.find((b) => b.id === currentBossId)) {
       clearActiveRun();
       // eslint-disable-next-line no-console
       console.warn('[runSave] cleared: saved boss id missing from BOSSES config');
@@ -326,35 +391,54 @@ export class HubScene extends Phaser.Scene {
     const panel = this.add.rectangle(480, 340, 560, 220, 0x1a1a2a);
     panel.setStrokeStyle(2, 0x8b7cc4);
 
-    const title = this.add.text(480, 270, 'Abandon current run?', {
-      fontSize: '22px', color: '#e0e0ea', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    const title = this.add
+      .text(480, 270, 'Abandon current run?', {
+        fontSize: '22px',
+        color: '#e0e0ea',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
-    const body = this.add.text(480, 312, 'This will discard your in-flight progress\nand start a fresh campaign.', {
-      fontSize: '14px', color: '#a0a0b0', fontFamily: 'monospace', align: 'center',
-    }).setOrigin(0.5);
+    const body = this.add
+      .text(480, 312, 'This will discard your in-flight progress\nand start a fresh campaign.', {
+        fontSize: '14px',
+        color: '#a0a0b0',
+        fontFamily: 'monospace',
+        align: 'center',
+      })
+      .setOrigin(0.5);
 
     const yesBtn = this.add.rectangle(360, 400, 180, 44, 0x4e1b1b);
     yesBtn.setStrokeStyle(2, 0xe57373);
     yesBtn.setInteractive({ useHandCursor: true });
-    attachRectHover(yesBtn,
+    attachRectHover(
+      yesBtn,
       { fill: 0x4e1b1b, stroke: 0xe57373 },
       { fill: 0x7a2d2d, stroke: 0xff9b9b },
     );
-    const yesText = this.add.text(360, 400, 'Abandon', {
-      fontSize: '15px', color: '#f0c8c8', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    const yesText = this.add
+      .text(360, 400, 'Abandon', {
+        fontSize: '15px',
+        color: '#f0c8c8',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     const noBtn = this.add.rectangle(600, 400, 180, 44, 0x2d1b4e);
     noBtn.setStrokeStyle(2, 0x8b7cc4);
     noBtn.setInteractive({ useHandCursor: true });
-    attachRectHover(noBtn,
+    attachRectHover(
+      noBtn,
       { fill: 0x2d1b4e, stroke: 0x8b7cc4 },
       { fill: 0x4a2d7a, stroke: 0xc4a0ff },
     );
-    const noText = this.add.text(600, 400, 'Keep running', {
-      fontSize: '15px', color: '#e0e0ea', fontFamily: 'monospace',
-    }).setOrigin(0.5);
+    const noText = this.add
+      .text(600, 400, 'Keep running', {
+        fontSize: '15px',
+        color: '#e0e0ea',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
 
     const dismiss = () => {
       overlay.destroy();
