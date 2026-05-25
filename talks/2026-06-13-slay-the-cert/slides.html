@@ -585,6 +585,21 @@ body {
     display: inline-block;
 }
 
+/* === SLIDE 8 — Phase 4.2 click-driven achievement-pop === */
+#slide-8 .carrots li,
+#slide-8 .refused li {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+#slide-8 .carrots li.popped,
+#slide-8 .refused li.popped {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
 /* ===========================================
    SLIDE 9 — DEMO BREAK
    =========================================== */
@@ -1412,6 +1427,68 @@ if (document.readyState === 'loading') {
       revealNext();
     }
   }, true /* capture phase — must run BEFORE the SlidePresentation keydown handler */);
+})();
+
+/* ===========================================
+   PHASE 4.2 — Slide 8 achievement-pop hook
+   Click or Space/ArrowRight while slide 8 is active:
+   pop next list item in DOM order (data-pop-index 0..9).
+   When all 10 are revealed, further input advances to slide 9.
+   =========================================== */
+(function setupAchievementPop() {
+  const slide = document.getElementById('slide-8');
+  if (!slide) return;
+
+  // Build sequence: all items with data-pop-index, sorted by index value
+  // (DOM order is already correct, but sort defensively)
+  const items = Array.from(slide.querySelectorAll('[data-pop-index]'))
+    .sort((a, b) => parseInt(a.dataset.popIndex, 10) - parseInt(b.dataset.popIndex, 10));
+
+  let nextIndex = 0;
+  let slideIsVisible = false;
+
+  const resetObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      slideIsVisible = entry.isIntersecting;
+      if (!entry.isIntersecting) {
+        nextIndex = 0;
+        items.forEach(el => el.classList.remove('popped'));
+      }
+    });
+  }, { threshold: 0.5 });  // match SlidePresentation threshold
+  resetObserver.observe(slide);
+
+  function isSlideActive() {
+    return slideIsVisible;
+  }
+
+  function popNext() {
+    if (nextIndex >= items.length) return false;
+    items[nextIndex].classList.add('popped');
+    nextIndex += 1;
+    return true;
+  }
+
+  // Click handler — only intercept clicks inside slide 8 while items remain
+  document.addEventListener('click', (e) => {
+    if (!isSlideActive()) return;
+    if (!slide.contains(e.target)) return;  // don't intercept nav-dot / chrome clicks
+    if (nextIndex < items.length) {
+      e.stopPropagation();
+      popNext();
+    }
+  }, true);
+
+  // Keyboard handler — Space / ArrowRight / PageDown pop next item
+  document.addEventListener('keydown', (e) => {
+    if (!isSlideActive()) return;
+    if (nextIndex >= items.length) return;  // let SlidePresentation advance
+    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'PageDown') {
+      e.stopPropagation();
+      e.preventDefault();
+      popNext();
+    }
+  }, true);
 })();
 </script>
 
