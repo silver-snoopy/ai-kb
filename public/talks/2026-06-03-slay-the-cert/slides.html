@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slay the Cert — 2026-06-03</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+}
+:root {
+    --title-size: clamp(1.5rem, 5vw, 4rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(1.05rem, 1.8vw, 1.45rem);
+    --small-size: clamp(0.8rem, 1.1vw, 0.95rem);
+    --slide-padding: clamp(1rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 2vw, 2rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+}
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+.feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+@media (max-height: 700px) {
+    :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); }
+}
+@media (max-height: 600px) {
+    :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); }
+    .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+@media (max-height: 500px) {
+    :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); }
+}
+@media (max-width: 600px) {
+    :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+    .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   ARCANE CODEX CUSTOM PROPERTIES
+   =========================================== */
+:root {
+    --bg-base: #0e0c0a;
+    --bg-card: #1a1612;
+    --bg-vignette: rgba(60, 35, 10, 0.35);
+    --text-primary: #e8dfc8;
+    --text-muted: #9d8f74;
+    --accent-gold: #c9a961;
+    --accent-gold-bright: #e6c581;
+    --impact-crimson: #8b1e1e;
+    --border-rule: rgba(201, 169, 97, 0.3);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --card-radius: clamp(4px, 0.6vw, 8px);
+}
+
+/* ===========================================
+   GLOBAL RESETS + BASE
+   =========================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-feature-settings: 'liga' 1, 'kern' 1, 'onum' 1;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    overflow-y: scroll;
+}
+
+/* ===========================================
+   PARCHMENT GRAIN OVERLAY (all slides)
+   =========================================== */
+.slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+}
+
+/* Warm corner vignette */
+.slide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(20, 10, 0, 0.55) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.slide-content { position: relative; z-index: 1; }
+
+/* ===========================================
+   CORNER L-ORNAMENTS
+   =========================================== */
+.corner-ornament {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    z-index: 2;
+    pointer-events: none;
+}
+.corner-ornament--tl { top: clamp(12px, 2vw, 24px); left: clamp(12px, 2vw, 24px); border-top: 2px solid var(--accent-gold); border-left: 2px solid var(--accent-gold); }
+.corner-ornament--tr { top: clamp(12px, 2vw, 24px); right: clamp(12px, 2vw, 24px); border-top: 2px solid var(--accent-gold); border-right: 2px solid var(--accent-gold); }
+.corner-ornament--bl { bottom: clamp(12px, 2vw, 24px); left: clamp(12px, 2vw, 24px); border-bottom: 2px solid var(--accent-gold); border-left: 2px solid var(--accent-gold); }
+.corner-ornament--br { bottom: clamp(12px, 2vw, 24px); right: clamp(12px, 2vw, 24px); border-bottom: 2px solid var(--accent-gold); border-right: 2px solid var(--accent-gold); }
+
+/* ===========================================
+   ORNATE DIVIDER
+   =========================================== */
+.ornament-divider {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.4rem, 1vw, 0.75rem);
+    flex-shrink: 0;
+    margin: clamp(0.25rem, 0.8vh, 0.5rem) 0;
+}
+.ornament-divider .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border-rule);
+    display: block;
+}
+.ornament-divider .ornament {
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    color: var(--accent-gold);
+    animation: candleFlicker 4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   CANDLE FLICKER ANIMATION
+   =========================================== */
+@keyframes candleFlicker {
+    0%, 100% { opacity: 1; }
+    20% { opacity: 0.92; }
+    50% { opacity: 0.85; }
+    75% { opacity: 0.95; }
+}
+
+/* ===========================================
+   REVEAL ANIMATIONS
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: 0.05s; }
+.reveal:nth-child(2) { transition-delay: 0.15s; }
+.reveal:nth-child(3) { transition-delay: 0.25s; }
+.reveal:nth-child(4) { transition-delay: 0.35s; }
+.reveal:nth-child(5) { transition-delay: 0.45s; }
+.reveal:nth-child(6) { transition-delay: 0.55s; }
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+
+.reveal-blur {
+    opacity: 0;
+    filter: blur(6px);
+    transition: opacity 0.7s var(--ease-out-expo), filter 0.7s var(--ease-out-expo);
+}
+.slide.visible .reveal-blur { opacity: 1; filter: blur(0); }
+
+/* ===========================================
+   GRID VARIANTS
+   =========================================== */
+.two-col { grid-template-columns: 1fr 1fr; }
+.three-col { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 800px) { .three-col { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+/* ===========================================
+   PROGRESS BAR
+   =========================================== */
+.progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(201, 169, 97, 0.15);
+    z-index: 1000;
+}
+.progress-fill {
+    height: 100%;
+    background: var(--accent-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease-out-expo);
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+
+/* ===========================================
+   NAV DOTS
+   =========================================== */
+.nav-dots {
+    position: fixed;
+    right: clamp(8px, 2vw, 20px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 0.8vh, 10px);
+    z-index: 1000;
+}
+.nav-dot {
+    width: clamp(5px, 0.6vw, 8px);
+    height: clamp(5px, 0.6vh, 8px);
+    border-radius: 50%;
+    background: rgba(201, 169, 97, 0.25);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    padding: 0;
+}
+.nav-dot.active { background: var(--accent-gold); transform: scale(1.4); }
+.nav-dot:hover { background: var(--accent-gold-bright); }
+
+/* ===========================================
+   KEYBOARD HINT
+   =========================================== */
+.keyboard-hint {
+    position: fixed;
+    bottom: clamp(8px, 2vh, 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    z-index: 1000;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    font-style: italic;
+}
+
+/* ===========================================
+   CHAPTER MARKER
+   =========================================== */
+.chapter-marker {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: clamp(0.85rem, 0.9vw, 0.95rem);
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-bottom: clamp(0.15rem, 0.5vh, 0.4rem);
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+
+/* ===========================================
+   SHARED TYPOGRAPHY — SLIDE TITLES
+   =========================================== */
+.slide-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: var(--h2-size);
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    line-height: 1.15;
+    flex-shrink: 0;
+}
+.slide-title--large {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 7vw, 6rem);
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    line-height: 0.95;
+}
+.garamond-italic {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+/* ===========================================
+   WARLOCK SPRITE FRAME
+   =========================================== */
+.sprite-frame {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(232, 223, 200, 0.06);
+    border: 2px solid var(--border-rule);
+    box-shadow: inset 0 0 24px rgba(201, 169, 97, 0.08), 0 4px 20px rgba(0,0,0,0.5);
+    padding: clamp(0.5rem, 1.5vw, 1.25rem);
+}
+.sprite-frame img {
+    image-rendering: pixelated;
+    max-height: none;
+}
+
+/* ===========================================
+   SLIDE 1 — TITLE
+   =========================================== */
+#slide-1 {
+    background-color: var(--bg-base);
+}
+.slide-1-inner {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.5rem, 5vw, 5rem);
+    width: 100%;
+}
+.slide-1-text { flex: 1; display: flex; flex-direction: column; gap: clamp(0.35rem, 1vh, 0.75rem); }
+.slide-1-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 11vw, 9rem);
+    color: var(--text-primary);
+    line-height: 0.9;
+    letter-spacing: 0.04em;
+}
+.slide-1-subline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(0.9rem, 2.2vw, 1.6rem);
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+.slide-1-tagline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}
+.slide-1-sprite {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: clamp(0.5rem, 2vh, 2rem);
+}
+
+/* ===========================================
+   SLIDE 2 — HOOK
+   =========================================== */
+#slide-2 {
+    background-color: var(--bg-base);
+    background-image: radial-gradient(ellipse at 70% 30%, rgba(139,30,30,0.12) 0%, transparent 60%);
+}
+.hook-preamble {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+}
+.hook-headline {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 7vw, 5.5rem);
+    color: var(--text-primary);
+    line-height: 1.05;
+    letter-spacing: 0.04em;
+}
+.hook-subtext {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.75rem);
+    color: var(--text-primary);
+}
+.hook-sprite-corner {
+    position: absolute;
+    top: clamp(1.5rem, 4vw, 4rem);
+    right: clamp(1.5rem, 4vw, 4rem);
+    z-index: 2;
+}
+
+/* ===========================================
+   SLIDE 3 — SLOP MONTAGE
+   =========================================== */
+#slide-3 { background-color: var(--bg-base); }
+.slide-3-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-align: left;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+.slide-3-subtitle {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--text-muted);
+    text-align: left;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+.stack-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vh, 1.5rem);
+    min-height: 0;
+}
+.stack-container {
+    position: relative;
+    width: clamp(400px, 70vw, 900px);
+    height: clamp(280px, 55vh, 600px);
+    flex-shrink: 0;
+}
+.stack-card {
+    position: absolute;
+    background: #f5f0e8;
+    border: 3px solid var(--accent-gold);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 0 2px var(--accent-gold);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.stack-card img {
+    width: 100%;
+    height: clamp(220px, 45vh, 520px);
+    object-fit: cover;
+    display: block;
+    max-height: none;
+}
+.brand-caption {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.85rem, 1vw, 1rem);
+    color: #5a4a30;
+    padding: 4px 8px;
+    background: #ede5d0;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-style: italic;
+}
+/* Final stack positions (used as --final-transform via nth-of-type) */
+.stack-card[data-stack-index="0"] { z-index: 1; }
+.stack-card[data-stack-index="1"] { z-index: 2; }
+.stack-card[data-stack-index="2"] { z-index: 3; }
+.stack-card[data-stack-index="3"] { z-index: 4; }
+.stack-card[data-stack-index="4"] { z-index: 5; }
+
+.punchline {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.3rem, 2.8vw, 2.5rem);
+    color: var(--accent-gold-bright);
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+.slide-3-hint {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+/* === SLIDE 3 — Phase 4 click-driven reveal === */
+/* Cards start off-screen-right; .revealed deals them onto the pile */
+#slide-3 .stack-card {
+  opacity: 0;
+  transform: translateX(35vw) rotate(15deg);
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+#slide-3 .stack-card.revealed {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Per-card landing positions (theatrical dealt stack) */
+#slide-3 .stack-card:nth-of-type(1).revealed { transform: translate(-22px, -15px) rotate(-7deg); }
+#slide-3 .stack-card:nth-of-type(2).revealed { transform: translate(14px, 8px) rotate(5deg); }
+#slide-3 .stack-card:nth-of-type(3).revealed { transform: translate(-10px, 18px) rotate(-4deg); }
+#slide-3 .stack-card:nth-of-type(4).revealed { transform: translate(20px, -8px) rotate(6deg); }
+#slide-3 .stack-card:nth-of-type(5).revealed { transform: translate(4px, 12px) rotate(-3deg); }
+
+/* Punchline: fade-in + scale-up */
+#slide-3 .punchline {
+  opacity: 0;
+  transform: scale(0.88);
+  pointer-events: none;
+  transition: opacity 0.5s ease 0.1s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+#slide-3 .punchline.revealed {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* ===========================================
+   SLIDE 4 — DEEP-LINK SAMENESS
+   =========================================== */
+#slide-4 { background-color: var(--bg-base); }
+.slide-4-grid figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 0.8vh, 0.75rem);
+    max-height: min(55vh, 450px);
+}
+.slide-4-grid figure img {
+    width: 100%;
+    height: clamp(100px, 28vh, 300px);
+    object-fit: cover;
+    border: 2px solid var(--border-rule);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    max-height: none;
+}
+.slide-4-grid figcaption {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+}
+.slide-4-punchline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--text-primary);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 5 — PIVOT
+   =========================================== */
+#slide-5 {
+    background-color: var(--bg-base);
+    background-image: radial-gradient(ellipse at 30% 60%, rgba(139,30,30,0.10) 0%, transparent 55%);
+}
+.pivot-headline {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 7vw, 5.5rem);
+    color: var(--text-primary);
+    line-height: 1.05;
+    letter-spacing: 0.04em;
+}
+.pivot-tagline {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(1.5rem, 4.5vw, 3.5rem);
+    color: var(--accent-gold-bright);
+    letter-spacing: 0.06em;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.pivot-subline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    color: var(--text-muted);
+}
+
+/* ===========================================
+   SLIDE 6 — GAMIFICATION WORKS
+   =========================================== */
+#slide-6 { background-color: var(--bg-base); }
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-rule);
+    padding: clamp(0.75rem, 2vw, 2rem) clamp(0.5rem, 1.5vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 1vh, 0.75rem);
+    text-align: center;
+    box-shadow: inset 0 0 20px rgba(201, 169, 97, 0.04);
+}
+.stat-number {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(1.75rem, 4.5vw, 3.5rem);
+    color: var(--accent-gold-bright);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.stat-label {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-style: italic;
+}
+.slide-6-body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: var(--body-size);
+    color: var(--text-primary);
+    line-height: 1.65;
+    text-align: center;
+    max-width: 70ch;
+    align-self: center;
+    flex-shrink: 0;
+}
+.citation {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 7 — GAMIFICATION FAILS
+   =========================================== */
+#slide-7 {
+    background-color: var(--bg-base);
+    background-image: radial-gradient(ellipse at 80% 20%, rgba(139,30,30,0.18) 0%, transparent 50%),
+                      radial-gradient(ellipse at 20% 80%, rgba(139,30,30,0.10) 0%, transparent 45%);
+}
+.slide-7-title-fails {
+    color: var(--impact-crimson);
+}
+.caution-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    background: rgba(139, 30, 30, 0.12);
+    border: 1px solid rgba(139, 30, 30, 0.45);
+    border-radius: 2px;
+    padding: 0.35rem 1rem;
+    flex-shrink: 0;
+    margin-bottom: 0.2rem;
+}
+.caution-banner .seal {
+    font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+    color: var(--impact-crimson);
+}
+.caution-banner .caution-text {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+    letter-spacing: 0.18em;
+    color: rgba(139, 30, 30, 0.9);
+    text-transform: uppercase;
+    font-variant: small-caps;
+}
+.fail-cols-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+}
+.fail-col {
+    background: rgba(26, 22, 18, 0.9);
+    border: 1px solid rgba(139, 30, 30, 0.4);
+    border-radius: 2px;
+    padding: clamp(1rem, 2.5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1.2vh, 1rem);
+    position: relative;
+}
+.fail-col::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(139, 30, 30, 0.04);
+    border-radius: 2px;
+    pointer-events: none;
+}
+.fail-col-sigil {
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    color: var(--impact-crimson);
+    line-height: 1;
+    opacity: 0.85;
+}
+.fail-col-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 2.2vw, 1.65rem);
+    color: var(--accent-gold);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+}
+.fail-col-body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: var(--body-size);
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+.fail-col-source {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: auto;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(201, 169, 97, 0.15);
+}
+.fail-col-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: clamp(20px, 3vw, 40px);
+    flex-shrink: 0;
+}
+.fail-col-divider .v-rule {
+    flex: 1;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--accent-gold) 20%, var(--impact-crimson) 50%, var(--accent-gold) 80%, transparent);
+}
+.fail-col-divider .v-medallion {
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+    padding: 0.2rem 0;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.honest-gap {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+    font-style: italic;
+    padding: 0.4rem 1rem;
+    border-top: 1px solid rgba(201, 169, 97, 0.2);
+    margin-top: 0.25rem;
+}
+
+/* ===========================================
+   SLIDE 8 — REWARD SHOWDOWN
+   =========================================== */
+#slide-8 { background-color: var(--bg-base); }
+.slide-8-section-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+    color: var(--accent-gold);
+    letter-spacing: 0.06em;
+    text-align: center;
+    flex-shrink: 0;
+}
+.reward-cols-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+}
+.reward-col {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 1vh, 0.8rem);
+    background: rgba(26, 22, 18, 0.85);
+    border: 1px solid var(--border-rule);
+    border-radius: 2px;
+    padding: clamp(0.75rem, 1.8vw, 1.5rem);
+}
+.reward-col.carrots-col {
+    border-color: rgba(201, 169, 97, 0.4);
+    background: rgba(201, 169, 97, 0.04);
+}
+.reward-col.refused-col {
+    border-color: rgba(139, 30, 30, 0.4);
+    background: rgba(139, 30, 30, 0.05);
+}
+.reward-col-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    letter-spacing: 0.05em;
+    margin-bottom: clamp(0.15rem, 0.4vh, 0.4rem);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.reward-col-title.carrots-title { color: var(--accent-gold-bright); }
+.reward-col-title.refused-title { color: var(--impact-crimson); }
+.reward-col-title .col-ornament {
+    font-size: 1.1em;
+    opacity: 0.85;
+    flex-shrink: 0;
+}
+.reward-col-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: clamp(20px, 3vw, 40px);
+    flex-shrink: 0;
+}
+.reward-col-divider .v-rule {
+    flex: 1;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--accent-gold) 25%, var(--accent-gold) 75%, transparent);
+}
+.reward-col-divider .v-medallion {
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+    padding: 0.3rem 0;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.carrots, .refused {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.3rem, 0.7vh, 0.55rem);
+}
+.carrots li, .refused li {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+    line-height: 1.5;
+    padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.75rem, 1.2vw, 1.2rem);
+    border-radius: 1px;
+}
+.carrots li {
+    background: rgba(201, 169, 97, 0.09);
+    border-left: 3px solid var(--accent-gold);
+    color: var(--text-primary);
+}
+.carrots li::before {
+    content: "⚜ ";
+    color: var(--accent-gold-bright);
+    font-size: 1.05em;
+}
+.refused li {
+    background: rgba(139, 30, 30, 0.10);
+    border-left: 3px solid var(--impact-crimson);
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(139, 30, 30, 0.55);
+}
+.refused li::before {
+    content: "✖ ";
+    color: var(--impact-crimson);
+    font-size: 1.05em;
+    display: inline-block;
+}
+.slide-8-hint {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+/* === SLIDE 8 — Phase 4.2 click-driven achievement-pop === */
+#slide-8 .carrots li,
+#slide-8 .refused li {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+#slide-8 .carrots li.popped,
+#slide-8 .refused li.popped {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* ===========================================
+   SLIDE 9 — DEMO BREAK
+   =========================================== */
+#slide-9 { background-color: var(--bg-base); }
+.demo-frame {
+    border: 3px solid var(--border-rule);
+    padding: clamp(1rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.5rem, 1.5vh, 1rem);
+    position: relative;
+    box-shadow: inset 0 0 30px rgba(201, 169, 97, 0.06);
+}
+.demo-frame-corner {
+    position: absolute;
+    font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+    color: var(--accent-gold);
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.demo-frame-corner--tl { top: -0.4em; left: 0.3em; }
+.demo-frame-corner--tr { top: -0.4em; right: 0.3em; }
+.demo-frame-corner--bl { bottom: -0.4em; left: 0.3em; }
+.demo-frame-corner--br { bottom: -0.4em; right: 0.3em; }
+.demo-preamble {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+}
+.demo-arrow {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 7vw, 6rem);
+    color: var(--accent-gold-bright);
+    text-align: center;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.demo-fallback {
+    text-align: center;
+}
+.demo-fallback-caption {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: clamp(0.3rem, 1vh, 0.75rem);
+}
+
+/* ===========================================
+   SLIDE 10 — TESTIMONIALS
+   =========================================== */
+#slide-10 { background-color: var(--bg-base); }
+.testimonial {
+    background: var(--bg-card);
+    border: 1px solid var(--border-rule);
+    padding: clamp(0.6rem, 1.5vw, 1.25rem) clamp(0.75rem, 2vw, 1.5rem);
+    position: relative;
+}
+.testimonial-quote-mark {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    color: var(--accent-gold);
+    opacity: 0.35;
+    line-height: 1;
+    display: block;
+    margin-bottom: -0.5em;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.testimonial p {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding-left: clamp(1rem, 2vw, 2rem);
+}
+.testimonial cite {
+    display: block;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: clamp(0.25rem, 0.8vh, 0.5rem);
+    padding-left: clamp(1rem, 2vw, 2rem);
+}
+.testimonials-caption {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 11 — ACT III TRANSITION
+   =========================================== */
+#slide-11 { background-color: var(--bg-base); }
+.dir-tree {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.85rem, 1.8vw, 1.35rem);
+    color: var(--accent-gold);
+    background: var(--bg-card);
+    border: 1px solid var(--border-rule);
+    padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 2.5vw, 2rem);
+    line-height: 1.9;
+    white-space: pre;
+    font-feature-settings: 'tnum' 1;
+}
+.dir-tree .dir-comment {
+    color: var(--text-muted);
+    font-style: italic;
+}
+.act3-caption {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 12 — WORKFLOW LOOP
+   =========================================== */
+#slide-12 { background-color: var(--bg-base); }
+.workflow-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-rule);
+    padding: clamp(0.5rem, 1.5vw, 1.25rem) clamp(0.4rem, 1vw, 1rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.25rem, 0.6vh, 0.5rem);
+    text-align: center;
+    position: relative;
+    box-shadow: inset 0 0 16px rgba(201, 169, 97, 0.04);
+}
+.workflow-step-num {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+}
+.workflow-step-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+}
+.workflow-step-skill {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.85rem, 0.9vw, 0.95rem);
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+.workflow-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.25rem, 1vw, 0.75rem);
+    flex-shrink: 0;
+    margin: clamp(0.25rem, 0.8vh, 0.5rem) 0;
+    flex-wrap: wrap;
+}
+.workflow-arrow-symbol {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 2vw, 1.5rem);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+}
+.feedback-loop {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--accent-gold);
+    text-align: center;
+    flex-shrink: 0;
+}
+.workflow-subcaption {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+}
+.workflow-handoff {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--small-size);
+    color: rgba(157, 143, 116, 0.6);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 13 — I'M NOT A GAME DEV
+   =========================================== */
+#slide-13 { background-color: var(--bg-base); }
+.big-lines { display: flex; flex-direction: column; gap: clamp(0.5rem, 2vh, 1.5rem); }
+.big-line {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 5vw, 4.5rem);
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+    line-height: 1.05;
+}
+.big-line--impact {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    color: var(--accent-gold-bright);
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+.big-line-ornament {
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    color: var(--accent-gold);
+    display: block;
+    text-align: center;
+    line-height: 1;
+    opacity: 0.7;
+}
+.slide-13-preamble {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: var(--body-size);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 14 — CLOSE
+   =========================================== */
+#slide-14 {
+    background-color: var(--bg-base);
+    background-image: radial-gradient(ellipse at 50% 50%, rgba(139,30,30,0.08) 0%, transparent 60%);
+}
+.close-headline {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 7vw, 6rem);
+    color: var(--text-primary);
+    line-height: 1.0;
+    letter-spacing: 0.04em;
+}
+.close-subline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    color: var(--text-primary);
+    line-height: 1.65;
+    max-width: 55ch;
+}
+.close-fin {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: var(--small-size);
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+    position: absolute;
+    bottom: clamp(1.5rem, 3vh, 3rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+.close-sprite-corner {
+    position: absolute;
+    bottom: clamp(1rem, 3vw, 3rem);
+    right: clamp(1rem, 3vw, 3rem);
+    z-index: 2;
+}
+
+/* ===========================================
+   SLIDE 15 — REFERENCES
+   =========================================== */
+#slide-15 { background-color: var(--bg-base); }
+.ref-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.35rem, 1vh, 0.7rem);
+}
+.ref-list li {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    position: relative;
+}
+.ref-list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent-gold);
+}
+.ref-list em { font-style: italic; color: var(--text-primary); }
+.thanks-line {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-align: right;
+    flex-shrink: 0;
+    font-style: italic;
+}
+
+/* ===========================================
+   DUST LAYER — atmospheric floating motes
+   =========================================== */
+.dust-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.dust-mote {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--accent-gold);
+  opacity: 0;
+  animation: drift linear infinite;
+}
+@keyframes drift {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  15%  { opacity: var(--mote-opacity, 0.25); }
+  85%  { opacity: var(--mote-opacity, 0.25); }
+  100% { transform: translate(var(--mote-dx, 40px), var(--mote-dy, -80px)) scale(1.2); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dust-mote { animation: none !important; opacity: 0 !important; }
+}
+
+/* ===========================================
+   MARGINALIA — first-person scholar asides
+   =========================================== */
+.marginalia {
+  position: absolute;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.72rem, 1.0vw, 0.92rem);
+  color: var(--text-muted);
+  max-width: 22vw;
+  line-height: 1.45;
+  padding: 0.45rem 0.75rem;
+  border-left: 1.5px solid var(--border-rule);
+  z-index: 2;
+  pointer-events: none;
+}
+/* Default: bottom-right */
+.slide .marginalia {
+  bottom: clamp(2.5rem, 5vh, 5rem);
+  right: clamp(2rem, 3.5vw, 4rem);
+}
+
+/* ===========================================
+   BOSS ROSTER — slide 5
+   =========================================== */
+.boss-roster {
+  background: rgba(14, 12, 10, 0.85);
+  border: 1px solid var(--border-rule);
+  padding: clamp(0.6rem, 1.5vw, 1.2rem) clamp(0.8rem, 2vw, 1.6rem);
+  display: inline-block;
+  align-self: center;
+}
+.boss-roster-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: clamp(0.65rem, 0.9vw, 0.85rem);
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.boss-roster ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.boss-roster ol li {
+  font-family: 'Cinzel', serif;
+  font-variant: small-caps;
+  font-size: clamp(0.75rem, 1.1vw, 1rem);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.boss-roster ol li .roman {
+  color: var(--accent-gold);
+  margin-right: 0.6em;
+  font-weight: 700;
+}
+
+/* ===========================================
+   GAME-UI BAR — slide 9
+   =========================================== */
+.game-ui-bar {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.7rem, 1.05vw, 0.9rem);
+  color: var(--text-primary);
+  background: rgba(14, 12, 10, 0.9);
+  border: 1px solid var(--border-rule);
+  padding: 0.4rem 0.9rem;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-self: center;
+  letter-spacing: 0.06em;
+  margin-bottom: clamp(0.4rem, 1vh, 0.8rem);
+}
+.game-ui-bar .ui-name {
+  color: var(--accent-gold-bright);
+  font-weight: 700;
+  font-size: 1.1em;
+}
+.game-ui-bar .ui-bars {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: 0.95em;
+}
+.ui-bar-hp { color: #7ecf6f; }
+.ui-bar-mp { color: #6fa8cf; }
+.ui-bar-full { color: var(--accent-gold); }
+.ui-bar-empty { color: rgba(157, 143, 116, 0.3); }
+
+/* ===========================================
+   WARLOCK RECURRING — per-slide helpers
+   =========================================== */
+.warlock-ambient {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+.warlock-ambient img {
+  image-rendering: pixelated;
+  display: block;
+}
+
+/* ===========================================
+   SLIDE 4 REWORK — vertical comparison
+   =========================================== */
+#slide-4 { background-color: var(--bg-base); }
+.slide-4-comparison {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+.slide-4-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.3rem, 0.8vh, 0.6rem);
+  position: relative;
+}
+.slide-4-brand-tag {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.65rem, 0.85vw, 0.82rem);
+  letter-spacing: 0.12em;
+  color: var(--accent-gold);
+  border: 1px solid var(--border-rule);
+  padding: 0.15rem 0.5rem;
+  background: rgba(14, 12, 10, 0.8);
+  text-align: center;
+  width: 100%;
+}
+.slide-4-col img {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  object-fit: cover;
+  object-position: top;
+  border: 1px solid rgba(201, 169, 97, 0.35);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  max-height: clamp(180px, 38vh, 360px);
+}
+.slide-4-annotation {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: clamp(1rem, 2.5vw, 2rem);
+  color: var(--accent-gold);
+  text-align: center;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.slide-4-identical {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.4rem, 1.5vw, 1.2rem);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.slide-4-identical .ident-badge {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.72rem, 1.0vw, 0.9rem);
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  border: 1px solid rgba(201, 169, 97, 0.2);
+  padding: 0.2rem 0.6rem;
+  font-variant: small-caps;
+}
+.slide-4-identical .ident-eq {
+  color: var(--accent-gold-bright);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.8vw, 1.5rem);
+}
+
+/* ===========================================
+   SLIDE 7 REWORK — 2x2 grid
+   =========================================== */
+.fail-grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: clamp(0.4rem, 1vw, 0.8rem);
+  flex: 1;
+  min-height: 0;
+}
+.fail-grid-2x2 .fail-col {
+  gap: clamp(0.25rem, 0.8vh, 0.6rem);
+  padding: clamp(0.6rem, 1.5vw, 1.2rem);
+}
+.fail-col-sigil { font-size: clamp(1.2rem, 2vw, 1.8rem); }
+.fail-col-title { font-size: clamp(0.9rem, 1.7vw, 1.35rem); }
+.fail-col-body  { font-size: clamp(0.78rem, 1.1vw, 0.95rem); line-height: 1.55; }
+.fail-col-source { font-size: clamp(0.65rem, 0.85vw, 0.8rem); }
+
+/* ===========================================
+   SLIDE 8 REWORK — codex entries
+   =========================================== */
+.carrots li, .refused li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.75rem, 1.3vw, 1.4rem);
+  text-decoration: none;
+}
+.refused li {
+  text-decoration: none;
+}
+.codex-icon {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.05em;
+}
+.carrots li .codex-icon { color: var(--accent-gold-bright); }
+.refused li .codex-icon { color: var(--impact-crimson); }
+.codex-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.codex-name {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: clamp(0.78rem, 1.2vw, 1rem);
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.refused li .codex-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(139, 30, 30, 0.6);
+  color: var(--text-muted);
+}
+.codex-why {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.7rem, 1.1vw, 0.95rem);
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+/* Override old ::before pseudo-content for carrots/refused */
+.carrots li::before, .refused li::before { content: none; }
+
+/* ===========================================
+   SLIDE 1 — pre/post title voice
+   =========================================== */
+.slide-1-pretitle {
+  font-family: 'Cinzel', serif;
+  font-variant: small-caps;
+  font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  margin-bottom: 0.1rem;
+}
+.slide-1-opener {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.78rem, 1.3vw, 1.1rem);
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 0.3rem;
+  max-width: 44ch;
+}
+.slide-1-for {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.72rem, 1.1vw, 0.95rem);
+  color: rgba(157, 143, 116, 0.7);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+/* ===========================================
+   SLIDE 13 — pre-title
+   =========================================== */
+.slide-13-meta-pretitle {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.8rem, 1.2vw, 1.05rem);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+  </style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- Nav Dots -->
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+<!-- Keyboard Hint -->
+<div class="keyboard-hint">&#8593;&#8595; arrows &middot; space &middot; swipe</div>
+
+<!-- ============================================================
+     SLIDE 1 — TITLE
+     ============================================================ -->
+<section class="slide" id="slide-1">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:7%;animation-duration:52s;animation-delay:0s;--mote-opacity:0.28;--mote-dx:30px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:22%;left:85%;animation-duration:44s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:-20px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:45%;left:15%;animation-duration:60s;animation-delay:12s;--mote-opacity:0.22;--mote-dx:50px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:65%;left:55%;animation-duration:48s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-100px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:80%;left:30%;animation-duration:55s;animation-delay:3s;--mote-opacity:0.3;--mote-dx:40px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:12%;left:60%;animation-duration:40s;animation-delay:9s;--mote-opacity:0.2;--mote-dx:20px;--mote-dy:-50px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:35%;left:90%;animation-duration:57s;animation-delay:15s;--mote-opacity:0.25;--mote-dx:-35px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:78%;animation-duration:43s;animation-delay:25s;--mote-opacity:0.15;--mote-dx:25px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.28rem;height:0.28rem;top:50%;left:40%;animation-duration:62s;animation-delay:30s;--mote-opacity:0.22;--mote-dx:-15px;--mote-dy:-110px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:90%;left:10%;animation-duration:46s;animation-delay:18s;--mote-opacity:0.28;--mote-dx:45px;--mote-dy:-75px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:5%;left:45%;animation-duration:50s;animation-delay:35s;--mote-opacity:0.2;--mote-dx:-10px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:55%;left:70%;animation-duration:38s;animation-delay:22s;--mote-opacity:0.17;--mote-dx:30px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:28%;left:25%;animation-duration:64s;animation-delay:8s;--mote-opacity:0.24;--mote-dx:-25px;--mote-dy:-55px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:85%;left:65%;animation-duration:41s;animation-delay:40s;--mote-opacity:0.19;--mote-dx:20px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:42%;left:3%;animation-duration:53s;animation-delay:14s;--mote-opacity:0.26;--mote-dx:55px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:18%;left:50%;animation-duration:47s;animation-delay:28s;--mote-opacity:0.21;--mote-dx:-40px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:60%;left:20%;animation-duration:59s;animation-delay:5s;--mote-opacity:0.18;--mote-dx:35px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:97%;animation-duration:45s;animation-delay:32s;--mote-opacity:0.16;--mote-dx:-50px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:75%;left:48%;animation-duration:56s;animation-delay:16s;--mote-opacity:0.23;--mote-dx:15px;--mote-dy:-100px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:95%;left:88%;animation-duration:42s;animation-delay:45s;--mote-opacity:0.2;--mote-dx:-30px;--mote-dy:-60px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--tr"></div>
+  <div class="corner-ornament corner-ornament--bl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <div class="slide-1-inner">
+      <div class="slide-1-text">
+        <p class="slide-1-pretitle reveal"><em>A grimoire on:</em></p>
+        <p class="chapter-marker reveal">Grimoire &middot; Volume I</p>
+        <h1 class="slide-1-title reveal">Slay<br>the<br>Cert</h1>
+        <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+        <p class="slide-1-subline reveal">A warlock, a workflow,<br>and a force multiplier.</p>
+        <p class="slide-1-tagline reveal">A 15-min talk &middot; 2026-06-03</p>
+        <p class="slide-1-opener reveal"><em>Opened by: a senior manager who should not have had time for this.</em></p>
+        <p class="slide-1-for reveal"><em>For the engineers who think they can't ship anymore — you can.</em></p>
+      </div>
+      <div class="slide-1-sprite reveal">
+        <div class="sprite-frame">
+          <img
+            src="assets/title-sprite.png"
+            alt="warlock"
+            style="width: clamp(80px, 12vw, 160px); height: auto;"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 — HOOK
+     ============================================================ -->
+<section class="slide" id="slide-2">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:10%;left:12%;animation-duration:55s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:35px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:30%;left:75%;animation-duration:48s;animation-delay:11s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:40%;animation-duration:61s;animation-delay:7s;--mote-opacity:0.25;--mote-dx:40px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:20%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.17;--mote-dx:20px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:85%;left:60%;animation-duration:57s;animation-delay:30s;--mote-opacity:0.28;--mote-dx:-30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:20%;left:50%;animation-duration:40s;animation-delay:4s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-75px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:45%;left:88%;animation-duration:52s;animation-delay:17s;--mote-opacity:0.18;--mote-dx:-45px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:65%;left:5%;animation-duration:46s;animation-delay:34s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:15%;left:35%;animation-duration:63s;animation-delay:13s;--mote-opacity:0.2;--mote-dx:-15px;--mote-dy:-55px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:92%;left:82%;animation-duration:41s;animation-delay:26s;--mote-opacity:0.16;--mote-dx:25px;--mote-dy:-100px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:38%;left:62%;animation-duration:50s;animation-delay:38s;--mote-opacity:0.24;--mote-dx:-20px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:78%;left:45%;animation-duration:58s;animation-delay:9s;--mote-opacity:0.2;--mote-dx:45px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:5%;left:90%;animation-duration:43s;animation-delay:42s;--mote-opacity:0.18;--mote-dx:-35px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:50%;left:28%;animation-duration:54s;animation-delay:20s;--mote-opacity:0.26;--mote-dx:55px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:95%;animation-duration:47s;animation-delay:6s;--mote-opacity:0.21;--mote-dx:-40px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:60%;left:70%;animation-duration:39s;animation-delay:29s;--mote-opacity:0.18;--mote-dx:30px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:42%;left:15%;animation-duration:60s;animation-delay:1s;--mote-opacity:0.23;--mote-dx:20px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:82%;left:33%;animation-duration:45s;animation-delay:37s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:18%;left:58%;animation-duration:56s;animation-delay:15s;--mote-opacity:0.22;--mote-dx:35px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:97%;left:22%;animation-duration:42s;animation-delay:44s;--mote-opacity:0.2;--mote-dx:15px;--mote-dy:-55px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="hook-sprite-corner" aria-hidden="true">
+    <div class="sprite-frame">
+      <img
+        src="assets/title-sprite.png"
+        alt=""
+        style="width: clamp(28px, 3vw, 44px); height: auto; image-rendering: pixelated; opacity: 0.55; transform: rotate(-8deg);"
+      >
+    </div>
+  </div>
+  <div class="slide-content">
+    <p class="hook-preamble reveal"><em>Ten weeks ago, Anthropic launched the CCA-F.</em></p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">✥</span><span class="rule"></span></div>
+    <h2 class="hook-headline reveal-blur">Prepped for<br>an AI cert<br>lately?</h2>
+    <p class="hook-subtext reveal"><em>show of hands?</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>author's note: I spent three weekends on AnthropicAcademy before realizing I needed something different.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 — SLOP MONTAGE
+     ============================================================ -->
+<section class="slide" id="slide-3">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:7%;left:10%;animation-duration:51s;animation-delay:3s;--mote-opacity:0.24;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:25%;left:80%;animation-duration:46s;animation-delay:14s;--mote-opacity:0.2;--mote-dx:-20px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:50%;left:55%;animation-duration:58s;animation-delay:8s;--mote-opacity:0.22;--mote-dx:45px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:68%;left:25%;animation-duration:43s;animation-delay:21s;--mote-opacity:0.18;--mote-dx:25px;--mote-dy:-75px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:80%;left:70%;animation-duration:60s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-35px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:15%;left:45%;animation-duration:39s;animation-delay:5s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:40%;left:92%;animation-duration:54s;animation-delay:18s;--mote-opacity:0.16;--mote-dx:-45px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:8%;animation-duration:47s;animation-delay:36s;--mote-opacity:0.22;--mote-dx:20px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:20%;left:35%;animation-duration:64s;animation-delay:10s;--mote-opacity:0.2;--mote-dx:-15px;--mote-dy:-55px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:90%;left:85%;animation-duration:41s;animation-delay:28s;--mote-opacity:0.17;--mote-dx:30px;--mote-dy:-100px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:35%;left:60%;animation-duration:49s;animation-delay:40s;--mote-opacity:0.23;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:60%;left:18%;animation-duration:56s;animation-delay:7s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-88px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:65%;animation-duration:44s;animation-delay:43s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:48%;left:3%;animation-duration:53s;animation-delay:19s;--mote-opacity:0.25;--mote-dx:55px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:88%;left:42%;animation-duration:42s;animation-delay:33s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:28%;left:95%;animation-duration:48s;animation-delay:2s;--mote-opacity:0.21;--mote-dx:-50px;--mote-dy:-75px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:24s;--mote-opacity:0.23;--mote-dx:30px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:75%;left:52%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.18;--mote-dx:15px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:22%;animation-duration:57s;animation-delay:11s;--mote-opacity:0.24;--mote-dx:-20px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:15%;animation-duration:45s;animation-delay:46s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-55px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <!-- Warlock watching the stack cards from bottom-left -->
+  <div class="warlock-ambient" style="bottom: clamp(1rem,3vw,3rem); left: clamp(1rem,3vw,3rem);" aria-hidden="true">
+    <img src="assets/title-sprite.png" alt="" style="width: clamp(28px,3vw,44px); height:auto; transform: scaleX(-1); opacity: 0.55;">
+  </div>
+  <div class="slide-content" style="align-items: flex-start;">
+    <h2 class="slide-3-title reveal"><em>Behold: the slop ecosystem.</em></h2>
+    <p class="slide-3-subtitle reveal"><em>AI cert prep, circa 2026</em></p>
+    <div class="stack-wrapper">
+      <div class="stack-container reveal">
+        <div class="stack-card" data-stack-index="0">
+          <img src="assets/slop-montage/02-claudecertifiedarchitects.png" alt="claudecertifiedarchitects.com">
+          <span class="brand-caption">claudecertifiedarchitects.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="1">
+          <img src="assets/slop-montage/03-skillcertpro-ccaf.png" alt="skillcertpro CCA-F">
+          <span class="brand-caption">skillcertpro.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="2">
+          <img src="assets/slop-montage/07-claudecertificationguide-agentic-loops.png" alt="claudecertificationguide agentic loops">
+          <span class="brand-caption">claudecertificationguide.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="3">
+          <img src="assets/slop-montage/08-claudecertifications-agentic-architecture.png" alt="claudecertifications agentic architecture">
+          <span class="brand-caption">claudecertifications.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="4">
+          <img src="assets/slop-montage/01-claudecertifications.png" alt="claudecertifications DMCA takedown">
+          <span class="brand-caption">claudecertifications.com (taken down)</span>
+        </div>
+      </div>
+      <p class="punchline">Spot the difference?</p>
+    </div>
+    <p class="slide-3-hint reveal"><em>[click to reveal]</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>marginalia: I checked all ten. Two were taken down for DMCA before I drafted this slide.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 — SLOP PUNCHLINE (DEEP-LINK SAMENESS)
+     ============================================================ -->
+<section class="slide" id="slide-4">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:14%;animation-duration:53s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:35px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:78%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:52%;left:42%;animation-duration:59s;animation-delay:9s;--mote-opacity:0.24;--mote-dx:40px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:22%;animation-duration:44s;animation-delay:23s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.27;--mote-dx:-35px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:41s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-75px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:19s;--mote-opacity:0.18;--mote-dx:-40px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:6%;animation-duration:48s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:30px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:12%;left:33%;animation-duration:62s;animation-delay:11s;--mote-opacity:0.2;--mote-dx:-15px;--mote-dy:-55px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:91%;left:87%;animation-duration:40s;animation-delay:29s;--mote-opacity:0.16;--mote-dx:25px;--mote-dy:-100px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:64%;animation-duration:50s;animation-delay:42s;--mote-opacity:0.23;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:19%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:45px;--mote-dy:-88px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:6%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:47%;left:4%;animation-duration:54s;animation-delay:20s;--mote-opacity:0.25;--mote-dx:55px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:44%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:26%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.21;--mote-dx:-50px;--mote-dy:-75px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:56%;left:31%;animation-duration:60s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-95px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:54%;animation-duration:37s;animation-delay:16s;--mote-opacity:0.18;--mote-dx:15px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:33%;left:24%;animation-duration:58s;animation-delay:12s;--mote-opacity:0.24;--mote-dx:-20px;--mote-dy:-85px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:16%;animation-duration:46s;animation-delay:47s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-55px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <p class="slide-4-annotation reveal" style="text-align:center; margin-bottom: clamp(0.3rem,0.8vh,0.6rem);">Same heading. Same bullets. Same conclusion.</p>
+    <div class="slide-4-identical reveal" style="margin-bottom: clamp(0.3rem,0.8vh,0.6rem);">
+      <span class="ident-badge">claudecertificationguide.com</span>
+      <span class="ident-eq">↔</span>
+      <span class="ident-badge">claudecertifications.com</span>
+      <span class="ident-eq">↔</span>
+      <span class="ident-badge">ccaf-pro.vercel.app</span>
+    </div>
+    <div class="slide-4-comparison reveal" style="flex: 1; min-height: 0;">
+      <div class="slide-4-col">
+        <div class="slide-4-brand-tag">claudecertificationguide.com</div>
+        <img src="assets/slop-montage/07-claudecertificationguide-agentic-loops.png" alt="claudecertificationguide agentic loops">
+      </div>
+      <div class="slide-4-col">
+        <div class="slide-4-brand-tag">claudecertifications.com</div>
+        <img src="assets/slop-montage/08-claudecertifications-agentic-architecture.png" alt="claudecertifications agentic architecture">
+      </div>
+      <div class="slide-4-col">
+        <div class="slide-4-brand-tag">ccaf-pro.vercel.app</div>
+        <img src="assets/slop-montage/09-ccaf-pro-domain1.png" alt="ccaf-pro domain 1">
+      </div>
+    </div>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❖</span><span class="rule"></span></div>
+    <p class="slide-4-punchline reveal"><em>Three sites. One Domain page. Zero souls.</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>sidebar: I do not know if they trained on the same source. I suspect they share an LLM.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 — PIVOT
+     ============================================================ -->
+<section class="slide" id="slide-5">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:11%;animation-duration:54s;animation-delay:4s;--mote-opacity:0.24;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:26%;left:76%;animation-duration:47s;animation-delay:14s;--mote-opacity:0.2;--mote-dx:-22px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:48%;left:44%;animation-duration:60s;animation-delay:9s;--mote-opacity:0.25;--mote-dx:42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:23%;animation-duration:43s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:22px;--mote-dy:-65px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:84%;left:63%;animation-duration:58s;animation-delay:32s;--mote-opacity:0.28;--mote-dx:-33px;--mote-dy:-88px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:17%;left:53%;animation-duration:41s;animation-delay:6s;--mote-opacity:0.21;--mote-dx:48px;--mote-dy:-76px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:42%;left:91%;animation-duration:56s;animation-delay:18s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:66%;left:7%;animation-duration:48s;animation-delay:38s;--mote-opacity:0.22;--mote-dx:28px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:14%;left:34%;animation-duration:63s;animation-delay:12s;--mote-opacity:0.2;--mote-dx:-14px;--mote-dy:-57px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:92%;left:86%;animation-duration:40s;animation-delay:28s;--mote-opacity:0.17;--mote-dx:26px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:36%;left:62%;animation-duration:51s;animation-delay:41s;--mote-opacity:0.23;--mote-dx:-12px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:59%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.21;--mote-dx:48px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:67%;animation-duration:44s;animation-delay:44s;--mote-opacity:0.18;--mote-dx:-28px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:5%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.26;--mote-dx:54px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:88%;left:43%;animation-duration:42s;animation-delay:35s;--mote-opacity:0.19;--mote-dx:-24px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:24%;left:97%;animation-duration:49s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:-48px;--mote-dy:-76px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:32%;animation-duration:62s;animation-delay:26s;--mote-opacity:0.23;--mote-dx:32px;--mote-dy:-96px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:77%;left:55%;animation-duration:38s;animation-delay:16s;--mote-opacity:0.18;--mote-dx:16px;--mote-dy:-66px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:31%;left:25%;animation-duration:58s;animation-delay:11s;--mote-opacity:0.24;--mote-dx:-22px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:97%;left:14%;animation-duration:46s;animation-delay:48s;--mote-opacity:0.2;--mote-dx:38px;--mote-dy:-57px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <p class="chapter-marker reveal">Volume II</p>
+    <p class="garamond-italic reveal" style="font-size: clamp(0.9rem,1.8vw,1.3rem); color: var(--accent-gold); margin-bottom: 0.2rem;"><em>Enter the warlock.</em></p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">⚜</span><span class="rule"></span></div>
+    <h2 class="pivot-headline reveal">So I built a<br>different one.</h2>
+    <p class="pivot-subline reveal"><em>and gave it a name</em></p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+    <p class="pivot-tagline reveal">Slay the Cert.</p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: clamp(1.5rem,4vw,4rem); margin-top: clamp(0.4rem, 1vh, 0.8rem);" class="reveal">
+      <div class="sprite-frame">
+        <img
+          src="assets/title-sprite.png"
+          alt="warlock"
+          style="image-rendering: pixelated; width: clamp(70px, 10vw, 140px); height: auto;"
+        >
+      </div>
+      <div class="boss-roster">
+        <span class="boss-roster-title">The Five Floors</span>
+        <ol>
+          <li><span class="roman">I.</span>The Agentic Loop</li>
+          <li><span class="roman">II.</span>The Tool's Hand</li>
+          <li><span class="roman">III.</span>The Prompt's Edge</li>
+          <li><span class="roman">IV.</span>The Context Window</li>
+          <li><span class="roman">V.</span>The Evaluation Court</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 — GAMIFICATION WORKS
+     ============================================================ -->
+<section class="slide" id="slide-6">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:10%;left:9%;animation-duration:52s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:32px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:74%;animation-duration:46s;animation-delay:12s;--mote-opacity:0.2;--mote-dx:-24px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:61s;animation-delay:8s;--mote-opacity:0.24;--mote-dx:44px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:24s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:61%;animation-duration:57s;animation-delay:33s;--mote-opacity:0.26;--mote-dx:-36px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:19%;left:51%;animation-duration:40s;animation-delay:7s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:44%;left:89%;animation-duration:56s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-44px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:68%;left:4%;animation-duration:47s;animation-delay:36s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:36%;animation-duration:62s;animation-delay:11s;--mote-opacity:0.2;--mote-dx:-16px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:84%;animation-duration:41s;animation-delay:29s;--mote-opacity:0.17;--mote-dx:24px;--mote-dy:-104px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:38%;left:61%;animation-duration:50s;animation-delay:43s;--mote-opacity:0.23;--mote-dx:-12px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:57%;left:16%;animation-duration:58s;animation-delay:9s;--mote-opacity:0.21;--mote-dx:46px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:68%;animation-duration:43s;animation-delay:45s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:45%;left:3%;animation-duration:54s;animation-delay:21s;--mote-opacity:0.25;--mote-dx:56px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:86%;left:42%;animation-duration:42s;animation-delay:35s;--mote-opacity:0.19;--mote-dx:-26px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:23%;left:96%;animation-duration:48s;animation-delay:4s;--mote-opacity:0.22;--mote-dx:-50px;--mote-dy:-76px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:54%;left:30%;animation-duration:60s;animation-delay:27s;--mote-opacity:0.22;--mote-dx:32px;--mote-dy:-96px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:75%;left:53%;animation-duration:38s;animation-delay:17s;--mote-opacity:0.18;--mote-dx:16px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:26%;animation-duration:57s;animation-delay:13s;--mote-opacity:0.24;--mote-dx:-22px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:13%;animation-duration:45s;animation-delay:49s;--mote-opacity:0.2;--mote-dx:38px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <h2 class="slide-title reveal">Gamification works.</h2>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">✦</span><span class="rule"></span></div>
+    <div class="grid three-col reveal" style="flex-shrink: 0;">
+      <div class="stat-card">
+        <div class="stat-number">d&thinsp;=&thinsp;0.52</div>
+        <div class="stat-label">medium effect size<br>on learning outcomes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">87</div>
+        <div class="stat-label">studies surveyed<br>across two decades</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">71%</div>
+        <div class="stat-label">report positive<br>results</div>
+      </div>
+    </div>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">✧</span><span class="rule"></span></div>
+    <p class="slide-6-body reveal">Eighty-seven studies surveyed across two decades. The effect is small enough to dismiss, large enough to matter. The question is not whether gamification works, but how to wield it without poisoning the well.</p>
+    <p class="citation reveal">&mdash; Gyedu et al. 2026, <em>SAGE Open</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>author's note: I am one of the 71%.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 — GAMIFICATION ALSO FAILS
+     ============================================================ -->
+<section class="slide" id="slide-7">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:12%;animation-duration:53s;animation-delay:2s;--mote-opacity:0.2;--mote-dx:30px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:26%;left:77%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:50%;left:42%;animation-duration:60s;animation-delay:9s;--mote-opacity:0.22;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.16;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:62%;animation-duration:58s;animation-delay:32s;--mote-opacity:0.24;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:16%;left:52%;animation-duration:41s;animation-delay:6s;--mote-opacity:0.19;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:19s;--mote-opacity:0.16;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:6%;animation-duration:47s;animation-delay:38s;--mote-opacity:0.2;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:35%;animation-duration:63s;animation-delay:11s;--mote-opacity:0.18;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:92%;left:85%;animation-duration:40s;animation-delay:28s;--mote-opacity:0.15;--mote-dx:24px;--mote-dy:-100px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:42s;--mote-opacity:0.21;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:18%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.19;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:67%;animation-duration:44s;animation-delay:44s;--mote-opacity:0.16;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:4%;animation-duration:54s;animation-delay:20s;--mote-opacity:0.23;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.17;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:97%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:31%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.21;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:77%;left:54%;animation-duration:38s;animation-delay:16s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:25%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.22;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:15%;animation-duration:46s;animation-delay:47s;--mote-opacity:0.18;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <!-- Warlock: concerned, hue-shifted, top-right -->
+  <div class="warlock-ambient" style="top: clamp(1.5rem,4vw,4rem); right: clamp(1.5rem,4vw,4rem);" aria-hidden="true">
+    <img src="assets/title-sprite.png" alt="" style="width: clamp(28px,3vw,44px); height:auto; filter: hue-rotate(20deg) brightness(0.8); opacity: 0.5;">
+  </div>
+  <div class="slide-content">
+    <div class="caution-banner reveal">
+      <span class="seal">⚠</span>
+      <span class="caution-text">Caution &middot; Caveats &middot; Caveat Emptor</span>
+      <span class="seal">⚠</span>
+    </div>
+    <h2 class="slide-title reveal">And gamification <span class="slide-7-title-fails">fails.</span></h2>
+    <div class="fail-grid-2x2 reveal" style="flex: 1; min-height: 0;">
+      <div class="fail-col">
+        <span class="fail-col-sigil">⚡</span>
+        <p class="fail-col-title">Streak anxiety</p>
+        <p class="fail-col-body">Loss aversion as habit-trap. Duolingo's own A/B tests measure the cost. Keeps you opening the app — not learning.</p>
+        <p class="fail-col-source">StriveCloud 2024 · Duolingo Streak Wager A/B data</p>
+      </div>
+      <div class="fail-col">
+        <span class="fail-col-sigil">⛧</span>
+        <p class="fail-col-title">Punishment outside play</p>
+        <p class="fail-col-body">Habitica's damage during productive time tanks engagement. The mechanic turns on you — the game becomes a stressor.</p>
+        <p class="fail-col-source">Toda et al. 2018 · Habitica counterproductive-effects</p>
+      </div>
+      <div class="fail-col">
+        <span class="fail-col-sigil">☉</span>
+        <p class="fail-col-title">Novelty-effect decay</p>
+        <p class="fail-col-body">Most gamification effects fade in 4–8 weeks. The new badge stops being interesting once you've earned it.</p>
+        <p class="fail-col-source">Hamari et al. 2014 · meta-analysis on novelty decay</p>
+      </div>
+      <div class="fail-col">
+        <span class="fail-col-sigil">✶</span>
+        <p class="fail-col-title">Skinner-box optimization</p>
+        <p class="fail-col-body">Optimizing for engagement metric over actual learning. Numbers go up, knowledge does not.</p>
+        <p class="fail-col-source">Deci &amp; Ryan 2000 · self-determination theory</p>
+      </div>
+    </div>
+    <p class="honest-gap reveal"><em>✶ Honest gap: no recent RCT on cert-prep specifically. Corporate-training literature is our proxy.</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>confession: I built two gamified studying apps before this one. Both failed at #1 and #4. I did not learn until I felt the burn.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 — REWARD SYSTEM SHOWDOWN
+     ============================================================ -->
+<section class="slide" id="slide-8">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:11%;animation-duration:52s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:76%;animation-duration:45s;animation-delay:14s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.17;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.2;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:14%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:64%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:33%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <h2 class="slide-title reveal">What we used. What we refused.</h2>
+    <p class="slide-8-section-title reveal"><em>A Grimoire of Carrots &amp; Snares</em></p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">⚝</span><span class="rule"></span></div>
+    <div class="reward-cols-wrapper reveal">
+      <div class="reward-col carrots-col">
+        <h3 class="reward-col-title carrots-title"><span class="col-ornament">⚜</span> Spells Granted</h3>
+        <ul class="carrots">
+          <li data-pop-index="0">
+            <span class="codex-icon">⚜</span>
+            <span class="codex-entry">
+              <span class="codex-name">Spell drops</span>
+              <span class="codex-why"><em>variable reward; novelty mitigated by lore-on-pickup</em></span>
+            </span>
+          </li>
+          <li data-pop-index="1">
+            <span class="codex-icon">⚜</span>
+            <span class="codex-entry">
+              <span class="codex-name">Archmage's Codex</span>
+              <span class="codex-why"><em>collection mechanic; completionist drive without trivializing content</em></span>
+            </span>
+          </li>
+          <li data-pop-index="2">
+            <span class="codex-icon">⚜</span>
+            <span class="codex-entry">
+              <span class="codex-name">Lifelines (reveal-a-distractor, skip 1/run)</span>
+              <span class="codex-why"><em>help that never reduces the knowledge work — Habitica failure averted</em></span>
+            </span>
+          </li>
+          <li data-pop-index="3">
+            <span class="codex-icon">⚜</span>
+            <span class="codex-entry">
+              <span class="codex-name">Lore-on-pickup</span>
+              <span class="codex-why"><em>story-as-reward, FromSoft tradition; learning IS the reward</em></span>
+            </span>
+          </li>
+          <li data-pop-index="4">
+            <span class="codex-icon">⚜</span>
+            <span class="codex-entry">
+              <span class="codex-name">Recall interstitials</span>
+              <span class="codex-why"><em>voluntary mini-review between floors — spaced recall built into game flow</em></span>
+            </span>
+          </li>
+          <li data-pop-index="5">
+            <span class="codex-icon">⚜</span>
+            <span class="codex-entry">
+              <span class="codex-name">Golden Parchment + Eternal Dungeon</span>
+              <span class="codex-why"><em>terminal goal + post-game replay; no permanent passives between runs</em></span>
+            </span>
+          </li>
+        </ul>
+      </div>
+      <div class="reward-col-divider" aria-hidden="true">
+        <div class="v-rule"></div>
+        <span class="v-medallion">⚜</span>
+        <div class="v-rule"></div>
+      </div>
+      <div class="reward-col refused-col">
+        <h3 class="reward-col-title refused-title"><span class="col-ornament">⚠</span> Sigils Banished</h3>
+        <ul class="refused">
+          <li data-pop-index="6">
+            <span class="codex-icon">✖</span>
+            <span class="codex-entry">
+              <span class="codex-name">Daily streaks</span>
+              <span class="codex-why"><em>Duolingo's dark pattern; we refuse to manufacture anxiety</em></span>
+            </span>
+          </li>
+          <li data-pop-index="7">
+            <span class="codex-icon">✖</span>
+            <span class="codex-entry">
+              <span class="codex-name">Damage outside voluntary runs</span>
+              <span class="codex-why"><em>Habitica's failure mode; play is opt-in, never punitive</em></span>
+            </span>
+          </li>
+          <li data-pop-index="8">
+            <span class="codex-icon">✖</span>
+            <span class="codex-entry">
+              <span class="codex-name">Permanent passives between runs</span>
+              <span class="codex-why"><em>trivializes content; every run starts fresh by design</em></span>
+            </span>
+          </li>
+          <li data-pop-index="9">
+            <span class="codex-icon">✖</span>
+            <span class="codex-entry">
+              <span class="codex-name">Premium currency / paywall</span>
+              <span class="codex-why"><em>no monetization; CC0 assets only; free forever</em></span>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p class="slide-8-hint reveal"><em>[click to inscribe each entry]</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>marginalia: every refused mechanic was a real temptation in early drafts.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 — DEMO BREAK
+     ============================================================ -->
+<section class="slide" id="slide-9">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:10%;animation-duration:54s;animation-delay:2s;--mote-opacity:0.24;--mote-dx:32px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:75%;animation-duration:47s;animation-delay:13s;--mote-opacity:0.2;--mote-dx:-24px;--mote-dy:-70px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:52%;left:43%;animation-duration:61s;animation-delay:8s;--mote-opacity:0.25;--mote-dx:44px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:22%;animation-duration:44s;animation-delay:24s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:63%;animation-duration:57s;animation-delay:32s;--mote-opacity:0.28;--mote-dx:-34px;--mote-dy:-88px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:19%;left:52%;animation-duration:40s;animation-delay:7s;--mote-opacity:0.21;--mote-dx:50px;--mote-dy:-76px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:44%;left:90%;animation-duration:56s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-44px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:68%;left:5%;animation-duration:48s;animation-delay:38s;--mote-opacity:0.22;--mote-dx:28px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:35%;animation-duration:62s;animation-delay:11s;--mote-opacity:0.2;--mote-dx:-16px;--mote-dy:-58px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:86%;animation-duration:41s;animation-delay:29s;--mote-opacity:0.17;--mote-dx:26px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:38%;left:62%;animation-duration:51s;animation-delay:43s;--mote-opacity:0.24;--mote-dx:-12px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:59%;left:17%;animation-duration:58s;animation-delay:9s;--mote-opacity:0.21;--mote-dx:48px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:67%;animation-duration:43s;animation-delay:45s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:47%;left:4%;animation-duration:55s;animation-delay:21s;--mote-opacity:0.26;--mote-dx:56px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:88%;left:44%;animation-duration:42s;animation-delay:35s;--mote-opacity:0.19;--mote-dx:-26px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:24%;left:97%;animation-duration:49s;animation-delay:4s;--mote-opacity:0.22;--mote-dx:-50px;--mote-dy:-76px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:56%;left:31%;animation-duration:62s;animation-delay:26s;--mote-opacity:0.23;--mote-dx:32px;--mote-dy:-96px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:77%;left:55%;animation-duration:38s;animation-delay:17s;--mote-opacity:0.18;--mote-dx:16px;--mote-dy:-66px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:25%;animation-duration:58s;animation-delay:12s;--mote-opacity:0.24;--mote-dx:-22px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:16%;animation-duration:46s;animation-delay:48s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content" style="align-items: center; text-align: center;">
+    <p class="demo-preamble reveal"><em>step out of the tome</em></p>
+    <div class="game-ui-bar reveal" aria-hidden="true">
+      <span class="ui-name">WARLOCK &middot; LVL 1</span>
+      <div class="ui-bars">
+        <span class="ui-bar-hp">HP</span>
+        <span class="ui-bar-full">████████████</span>
+        <span class="ui-bar-hp">3/3</span>
+        &nbsp;&nbsp;
+        <span class="ui-bar-mp">MP</span>
+        <span class="ui-bar-full">████</span>
+        <span class="ui-bar-mp">4/4</span>
+      </div>
+    </div>
+    <div class="demo-frame reveal">
+      <span class="demo-frame-corner demo-frame-corner--tl">✦</span>
+      <span class="demo-frame-corner demo-frame-corner--tr">✧</span>
+      <span class="demo-frame-corner demo-frame-corner--bl">✧</span>
+      <span class="demo-frame-corner demo-frame-corner--br">✦</span>
+      <div style="display: flex; align-items: center; gap: clamp(1rem,3vw,2.5rem); justify-content: center;">
+        <div class="sprite-frame" style="flex-shrink: 0;">
+          <img src="assets/title-sprite.png" alt="warlock" style="image-rendering: pixelated; width: clamp(48px,7vw,96px); height:auto;">
+        </div>
+        <p class="demo-arrow">&larr; live demo</p>
+      </div>
+      <div class="demo-fallback">
+        <!-- DUNGEON_DEMO_GIF -->
+        <p class="demo-fallback-caption"><em>if the warlock escapes his bindings, this loop will play instead.</em></p>
+      </div>
+    </div>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>the warlock plays the cert so I don't have to. mostly.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 10 — TESTIMONIALS (PLACEHOLDER)
+     ============================================================ -->
+<section class="slide" id="slide-10">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:12%;animation-duration:53s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:78%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-24px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:44%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:14%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:64%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:33%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <h2 class="slide-title reveal">And what they said.</h2>
+    <div style="display: flex; flex-direction: column; gap: clamp(0.3rem, 1vh, 0.6rem); flex: 1; min-height: 0; justify-content: center;">
+      <blockquote class="testimonial reveal">
+        <!-- TODO: replace with curated testimonial from talks/2026-06-03-slay-the-cert/assets/testimonials.md -->
+        <span class="testimonial-quote-mark">&#10077;</span>
+        <p>&lt;placeholder quote 1 &mdash; short, specific behavior change&gt;</p>
+        <cite>&mdash; <em>CCA-F candidate, May 2026</em></cite>
+      </blockquote>
+      <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+      <blockquote class="testimonial reveal">
+        <!-- TODO: replace with curated testimonial from talks/2026-06-03-slay-the-cert/assets/testimonials.md -->
+        <span class="testimonial-quote-mark">&#10077;</span>
+        <p>&lt;placeholder quote 2 &mdash; names a design choice that worked&gt;</p>
+        <cite>&mdash; <em>CCA-F candidate, May 2026</em></cite>
+      </blockquote>
+      <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+      <blockquote class="testimonial reveal">
+        <!-- TODO: replace with curated testimonial from talks/2026-06-03-slay-the-cert/assets/testimonials.md -->
+        <span class="testimonial-quote-mark">&#10077;</span>
+        <p>&lt;placeholder quote 3 &mdash; exam outcome optional&gt;</p>
+        <cite>&mdash; <em>CCA-F candidate, May 2026</em></cite>
+      </blockquote>
+    </div>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">✥</span><span class="rule"></span></div>
+    <p class="testimonials-caption reveal"><em>"None of this was study advice. They just played the game."</em></p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 11 — ACT III TRANSITION
+     ============================================================ -->
+<section class="slide" id="slide-11">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:11%;animation-duration:52s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:76%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:42%;animation-duration:60s;animation-delay:9s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:51%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:28s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <p class="chapter-marker reveal">Volume III</p>
+    <h2 class="slide-title reveal">How did one engineer ship<br>this in weekends?</h2>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+    <pre class="dir-tree reveal">docs/superpowers/
+&#9500;&#9472;&#9472; research/   <span class="dir-comment">&#8592; what's already known</span>
+&#9500;&#9472;&#9472; specs/      <span class="dir-comment">&#8592; what we're building</span>
+&#9492;&#9472;&#9472; plans/      <span class="dir-comment">&#8592; how we'll build it</span></pre>
+    <p class="act3-caption reveal"><em>"The answer isn't 10x productivity. It's a workflow."</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>truth: the SPECS folder has 19 files. Most were spec-driven. Some were spec-after-driven. I am still learning.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 12 — THE WORKFLOW LOOP
+     ============================================================ -->
+<section class="slide" id="slide-12">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:10%;animation-duration:53s;animation-delay:3s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:77%;animation-duration:46s;animation-delay:14s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:50%;left:42%;animation-duration:61s;animation-delay:9s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:51%;animation-duration:40s;animation-delay:7s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:42s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <h2 class="slide-title reveal">Brainstorm &rarr; Spec &rarr; Plan &rarr; Execute</h2>
+    <div class="workflow-arrows reveal">
+      <div class="workflow-box">
+        <span class="workflow-step-num">01</span>
+        <span class="workflow-step-name">Brainstorm</span>
+        <span class="workflow-step-skill">superpowers:<br>brainstorming</span>
+      </div>
+      <span class="workflow-arrow-symbol">&rarr;</span>
+      <div class="workflow-box">
+        <span class="workflow-step-num">02</span>
+        <span class="workflow-step-name">Spec</span>
+        <span class="workflow-step-skill">superpowers:<br>writing-plans</span>
+      </div>
+      <span class="workflow-arrow-symbol">&rarr;</span>
+      <div class="workflow-box">
+        <span class="workflow-step-num">03</span>
+        <span class="workflow-step-name">Plan</span>
+        <span class="workflow-step-skill">superpowers:<br>executing-plans</span>
+      </div>
+      <span class="workflow-arrow-symbol">&rarr;</span>
+      <div class="workflow-box">
+        <span class="workflow-step-num">04</span>
+        <span class="workflow-step-name">Execute</span>
+        <span class="workflow-step-skill">superpowers:<br>subagent-driven-<br>development</span>
+      </div>
+    </div>
+    <p class="feedback-loop reveal">&#8635; feedback loop back to Brainstorm</p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❧</span><span class="rule"></span></div>
+    <p class="workflow-subcaption reveal"><em>Yes &mdash; including this tome.</em></p>
+    <p class="workflow-handoff reveal"><em>My friends' talk goes deeper on this; I'll only point at the shape.</em></p>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>yes — including this tome. it took 4 iterations to find its soul.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 13 — I'M NOT A GAME DEV
+     ============================================================ -->
+<section class="slide" id="slide-13">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:12%;animation-duration:53s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:78%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <!-- Warlock small at bottom, shrug-angle -->
+  <div class="warlock-ambient" style="bottom: clamp(1rem,3vw,3rem); left: clamp(1rem,3vw,3rem);" aria-hidden="true">
+    <img src="assets/title-sprite.png" alt="" style="width: clamp(24px,2.5vw,38px); height:auto; transform: rotate(-12deg); opacity: 0.45;">
+  </div>
+  <div class="slide-content">
+    <p class="slide-13-meta-pretitle reveal"><em>Three truths I never expected to write down.</em></p>
+    <p class="slide-13-preamble reveal"><em>Three truths.</em></p>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">⚜</span><span class="rule"></span></div>
+    <div class="big-lines">
+      <p class="big-line reveal">I'm not a game dev.</p>
+      <p class="big-line-ornament reveal">❦</p>
+      <p class="big-line reveal">I'd never touched Phaser.</p>
+      <p class="big-line-ornament reveal">❦</p>
+      <p class="big-line big-line--impact reveal">I shipped this anyway.</p>
+    </div>
+  </div>
+  <aside class="marginalia" aria-hidden="true"><em>epilogue: I'm a Senior Manager. I should not have had time for this. AI was the reason I did.</em></aside>
+</section>
+
+<!-- ============================================================
+     SLIDE 14 — CLOSE
+     ============================================================ -->
+<section class="slide" id="slide-14">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:8%;left:12%;animation-duration:54s;animation-delay:0s;--mote-opacity:0.28;--mote-dx:34px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:22%;left:80%;animation-duration:47s;animation-delay:10s;--mote-opacity:0.24;--mote-dx:-26px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:48%;left:45%;animation-duration:62s;animation-delay:5s;--mote-opacity:0.3;--mote-dx:46px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:22%;animation-duration:45s;animation-delay:20s;--mote-opacity:0.2;--mote-dx:22px;--mote-dy:-66px;"></div>
+    <div class="dust-mote" style="width:0.28rem;height:0.28rem;top:85%;left:65%;animation-duration:58s;animation-delay:28s;--mote-opacity:0.32;--mote-dx:-36px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:16%;left:55%;animation-duration:41s;animation-delay:4s;--mote-opacity:0.25;--mote-dx:52px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:42%;left:92%;animation-duration:56s;animation-delay:16s;--mote-opacity:0.2;--mote-dx:-46px;--mote-dy:-96px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:66%;left:6%;animation-duration:48s;animation-delay:35s;--mote-opacity:0.26;--mote-dx:30px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:12%;left:36%;animation-duration:64s;animation-delay:9s;--mote-opacity:0.22;--mote-dx:-18px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:94%;left:88%;animation-duration:42s;animation-delay:26s;--mote-opacity:0.19;--mote-dx:28px;--mote-dy:-106px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:36%;left:66%;animation-duration:52s;animation-delay:40s;--mote-opacity:0.26;--mote-dx:-14px;--mote-dy:-76px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:57%;left:18%;animation-duration:59s;animation-delay:7s;--mote-opacity:0.24;--mote-dx:50px;--mote-dy:-88px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:70%;animation-duration:44s;animation-delay:43s;--mote-opacity:0.2;--mote-dx:-32px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.28rem;height:0.28rem;top:46%;left:4%;animation-duration:55s;animation-delay:18s;--mote-opacity:0.28;--mote-dx:58px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:88%;left:44%;animation-duration:43s;animation-delay:33s;--mote-opacity:0.22;--mote-dx:-28px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:24%;left:98%;animation-duration:50s;animation-delay:2s;--mote-opacity:0.24;--mote-dx:-52px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:54%;left:32%;animation-duration:62s;animation-delay:24s;--mote-opacity:0.26;--mote-dx:34px;--mote-dy:-98px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:77%;left:56%;animation-duration:39s;animation-delay:14s;--mote-opacity:0.2;--mote-dx:18px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:30%;left:26%;animation-duration:58s;animation-delay:11s;--mote-opacity:0.28;--mote-dx:-24px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:97%;left:16%;animation-duration:46s;animation-delay:46s;--mote-opacity:0.22;--mote-dx:42px;--mote-dy:-60px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--tr"></div>
+  <div class="corner-ornament corner-ornament--bl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="close-sprite-corner" aria-hidden="true">
+    <div class="sprite-frame" style="box-shadow: inset 0 0 24px rgba(201, 169, 97, 0.12), 0 4px 24px rgba(0,0,0,0.6);">
+      <img
+        src="assets/title-sprite.png"
+        alt=""
+        style="width: clamp(48px, 7vw, 100px); height: auto; image-rendering: pixelated;"
+      >
+    </div>
+  </div>
+  <div class="slide-content">
+    <h2 class="close-headline reveal">What's YOUR<br>dungeon?</h2>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+    <p class="close-subline reveal"><em>The hard part used to be writing the code.<br>Now the hard part is knowing what's worth building.</em></p>
+    <p class="close-subline reveal" style="margin-top: clamp(0.5rem,1.5vh,1rem); font-size: clamp(0.85rem,1.5vw,1.2rem); color: var(--text-muted);"><em>And what would you fight to build it?</em></p>
+  </div>
+  <p class="close-fin">End of Tome</p>
+</section>
+
+<!-- ============================================================
+     SLIDE 15 — REFERENCES + THANKS
+     ============================================================ -->
+<section class="slide" id="slide-15">
+  <div class="dust-layer" aria-hidden="true">
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:11%;animation-duration:52s;animation-delay:2s;--mote-opacity:0.2;--mote-dx:30px;--mote-dy:-80px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:76%;animation-duration:46s;animation-delay:12s;--mote-opacity:0.17;--mote-dx:-22px;--mote-dy:-68px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.21;--mote-dx:42px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.16;--mote-dx:20px;--mote-dy:-62px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.24;--mote-dx:-34px;--mote-dy:-86px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:51%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.18;--mote-dx:48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.16;--mote-dx:-42px;--mote-dy:-92px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.19;--mote-dx:28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.17;--mote-dx:-14px;--mote-dy:-56px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.14;--mote-dx:24px;--mote-dy:-102px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.2;--mote-dx:-10px;--mote-dy:-72px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.18;--mote-dx:46px;--mote-dy:-84px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.15;--mote-dx:-28px;--mote-dy:-60px;"></div>
+    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.22;--mote-dx:54px;--mote-dy:-90px;"></div>
+    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.16;--mote-dx:-24px;--mote-dy:-78px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.18;--mote-dx:-48px;--mote-dy:-74px;"></div>
+    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.2;--mote-dx:30px;--mote-dy:-94px;"></div>
+    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.15;--mote-dx:14px;--mote-dy:-64px;"></div>
+    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.21;--mote-dx:-20px;--mote-dy:-82px;"></div>
+    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.17;--mote-dx:36px;--mote-dy:-56px;"></div>
+  </div>
+  <div class="corner-ornament corner-ornament--tl"></div>
+  <div class="corner-ornament corner-ornament--br"></div>
+  <div class="slide-content">
+    <p class="chapter-marker reveal">Volume IV &mdash; Marginalia</p>
+    <h2 class="slide-title reveal">References + thanks</h2>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+    <ul class="ref-list">
+      <li class="reveal">Gyedu et al. 2026, <em>SAGE Open</em> &mdash; meta-analysis on gamification effect in education</li>
+      <li class="reveal">StriveCloud writeup, 2024 &mdash; Duolingo Streak Wager A/B retention data</li>
+      <li class="reveal">Toda et al. 2018 &mdash; Habitica counterproductive-effects paper on external-damage mechanics</li>
+      <li class="reveal">Slay the Spire &mdash; <em>MegaCrit</em>, 2019 (deck-builder roguelike design)</li>
+      <li class="reveal">FromSoftware (<em>Demon's Souls / Dark Souls / Elden Ring</em>) &mdash; environmental storytelling</li>
+      <li class="reveal"><em>frontend-slides</em> skill &mdash; zarazhangrui (this tome was built with it)</li>
+    </ul>
+    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">✥</span><span class="rule"></span></div>
+    <p class="thanks-line reveal">thanks.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     JAVASCRIPT — SlidePresentation class
+     ============================================================ -->
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.currentIndex = 0;
+    this.isScrolling = false;
+    this.wheelThrottle = null;
+    this.touchStartY = 0;
+    this.touchStartX = 0;
+
+    this.progressFill = document.getElementById('progressFill');
+    this.navDotsContainer = document.getElementById('navDots');
+
+    this.init();
+  }
+
+  init() {
+    this.buildNavDots();
+    this.setupIntersectionObserver();
+    this.setupKeyboard();
+    this.setupWheel();
+    this.setupTouch();
+    this.updateProgress(0);
+  }
+
+  buildNavDots() {
+    // CRITICAL: clear innerHTML to avoid duplicates on re-open
+    this.navDotsContainer.innerHTML = '';
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      btn.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      btn.addEventListener('click', () => this.goToSlide(i));
+      this.navDotsContainer.appendChild(btn);
+    });
+  }
+
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            const idx = this.slides.indexOf(entry.target);
+            if (idx !== -1) {
+              this.currentIndex = idx;
+              this.updateProgress(idx);
+              this.updateNavDots(idx);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    this.slides.forEach(slide => observer.observe(slide));
+  }
+
+  updateProgress(idx) {
+    const ratio = this.slides.length > 1
+      ? idx / (this.slides.length - 1)
+      : 1;
+    this.progressFill.style.transform = 'scaleX(' + ratio + ')';
+  }
+
+  updateNavDots(idx) {
+    const dots = this.navDotsContainer.querySelectorAll('.nav-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === idx);
+    });
+  }
+
+  goToSlide(idx) {
+    idx = Math.max(0, Math.min(this.slides.length - 1, idx));
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+    this.currentIndex = idx;
+    this.updateProgress(idx);
+    this.updateNavDots(idx);
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          e.preventDefault();
+          this.goToSlide(this.currentIndex + 1);
+          break;
+        case 'ArrowUp':
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          this.goToSlide(this.currentIndex - 1);
+          break;
+        case 'Home':
+          e.preventDefault();
+          this.goToSlide(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          this.goToSlide(this.slides.length - 1);
+          break;
+      }
+    });
+  }
+
+  setupWheel() {
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (this.wheelThrottle) return;
+      this.wheelThrottle = setTimeout(() => {
+        this.wheelThrottle = null;
+      }, 700);
+      if (e.deltaY > 0) {
+        this.goToSlide(this.currentIndex + 1);
+      } else if (e.deltaY < 0) {
+        this.goToSlide(this.currentIndex - 1);
+      }
+    }, { passive: false });
+  }
+
+  setupTouch() {
+    document.addEventListener('touchstart', e => {
+      this.touchStartY = e.touches[0].clientY;
+      this.touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+      const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 40) {
+        if (deltaY > 0) {
+          this.goToSlide(this.currentIndex + 1);
+        } else {
+          this.goToSlide(this.currentIndex - 1);
+        }
+      }
+    }, { passive: true });
+  }
+}
+
+// Boot when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+} else {
+  new SlidePresentation();
+}
+</script>
+
+<script>
+/* ===========================================
+   PHASE 4.1 — Slide 3 card-stack reveal hook
+   Click or Space/ArrowRight while slide 3 is active:
+   reveal next card (or punchline) in order.
+   When all 6 are revealed, further input advances to slide 4.
+   =========================================== */
+(function setupCardStackReveal() {
+  const slide = document.getElementById('slide-3');
+  if (!slide) return;
+
+  // Build the reveal sequence: 5 cards in DOM order, then the punchline
+  const cards = Array.from(slide.querySelectorAll('.stack-card'));
+  const punchline = slide.querySelector('.punchline');
+  const sequence = punchline ? [...cards, punchline] : [...cards];
+
+  let nextIndex = 0;
+
+  // Maintain our own visibility flag — SlidePresentation's .visible class
+  // is set-once and never removed, so we can't rely on it to know when
+  // to stop intercepting input.
+  let slideIsVisible = false;
+  const resetObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      slideIsVisible = entry.isIntersecting;
+      if (!entry.isIntersecting) {
+        // Slide left viewport — reset for next entry so the reveal can replay
+        nextIndex = 0;
+        sequence.forEach(el => el.classList.remove('revealed'));
+      }
+    });
+  }, { threshold: 0.5 });  // match SlidePresentation's threshold so flag tracks the same trigger
+  resetObserver.observe(slide);
+
+  function isSlideActive() {
+    return slideIsVisible;
+  }
+
+  function revealNext() {
+    if (nextIndex >= sequence.length) return false;
+    sequence[nextIndex].classList.add('revealed');
+    nextIndex += 1;
+    return true;
+  }
+
+  // Click handler — only intercept while slide 3 is active and cards remain.
+  // Guard against nav-dot / chrome clicks that originate outside the slide.
+  document.addEventListener('click', (e) => {
+    if (!isSlideActive()) return;
+    if (!slide.contains(e.target)) return; // don't intercept nav-dot / chrome clicks
+    if (nextIndex < sequence.length) {
+      e.stopPropagation();
+      revealNext();
+    }
+  }, true /* capture phase so we run before any other click handlers */);
+
+  // Keyboard handler — Space / ArrowRight reveal next card while cards remain
+  document.addEventListener('keydown', (e) => {
+    if (!isSlideActive()) return;
+    if (nextIndex >= sequence.length) return; // let SlidePresentation handle advance
+    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'PageDown') {
+      e.stopPropagation();
+      e.preventDefault();
+      revealNext();
+    }
+  }, true /* capture phase — must run BEFORE the SlidePresentation keydown handler */);
+})();
+
+/* ===========================================
+   PHASE 4.2 — Slide 8 achievement-pop hook
+   Click or Space/ArrowRight while slide 8 is active:
+   pop next list item in DOM order (data-pop-index 0..9).
+   When all 10 are revealed, further input advances to slide 9.
+   =========================================== */
+(function setupAchievementPop() {
+  const slide = document.getElementById('slide-8');
+  if (!slide) return;
+
+  // Build sequence: all items with data-pop-index, sorted by index value
+  // (DOM order is already correct, but sort defensively)
+  const items = Array.from(slide.querySelectorAll('[data-pop-index]'))
+    .sort((a, b) => parseInt(a.dataset.popIndex, 10) - parseInt(b.dataset.popIndex, 10));
+
+  let nextIndex = 0;
+  let slideIsVisible = false;
+
+  const resetObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      slideIsVisible = entry.isIntersecting;
+      if (!entry.isIntersecting) {
+        nextIndex = 0;
+        items.forEach(el => el.classList.remove('popped'));
+      }
+    });
+  }, { threshold: 0.5 });  // match SlidePresentation threshold
+  resetObserver.observe(slide);
+
+  function isSlideActive() {
+    return slideIsVisible;
+  }
+
+  function popNext() {
+    if (nextIndex >= items.length) return false;
+    items[nextIndex].classList.add('popped');
+    nextIndex += 1;
+    return true;
+  }
+
+  // Click handler — only intercept clicks inside slide 8 while items remain
+  document.addEventListener('click', (e) => {
+    if (!isSlideActive()) return;
+    if (!slide.contains(e.target)) return;  // don't intercept nav-dot / chrome clicks
+    if (nextIndex < items.length) {
+      e.stopPropagation();
+      popNext();
+    }
+  }, true);
+
+  // Keyboard handler — Space / ArrowRight / PageDown pop next item
+  document.addEventListener('keydown', (e) => {
+    if (!isSlideActive()) return;
+    if (nextIndex >= items.length) return;  // let SlidePresentation advance
+    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'PageDown') {
+      e.stopPropagation();
+      e.preventDefault();
+      popNext();
+    }
+  }, true);
+})();
+</script>
+
+</body>
+</html>

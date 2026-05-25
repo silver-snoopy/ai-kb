@@ -55,3 +55,8 @@ public/dungeon/public/assets/_dropzone/*.zip
 # Playwright MCP smoke-test artifacts (screenshots + session caches)
 .playwright-mcp/
 stc-*.png
+
+# Talk decks — public master slides committed (and now deployable via Pages);
+# company-branded variants + speaker notes stay local
+public/talks/**/branded/
+public/talks/**/notes.md

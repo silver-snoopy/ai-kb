@@ -18,6 +18,7 @@ export class BootScene extends Phaser.Scene {
 
     // Sprite assets
     this.load.image('hero', 'assets/sprites/hero.png');
+    this.load.image('hero-desperate', 'assets/sprites/warlock-desperate-stance.png');
     this.load.image('boss-the-orchestrator', 'assets/sprites/boss-orchestrator.png');
     this.load.image('boss-the-compiler-king', 'assets/sprites/boss-compiler-king.png');
     this.load.image('boss-the-grammarian', 'assets/sprites/boss-grammarian.png');
