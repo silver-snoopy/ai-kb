@@ -28,6 +28,28 @@ CCA-F launched March 12, 2026. In ~10 weeks an entire slop ecosystem has appeare
 
 **Deck-writing phase: pick 4-5 strongest** for the montage. Recommend opening with 3 homepages → 3 domain pages of the *same* domain to escalate "they look the same" → "they ARE the same."
 
+### 1.1 Final montage picks (proposed 2026-05-25 by Claude, awaiting user sign-off)
+
+Five cards in card-stack reveal order:
+
+| Click | File | Site | Why this slot |
+|---|---|---|---|
+| 1 | `02-claudecertifiedarchitects.png` | claudecertifiedarchitects.com homepage | Opens with a clean cert-prep template — establishes the visual baseline |
+| 2 | `03-skillcertpro-ccaf.png` | skillcertpro CCA-F page | Same template, different brand → first "wait, didn't I just see that?" moment |
+| 3 | `07-claudecertificationguide-agentic-loops.png` | claudecertificationguide.com / agentic-loops | Escalation: now showing the INSIDE pages, not just the homepage |
+| 4 | `08-claudecertifications-agentic-architecture.png` | claudecertifications.com / agentic-architecture | Same Domain 1 topic, different brand, similar content treatment → "they ARE the same" |
+| 5 | `01-claudecertifications.png` | claudecertifications.com (DMCA takedown notice) | Punchline twist: "and one already got DMCA'd." Lands the chaotic-ecosystem message in a single visual. |
+
+**Final card caption (after card 5):** *"Spot the difference?"*
+
+**Slide-9 (testimonials) caption beneath the quotes:** retains *"None of this was study advice. They just played the game."*
+
+**Cards considered but cut from this v1 pick:**
+- Card 04 (tutorialsdojo) — strong layout-sameness rhyme, but four homepage cards in a row drags. Hold in reserve as a swap-in for cards 1 or 2.
+- Card 06 (flashgenius OpenAI) — the cross-provider rhyme is funny but takes a 5-second explanation ("yes that's OpenAI not Claude") that costs slide momentum. Keep as a fallback for a longer cut of the talk.
+- Card 09 (ccaf-pro Vercel) — renders sparsely (the implementer noted console errors); visual quality below the others.
+- Card 10 (Medium "Gap Closer") — meta-narrative ("the article admits the slop exists") is great but Medium's layout is too different from the other cards, breaking the "they all look the same" rhythm.
+
 ---
 
 ## 2. Recent (2024-2026) gamification studies (Act II)
