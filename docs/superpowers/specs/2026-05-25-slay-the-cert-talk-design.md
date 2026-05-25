@@ -79,7 +79,7 @@ c:\projects\ai-kb\
 │
 └── public\talks\                                       ← public master committed; deploys via Pages
     └── 2026-06-03-slay-the-cert\
-        ├── slides.html                                 ← public master (committed)
+        ├── index.html                                 ← public master (committed)
         ├── assets\                                     ← committed (public)
         │   ├── slop-montage\*.png                      ← competitor screenshots
         │   ├── dungeon-demo.gif                        ← 6-sec loop (base64 inlined)
@@ -87,7 +87,7 @@ c:\projects\ai-kb\
         │   └── workflow-diagram.svg
         ├── notes.md                                    ← gitignored (speaker notes)
         └── branded\                                    ← gitignored (company-flavored)
-            └── slides.html                             ← branded variant for the venue
+            └── index.html                             ← branded variant for the venue
 ```
 
 ### 3.2 Tech stack
