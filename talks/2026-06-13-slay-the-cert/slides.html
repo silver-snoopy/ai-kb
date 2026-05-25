@@ -37,8 +37,8 @@ html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
     --title-size: clamp(1.5rem, 5vw, 4rem);
     --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
     --h3-size: clamp(1rem, 2.5vw, 1.75rem);
-    --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
-    --small-size: clamp(0.65rem, 1vw, 0.875rem);
+    --body-size: clamp(1.05rem, 1.8vw, 1.45rem);
+    --small-size: clamp(0.8rem, 1.1vw, 0.95rem);
     --slide-padding: clamp(1rem, 4vw, 4rem);
     --content-gap: clamp(0.5rem, 2vw, 2rem);
     --element-gap: clamp(0.25rem, 1vw, 1rem);
@@ -153,7 +153,7 @@ body {
     display: block;
 }
 .ornament-divider .ornament {
-    font-size: clamp(0.7rem, 1.2vw, 1rem);
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
     color: var(--accent-gold);
     animation: candleFlicker 4s ease-in-out infinite;
     flex-shrink: 0;
@@ -276,7 +276,7 @@ body {
 .chapter-marker {
     font-family: 'Cinzel', serif;
     font-weight: 500;
-    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    font-size: clamp(0.85rem, 0.9vw, 0.95rem);
     letter-spacing: 0.18em;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -413,19 +413,21 @@ body {
 .slide-3-title {
     font-family: 'Cinzel', serif;
     font-weight: 700;
-    font-size: var(--h2-size);
-    letter-spacing: 0.04em;
-    color: var(--text-primary);
-    text-align: center;
+    font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-align: left;
     flex-shrink: 0;
+    align-self: flex-start;
 }
 .slide-3-subtitle {
     font-family: 'EB Garamond', Georgia, serif;
     font-style: italic;
     font-size: var(--body-size);
     color: var(--text-muted);
-    text-align: center;
+    text-align: left;
     flex-shrink: 0;
+    align-self: flex-start;
 }
 .stack-wrapper {
     flex: 1;
@@ -433,36 +435,35 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: clamp(0.5rem, 1.5vh, 1rem);
+    gap: clamp(0.75rem, 2vh, 1.5rem);
     min-height: 0;
 }
 .stack-container {
     position: relative;
-    width: clamp(220px, 40vw, 480px);
-    height: clamp(130px, 28vh, 300px);
+    width: clamp(400px, 70vw, 900px);
+    height: clamp(280px, 55vh, 600px);
     flex-shrink: 0;
 }
 .stack-card {
     position: absolute;
     background: #f5f0e8;
     border: 3px solid var(--accent-gold);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 0 12px rgba(201, 169, 97, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 0 2px var(--accent-gold);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     width: 100%;
-    transition: transform 0.2s ease, opacity 0.4s ease;
 }
 .stack-card img {
     width: 100%;
-    height: clamp(90px, 20vh, 240px);
+    height: clamp(220px, 45vh, 520px);
     object-fit: cover;
     display: block;
     max-height: none;
 }
 .brand-caption {
     font-family: 'EB Garamond', Georgia, serif;
-    font-size: clamp(0.55rem, 1vw, 0.75rem);
+    font-size: clamp(0.85rem, 1vw, 1rem);
     color: #5a4a30;
     padding: 4px 8px;
     background: #ede5d0;
@@ -472,15 +473,17 @@ body {
     text-overflow: ellipsis;
     font-style: italic;
 }
-.stack-card[data-stack-index="0"] { transform: rotate(-3deg) translate(-8px, -6px); z-index: 1; }
-.stack-card[data-stack-index="1"] { transform: rotate(2deg) translate(6px, -3px); z-index: 2; }
-.stack-card[data-stack-index="2"] { transform: rotate(-2deg) translate(-4px, 0px); z-index: 3; }
-.stack-card[data-stack-index="3"] { transform: rotate(3deg) translate(10px, 2px); z-index: 4; }
-.stack-card[data-stack-index="4"] { transform: rotate(-1deg) translate(2px, 4px); z-index: 5; }
+/* Final stack positions (used as --final-transform via nth-of-type) */
+.stack-card[data-stack-index="0"] { z-index: 1; }
+.stack-card[data-stack-index="1"] { z-index: 2; }
+.stack-card[data-stack-index="2"] { z-index: 3; }
+.stack-card[data-stack-index="3"] { z-index: 4; }
+.stack-card[data-stack-index="4"] { z-index: 5; }
+
 .punchline {
     font-family: 'Cinzel', serif;
     font-weight: 700;
-    font-size: clamp(1.1rem, 2.5vw, 2rem);
+    font-size: clamp(1.3rem, 2.8vw, 2.5rem);
     color: var(--accent-gold-bright);
     text-align: center;
     letter-spacing: 0.05em;
@@ -496,15 +499,34 @@ body {
 }
 
 /* === SLIDE 3 — Phase 4 click-driven reveal === */
-/* Cards start hidden, reveal-on-click adds .revealed */
-#slide-3 .stack-card,
+/* Cards start off-screen-right with dramatic rotation; .revealed deals them onto the pile */
+#slide-3 .stack-card {
+  opacity: 0;
+  transform: translateX(80vw) rotate(35deg);
+  pointer-events: none;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+#slide-3 .stack-card.revealed {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Per-card landing positions (theatrical dealt stack) */
+#slide-3 .stack-card:nth-of-type(1).revealed { transform: translate(-22px, -15px) rotate(-7deg); }
+#slide-3 .stack-card:nth-of-type(2).revealed { transform: translate(14px, 8px) rotate(5deg); }
+#slide-3 .stack-card:nth-of-type(3).revealed { transform: translate(-10px, 18px) rotate(-4deg); }
+#slide-3 .stack-card:nth-of-type(4).revealed { transform: translate(20px, -8px) rotate(6deg); }
+#slide-3 .stack-card:nth-of-type(5).revealed { transform: translate(4px, 12px) rotate(-3deg); }
+
+/* Punchline: fade-in + scale-up */
 #slide-3 .punchline {
   opacity: 0;
+  transform: scale(0.88);
   pointer-events: none;
+  transition: opacity 0.5s ease 0.1s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
 }
-#slide-3 .stack-card.revealed,
 #slide-3 .punchline.revealed {
   opacity: 1;
+  transform: scale(1);
   pointer-events: auto;
 }
 
@@ -628,23 +650,73 @@ body {
    =========================================== */
 #slide-7 {
     background-color: var(--bg-base);
-    background-image: radial-gradient(ellipse at 80% 20%, rgba(139,30,30,0.15) 0%, transparent 50%);
+    background-image: radial-gradient(ellipse at 80% 20%, rgba(139,30,30,0.18) 0%, transparent 50%),
+                      radial-gradient(ellipse at 20% 80%, rgba(139,30,30,0.10) 0%, transparent 45%);
 }
 .slide-7-title-fails {
     color: var(--impact-crimson);
 }
+.caution-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    background: rgba(139, 30, 30, 0.12);
+    border: 1px solid rgba(139, 30, 30, 0.45);
+    border-radius: 2px;
+    padding: 0.35rem 1rem;
+    flex-shrink: 0;
+    margin-bottom: 0.2rem;
+}
+.caution-banner .seal {
+    font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+    color: var(--impact-crimson);
+}
+.caution-banner .caution-text {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+    letter-spacing: 0.18em;
+    color: rgba(139, 30, 30, 0.9);
+    text-transform: uppercase;
+    font-variant: small-caps;
+}
+.fail-cols-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+}
 .fail-col {
-    background: var(--bg-card);
-    border: 1px solid var(--border-rule);
-    padding: clamp(0.75rem, 2vw, 1.75rem);
+    background: rgba(26, 22, 18, 0.9);
+    border: 1px solid rgba(139, 30, 30, 0.4);
+    border-radius: 2px;
+    padding: clamp(1rem, 2.5vw, 2rem);
     display: flex;
     flex-direction: column;
-    gap: clamp(0.4rem, 1vh, 0.75rem);
+    gap: clamp(0.5rem, 1.2vh, 1rem);
+    position: relative;
+}
+.fail-col::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(139, 30, 30, 0.04);
+    border-radius: 2px;
+    pointer-events: none;
+}
+.fail-col-sigil {
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    color: var(--impact-crimson);
+    line-height: 1;
+    opacity: 0.85;
 }
 .fail-col-title {
     font-family: 'Cinzel', serif;
     font-weight: 700;
-    font-size: var(--h3-size);
+    font-size: clamp(1.1rem, 2.2vw, 1.65rem);
     color: var(--accent-gold);
     line-height: 1.2;
     letter-spacing: 0.04em;
@@ -653,13 +725,36 @@ body {
     font-family: 'EB Garamond', Georgia, serif;
     font-size: var(--body-size);
     color: var(--text-primary);
-    line-height: 1.6;
+    line-height: 1.7;
 }
 .fail-col-source {
     font-family: 'EB Garamond', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
+    margin-top: auto;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(201, 169, 97, 0.15);
+}
+.fail-col-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: clamp(20px, 3vw, 40px);
+    flex-shrink: 0;
+}
+.fail-col-divider .v-rule {
+    flex: 1;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--accent-gold) 20%, var(--impact-crimson) 50%, var(--accent-gold) 80%, transparent);
+}
+.fail-col-divider .v-medallion {
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+    padding: 0.2rem 0;
+    animation: candleFlicker 4s ease-in-out infinite;
 }
 .honest-gap {
     font-family: 'EB Garamond', Georgia, serif;
@@ -668,59 +763,121 @@ body {
     text-align: center;
     flex-shrink: 0;
     font-style: italic;
+    padding: 0.4rem 1rem;
+    border-top: 1px solid rgba(201, 169, 97, 0.2);
+    margin-top: 0.25rem;
 }
 
 /* ===========================================
    SLIDE 8 — REWARD SHOWDOWN
    =========================================== */
 #slide-8 { background-color: var(--bg-base); }
+.slide-8-section-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+    color: var(--accent-gold);
+    letter-spacing: 0.06em;
+    text-align: center;
+    flex-shrink: 0;
+}
+.reward-cols-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+}
 .reward-col {
     display: flex;
     flex-direction: column;
-    gap: clamp(0.3rem, 0.8vh, 0.6rem);
+    gap: clamp(0.4rem, 1vh, 0.8rem);
+    background: rgba(26, 22, 18, 0.85);
+    border: 1px solid var(--border-rule);
+    border-radius: 2px;
+    padding: clamp(0.75rem, 1.8vw, 1.5rem);
+}
+.reward-col.carrots-col {
+    border-color: rgba(201, 169, 97, 0.4);
+    background: rgba(201, 169, 97, 0.04);
+}
+.reward-col.refused-col {
+    border-color: rgba(139, 30, 30, 0.4);
+    background: rgba(139, 30, 30, 0.05);
 }
 .reward-col-title {
     font-family: 'Cinzel', serif;
     font-weight: 700;
-    font-size: var(--h3-size);
-    letter-spacing: 0.04em;
-    margin-bottom: clamp(0.2rem, 0.5vh, 0.5rem);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    letter-spacing: 0.05em;
+    margin-bottom: clamp(0.15rem, 0.4vh, 0.4rem);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 .reward-col-title.carrots-title { color: var(--accent-gold-bright); }
 .reward-col-title.refused-title { color: var(--impact-crimson); }
+.reward-col-title .col-ornament {
+    font-size: 1.1em;
+    opacity: 0.85;
+    flex-shrink: 0;
+}
+.reward-col-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: clamp(20px, 3vw, 40px);
+    flex-shrink: 0;
+}
+.reward-col-divider .v-rule {
+    flex: 1;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--accent-gold) 25%, var(--accent-gold) 75%, transparent);
+}
+.reward-col-divider .v-medallion {
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--accent-gold);
+    flex-shrink: 0;
+    padding: 0.3rem 0;
+    animation: candleFlicker 4s ease-in-out infinite;
+}
 .carrots, .refused {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: clamp(0.2rem, 0.5vh, 0.4rem);
+    gap: clamp(0.3rem, 0.7vh, 0.55rem);
 }
 .carrots li, .refused li {
     font-family: 'EB Garamond', Georgia, serif;
-    font-size: clamp(0.75rem, 1.4vw, 1.05rem);
-    line-height: 1.45;
-    padding: clamp(0.2rem, 0.5vh, 0.4rem) clamp(0.5rem, 1vw, 0.75rem);
+    font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+    line-height: 1.5;
+    padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.75rem, 1.2vw, 1.2rem);
+    border-radius: 1px;
 }
 .carrots li {
-    background: rgba(201, 169, 97, 0.07);
-    border-left: 2px solid var(--accent-gold);
+    background: rgba(201, 169, 97, 0.09);
+    border-left: 3px solid var(--accent-gold);
     color: var(--text-primary);
 }
 .carrots li::before {
-    content: "✓ ";
+    content: "⚜ ";
     color: var(--accent-gold-bright);
-    font-weight: 700;
+    font-size: 1.05em;
 }
 .refused li {
-    background: rgba(139, 30, 30, 0.08);
-    border-left: 2px solid var(--impact-crimson);
+    background: rgba(139, 30, 30, 0.10);
+    border-left: 3px solid var(--impact-crimson);
     color: var(--text-muted);
     text-decoration: line-through;
-    text-decoration-color: rgba(139, 30, 30, 0.6);
+    text-decoration-color: rgba(139, 30, 30, 0.55);
 }
 .refused li::before {
-    content: "✗ ";
+    content: "✖ ";
     color: var(--impact-crimson);
-    font-weight: 700;
+    font-size: 1.05em;
     display: inline-block;
 }
 .slide-8-hint {
@@ -908,7 +1065,7 @@ body {
 .workflow-step-skill {
     font-family: 'EB Garamond', Georgia, serif;
     font-style: italic;
-    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    font-size: clamp(0.85rem, 0.9vw, 0.95rem);
     color: var(--text-muted);
     line-height: 1.4;
 }
@@ -1043,7 +1200,7 @@ body {
 }
 .ref-list li {
     font-family: 'EB Garamond', Georgia, serif;
-    font-size: clamp(0.7rem, 1.3vw, 1rem);
+    font-size: clamp(0.9rem, 1.3vw, 1.1rem);
     color: var(--text-muted);
     line-height: 1.5;
     padding-left: clamp(1rem, 2vw, 1.5rem);
@@ -1139,7 +1296,7 @@ body {
 <section class="slide" id="slide-3">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
-  <div class="slide-content" style="align-items: center;">
+  <div class="slide-content" style="align-items: flex-start;">
     <h2 class="slide-3-title reveal">Sins of the Order</h2>
     <p class="slide-3-subtitle reveal"><em>AI slop in cert prep</em></p>
     <div class="stack-wrapper">
@@ -1261,21 +1418,33 @@ body {
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
+    <div class="caution-banner reveal">
+      <span class="seal">⚠</span>
+      <span class="caution-text">Caution &middot; Caveats &middot; Caveat Emptor</span>
+      <span class="seal">⚠</span>
+    </div>
     <h2 class="slide-title reveal">And gamification <span class="slide-7-title-fails">fails.</span></h2>
     <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
-    <div class="grid two-col reveal" style="flex: 1; min-height: 0;">
+    <div class="fail-cols-wrapper reveal" style="flex: 1; min-height: 0;">
       <div class="fail-col">
+        <span class="fail-col-sigil">⚡</span>
         <p class="fail-col-title">Streak anxiety</p>
-        <p class="fail-col-source">Loss aversion as habit-trap.</p>
-        <p class="fail-col-body">Duolingo's own A/B tests measure the cost. Keeps you opening the app — not learning.</p>
+        <p class="fail-col-body">Duolingo's own A/B tests measure the cost. Keeps you opening the app — not learning. Loss aversion weaponised as habit-trap.</p>
+        <p class="fail-col-source">StriveCloud writeup 2024 · Duolingo Streak Wager A/B retention data</p>
+      </div>
+      <div class="fail-col-divider" aria-hidden="true">
+        <div class="v-rule"></div>
+        <span class="v-medallion">☉</span>
+        <div class="v-rule"></div>
       </div>
       <div class="fail-col">
+        <span class="fail-col-sigil">⛧</span>
         <p class="fail-col-title">Punishment outside play</p>
-        <p class="fail-col-source">Habitica's counterproductive-effects paper.</p>
-        <p class="fail-col-body">Damage during productive time tanks engagement. The mechanic turns on you.</p>
+        <p class="fail-col-body">Damage during productive time tanks engagement. The mechanic turns on you — the game becomes a stressor, not a tool.</p>
+        <p class="fail-col-source">Toda et al. 2018 · Habitica counterproductive-effects paper</p>
       </div>
     </div>
-    <p class="honest-gap reveal"><em>Honest gap: no recent RCT on cert-prep specifically. The corporate-training literature is our proxy.</em></p>
+    <p class="honest-gap reveal"><em>✶ Honest gap: no recent RCT on cert-prep specifically. The corporate-training literature is our proxy.</em></p>
   </div>
 </section>
 
@@ -1286,12 +1455,12 @@ body {
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
-    <h2 class="slide-title reveal" style="font-size: var(--h3-size);">What we used. What we refused.</h2>
-    <p class="garamond-italic reveal" style="font-size: var(--body-size);"><em>A grimoire of carrots and snares.</em></p>
+    <h2 class="slide-title reveal">What we used. What we refused.</h2>
+    <p class="slide-8-section-title reveal"><em>A Grimoire of Carrots &amp; Snares</em></p>
     <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">⚝</span><span class="rule"></span></div>
-    <div class="grid two-col" style="flex: 1; min-height: 0; align-items: start;">
-      <div class="reward-col reveal">
-        <h3 class="reward-col-title carrots-title">Carrots used</h3>
+    <div class="reward-cols-wrapper reveal">
+      <div class="reward-col carrots-col">
+        <h3 class="reward-col-title carrots-title"><span class="col-ornament">⚜</span> Spells Granted</h3>
         <ul class="carrots">
           <li data-pop-index="0">Spell drops (variable reward)</li>
           <li data-pop-index="1">Archmage's Codex (collection)</li>
@@ -1301,8 +1470,13 @@ body {
           <li data-pop-index="5">Golden Parchment + Eternal Dungeon unlock</li>
         </ul>
       </div>
-      <div class="reward-col reveal">
-        <h3 class="reward-col-title refused-title">Dark patterns refused</h3>
+      <div class="reward-col-divider" aria-hidden="true">
+        <div class="v-rule"></div>
+        <span class="v-medallion">⚜</span>
+        <div class="v-rule"></div>
+      </div>
+      <div class="reward-col refused-col">
+        <h3 class="reward-col-title refused-title"><span class="col-ornament">⚠</span> Sigils Banished</h3>
         <ul class="refused">
           <li data-pop-index="6">Daily streaks (Duolingo dark pattern)</li>
           <li data-pop-index="7">Damage outside voluntary runs (Habitica failure)</li>
