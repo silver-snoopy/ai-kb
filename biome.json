@@ -52,7 +52,7 @@
         "useNodejsImportProtocol": "warn",
         "useSingleVarDeclarator": "warn",
         "useExponentiationOperator": "warn",
-        "noNonNullAssertion": "warn",
+        "noNonNullAssertion": "off",
         "noUnusedTemplateLiteral": "warn",
         "noParameterAssign": "warn"
       },
@@ -65,6 +65,23 @@
       }
     }
   },
+  "overrides": [
+    {
+      "include": [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "**/__tests__/**",
+        "public/dungeon/vitest.setup.ts"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
