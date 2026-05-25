@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slay the Cert — 2026-06-13</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+}
+:root {
+    --title-size: clamp(1.5rem, 5vw, 4rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+    --small-size: clamp(0.65rem, 1vw, 0.875rem);
+    --slide-padding: clamp(1rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 2vw, 2rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+}
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+.feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+@media (max-height: 700px) {
+    :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); }
+}
+@media (max-height: 600px) {
+    :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); }
+    .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+@media (max-height: 500px) {
+    :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); }
+}
+@media (max-width: 600px) {
+    :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+    .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    html { scroll-behavior: auto; }
+}
+
+/* ===========================================
+   CSS CUSTOM PROPERTIES
+   =========================================== */
+:root {
+    --bg-primary: #0066ff;
+    --bg-dark: #1a1a2e;
+    --accent-neon: #d4ff00;
+    --text-light: #ffffff;
+    --text-muted: rgba(255,255,255,0.7);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --card-radius: clamp(6px, 1vw, 12px);
+}
+
+/* ===========================================
+   GLOBAL RESETS + BASE
+   =========================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    overflow-y: scroll;
+}
+
+/* ===========================================
+   REVEAL ANIMATIONS
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: 0.1s; }
+.reveal:nth-child(2) { transition-delay: 0.2s; }
+.reveal:nth-child(3) { transition-delay: 0.3s; }
+.reveal:nth-child(4) { transition-delay: 0.4s; }
+.reveal:nth-child(5) { transition-delay: 0.5s; }
+.reveal:nth-child(6) { transition-delay: 0.6s; }
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal-scale { opacity: 1; transform: scale(1); }
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(calc(-1 * clamp(20px, 4vw, 60px)));
+    transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+.slide.visible .reveal-left { opacity: 1; transform: translateX(0); }
+
+.reveal-blur {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.95);
+    transition: opacity 0.7s var(--ease-out-expo), filter 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.slide.visible .reveal-blur { opacity: 1; filter: blur(0); transform: scale(1); }
+
+/* ===========================================
+   HALFTONE BACKGROUND PATTERN
+   =========================================== */
+.halftone-bg {
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: clamp(8px, 1vw, 14px) clamp(8px, 1vw, 14px);
+    background-color: var(--bg-dark);
+}
+
+/* ===========================================
+   GRID VARIANTS
+   =========================================== */
+.two-col { grid-template-columns: 1fr 1fr; }
+.three-col { grid-template-columns: repeat(3, 1fr); }
+.four-col { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 800px) {
+    .three-col, .four-col { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+    .two-col, .three-col, .four-col { grid-template-columns: 1fr; }
+}
+
+/* ===========================================
+   PROGRESS BAR
+   =========================================== */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    z-index: 1000;
+}
+.progress-fill {
+    height: 100%;
+    background: var(--accent-neon);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease-out-expo);
+}
+
+/* ===========================================
+   NAV DOTS
+   =========================================== */
+.nav-dots {
+    position: fixed;
+    right: clamp(8px, 2vw, 20px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 0.8vh, 10px);
+    z-index: 1000;
+}
+.nav-dot {
+    width: clamp(6px, 0.8vw, 10px);
+    height: clamp(6px, 0.8vh, 10px);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    padding: 0;
+}
+.nav-dot.active { background: var(--accent-neon); transform: scale(1.3); }
+.nav-dot:hover { background: rgba(255,255,255,0.7); }
+
+/* ===========================================
+   KEYBOARD HINT
+   =========================================== */
+.keyboard-hint {
+    position: fixed;
+    bottom: clamp(8px, 2vh, 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: rgba(255,255,255,0.3);
+    z-index: 1000;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+}
+
+/* ===========================================
+   NEON BADGES / PILLS
+   =========================================== */
+.neon-badge {
+    display: inline-block;
+    background: var(--accent-neon);
+    color: var(--bg-dark);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: var(--small-size);
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* ===========================================
+   SLIDE BACKGROUNDS
+   =========================================== */
+.bg-dark { background-color: var(--bg-dark); }
+.bg-blue { background-color: var(--bg-primary); }
+
+/* ===========================================
+   SLIDE 1 — TITLE
+   =========================================== */
+#slide-1 {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: clamp(10px, 1.2vw, 18px) clamp(10px, 1.2vw, 18px);
+}
+.slide-1-inner {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 4vw, 4rem);
+    width: 100%;
+}
+.slide-1-text { flex: 1; }
+.slide-1-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 10vw, 8rem);
+    color: var(--text-light);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+}
+.slide-1-subline {
+    font-family: 'Space Mono', monospace;
+    font-weight: 400;
+    font-size: clamp(0.8rem, 2vw, 1.4rem);
+    color: var(--accent-neon);
+    margin-top: clamp(0.75rem, 2vh, 1.5rem);
+    line-height: 1.4;
+}
+.slide-1-tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: clamp(0.5rem, 1.5vh, 1rem);
+}
+.slide-1-sprite {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: clamp(0.5rem, 2vh, 2rem);
+}
+
+/* ===========================================
+   SLIDE 2 — HOOK
+   =========================================== */
+#slide-2 { background-color: var(--bg-primary); }
+.hook-headline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 7vw, 6rem);
+    color: var(--text-light);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+}
+.hook-subtext {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--body-size);
+    color: var(--text-muted);
+    margin-top: clamp(0.5rem, 2vh, 1.5rem);
+}
+.hook-sprite-corner {
+    position: absolute;
+    top: clamp(1rem, 3vw, 3rem);
+    right: clamp(1rem, 3vw, 3rem);
+    opacity: 0.4;
+    image-rendering: pixelated;
+}
+
+/* ===========================================
+   SLIDE 3 — SLOP MONTAGE
+   =========================================== */
+#slide-3 {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: clamp(8px, 1vw, 14px) clamp(8px, 1vw, 14px);
+}
+.slide-3-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: var(--h2-size);
+    color: var(--text-light);
+    text-align: center;
+    flex-shrink: 0;
+}
+.stack-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1.5vh, 1rem);
+    min-height: 0;
+}
+.stack-container {
+    position: relative;
+    width: clamp(220px, 40vw, 480px);
+    height: clamp(130px, 28vh, 300px);
+    flex-shrink: 0;
+}
+.stack-card {
+    position: absolute;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: transform 0.2s ease;
+}
+.stack-card img {
+    width: 100%;
+    height: clamp(90px, 20vh, 240px);
+    object-fit: cover;
+    display: block;
+    max-height: none;
+}
+.brand-caption {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.55rem, 1vw, 0.75rem);
+    color: #333;
+    padding: 4px 8px;
+    background: #f0f0f0;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.stack-card[data-stack-index="0"] { transform: rotate(-3deg) translate(-8px, -6px); z-index: 1; }
+.stack-card[data-stack-index="1"] { transform: rotate(2deg) translate(6px, -3px); z-index: 2; }
+.stack-card[data-stack-index="2"] { transform: rotate(-2deg) translate(-4px, 0px); z-index: 3; }
+.stack-card[data-stack-index="3"] { transform: rotate(3deg) translate(10px, 2px); z-index: 4; }
+.stack-card[data-stack-index="4"] { transform: rotate(-1deg) translate(2px, 4px); z-index: 5; }
+.punchline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.2rem, 3vw, 2.5rem);
+    color: var(--accent-neon);
+    text-align: center;
+}
+
+/* ===========================================
+   SLIDE 4 — DEEP-LINK SAMENESS
+   =========================================== */
+#slide-4 { background-color: var(--bg-dark); }
+.slide-4-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: var(--h2-size);
+    color: var(--text-light);
+    text-align: center;
+    flex-shrink: 0;
+    margin-bottom: var(--content-gap);
+}
+.slide-4-grid {
+    flex: 1;
+    min-height: 0;
+}
+.slide-4-grid figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 0.8vh, 0.75rem);
+    max-height: min(55vh, 450px);
+}
+.slide-4-grid figure img {
+    width: 100%;
+    height: clamp(100px, 30vh, 320px);
+    object-fit: cover;
+    border-radius: var(--card-radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.1);
+    max-height: none;
+}
+.slide-4-grid figcaption {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* ===========================================
+   SLIDE 5 — PIVOT
+   =========================================== */
+#slide-5 { background-color: var(--bg-primary); }
+.pivot-headline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    color: var(--text-light);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+}
+.pivot-headline .neon { color: var(--accent-neon); }
+.pivot-arrow {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.5rem, 4vw, 3.5rem);
+    color: var(--accent-neon);
+    margin-top: clamp(0.5rem, 2vh, 1.5rem);
+    display: block;
+}
+
+/* ===========================================
+   SLIDE 6 — GAMIFICATION WORKS
+   =========================================== */
+#slide-6 {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+    background-size: clamp(10px, 1.2vw, 18px) clamp(10px, 1.2vw, 18px);
+}
+.stat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--card-radius);
+    padding: clamp(0.75rem, 2vw, 2rem) clamp(0.5rem, 1.5vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 1vh, 0.75rem);
+    text-align: center;
+}
+.stat-number {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: var(--accent-neon);
+    line-height: 1;
+}
+.stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+.citation {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: var(--element-gap);
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 7 — GAMIFICATION FAILS
+   =========================================== */
+#slide-7 { background-color: var(--bg-primary); }
+.fail-col {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--card-radius);
+    padding: clamp(0.75rem, 2vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 1vh, 0.75rem);
+}
+.fail-col-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: var(--h3-size);
+    color: var(--accent-neon);
+    line-height: 1.2;
+}
+.fail-col-body {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--body-size);
+    color: var(--text-light);
+    line-height: 1.5;
+}
+.honest-gap {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: var(--element-gap);
+    flex-shrink: 0;
+    font-style: italic;
+}
+
+/* ===========================================
+   SLIDE 8 — REWARD SHOWDOWN
+   =========================================== */
+#slide-8 { background-color: var(--bg-dark); }
+.reward-col {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.3rem, 0.8vh, 0.6rem);
+}
+.reward-col-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: var(--h3-size);
+    margin-bottom: clamp(0.2rem, 0.5vh, 0.5rem);
+}
+.reward-col-title.carrots-title { color: #ffd700; }
+.reward-col-title.refused-title { color: #ff5a5a; }
+.carrots, .refused {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.2rem, 0.5vh, 0.5rem);
+}
+.carrots li, .refused li {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.7rem, 1.3vw, 1rem);
+    line-height: 1.4;
+    padding: clamp(0.25rem, 0.6vh, 0.5rem) clamp(0.5rem, 1vw, 0.75rem);
+    border-radius: 4px;
+}
+.carrots li {
+    background: rgba(255, 215, 0, 0.12);
+    border-left: 3px solid #ffd700;
+    color: var(--text-light);
+}
+.carrots li::before {
+    content: "✓ ";
+    color: #ffd700;
+    font-weight: 700;
+}
+.refused li {
+    background: rgba(255, 90, 90, 0.12);
+    border-left: 3px solid #ff5a5a;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 90, 90, 0.7);
+}
+.refused li::before {
+    content: "✗ ";
+    color: #ff5a5a;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* ===========================================
+   SLIDE 9 — DEMO BREAK
+   =========================================== */
+#slide-9 {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: clamp(10px, 1.2vw, 18px) clamp(10px, 1.2vw, 18px);
+}
+.demo-arrow {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    color: var(--accent-neon);
+    text-align: center;
+    line-height: 1;
+}
+.demo-fallback {
+    text-align: center;
+    margin-top: clamp(0.5rem, 2vh, 1.5rem);
+}
+.demo-fallback-caption {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: clamp(0.3rem, 1vh, 0.75rem);
+}
+
+/* ===========================================
+   SLIDE 10 — TESTIMONIALS
+   =========================================== */
+#slide-10 { background-color: var(--bg-primary); }
+.testimonial {
+    background: rgba(0,0,0,0.2);
+    border-left: 4px solid var(--accent-neon);
+    border-radius: 0 var(--card-radius) var(--card-radius) 0;
+    padding: clamp(0.6rem, 1.5vw, 1.25rem) clamp(0.75rem, 2vw, 1.5rem);
+    position: relative;
+}
+.testimonial::before {
+    content: "\201C";
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    color: var(--accent-neon);
+    opacity: 0.4;
+    position: absolute;
+    top: calc(-1 * clamp(0.25rem, 1vh, 0.75rem));
+    left: clamp(0.3rem, 0.8vw, 0.75rem);
+    line-height: 1;
+}
+.testimonial p {
+    font-family: 'Syne', sans-serif;
+    font-size: var(--body-size);
+    color: var(--text-light);
+    line-height: 1.5;
+    padding-left: clamp(1rem, 2vw, 2rem);
+}
+.testimonial cite {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: clamp(0.25rem, 0.8vh, 0.5rem);
+    padding-left: clamp(1rem, 2vw, 2rem);
+    font-style: normal;
+}
+.testimonials-caption {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: var(--element-gap);
+    font-style: italic;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 11 — ACT III TRANSITION
+   =========================================== */
+#slide-11 {
+    background-color: var(--bg-dark);
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: clamp(24px, 3vw, 48px) clamp(24px, 3vw, 48px);
+}
+.dir-tree {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.8rem, 1.8vw, 1.3rem);
+    color: var(--accent-neon);
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--card-radius);
+    padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 2.5vw, 2rem);
+    line-height: 1.8;
+}
+.dir-tree .dir-comment {
+    color: var(--text-muted);
+    font-style: italic;
+}
+.act3-caption {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--body-size);
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: var(--content-gap);
+    font-style: italic;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 12 — WORKFLOW LOOP
+   =========================================== */
+#slide-12 { background-color: var(--bg-primary); }
+.workflow-box {
+    background: rgba(0,0,0,0.25);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: var(--card-radius);
+    padding: clamp(0.5rem, 1.5vw, 1.25rem) clamp(0.4rem, 1vw, 1rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 0.8vh, 0.6rem);
+    text-align: center;
+    position: relative;
+}
+.workflow-step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--accent-neon);
+    font-weight: 700;
+}
+.workflow-step-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(0.9rem, 2vw, 1.5rem);
+    color: var(--text-light);
+}
+.workflow-step-skill {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    color: var(--text-muted);
+    line-height: 1.3;
+    word-break: break-all;
+}
+.workflow-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.25rem, 1vw, 0.75rem);
+    flex-shrink: 0;
+    margin: clamp(0.25rem, 0.8vh, 0.5rem) 0;
+    flex-wrap: wrap;
+}
+.workflow-arrow-symbol {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.9rem, 2vw, 1.5rem);
+    color: var(--accent-neon);
+    flex-shrink: 0;
+}
+.feedback-loop {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--accent-neon);
+    text-align: center;
+    flex-shrink: 0;
+}
+.workflow-subcaption {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    text-align: center;
+    font-style: italic;
+    flex-shrink: 0;
+}
+.workflow-handoff {
+    font-family: 'Space Mono', monospace;
+    font-size: var(--small-size);
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SLIDE 13 — I'M NOT A GAME DEV
+   =========================================== */
+#slide-13 { background-color: var(--bg-dark); }
+.big-lines { display: flex; flex-direction: column; gap: clamp(0.4rem, 1.5vh, 1.25rem); }
+.big-line {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.75rem, 5.5vw, 5rem);
+    color: var(--text-light);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+}
+.big-line.neon { color: var(--accent-neon); }
+
+/* ===========================================
+   SLIDE 14 — CLOSE
+   =========================================== */
+#slide-14 {
+    background-color: var(--bg-primary);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: clamp(8px, 1vw, 14px) clamp(8px, 1vw, 14px);
+}
+.close-headline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 7vw, 6.5rem);
+    color: var(--text-light);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+}
+.close-subline {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.8rem, 1.8vw, 1.3rem);
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 65ch;
+    margin-top: clamp(0.75rem, 2vh, 1.5rem);
+}
+.close-sprite-corner {
+    position: absolute;
+    bottom: clamp(1rem, 3vw, 3rem);
+    right: clamp(1rem, 3vw, 3rem);
+    opacity: 0.5;
+    image-rendering: pixelated;
+}
+
+/* ===========================================
+   SLIDE 15 — REFERENCES
+   =========================================== */
+#slide-15 { background-color: var(--bg-dark); }
+.ref-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.35rem, 1vh, 0.75rem);
+}
+.ref-list li {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.65rem, 1.2vw, 0.9rem);
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding-left: clamp(0.75rem, 1.5vw, 1.25rem);
+    position: relative;
+}
+.ref-list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent-neon);
+}
+.thanks-caption {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    color: var(--accent-neon);
+    margin-top: clamp(0.75rem, 2vh, 1.5rem);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   SHARED SLIDE TITLES
+   =========================================== */
+.slide-section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: var(--h2-size);
+    color: var(--text-light);
+    flex-shrink: 0;
+    margin-bottom: var(--content-gap);
+}
+
+  </style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- Nav Dots -->
+<nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+<!-- Keyboard Hint -->
+<div class="keyboard-hint">↑↓ arrows · space · swipe</div>
+
+<!-- ============================================================
+     SLIDE 1 — TITLE
+     ============================================================ -->
+<section class="slide" id="slide-1">
+  <div class="slide-content">
+    <div class="slide-1-inner">
+      <div class="slide-1-text">
+        <h1 class="slide-1-title reveal">Slay<br>the<br>Cert</h1>
+        <p class="slide-1-subline reveal">A warlock, a workflow,<br>and a force multiplier.</p>
+        <p class="slide-1-tagline reveal">A 15-min talk &middot; 2026-06-13</p>
+      </div>
+      <div class="slide-1-sprite reveal">
+        <img
+          src="assets/title-sprite.png"
+          alt="warlock"
+          style="image-rendering: pixelated; width: clamp(80px, 12vw, 160px); height: auto;"
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 — HOOK
+     ============================================================ -->
+<section class="slide" id="slide-2">
+  <img
+    src="assets/title-sprite.png"
+    alt=""
+    class="hook-sprite-corner"
+    style="width: 32px; height: 32px; image-rendering: pixelated;"
+    aria-hidden="true"
+  >
+  <div class="slide-content">
+    <h2 class="hook-headline reveal-blur">Prepped for<br>an AI cert<br>lately?</h2>
+    <p class="hook-subtext reveal">show of hands?</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 — SLOP MONTAGE
+     ============================================================ -->
+<section class="slide" id="slide-3">
+  <div class="slide-content" style="align-items: center;">
+    <h2 class="slide-3-title reveal">AI slop in cert prep</h2>
+    <div class="stack-wrapper">
+      <div class="stack-container reveal">
+        <div class="stack-card" data-stack-index="0">
+          <img src="assets/slop-montage/02-claudecertifiedarchitects.png" alt="claudecertifiedarchitects.com">
+          <span class="brand-caption">claudecertifiedarchitects.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="1">
+          <img src="assets/slop-montage/03-skillcertpro-ccaf.png" alt="skillcertpro CCA-F">
+          <span class="brand-caption">skillcertpro.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="2">
+          <img src="assets/slop-montage/07-claudecertificationguide-agentic-loops.png" alt="claudecertificationguide agentic loops">
+          <span class="brand-caption">claudecertificationguide.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="3">
+          <img src="assets/slop-montage/08-claudecertifications-agentic-architecture.png" alt="claudecertifications agentic architecture">
+          <span class="brand-caption">claudecertifications.com</span>
+        </div>
+        <div class="stack-card" data-stack-index="4">
+          <img src="assets/slop-montage/01-claudecertifications.png" alt="claudecertifications DMCA takedown">
+          <span class="brand-caption">claudecertifications.com (taken down)</span>
+        </div>
+      </div>
+      <p class="punchline reveal">Spot the difference?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 — SLOP PUNCHLINE (DEEP-LINK SAMENESS)
+     ============================================================ -->
+<section class="slide" id="slide-4">
+  <div class="slide-content">
+    <h2 class="slide-4-title reveal">Same domain. Same content.<br>Different logo.</h2>
+    <div class="grid three-col slide-4-grid">
+      <figure class="reveal">
+        <img src="assets/slop-montage/07-claudecertificationguide-agentic-loops.png" alt="claudecertificationguide agentic loops">
+        <figcaption>claudecertificationguide.com</figcaption>
+      </figure>
+      <figure class="reveal">
+        <img src="assets/slop-montage/08-claudecertifications-agentic-architecture.png" alt="claudecertifications agentic architecture">
+        <figcaption>claudecertifications.com</figcaption>
+      </figure>
+      <figure class="reveal">
+        <img src="assets/slop-montage/09-ccaf-pro-domain1.png" alt="ccaf-pro domain 1">
+        <figcaption>ccaf-pro.vercel.app</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 — PIVOT
+     ============================================================ -->
+<section class="slide" id="slide-5">
+  <div class="slide-content">
+    <h2 class="pivot-headline reveal-scale">So I built a<br><span class="neon">different</span> one.</h2>
+    <span class="pivot-arrow reveal" aria-hidden="true">→</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 — GAMIFICATION WORKS
+     ============================================================ -->
+<section class="slide" id="slide-6">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal">Gamification works.</h2>
+    <div class="grid three-col" style="flex: 1; min-height: 0;">
+      <div class="stat-card reveal">
+        <div class="stat-number">d&thinsp;=&thinsp;0.52</div>
+        <div class="stat-label">medium effect size<br>on learning outcomes</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number">87</div>
+        <div class="stat-label">studies reviewed<br>Gyedu et al. 2026</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number">71%</div>
+        <div class="stat-label">positive results<br>across studies</div>
+      </div>
+    </div>
+    <p class="citation reveal">&mdash; Gyedu et al. 2026, SAGE Open</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 — GAMIFICATION ALSO FAILS
+     ============================================================ -->
+<section class="slide" id="slide-7">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal" style="color: var(--text-light);">&hellip;and gamification<br>also fails.</h2>
+    <div class="grid two-col" style="flex: 1; min-height: 0;">
+      <div class="fail-col reveal">
+        <p class="fail-col-title">Streak anxiety<br><span style="font-size: var(--small-size); color: var(--text-muted);">(Duolingo)</span></p>
+        <p class="fail-col-body">Loss-aversion repackaged as a habit-trap. Keeps you opening the app — not learning.</p>
+      </div>
+      <div class="fail-col reveal">
+        <p class="fail-col-title">Punishment outside the play loop<br><span style="font-size: var(--small-size); color: var(--text-muted);">(Habitica)</span></p>
+        <p class="fail-col-body">Damage during productive time tanks engagement. The mechanic turns on you.</p>
+      </div>
+    </div>
+    <p class="honest-gap reveal">Honest gap: no recent RCT on cert-prep specifically. Corporate-training + language-learning are proxies.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 — REWARD SYSTEM SHOWDOWN
+     ============================================================ -->
+<section class="slide" id="slide-8">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal" style="font-size: var(--h3-size);">What we used. What we refused.</h2>
+    <div class="grid two-col" style="flex: 1; min-height: 0; align-items: start;">
+      <div class="reward-col reveal">
+        <h3 class="reward-col-title carrots-title">Carrots used</h3>
+        <ul class="carrots">
+          <li data-pop-index="0">Spell drops (variable reward)</li>
+          <li data-pop-index="1">Archmage's Codex (collection)</li>
+          <li data-pop-index="2">Lifelines that don't reduce knowledge work</li>
+          <li data-pop-index="3">Lore-on-pickup (story-as-reward)</li>
+          <li data-pop-index="4">Recall interstitials (voluntary mini-review)</li>
+          <li data-pop-index="5">Golden Parchment + Eternal Dungeon unlock</li>
+        </ul>
+      </div>
+      <div class="reward-col reveal">
+        <h3 class="reward-col-title refused-title">Dark patterns refused</h3>
+        <ul class="refused">
+          <li data-pop-index="6">Daily streaks (Duolingo dark pattern)</li>
+          <li data-pop-index="7">Damage outside voluntary runs (Habitica failure)</li>
+          <li data-pop-index="8">Permanent passives between runs</li>
+          <li data-pop-index="9">Premium currency / paywall</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 — DEMO BREAK
+     ============================================================ -->
+<section class="slide" id="slide-9">
+  <div class="slide-content" style="align-items: center; text-align: center;">
+    <p class="demo-arrow reveal">&larr; live demo</p>
+    <div class="demo-fallback reveal">
+      <!-- DUNGEON_DEMO_GIF -->
+      <p class="demo-fallback-caption">(fallback loop &mdash; alt-tab to localhost:5173 for live)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 10 — TESTIMONIALS (PLACEHOLDER)
+     ============================================================ -->
+<section class="slide" id="slide-10">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal">And here's what users said.</h2>
+    <div style="display: flex; flex-direction: column; gap: clamp(0.5rem, 1.5vh, 1rem); flex: 1; min-height: 0; justify-content: center;">
+      <blockquote class="testimonial reveal">
+        <!-- TODO: replace with curated testimonial from talks/2026-06-13-slay-the-cert/assets/testimonials.md -->
+        <p>"&lt;placeholder quote 1 &mdash; short, specific behavior change&gt;"</p>
+        <cite>&mdash; CCA-F candidate, May 2026</cite>
+      </blockquote>
+      <blockquote class="testimonial reveal">
+        <!-- TODO: replace with curated testimonial from talks/2026-06-13-slay-the-cert/assets/testimonials.md -->
+        <p>"&lt;placeholder quote 2 &mdash; names a design choice that worked&gt;"</p>
+        <cite>&mdash; CCA-F candidate, May 2026</cite>
+      </blockquote>
+      <blockquote class="testimonial reveal">
+        <!-- TODO: replace with curated testimonial from talks/2026-06-13-slay-the-cert/assets/testimonials.md -->
+        <p>"&lt;placeholder quote 3 &mdash; exam outcome optional&gt;"</p>
+        <cite>&mdash; CCA-F candidate, May 2026</cite>
+      </blockquote>
+    </div>
+    <p class="testimonials-caption reveal"><em>"None of this was study advice. They just played the game."</em></p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 11 — ACT III TRANSITION
+     ============================================================ -->
+<section class="slide" id="slide-11">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal">How did one engineer ship<br>this in weekends?</h2>
+    <pre class="dir-tree reveal">docs/superpowers/
+├── research/   <span class="dir-comment">← what's already known</span>
+├── specs/      <span class="dir-comment">← what we're building</span>
+└── plans/      <span class="dir-comment">← how we'll build it</span></pre>
+    <p class="act3-caption reveal"><em>"The answer isn't 10x productivity. It's a workflow."</em></p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 12 — THE WORKFLOW LOOP
+     ============================================================ -->
+<section class="slide" id="slide-12">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal" style="color: var(--text-light);">Brainstorm &rarr; Spec &rarr; Plan &rarr; Execute</h2>
+    <div class="workflow-arrows reveal">
+      <div class="workflow-box">
+        <span class="workflow-step-num">01</span>
+        <span class="workflow-step-name">Brainstorm</span>
+        <span class="workflow-step-skill">superpowers:<br>brainstorming</span>
+      </div>
+      <span class="workflow-arrow-symbol">&rarr;</span>
+      <div class="workflow-box">
+        <span class="workflow-step-num">02</span>
+        <span class="workflow-step-name">Spec</span>
+        <span class="workflow-step-skill">superpowers:<br>writing-plans</span>
+      </div>
+      <span class="workflow-arrow-symbol">&rarr;</span>
+      <div class="workflow-box">
+        <span class="workflow-step-num">03</span>
+        <span class="workflow-step-name">Plan</span>
+        <span class="workflow-step-skill">superpowers:<br>executing-plans</span>
+      </div>
+      <span class="workflow-arrow-symbol">&rarr;</span>
+      <div class="workflow-box">
+        <span class="workflow-step-num">04</span>
+        <span class="workflow-step-name">Execute</span>
+        <span class="workflow-step-skill">superpowers:<br>subagent-driven-<br>development</span>
+      </div>
+    </div>
+    <p class="feedback-loop reveal">&#8635; feedback loop back to Brainstorm</p>
+    <p class="workflow-subcaption reveal"><em>Yes &mdash; including these slides.</em></p>
+    <p class="workflow-handoff reveal"><em>My friends' talk goes deeper on this; I'll just point at the shape.</em></p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 13 — I'M NOT A GAME DEV
+     ============================================================ -->
+<section class="slide" id="slide-13">
+  <div class="slide-content">
+    <div class="big-lines">
+      <p class="big-line reveal">I'm not a game dev.</p>
+      <p class="big-line reveal">I'd never touched Phaser.</p>
+      <p class="big-line neon reveal">I shipped this anyway.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 14 — CLOSE
+     ============================================================ -->
+<section class="slide" id="slide-14">
+  <img
+    src="assets/title-sprite.png"
+    alt=""
+    class="close-sprite-corner"
+    style="width: clamp(40px, 6vw, 80px); height: auto; image-rendering: pixelated;"
+    aria-hidden="true"
+  >
+  <div class="slide-content">
+    <h2 class="close-headline reveal">What's YOUR<br>dungeon?</h2>
+    <p class="close-subline reveal">The hard part used to be writing the code.<br>Now the hard part is knowing what's worth building.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 15 — REFERENCES + THANKS
+     ============================================================ -->
+<section class="slide" id="slide-15">
+  <div class="slide-content">
+    <h2 class="slide-section-title reveal">References + thanks</h2>
+    <ul class="ref-list">
+      <li class="reveal">Gyedu et al. 2026, SAGE Open &mdash; gamification in education meta-analysis</li>
+      <li class="reveal">Duolingo Streak Wager &mdash; StriveCloud writeup, 2024</li>
+      <li class="reveal">Habitica &mdash; counterproductive-effects research on external-damage mechanics</li>
+      <li class="reveal">Slay the Spire &mdash; MegaCrit Games (deck-builder roguelike design inspiration)</li>
+      <li class="reveal">FromSoftware (Demon's Souls / Dark Souls / Elden Ring) &mdash; environmental storytelling</li>
+      <li class="reveal"><code>frontend-slides</code> skill &mdash; zarazhangrui (these slides built with it)</li>
+    </ul>
+    <p class="thanks-caption reveal">thanks!</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     JAVASCRIPT — SlidePresentation class
+     ============================================================ -->
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.currentIndex = 0;
+    this.isScrolling = false;
+    this.wheelThrottle = null;
+    this.touchStartY = 0;
+    this.touchStartX = 0;
+
+    this.progressFill = document.getElementById('progressFill');
+    this.navDotsContainer = document.getElementById('navDots');
+
+    this.init();
+  }
+
+  init() {
+    this.buildNavDots();
+    this.setupIntersectionObserver();
+    this.setupKeyboard();
+    this.setupWheel();
+    this.setupTouch();
+    this.updateProgress(0);
+  }
+
+  buildNavDots() {
+    // CRITICAL: clear innerHTML to avoid duplicates on re-open
+    this.navDotsContainer.innerHTML = '';
+    this.slides.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      btn.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      btn.addEventListener('click', () => this.goToSlide(i));
+      this.navDotsContainer.appendChild(btn);
+    });
+  }
+
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            const idx = this.slides.indexOf(entry.target);
+            if (idx !== -1) {
+              this.currentIndex = idx;
+              this.updateProgress(idx);
+              this.updateNavDots(idx);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    this.slides.forEach(slide => observer.observe(slide));
+  }
+
+  updateProgress(idx) {
+    const ratio = this.slides.length > 1
+      ? idx / (this.slides.length - 1)
+      : 1;
+    this.progressFill.style.transform = 'scaleX(' + ratio + ')';
+  }
+
+  updateNavDots(idx) {
+    const dots = this.navDotsContainer.querySelectorAll('.nav-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === idx);
+    });
+  }
+
+  goToSlide(idx) {
+    idx = Math.max(0, Math.min(this.slides.length - 1, idx));
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+    this.currentIndex = idx;
+    this.updateProgress(idx);
+    this.updateNavDots(idx);
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'ArrowRight':
+        case ' ':
+        case 'PageDown':
+          e.preventDefault();
+          this.goToSlide(this.currentIndex + 1);
+          break;
+        case 'ArrowUp':
+        case 'ArrowLeft':
+        case 'PageUp':
+          e.preventDefault();
+          this.goToSlide(this.currentIndex - 1);
+          break;
+        case 'Home':
+          e.preventDefault();
+          this.goToSlide(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          this.goToSlide(this.slides.length - 1);
+          break;
+      }
+    });
+  }
+
+  setupWheel() {
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (this.wheelThrottle) return;
+      this.wheelThrottle = setTimeout(() => {
+        this.wheelThrottle = null;
+      }, 700);
+      if (e.deltaY > 0) {
+        this.goToSlide(this.currentIndex + 1);
+      } else if (e.deltaY < 0) {
+        this.goToSlide(this.currentIndex - 1);
+      }
+    }, { passive: false });
+  }
+
+  setupTouch() {
+    document.addEventListener('touchstart', e => {
+      this.touchStartY = e.touches[0].clientY;
+      this.touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      const deltaY = this.touchStartY - e.changedTouches[0].clientY;
+      const deltaX = this.touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 40) {
+        if (deltaY > 0) {
+          this.goToSlide(this.currentIndex + 1);
+        } else {
+          this.goToSlide(this.currentIndex - 1);
+        }
+      }
+    }, { passive: true });
+  }
+}
+
+// Boot when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+} else {
+  new SlidePresentation();
+}
+</script>
+
+</body>
+</html>
