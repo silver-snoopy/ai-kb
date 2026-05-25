@@ -1,8 +1,8 @@
 # 📊 AI Cert KB Dashboard
 
-_Last updated: 2026-04-22T04:46:18.713Z (auto — do not edit by hand)_
+_Last updated: 2026-05-25T23:16:27.489Z (auto — do not edit by hand)_
 
-## 🎯 **Claude Certified Architect — Foundations** — 39 days to exam (target: 2026-05-31)
+## 🎯 **Claude Certified Architect — Foundations** — 6 days to exam (target: 2026-05-31)
 
 ### Coverage vs. exam weight
 
