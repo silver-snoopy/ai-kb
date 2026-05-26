@@ -507,6 +507,159 @@ body {
 }
 
 /* ===========================================
+   SLIDE 3 — MERGED LAYOUT (replaces old fan-reveal)
+   See spec at docs/superpowers/specs/2026-05-26-slide-3-4-merge-design.md
+   =========================================== */
+#slide-3 { background-color: var(--bg-base); }
+
+.slide-3-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(0.6rem, 1.5vh, 1.2rem);
+    height: 100%;
+}
+.slide-3-header { text-align: center; }
+.slide-3-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    line-height: 1.05;
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+}
+.slide-3-subtitle {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+    color: var(--text-muted);
+    margin-top: clamp(0.3rem, 0.8vh, 0.6rem);
+}
+
+.slide-3-body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: clamp(1rem, 3vw, 3rem);
+    align-items: center;
+}
+
+.stack-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 100%;
+}
+
+.stack-card {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 88%;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-card);
+    border: 1px solid var(--border-rule);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3);
+    transition:
+        transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+        z-index 0ms 250ms;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.stack-card.content-card img {
+    width: 100%;
+    flex: 1;
+    object-fit: cover;
+    object-position: top center;
+}
+.stack-card .brand-caption {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.7rem, 0.95vw, 1rem);
+    color: var(--text-primary);
+    background: rgba(14, 12, 10, 0.85);
+    border-top: 1px solid var(--border-rule);
+    padding: clamp(0.3rem, 0.8vh, 0.5rem) clamp(0.6rem, 1.2vw, 1rem);
+    letter-spacing: 0.1em;
+    text-align: center;
+    flex-shrink: 0;
+}
+.stack-card.ghost-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(201, 169, 97, 0.18);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Resting-state transforms by data-stack-pos. Content cards 0..3
+   are the cycle; ghost cards 4..6 are decorative depth. */
+.stack-card[data-stack-pos="0"] { transform: scale(1.0) translateY(0)   translateX(0);   z-index: 7; }
+.stack-card[data-stack-pos="1"] { transform: scale(0.96) translateY(14px) translateX(4px);  z-index: 6; opacity: 0.85; }
+.stack-card[data-stack-pos="2"] { transform: scale(0.92) translateY(28px) translateX(8px);  z-index: 5; opacity: 0.65; }
+.stack-card[data-stack-pos="3"] { transform: scale(0.88) translateY(42px) translateX(12px); z-index: 4; opacity: 0.50; }
+.stack-card[data-stack-pos="4"] { transform: scale(0.84) translateY(56px) translateX(16px); z-index: 3; opacity: 0.18; }
+.stack-card[data-stack-pos="5"] { transform: scale(0.80) translateY(70px) translateX(20px); z-index: 2; opacity: 0.10; }
+.stack-card[data-stack-pos="6"] { transform: scale(0.76) translateY(84px) translateX(24px); z-index: 1; opacity: 0.05; }
+
+/* Caption column */
+.beat-column {
+    position: relative;
+    min-height: 1px;
+}
+.beat-caption {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 1vh, 0.8rem);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.beat-caption.is-active { pointer-events: auto; }
+.beat-caption[hidden] { display: none; }
+
+.beat-headline {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.5vw, 2.4rem);
+    line-height: 1.15;
+    color: var(--accent-gold-bright);
+    letter-spacing: 0.03em;
+}
+.beat-subline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.95rem, 1.4vw, 1.3rem);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+.beat-deeplink {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.8rem, 1.1vw, 1.1rem);
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-top: clamp(0.4rem, 1.2vh, 0.9rem);
+}
+.beat-deeplink .beat-path {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    letter-spacing: 0;
+}
+
+.slide-3-footer {
+    text-align: center;
+    flex-shrink: 0;
+}
+.slide-3-punchline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--accent-gold);
+    margin-top: clamp(0.3rem, 1vh, 0.7rem);
+}
+
+/* ===========================================
    SLIDE 5 — PIVOT
    =========================================== */
 #slide-4 {
