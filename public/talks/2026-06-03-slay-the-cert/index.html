@@ -627,6 +627,17 @@ body {
 .beat-caption.is-active { pointer-events: auto; }
 .beat-caption[hidden] { display: none; }
 
+/* Caption swap animation — triggered by setActiveCaption() on cycle.
+   Uses @keyframes (not transition) because the .reveal-blur cascade
+   doesn't actually retrigger on class toggle once .slide.visible is set. */
+@keyframes beat-swap-in {
+    from { opacity: 0; filter: blur(6px); transform: translateY(4px); }
+    to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+.beat-caption.beat-swap-in {
+    animation: beat-swap-in 350ms var(--ease-out-expo);
+}
+
 .beat-headline {
     font-family: 'Cinzel', serif;
     font-weight: 700;
@@ -667,7 +678,7 @@ body {
     font-size: clamp(1rem, 1.8vw, 1.5rem);
     color: var(--accent-gold);
     margin-top: clamp(0.3rem, 1vh, 0.7rem);
-    transition: transform 200ms ease-out;
+    transition: transform 200ms var(--ease-out-expo);
 }
 .slide-3-punchline.pulse { transform: scale(1.03); }
 
@@ -2637,13 +2648,16 @@ if (document.readyState === 'loading') {
       if (isTarget) {
         cap.hidden = false;
         cap.classList.add('is-active');
-        // Force reflow then trigger blur-reveal-in
-        cap.classList.remove('reveal-blur');
-        void cap.offsetWidth; // reflow trick
-        cap.classList.add('reveal-blur');
+        // Restart the beat-swap-in animation by toggling its class.
+        // CSS animations (unlike transitions) re-fire when animation-name
+        // changes — the reflow tick between remove/add forces the change.
+        cap.classList.remove('beat-swap-in');
+        void cap.offsetWidth;
+        cap.classList.add('beat-swap-in');
       } else {
         cap.hidden = true;
         cap.classList.remove('is-active');
+        cap.classList.remove('beat-swap-in');
       }
     });
     if (stack) stack.dataset.currentBeat = String(beatIndex);
@@ -2651,10 +2665,12 @@ if (document.readyState === 'loading') {
 
   function cycleStack() {
     // Rotate data-stack-pos values by -1 modulo TOTAL_BEATS for content cards only.
-    // Card at pos (TOTAL_BEATS - 1) wraps to pos 0; others advance one slot back.
+    // Card at pos 1 (beat N+1) advances to pos 0 (top); card at pos 0 wraps to pos 3 (bottom).
+    // This keeps top card's brand-caption synced with the active beat caption.
+    // Use (oldPos - 1 + TOTAL_BEATS) % TOTAL_BEATS so JS modulo handles negatives correctly.
     contentCards.forEach(card => {
       const oldPos = Number(card.dataset.stackPos);
-      const newPos = (oldPos + 1) % TOTAL_BEATS;
+      const newPos = (oldPos - 1 + TOTAL_BEATS) % TOTAL_BEATS;
       card.dataset.stackPos = String(newPos);
     });
   }
