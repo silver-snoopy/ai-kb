@@ -98,9 +98,11 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     .fail-col-title  { font-size: clamp(1.6rem, 2vw, 2.6rem) !important; }
     .fail-col-body   { font-size: clamp(1.2rem, 1.4vw, 1.85rem) !important; line-height: 1.45 !important; }
     .fail-col-source { font-size: clamp(0.95rem, 1.0vw, 1.3rem) !important; }
-    /* Slide 3 — merged dozen-in-a-dozen layout at projector scale. */
-    #slide-3 .slide-3-title { font-size: clamp(3.5rem, 6vw, 7.5rem) !important; }
-    #slide-3 .slide-3-subtitle { font-size: clamp(1.4rem, 1.8vw, 2.2rem) !important; }
+    /* Slide 3 — merged dozen-in-a-dozen layout at projector scale.
+       Title size kept moderate so the two-line title doesn't eat the body's
+       available height. */
+    #slide-3 .slide-3-title { font-size: clamp(2.8rem, 4.2vw, 5.2rem) !important; line-height: 1.0 !important; }
+    #slide-3 .slide-3-subtitle { font-size: clamp(1.2rem, 1.5vw, 1.85rem) !important; }
     #slide-3 .slide-3-body { grid-template-columns: 56% 44% !important; gap: clamp(2rem, 4vw, 5rem) !important; }
     #slide-3 .beat-headline { font-size: clamp(2rem, 3vw, 3.4rem) !important; }
     #slide-3 .beat-subline { font-size: clamp(1.2rem, 1.6vw, 1.85rem) !important; }
@@ -541,8 +543,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: clamp(0.6rem, 1.5vh, 1.2rem);
+    gap: clamp(0.4rem, 1vh, 0.9rem);
     height: 100%;
+    /* Min-height:0 lets the .slide-3-body (flex:1) actually shrink when
+       header+footer would otherwise push body past the slide bounds. */
+    min-height: 0;
 }
 .slide-3-header { text-align: center; }
 .slide-3-title {
@@ -571,9 +576,14 @@ body {
 
 .stack-container {
     position: relative;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    max-height: 100%;
+    /* Height-driven sizing: fill the grid row height, derive width from
+       aspect-ratio. This stops the card from overflowing into the footer
+       when the body is shorter than the width-derived aspect-ratio would
+       naturally produce. */
+    height: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 10;
+    margin: 0 auto;
 }
 
 .stack-card {
@@ -621,15 +631,17 @@ body {
 
 /* Resting-state transforms by data-stack-pos. Content cards 0..3
    are the cycle; ghost cards 4..6 are decorative depth.
-   Back cards tuck UP-and-to-the-right (negative translateY) so the stack
-   stays inside its container vertically — no fan-out below the body. */
-.stack-card[data-stack-pos="0"] { transform: scale(1.0)  translateY(0)    translateX(0);   z-index: 7; }
-.stack-card[data-stack-pos="1"] { transform: scale(0.96) translateY(-10px) translateX(6px);  z-index: 6; opacity: 0.85; }
-.stack-card[data-stack-pos="2"] { transform: scale(0.92) translateY(-20px) translateX(12px); z-index: 5; opacity: 0.65; }
-.stack-card[data-stack-pos="3"] { transform: scale(0.88) translateY(-30px) translateX(18px); z-index: 4; opacity: 0.50; }
-.stack-card[data-stack-pos="4"] { transform: scale(0.84) translateY(-38px) translateX(22px); z-index: 3; opacity: 0.18; }
-.stack-card[data-stack-pos="5"] { transform: scale(0.80) translateY(-46px) translateX(26px); z-index: 2; opacity: 0.10; }
-.stack-card[data-stack-pos="6"] { transform: scale(0.76) translateY(-54px) translateX(30px); z-index: 1; opacity: 0.05; }
+   Back cards tuck UP-and-to-the-right with offsets large enough to peek
+   above the front card despite the scale falloff. Math: for a back card
+   to visibly peek above the front by N pixels, |translateY| must exceed
+   (front_card_height × (1 - back_scale)) / 2 + N. */
+.stack-card[data-stack-pos="0"] { transform: scale(1.0)  translateY(0)    translateX(0);    z-index: 7; }
+.stack-card[data-stack-pos="1"] { transform: scale(0.96) translateY(-22px) translateX(10px);  z-index: 6; opacity: 0.85; }
+.stack-card[data-stack-pos="2"] { transform: scale(0.92) translateY(-44px) translateX(20px);  z-index: 5; opacity: 0.65; }
+.stack-card[data-stack-pos="3"] { transform: scale(0.88) translateY(-66px) translateX(30px);  z-index: 4; opacity: 0.50; }
+.stack-card[data-stack-pos="4"] { transform: scale(0.84) translateY(-86px) translateX(38px);  z-index: 3; opacity: 0.18; }
+.stack-card[data-stack-pos="5"] { transform: scale(0.80) translateY(-104px) translateX(45px); z-index: 2; opacity: 0.10; }
+.stack-card[data-stack-pos="6"] { transform: scale(0.76) translateY(-120px) translateX(52px); z-index: 1; opacity: 0.05; }
 
 /* Caption column — fills the grid row vertically and centers the
    currently-visible beat. Only one .beat-caption is rendered at a time
