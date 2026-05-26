@@ -114,6 +114,40 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     #slide-13 .big-line-ornament { font-size: clamp(1.6rem, 2.2vw, 2.4rem) !important; }
     .slide-13-meta-pretitle { font-size: clamp(1.1rem, 1.3vw, 1.6rem) !important; }
     .slide-13-preamble { font-size: clamp(1.5rem, 1.8vw, 2.4rem) !important; }
+    /* Slide 5 — center the chapter-opening composition at projector scale (was left-anchored). */
+    #slide-5 .slide-content { align-items: center !important; text-align: center !important; }
+    #slide-5 .pivot-headline { font-size: clamp(4rem, 7.5vw, 9rem) !important; }
+    #slide-5 .pivot-subline  { font-size: clamp(1.5rem, 2vw, 2.6rem) !important; }
+    #slide-5 .pivot-tagline  { font-size: clamp(2.5rem, 4.5vw, 6rem) !important; }
+    #slide-5 .boss-roster-title { font-size: clamp(1rem, 1.2vw, 1.5rem) !important; }
+    #slide-5 .boss-roster ol li { font-size: clamp(1.2rem, 1.6vw, 2rem) !important; }
+    /* Slide 9 — bump the LIVE DEMO card and inline GIF so the canvas dominates instead of vanishing. */
+    #slide-9 .demo-frame {
+      max-width: min(78vw, 1700px) !important;
+      width: min(78vw, 1700px) !important;
+      padding: clamp(2rem, 4vw, 4rem) !important;
+    }
+    #slide-9 .demo-fallback img {
+      width: 100% !important;
+      max-width: clamp(800px, 64vw, 1400px) !important;
+      height: auto !important;
+    }
+    #slide-9 .demo-arrow            { font-size: clamp(4rem, 9vw, 10rem) !important; }
+    #slide-9 .game-ui-bar           { font-size: clamp(1.15rem, 1.4vw, 1.6rem) !important; }
+    #slide-9 .demo-preamble         { font-size: clamp(1.5rem, 2vw, 2.4rem) !important; }
+    #slide-9 .demo-fallback-caption { font-size: clamp(1.1rem, 1.2vw, 1.5rem) !important; }
+    /* Slide 11 — center the workflow-folder reveal at projector (was left-anchored). */
+    #slide-11 .slide-content { align-items: center !important; text-align: center !important; }
+    #slide-11 .dir-tree {
+      font-size: clamp(1.6rem, 2.5vw, 3.2rem) !important;
+      line-height: 1.85 !important;
+      padding: clamp(2rem, 3.5vw, 4rem) clamp(2rem, 4vw, 5rem) !important;
+    }
+    #slide-11 .act3-caption { font-size: clamp(1.5rem, 1.9vw, 2.4rem) !important; }
+    /* Dust motes — bump glow on projector so they read from 15-25 ft away. */
+    .dust-mote {
+      box-shadow: 0 0 8px var(--accent-gold), 0 0 2px var(--accent-gold-bright) !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1302,14 +1336,15 @@ body {
 .dust-mote {
   position: absolute;
   border-radius: 50%;
-  background: var(--accent-gold);
+  background: var(--accent-gold-bright);
+  box-shadow: 0 0 5px var(--accent-gold), 0 0 1px var(--accent-gold-bright);
   opacity: 0;
   animation: drift linear infinite;
 }
 @keyframes drift {
   0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
-  15%  { opacity: var(--mote-opacity, 0.25); }
-  85%  { opacity: var(--mote-opacity, 0.25); }
+  15%  { opacity: calc(var(--mote-opacity, 0.25) * 2.4); }
+  85%  { opacity: calc(var(--mote-opacity, 0.25) * 2.4); }
   100% { transform: translate(var(--mote-dx, 40px), var(--mote-dy, -80px)) scale(1.2); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
