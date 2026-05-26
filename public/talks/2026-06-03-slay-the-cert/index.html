@@ -110,7 +110,9 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     #slide-3 .stack-card .brand-caption { font-size: clamp(0.95rem, 1.1vw, 1.3rem) !important; }
     #slide-3 .slide-3-punchline { font-size: clamp(1.4rem, 2vw, 2.4rem) !important; }
     #slide-3 .slide-3-hint { font-size: clamp(1rem, 1.1vw, 1.4rem) !important; }
-    /* Slide 7 — Carrots & Snares codex entries: scale icons + names + reasons so the columns read at projector distance. */
+    /* Slide 7 — Carrots & Snares codex entries: scale icons + names + reasons so the columns read at projector distance.
+       Plus extra padding-bottom so the columns end above the marginalia zone (which sits ~5vh from the slide bottom). */
+    #slide-7 .slide-content { padding-bottom: clamp(6rem, 12vh, 10rem) !important; }
     #slide-7 .reward-col-title { font-size: clamp(1.8rem, 2.6vw, 2.8rem) !important; }
     #slide-7 .codex-icon { font-size: clamp(2.4rem, 3.4vw, 3.6rem) !important; }
     #slide-7 .codex-name { font-size: clamp(1.2rem, 1.6vw, 1.8rem) !important; }
@@ -955,6 +957,11 @@ body {
     border: 1px solid var(--border-rule);
     border-radius: 2px;
     padding: clamp(0.75rem, 1.8vw, 1.5rem);
+    /* Allow the column to shrink to the grid row's height instead of
+       expanding to its intrinsic content size (which would overflow
+       the wrapper and overlap the slide's bottom marginalia). */
+    min-height: 0;
+    overflow: hidden;
 }
 .reward-col.carrots-col {
     border-color: rgba(201, 169, 97, 0.4);
