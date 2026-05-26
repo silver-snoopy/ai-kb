@@ -565,15 +565,18 @@ body {
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 88%;
+    width: 92%;
     aspect-ratio: 16 / 10;
     background: var(--bg-card);
     border: 1px solid var(--border-rule);
     box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3);
+    /* z-index switches instantly (no delayed transition) so the rising card
+       paints on top from frame 1 — eliminates the mid-animation paint-order
+       glitch that read as lag. */
     transition:
-        transform 500ms var(--ease-out-expo),
-        opacity 500ms var(--ease-out-expo),
-        z-index 0ms 250ms;
+        transform 350ms var(--ease-out-expo),
+        opacity 350ms var(--ease-out-expo);
+    will-change: transform, opacity;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -619,6 +622,7 @@ body {
 .beat-caption {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: clamp(0.4rem, 1vh, 0.8rem);
     position: absolute;
     inset: 0;
@@ -669,6 +673,10 @@ body {
 }
 
 .slide-3-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.5rem, 1.2vh, 1rem);
     text-align: center;
     flex-shrink: 0;
 }
@@ -677,7 +685,6 @@ body {
     font-style: italic;
     font-size: clamp(1rem, 1.8vw, 1.5rem);
     color: var(--accent-gold);
-    margin-top: clamp(0.3rem, 1vh, 0.7rem);
     transition: transform 200ms var(--ease-out-expo);
 }
 .slide-3-punchline.pulse { transform: scale(1.03); }
@@ -2606,8 +2613,10 @@ if (document.readyState === 'loading') {
 /* ===========================================
    SLIDE 3 — Card-cycle hook (merged dozen-in-a-dozen layout)
    Click anywhere inside slide 3 to advance the beat:
-   - rotates data-stack-pos values (bottom content card wraps to top)
-   - swaps active beat caption with fade-out -> blur-reveal-in
+   - rotates data-stack-pos values (the card at pos 1 surfaces to pos 0;
+     the old top wraps to pos 3)
+   - swaps active beat caption via a single @keyframes beat-swap-in
+     animation on the incoming caption (outgoing is hidden instantly)
    - clamps at beat 3 (last); further clicks pulse the punchline
    - persistent click hint matches existing slide-3 + slide-7 convention
    See spec at docs/superpowers/specs/2026-05-26-slide-3-4-merge-design.md
@@ -2626,20 +2635,28 @@ if (document.readyState === 'loading') {
   let slideIsVisible = false;
 
   // Maintain own visibility flag (SlidePresentation's .visible class is set-once).
+  // Track whether the slide has ever been visible so we don't reset on the initial
+  // not-intersecting fire that IntersectionObserver dispatches on observe().
+  let hasBeenVisible = false;
   const resetObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       slideIsVisible = entry.isIntersecting;
-      if (!entry.isIntersecting) {
-        // Reset for next entry so the argument replays cleanly
-        currentBeat = 0;
-        setActiveCaption(0);
-        // Reset data-stack-pos values to initial DOM order
-        contentCards.forEach((card, idx) => {
-          card.dataset.stackPos = String(idx);
-        });
+      if (entry.isIntersecting) {
+        hasBeenVisible = true;
+        return;
       }
+      if (!hasBeenVisible) return; // first observe() fire — slide hasn't been seen yet
+      // Reset state so the cycle replays cleanly on re-entry.
+      // Use data-beat (the source of truth for each card's initial slot)
+      // instead of DOM index — the markup orders cards bottom-to-top in DOM
+      // so paint order works, but DOM index does NOT match data-stack-pos.
+      currentBeat = 0;
+      setActiveCaption(0);
+      contentCards.forEach(card => {
+        card.dataset.stackPos = card.dataset.beat;
+      });
     });
-  }, { threshold: 0.5 });
+  }, { threshold: 0.5 });  // match SlidePresentation threshold so the flag tracks the same trigger
   resetObserver.observe(slide);
 
   function setActiveCaption(beatIndex) {
@@ -2675,14 +2692,20 @@ if (document.readyState === 'loading') {
     });
   }
 
+  let pulseTimeout = null;
   function advanceBeat() {
     if (currentBeat >= TOTAL_BEATS - 1) {
       // Already at last beat — pulse the punchline as a "you're done" cue.
+      // Cancel any pending pulse-remove so rapid clicks don't interleave class toggles.
       if (punchline) {
+        if (pulseTimeout) clearTimeout(pulseTimeout);
         punchline.classList.remove('pulse');
-        void punchline.offsetWidth; // reflow
+        void punchline.offsetWidth;
         punchline.classList.add('pulse');
-        setTimeout(() => punchline.classList.remove('pulse'), 240);
+        pulseTimeout = setTimeout(() => {
+          punchline.classList.remove('pulse');
+          pulseTimeout = null;
+        }, 240);
       }
       return false;
     }
