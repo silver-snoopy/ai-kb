@@ -65,37 +65,40 @@ The presenter wants to **collapse both into one slide** that:
 │ Volume I  ·  the slop ecosystem               (chapter-marker)   │
 │ ──────────────── ✦ ────────────────           (ornament-divider) │
 │                                                                  │
-│ The same page,                                                   │
-│ a dozen times.                                (.slide-3-title)   │
+│ I went looking                                                   │
+│ for CCA-F prep.                               (.slide-3-title)   │
 │                                                                  │
-│ I went looking for CCA-F prep.                                   │
 │ This is what came back.                       (.slide-3-subtitle)│
 │                                                                  │
 │ ────────── ❦ ──────────                       (ornament-divider) │
 │                                                                  │
 │  ┌─────────────────────┐                                         │
-│  │                     │      BEAT N OF IV                       │
-│  │  [top card —        │      ───                                │
-│  │   one of the 4      │      Same design language.              │
-│  │   guide-*.png       │      Same information architecture.     │
-│  │   screenshots]      │                                         │
-│  │                     │      claudecertifications.com           │
-│  │ ┌brand-caption┐     │      /domains/agentic-architecture      │
+│  │                     │      Same design language.              │
+│  │  [top card —        │      Same information architecture.     │
+│  │   one of the 4      │                                         │
+│  │   guide-*.png       │      claudecertifications.com           │
+│  │   screenshots]      │      /domains/agentic-architecture      │
+│  │                     │                                         │
+│  │ ┌brand-caption┐     │                                         │
 │  └─────────────────────┘                                         │
 │   ░ card layered 1 below                                         │
 │    ░ card layered 2 below                                        │
 │                                                                  │
-│ ──────────                                                       │
+│ [click to reveal the next]                    (.slide-3-hint)    │
+│                                                                  │
 │ It does the job. But twelve is a dozen.       (.slide-3-punchline)│
 └──────────────────────────────────────────────────────────────────┘
         ←  55% width  →    ←   45% width   →
         card stack         synced caption column
 ```
 
+**Rhetorical voice (locked 2026-05-26 via grill-with-docs):** Title and Beat IV share a first-person observational voice. The title opens the journey ("I went looking…"); Beat IV closes the indictment by absorbing the speaker — and the audience — into it ("Maybe yours do"). The "dozen" idiom appears once, at the bottom, as the analytical name for the phenomenon. No exclamation, no moralised lines.
+
 ### Column split
 
 - Stack column: 55% of slide-content width, vertically centered. Top card dominates; two visible cards layered behind (3-card resting depth — Motion.dev pattern).
-- Caption column: 45% width. Vertical stack: beat label ("Beat N of IV") → headline → sub-line → space → brand identifier → deeplink → space → click affordance ("➜ click to continue", hidden after beat IV).
+- Caption column: 45% width. Vertical stack: headline → sub-line → space → brand identifier → deeplink. NO "Beat N of IV" counter — the deck has no precedent for one, and the cards + captions carry their own progress signal.
+- Click hint: `.slide-3-hint` element using the existing convention (EB Garamond italic, `var(--small-size)`, `var(--text-muted)`, `opacity: 0.7`, centered at slide bottom). Text: `[click to reveal the next]` — keeps slide-3's existing "reveal" verb, adds "the next" for specificity. Persistent visibility throughout the slide (matches slide-3 + slide-8 hint behavior); does NOT disappear after first click.
 
 ### Projector overrides (≥1600px)
 
@@ -121,9 +124,9 @@ Each beat = top card on the stack + headline + sub-line + brand identifier.
 | I    | `guide-claudecertifications.png`                | Same design language.           | Same information architecture. Same five-bullet domain page.                      | claudecertifications.com  | /domains/agentic-architecture            |
 | II   | `guide-claudecertprep.png`                      | Same offered functionality.     | Study guide. Mock exam. Domain practice. The same three boxes.                    | claudecertprep.com        | /study-guide/intro                       |
 | III  | `guide-claudecert.png`                          | Same problem to solve.          | Twenty pages of Anthropic's exam guide. Repeated, four ways.                      | claudecert.com            | /learn/1-agentic-architecture            |
-| IV   | `guide-claudecertification.png`                 | And I started here, too.        | The vault used to look like this. That's not a flaw — it's where everyone begins. | claudecertification.com   | /study-guide/1                           |
+| IV   | `guide-claudecertification.png`                 | And I started here, too.        | My notes used to look like this. Maybe yours do.                                  | claudecertification.com   | /study-guide/1                           |
 
-**Beat IV is the talk's pivot.** The speaker switches from observer to participant — the critique implicates the talk's own author. The audience hears "this isn't punching down, this is shared starting point" and is ready for Act II.
+**Beat IV is the talk's pivot.** The speaker switches from observer to participant — the critique implicates the talk's own author *and* extends the invitation to the audience ("maybe yours do"). The audience hears "this isn't punching down, this is shared starting point" and is ready for Act II. No "vault" reference — that concept isn't introduced until slide 11.
 
 The brand identifier in the caption column **always matches the top card's brand-caption**, but the right-column text only ever describes the dimension of sameness — never restates the brand. That's the redundancy fix.
 
@@ -153,8 +156,12 @@ cycle():
   //   after:   card A=1  B=2  C=3  D=0   (D was bottom-back, now top-front)
   //
   // textual:
-  caption column swaps to currentBeat's content (cross-fade 300ms)
-  hide click-affordance if currentBeat === 3
+  caption column swaps to currentBeat's content:
+    - existing caption fades out (200ms ease-out)
+    - new caption blur-reveals in (300ms, reuses .reveal-blur pattern from
+      slide 2's headline so visual style matches the rest of the deck)
+  // .slide-3-hint stays visible throughout (no special handling on beat IV;
+  // matches existing slide-3 and slide-8 hint behavior)
 ```
 
 ### Defensive wiring (reuse pattern from commit `520a348`)
@@ -163,12 +170,22 @@ cycle():
 - Own visibility flag via `IntersectionObserver` — do NOT trust `.visible` from `SlidePresentation`, which adds the class but never removes it.
 - Handler attached once at deck-init; cleanup not needed (deck lifetime = page lifetime).
 
-### Reduced-motion fallback
+### Reduced-motion handling
 
-- `@media (prefers-reduced-motion: reduce)`:
-  - Cards rendered as a static 2×2 grid (no stacking, no transforms).
-  - All four beat captions rendered as a numbered list (I/II/III/IV).
-  - Click handler disabled; everything visible at once.
+No custom 2×2 grid fallback. The deck's global rule at `index.html:~120` already collapses every animation and transition for `prefers-reduced-motion: reduce`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+```
+
+For our cycle this means: card position changes still happen, captions still swap, but in 200ms snap rather than 500ms ease. The rhetorical structure of the slide stays intact (click → new beat) — only the smooth motion is suppressed. Vestibular users get the full argument without the disorienting glide.
+
+Dust motes have their own `@media (prefers-reduced-motion: reduce)` rule at `index.html:~1318` (opacity:0). No additional reduced-motion handling needed for this slide.
 
 ---
 
@@ -176,10 +193,17 @@ cycle():
 
 ### Resting state (before any click)
 
-- 4 cards in DOM, ordered by `data-stack-pos` 0..3 (0 = top, 3 = bottom).
+- 4 content cards in DOM, ordered by `data-stack-pos` 0..3 (0 = top, 3 = bottom).
 - Card N transforms: `scale(1 - N*0.04) translateY(N*14px) translateX(N*4px)`.
 - Card N z-index: `4 - N`.
 - Top card (pos 0) has subtle gold border-rule + box-shadow halo (consistent with `.testimonial` and `.demo-frame` chrome). Behind-cards have reduced opacity (0.7, 0.55) to feel "behind."
+
+### Ghost-card depth (resolves "dozen vs four" tension)
+
+- 2-3 `.stack-card.ghost-card` siblings sit behind the 4 content cards. No image, no brand-caption, no content — just the empty card frame (`bg-card` + 1px `border-rule`, no halo).
+- Ghost cards continue the `scale: 1 - N*0.04` falloff at positions 4, 5, (6). Opacity ramps from 0.18 → 0.10 → 0.05.
+- Ghost cards never become the top card — they're decorative depth, not part of the cycle. The rotation logic skips them (data-stack-pos values stay fixed at 4, 5, 6).
+- Effect: the stack reads as "this is a sample of a larger pile" instead of "exactly four sites exist." Audience-side it lets the closing "twelve is a dozen" idiom land without literal counting.
 
 ### Cycle transition
 
@@ -211,7 +235,13 @@ Each card contains:
   - CSS: delete `.slide-4-*` rules (lines ~1477-1556, ~636-660, ~85-90 in projector media query). Add `#slide-3 .slide-content` row layout + new `.beat-caption` rules + cycle transition rules.
   - JS hook: replace existing slide-3 click-to-fan-reveal handler with click-to-cycle handler.
 - `docs/talks-improvements.md`: append a "shipped 2026-05-26 (PR TBD)" note when this lands.
-- Slide numbering downstream — **manual audit required**: any `#slide-N` reference for N ≥ 5 needs decrementing by 1 (becomes new `#slide-{N-1}`) in CSS, JS hooks, marginalia copy that names a slide, and any internal nav. Known affected references at spec time: the projector overrides shipped in PR #24 for old slides 5/9/11/13, the slide-8 achievement-pop hook scoping from PR #17. Plan must include `git grep -nE "slide-([5-9]\|1[0-5])\b"` as an audit step and confirm every match is intentional after the shift.
+- Slide numbering downstream — **manual audit required**. Audit run at spec time confirmed the impact surface:
+  - **IDs to rename (`#slide-N` → `#slide-{N-1}`)** in 11 places: section markup (lines ~1855, 1914, 1966, 2036, 2160, 2222, 2276, 2317, 2380, 2427, 2476 in current main) plus their per-slide CSS background-color selectors and projector overrides.
+  - **PR #24 projector overrides** at lines 111-116 (`#slide-13 ...`), 118 (`#slide-5 .slide-content`), 125 (`#slide-9 .demo-frame`), 140 (`#slide-11 .slide-content`) — all four need their selector slide-numbers decremented.
+  - **Achievement-pop JS hook** references `#slide-8` in the script block; becomes `#slide-7`.
+  - **CSS class names with embedded slide numbers** (`.slide-4-grid`, `.slide-5-*`, `.slide-6-body`, `.slide-7-title-fails`, `.slide-8-section-title`, `.slide-8-hint`, `.slide-13-meta-pretitle`, `.slide-13-preamble`, etc.) — **NOT renamed in this PR.** Kept at their pre-merge numbers to minimize blast radius. Cosmetic class-rename is a separate follow-up Kaizen PR.
+  - This means `#slide-7` will temporarily contain `.slide-8-hint` and `.slide-8-section-title` until that follow-up lands. Functional, but a name smell — explicitly accepted in this spec.
+  - Plan must include `git grep -nE "#slide-([5-9]|1[0-5])\b"` as the audit step and confirm every match is intentional after the shift.
 
 ### Risks
 
@@ -237,7 +267,7 @@ Once implemented:
    - Punchline pulses on click-after-IV.
 2. **Renumbering audit** — `git grep -nE "slide-(4\|[5-9]\|1[0-5])\b"` returns only updated references; old `slide-4` references return zero hits (slide-4 is fully retired). For each surviving match for old N≥5, confirm it now reads as the new N-1.
 3. **Snap-slide regression** — `node scripts/snap-slides.mjs slide-3 slide-4 slide-8 slide-10 slide-12 --sizes=laptop,wallscreen` produces non-empty `assets/_review/*.png`; manual visual diff against the pre-PR baselines for old slides 3/5/9/11/13 shows only intended changes.
-4. **Reduced-motion** — DevTools → Emulate `prefers-reduced-motion: reduce`. Slide 3 renders as 2×2 grid with numbered list. No animation. Clicks have no effect on layout.
+4. **Reduced-motion** — DevTools → Emulate `prefers-reduced-motion: reduce`. Cycle still works on click (cards re-position, caption swaps) but in 200ms snap instead of 500ms ease. No flowing motion. Dust motes go to opacity:0 (existing deck behavior).
 5. **Defensive-click smoke test** — open slide 3, click on the nav-dot for slide 7, verify navigation works (not swallowed by the cycle handler).
 
 ---
