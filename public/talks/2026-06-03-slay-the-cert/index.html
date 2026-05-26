@@ -2577,13 +2577,17 @@ if (document.readyState === 'loading') {
 })();
 
 /* ===========================================
-   PHASE 4.2 — Slide 8 achievement-pop hook
-   Click or Space/ArrowRight while slide 8 is active:
+   PHASE 4.2 — Slide 7 achievement-pop hook (was slide 8 pre-merge)
+   Click or Space/ArrowRight while slide 7 is active:
    pop next list item in DOM order (data-pop-index 0..9).
-   When all 10 are revealed, further input advances to slide 9.
+   When all 10 are revealed, further input advances to slide 8.
    =========================================== */
 (function setupAchievementPop() {
-  const slide = document.getElementById('slide-8');
+  // Hook attached to what used to be slide-8 (now slide-7 after the
+  // slide-3+4 merge renumbered downstream slides). The achievement-pop
+  // CSS classes (.slide-8-hint etc.) keep their pre-merge numbers per
+  // the merge spec — cosmetic rename is a separate Kaizen PR.
+  const slide = document.getElementById('slide-7');
   if (!slide) return;
 
   // Build sequence: all items with data-pop-index, sorted by index value
