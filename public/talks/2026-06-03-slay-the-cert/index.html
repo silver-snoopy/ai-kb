@@ -82,15 +82,6 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     }
     .card, .container, .content-box { max-width: min(90vw, 1500px); max-height: min(80vh, 1000px); }
     img, .image-container { max-height: min(60vh, 700px); }
-    .slide-3-title { font-size: clamp(1.4rem, 2.4vw, 2.8rem) !important; }
-    .punchline { font-size: clamp(2.2rem, 4vw, 4.5rem) !important; }
-    .slide-4-brand-tag { font-size: clamp(1rem, 1.2vw, 1.5rem) !important; }
-    .slide-4-deeplink { font-size: clamp(0.9rem, 1.0vw, 1.25rem) !important; }
-    .slide-4-identical .ident-badge { font-size: clamp(1rem, 1.3vw, 1.55rem) !important; }
-    .slide-4-identical .ident-eq { font-size: clamp(1.4rem, 2vw, 2.6rem) !important; }
-    .stack-container { width: clamp(900px, 78vw, 1700px) !important; height: clamp(540px, 60vh, 820px) !important; }
-    .stack-card img { height: clamp(460px, 50vh, 700px) !important; }
-    .brand-caption { font-size: clamp(1.1rem, 1.2vw, 1.55rem) !important; }
     .marginalia { font-size: clamp(0.95rem, 1vw, 1.3rem) !important; }
     .slide-1-title { font-size: clamp(7rem, 11vw, 14rem) !important; }
     .slide-1-subline { font-size: clamp(1.8rem, 2.2vw, 2.8rem) !important; }
@@ -107,47 +98,73 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     .fail-col-title  { font-size: clamp(1.6rem, 2vw, 2.6rem) !important; }
     .fail-col-body   { font-size: clamp(1.2rem, 1.4vw, 1.85rem) !important; line-height: 1.45 !important; }
     .fail-col-source { font-size: clamp(0.95rem, 1.0vw, 1.3rem) !important; }
+    /* Slide 3 — merged dozen-in-a-dozen layout at projector scale.
+       Title size kept moderate so the two-line title doesn't eat the body's
+       available height. */
+    #slide-3 .slide-3-title { font-size: clamp(2.8rem, 4.2vw, 5.2rem) !important; line-height: 1.0 !important; }
+    #slide-3 .slide-3-subtitle { font-size: clamp(1.2rem, 1.5vw, 1.85rem) !important; }
+    #slide-3 .slide-3-body { grid-template-columns: 56% 44% !important; gap: clamp(2rem, 4vw, 5rem) !important; }
+    #slide-3 .beat-headline { font-size: clamp(2rem, 3vw, 3.4rem) !important; }
+    #slide-3 .beat-subline { font-size: clamp(1.2rem, 1.6vw, 1.85rem) !important; }
+    #slide-3 .beat-deeplink { font-size: clamp(1rem, 1.3vw, 1.5rem) !important; }
+    #slide-3 .stack-card .brand-caption { font-size: clamp(0.95rem, 1.1vw, 1.3rem) !important; }
+    #slide-3 .slide-3-punchline { font-size: clamp(1.4rem, 2vw, 2.4rem) !important; }
+    #slide-3 .slide-3-hint { font-size: clamp(1rem, 1.1vw, 1.4rem) !important; }
+    /* Slide 7 — Carrots & Snares codex entries: scale icons + names + reasons so the columns read at projector distance.
+       Plus extra padding-bottom so the columns end above the marginalia zone (which sits ~5vh from the slide bottom). */
+    #slide-7 .slide-content { padding-bottom: clamp(6rem, 12vh, 10rem) !important; }
+    #slide-7 .reward-col-title { font-size: clamp(1.8rem, 2.6vw, 2.8rem) !important; }
+    #slide-7 .codex-icon { font-size: clamp(2.4rem, 3.4vw, 3.6rem) !important; }
+    #slide-7 .codex-name { font-size: clamp(1.2rem, 1.6vw, 1.8rem) !important; }
+    #slide-7 .codex-why  { font-size: clamp(1rem, 1.3vw, 1.45rem) !important; line-height: 1.45 !important; }
+    #slide-7 .reward-col-divider .v-medallion { font-size: clamp(1.8rem, 2.5vw, 2.6rem) !important; }
+    #slide-7 .slide-8-hint { font-size: clamp(1rem, 1.1vw, 1.4rem) !important; }
+    /* Slide 11 — Workflow loop boxes: scale step labels, skill names, and arrows so the four boxes are readable at projector. */
+    #slide-11 .slide-title { text-align: center !important; }
+    #slide-11 .workflow-box { padding: clamp(1rem, 2.2vw, 2rem) clamp(0.8rem, 1.6vw, 1.6rem) !important; gap: clamp(0.5rem, 1vh, 0.9rem) !important; }
+    #slide-11 .workflow-step-num { font-size: clamp(1rem, 1.2vw, 1.45rem) !important; }
+    #slide-11 .workflow-step-name { font-size: clamp(1.6rem, 2.4vw, 2.6rem) !important; }
+    #slide-11 .workflow-step-skill { font-size: clamp(1.05rem, 1.3vw, 1.5rem) !important; }
+    #slide-11 .workflow-arrow-symbol { font-size: clamp(1.8rem, 2.8vw, 3rem) !important; }
+    #slide-11 .feedback-loop { font-size: clamp(1.2rem, 1.5vw, 1.8rem) !important; }
+    #slide-11 .workflow-subcaption { font-size: clamp(1.2rem, 1.5vw, 1.8rem) !important; }
     /* Slide 13 — center the three truths poem horizontally for projector impact. */
-    #slide-13 .slide-content { align-items: center !important; text-align: center !important; }
-    #slide-13 .big-lines { align-items: center !important; }
-    #slide-13 .big-line { font-size: clamp(3.5rem, 5.5vw, 7rem) !important; }
-    #slide-13 .big-line-ornament { font-size: clamp(1.6rem, 2.2vw, 2.4rem) !important; }
+    #slide-12 .slide-content { align-items: center !important; text-align: center !important; }
+    #slide-12 .big-lines { align-items: center !important; }
+    #slide-12 .big-line { font-size: clamp(3.5rem, 5.5vw, 7rem) !important; }
+    #slide-12 .big-line-ornament { font-size: clamp(1.6rem, 2.2vw, 2.4rem) !important; }
     .slide-13-meta-pretitle { font-size: clamp(1.1rem, 1.3vw, 1.6rem) !important; }
     .slide-13-preamble { font-size: clamp(1.5rem, 1.8vw, 2.4rem) !important; }
     /* Slide 5 — center the chapter-opening composition at projector scale (was left-anchored). */
-    #slide-5 .slide-content { align-items: center !important; text-align: center !important; }
-    #slide-5 .pivot-headline { font-size: clamp(4rem, 7.5vw, 9rem) !important; }
-    #slide-5 .pivot-subline  { font-size: clamp(1.5rem, 2vw, 2.6rem) !important; }
-    #slide-5 .pivot-tagline  { font-size: clamp(2.5rem, 4.5vw, 6rem) !important; }
-    #slide-5 .boss-roster-title { font-size: clamp(1rem, 1.2vw, 1.5rem) !important; }
-    #slide-5 .boss-roster ol li { font-size: clamp(1.2rem, 1.6vw, 2rem) !important; }
+    #slide-4 .slide-content { align-items: center !important; text-align: center !important; }
+    #slide-4 .pivot-headline { font-size: clamp(4rem, 7.5vw, 9rem) !important; }
+    #slide-4 .pivot-subline  { font-size: clamp(1.5rem, 2vw, 2.6rem) !important; }
+    #slide-4 .pivot-tagline  { font-size: clamp(2.5rem, 4.5vw, 6rem) !important; }
+    #slide-4 .boss-roster-title { font-size: clamp(1rem, 1.2vw, 1.5rem) !important; }
+    #slide-4 .boss-roster ol li { font-size: clamp(1.2rem, 1.6vw, 2rem) !important; }
     /* Slide 9 — bump the LIVE DEMO card and inline GIF so the canvas dominates instead of vanishing. */
-    #slide-9 .demo-frame {
+    #slide-8 .demo-frame {
       max-width: min(78vw, 1700px) !important;
       width: min(78vw, 1700px) !important;
       padding: clamp(2rem, 4vw, 4rem) !important;
     }
-    #slide-9 .demo-fallback img {
+    #slide-8 .demo-fallback img {
       width: 100% !important;
       max-width: clamp(800px, 64vw, 1400px) !important;
       height: auto !important;
     }
-    #slide-9 .demo-arrow            { font-size: clamp(4rem, 9vw, 10rem) !important; }
-    #slide-9 .game-ui-bar           { font-size: clamp(1.15rem, 1.4vw, 1.6rem) !important; }
-    #slide-9 .demo-preamble         { font-size: clamp(1.5rem, 2vw, 2.4rem) !important; }
-    #slide-9 .demo-fallback-caption { font-size: clamp(1.1rem, 1.2vw, 1.5rem) !important; }
+    #slide-8 .demo-arrow            { font-size: clamp(4rem, 9vw, 10rem) !important; }
+    #slide-8 .game-ui-bar           { font-size: clamp(1.15rem, 1.4vw, 1.6rem) !important; }
+    #slide-8 .demo-preamble         { font-size: clamp(1.5rem, 2vw, 2.4rem) !important; }
+    #slide-8 .demo-fallback-caption { font-size: clamp(1.1rem, 1.2vw, 1.5rem) !important; }
     /* Slide 11 — center the workflow-folder reveal at projector (was left-anchored). */
-    #slide-11 .slide-content { align-items: center !important; text-align: center !important; }
-    #slide-11 .dir-tree {
+    #slide-10 .slide-content { align-items: center !important; text-align: center !important; }
+    #slide-10 .dir-tree {
       font-size: clamp(1.6rem, 2.5vw, 3.2rem) !important;
       line-height: 1.85 !important;
       padding: clamp(2rem, 3.5vw, 4rem) clamp(2rem, 4vw, 5rem) !important;
     }
-    #slide-11 .act3-caption { font-size: clamp(1.5rem, 1.9vw, 2.4rem) !important; }
-    /* Dust motes — bump glow on projector so they read from 15-25 ft away. */
-    .dust-mote {
-      box-shadow: 0 0 8px var(--accent-gold), 0 0 2px var(--accent-gold-bright) !important;
-    }
+    #slide-10 .act3-caption { font-size: clamp(1.5rem, 1.9vw, 2.4rem) !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -505,88 +522,6 @@ body {
     z-index: 2;
 }
 
-/* ===========================================
-   SLIDE 3 — SLOP MONTAGE
-   =========================================== */
-#slide-3 { background-color: var(--bg-base); }
-.slide-3-title {
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    font-size: clamp(0.9rem, 1.8vw, 1.3rem);
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-    text-align: left;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-.slide-3-subtitle {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-style: italic;
-    font-size: var(--body-size);
-    color: var(--text-muted);
-    text-align: left;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-.stack-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: clamp(0.75rem, 2vh, 1.5rem);
-    min-height: 0;
-}
-.stack-container {
-    position: relative;
-    width: clamp(400px, 72vw, 1100px);
-    height: clamp(280px, 55vh, 620px);
-    flex-shrink: 0;
-}
-.stack-card {
-    position: absolute;
-    background: #f5f0e8;
-    border: 3px solid var(--accent-gold);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 0 2px var(--accent-gold);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-.stack-card img {
-    width: 100%;
-    height: clamp(220px, 45vh, 520px);
-    object-fit: cover;
-    display: block;
-    max-height: none;
-}
-.brand-caption {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: clamp(0.85rem, 1vw, 1rem);
-    color: #5a4a30;
-    padding: 4px 8px;
-    background: #ede5d0;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-style: italic;
-}
-/* Final stack positions (used as --final-transform via nth-of-type) */
-.stack-card[data-stack-index="0"] { z-index: 1; }
-.stack-card[data-stack-index="1"] { z-index: 2; }
-.stack-card[data-stack-index="2"] { z-index: 3; }
-.stack-card[data-stack-index="3"] { z-index: 4; }
-.stack-card[data-stack-index="4"] { z-index: 5; }
-
-.punchline {
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    font-size: clamp(1.3rem, 2.8vw, 2.5rem);
-    color: var(--accent-gold-bright);
-    text-align: center;
-    letter-spacing: 0.05em;
-}
 .slide-3-hint {
     font-family: 'EB Garamond', Georgia, serif;
     font-style: italic;
@@ -597,77 +532,199 @@ body {
     opacity: 0.7;
 }
 
-/* === SLIDE 3 — Phase 4 click-driven reveal === */
-/* Cards start off-screen-right; .revealed deals them onto the pile */
-#slide-3 .stack-card {
-  opacity: 0;
-  transform: translateX(35vw) rotate(15deg);
-  pointer-events: none;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-}
-#slide-3 .stack-card.revealed {
-  opacity: 1;
-  pointer-events: auto;
-}
-/* Per-card landing positions (theatrical dealt stack) */
-#slide-3 .stack-card:nth-of-type(1).revealed { transform: translate(-22px, -15px) rotate(-7deg); }
-#slide-3 .stack-card:nth-of-type(2).revealed { transform: translate(14px, 8px) rotate(5deg); }
-#slide-3 .stack-card:nth-of-type(3).revealed { transform: translate(-10px, 18px) rotate(-4deg); }
-#slide-3 .stack-card:nth-of-type(4).revealed { transform: translate(20px, -8px) rotate(6deg); }
-#slide-3 .stack-card:nth-of-type(5).revealed { transform: translate(4px, 12px) rotate(-3deg); }
-
-/* Punchline: fade-in + scale-up */
-#slide-3 .punchline {
-  opacity: 0;
-  transform: scale(0.88);
-  pointer-events: none;
-  transition: opacity 0.5s ease 0.1s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
-}
-#slide-3 .punchline.revealed {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-}
-
 /* ===========================================
-   SLIDE 4 — DEEP-LINK SAMENESS
+   SLIDE 3 — MERGED LAYOUT (replaces old fan-reveal)
+   See spec at docs/superpowers/specs/2026-05-26-slide-3-4-merge-design.md
    =========================================== */
-#slide-4 { background-color: var(--bg-base); }
-.slide-4-grid figure {
+#slide-3 { background-color: var(--bg-base); }
+
+.slide-3-layout {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: clamp(0.3rem, 0.8vh, 0.75rem);
-    max-height: min(55vh, 450px);
+    align-items: stretch;
+    gap: clamp(0.4rem, 1vh, 0.9rem);
+    height: 100%;
+    /* Min-height:0 lets the .slide-3-body (flex:1) actually shrink when
+       header+footer would otherwise push body past the slide bounds. */
+    min-height: 0;
 }
-.slide-4-grid figure img {
-    width: 100%;
-    height: clamp(100px, 28vh, 300px);
-    object-fit: cover;
-    border: 2px solid var(--border-rule);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    max-height: none;
-}
-.slide-4-grid figcaption {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-style: italic;
-    font-size: var(--small-size);
-    color: var(--text-muted);
-    text-align: center;
-}
-.slide-4-punchline {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-style: italic;
-    font-size: var(--body-size);
+.slide-3-header { text-align: center; }
+.slide-3-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    line-height: 1.05;
     color: var(--text-primary);
+    letter-spacing: 0.04em;
+}
+.slide-3-subtitle {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+    color: var(--text-muted);
+    margin-top: clamp(0.3rem, 0.8vh, 0.6rem);
+}
+
+.slide-3-body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: clamp(1rem, 3vw, 3rem);
+    align-items: stretch;
+}
+
+.stack-container {
+    position: relative;
+    /* Height-driven sizing: fill the grid row height, derive width from
+       aspect-ratio. This stops the card from overflowing into the footer
+       when the body is shorter than the width-derived aspect-ratio would
+       naturally produce. */
+    height: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 10;
+    margin: 0 auto;
+}
+
+.stack-card {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 92%;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-card);
+    border: 1px solid var(--border-rule);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3);
+    /* z-index switches instantly (no delayed transition) so the rising card
+       paints on top from frame 1 — eliminates the mid-animation paint-order
+       glitch that read as lag. */
+    transition:
+        transform 350ms var(--ease-out-expo),
+        opacity 350ms var(--ease-out-expo);
+    will-change: transform, opacity;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.stack-card.content-card img {
+    width: 100%;
+    flex: 1;
+    object-fit: cover;
+    object-position: top center;
+}
+.stack-card .brand-caption {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.7rem, 0.95vw, 1rem);
+    color: var(--text-primary);
+    background: rgba(14, 12, 10, 0.85);
+    border-top: 1px solid var(--border-rule);
+    padding: clamp(0.3rem, 0.8vh, 0.5rem) clamp(0.6rem, 1.2vw, 1rem);
+    letter-spacing: 0.1em;
     text-align: center;
     flex-shrink: 0;
 }
+.stack-card.ghost-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(201, 169, 97, 0.18);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Resting-state transforms by data-stack-pos. Content cards 0..3
+   are the cycle; ghost cards 4..6 are decorative depth.
+   Back cards tuck UP-and-to-the-right with offsets large enough to peek
+   above the front card despite the scale falloff. Math: for a back card
+   to visibly peek above the front by N pixels, |translateY| must exceed
+   (front_card_height × (1 - back_scale)) / 2 + N. */
+.stack-card[data-stack-pos="0"] { transform: scale(1.0)  translateY(0)    translateX(0);    z-index: 7; }
+.stack-card[data-stack-pos="1"] { transform: scale(0.96) translateY(-22px) translateX(10px);  z-index: 6; opacity: 0.85; }
+.stack-card[data-stack-pos="2"] { transform: scale(0.92) translateY(-44px) translateX(20px);  z-index: 5; opacity: 0.65; }
+.stack-card[data-stack-pos="3"] { transform: scale(0.88) translateY(-66px) translateX(30px);  z-index: 4; opacity: 0.50; }
+.stack-card[data-stack-pos="4"] { transform: scale(0.84) translateY(-86px) translateX(38px);  z-index: 3; opacity: 0.18; }
+.stack-card[data-stack-pos="5"] { transform: scale(0.80) translateY(-104px) translateX(45px); z-index: 2; opacity: 0.10; }
+.stack-card[data-stack-pos="6"] { transform: scale(0.76) translateY(-120px) translateX(52px); z-index: 1; opacity: 0.05; }
+
+/* Caption column — fills the grid row vertically and centers the
+   currently-visible beat. Only one .beat-caption is rendered at a time
+   (others have the [hidden] attribute, so display:none), so the active
+   caption flows naturally into the centered slot. */
+.beat-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 0;
+}
+.beat-caption {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 1vh, 0.8rem);
+    pointer-events: none;
+    width: 100%;
+}
+.beat-caption.is-active { pointer-events: auto; }
+.beat-caption[hidden] { display: none; }
+
+/* Caption swap animation — triggered by setActiveCaption() on cycle.
+   Uses @keyframes (not transition) because the .reveal-blur cascade
+   doesn't actually retrigger on class toggle once .slide.visible is set. */
+@keyframes beat-swap-in {
+    from { opacity: 0; filter: blur(6px); transform: translateY(4px); }
+    to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+.beat-caption.beat-swap-in {
+    animation: beat-swap-in 350ms var(--ease-out-expo);
+}
+
+.beat-headline {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.5vw, 2.4rem);
+    line-height: 1.15;
+    color: var(--accent-gold-bright);
+    letter-spacing: 0.03em;
+}
+.beat-subline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(0.95rem, 1.4vw, 1.3rem);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+.beat-deeplink {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.8rem, 1.1vw, 1.1rem);
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-top: clamp(0.4rem, 1.2vh, 0.9rem);
+}
+.beat-deeplink .beat-path {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    letter-spacing: 0;
+}
+
+.slide-3-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.5rem, 1.2vh, 1rem);
+    text-align: center;
+    flex-shrink: 0;
+}
+.slide-3-punchline {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--accent-gold);
+    transition: transform 200ms var(--ease-out-expo);
+}
+.slide-3-punchline.pulse { transform: scale(1.03); }
 
 /* ===========================================
    SLIDE 5 — PIVOT
    =========================================== */
-#slide-5 {
+#slide-4 {
     background-color: var(--bg-base);
     background-image: radial-gradient(ellipse at 30% 60%, rgba(139,30,30,0.10) 0%, transparent 55%);
 }
@@ -697,7 +754,7 @@ body {
 /* ===========================================
    SLIDE 6 — GAMIFICATION WORKS
    =========================================== */
-#slide-6 { background-color: var(--bg-base); }
+#slide-5 { background-color: var(--bg-base); }
 .stat-card {
     background: var(--bg-card);
     border: 1px solid var(--border-rule);
@@ -747,7 +804,7 @@ body {
 /* ===========================================
    SLIDE 7 — GAMIFICATION FAILS
    =========================================== */
-#slide-7 {
+#slide-6 {
     background-color: var(--bg-base);
     background-image: radial-gradient(ellipse at 80% 20%, rgba(139,30,30,0.18) 0%, transparent 50%),
                       radial-gradient(ellipse at 20% 80%, rgba(139,30,30,0.10) 0%, transparent 45%);
@@ -870,7 +927,7 @@ body {
 /* ===========================================
    SLIDE 8 — REWARD SHOWDOWN
    =========================================== */
-#slide-8 { background-color: var(--bg-base); }
+#slide-7 { background-color: var(--bg-base); }
 .slide-8-section-title {
     font-family: 'Cinzel', serif;
     font-weight: 700;
@@ -897,6 +954,11 @@ body {
     border: 1px solid var(--border-rule);
     border-radius: 2px;
     padding: clamp(0.75rem, 1.8vw, 1.5rem);
+    /* Allow the column to shrink to the grid row's height instead of
+       expanding to its intrinsic content size (which would overflow
+       the wrapper and overlap the slide's bottom marginalia). */
+    min-height: 0;
+    overflow: hidden;
 }
 .reward-col.carrots-col {
     border-color: rgba(201, 169, 97, 0.4);
@@ -948,6 +1010,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: clamp(0.3rem, 0.7vh, 0.55rem);
+    /* Fill the parent reward-col vertically so the entries distribute the whole
+       column height rather than only their content height. */
+    flex: 1;
+    min-height: 0;
 }
 .carrots li, .refused li {
     font-family: 'EB Garamond', Georgia, serif;
@@ -955,6 +1021,10 @@ body {
     line-height: 1.5;
     padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.75rem, 1.2vw, 1.2rem);
     border-radius: 1px;
+    /* Each entry takes an equal share of the list's height so the column
+       visually fills the slide regardless of how much text each entry has. */
+    flex: 1;
+    min-height: 0;
 }
 .carrots li {
     background: rgba(201, 169, 97, 0.09);
@@ -990,15 +1060,15 @@ body {
 }
 
 /* === SLIDE 8 — Phase 4.2 click-driven achievement-pop === */
-#slide-8 .carrots li,
-#slide-8 .refused li {
+#slide-7 .carrots li,
+#slide-7 .refused li {
   opacity: 0;
   transform: scale(0.9);
   transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: none;
 }
-#slide-8 .carrots li.popped,
-#slide-8 .refused li.popped {
+#slide-7 .carrots li.popped,
+#slide-7 .refused li.popped {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
@@ -1007,7 +1077,7 @@ body {
 /* ===========================================
    SLIDE 9 — DEMO BREAK
    =========================================== */
-#slide-9 { background-color: var(--bg-base); }
+#slide-8 { background-color: var(--bg-base); }
 .demo-frame {
     border: 3px solid var(--border-rule);
     padding: clamp(1rem, 3vw, 2.5rem);
@@ -1060,7 +1130,7 @@ body {
 /* ===========================================
    SLIDE 10 — TESTIMONIALS
    =========================================== */
-#slide-10 { background-color: var(--bg-base); }
+#slide-9 { background-color: var(--bg-base); }
 .testimonial {
     background: var(--bg-card);
     border: 1px solid var(--border-rule);
@@ -1106,7 +1176,7 @@ body {
 /* ===========================================
    SLIDE 11 — ACT III TRANSITION
    =========================================== */
-#slide-11 { background-color: var(--bg-base); }
+#slide-10 { background-color: var(--bg-base); }
 .dir-tree {
     font-family: 'EB Garamond', Georgia, serif;
     font-size: clamp(0.85rem, 1.8vw, 1.35rem);
@@ -1134,7 +1204,11 @@ body {
 /* ===========================================
    SLIDE 12 — WORKFLOW LOOP
    =========================================== */
-#slide-12 { background-color: var(--bg-base); }
+#slide-11 { background-color: var(--bg-base); }
+/* Center the title over the row of workflow boxes (which justify-content: center).
+   Without this the title would be left-aligned (slide-title default) and visually
+   detach from the boxes' horizontal center. */
+#slide-11 .slide-title { text-align: center; }
 .workflow-box {
     background: var(--bg-card);
     border: 1px solid var(--border-rule);
@@ -1211,7 +1285,7 @@ body {
 /* ===========================================
    SLIDE 13 — I'M NOT A GAME DEV
    =========================================== */
-#slide-13 { background-color: var(--bg-base); }
+#slide-12 { background-color: var(--bg-base); }
 .big-lines { display: flex; flex-direction: column; gap: clamp(0.5rem, 2vh, 1.5rem); }
 .big-line {
     font-family: 'Cinzel', serif;
@@ -1246,7 +1320,7 @@ body {
 /* ===========================================
    SLIDE 14 — CLOSE
    =========================================== */
-#slide-14 {
+#slide-13 {
     background-color: var(--bg-base);
     background-image: radial-gradient(ellipse at 50% 50%, rgba(139,30,30,0.08) 0%, transparent 60%);
 }
@@ -1290,7 +1364,7 @@ body {
 /* ===========================================
    SLIDE 15 — REFERENCES
    =========================================== */
-#slide-15 { background-color: var(--bg-base); }
+#slide-14 { background-color: var(--bg-base); }
 .ref-list {
     list-style: none;
     display: flex;
@@ -1321,34 +1395,6 @@ body {
     text-align: right;
     flex-shrink: 0;
     font-style: italic;
-}
-
-/* ===========================================
-   DUST LAYER — atmospheric floating motes
-   =========================================== */
-.dust-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-}
-.dust-mote {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--accent-gold-bright);
-  box-shadow: 0 0 5px var(--accent-gold), 0 0 1px var(--accent-gold-bright);
-  opacity: 0;
-  animation: drift linear infinite;
-}
-@keyframes drift {
-  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
-  15%  { opacity: calc(var(--mote-opacity, 0.25) * 2.4); }
-  85%  { opacity: calc(var(--mote-opacity, 0.25) * 2.4); }
-  100% { transform: translate(var(--mote-dx, 40px), var(--mote-dy, -80px)) scale(1.2); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .dust-mote { animation: none !important; opacity: 0 !important; }
 }
 
 /* ===========================================
@@ -1460,94 +1506,6 @@ body {
 }
 
 /* ===========================================
-   SLIDE 4 REWORK — vertical comparison
-   =========================================== */
-#slide-4 { background-color: var(--bg-base); }
-.slide-4-comparison {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(0.5rem, 1.2vw, 1rem);
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
-}
-@media (min-width: 1100px) {
-  .slide-4-comparison { grid-template-columns: repeat(4, 1fr); }
-}
-.slide-4-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(0.2rem, 0.5vh, 0.4rem);
-  position: relative;
-}
-.slide-4-brand-tag {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(0.6rem, 0.78vw, 0.78rem);
-  letter-spacing: 0.1em;
-  color: var(--accent-gold);
-  border: 1px solid var(--border-rule);
-  padding: 0.15rem 0.5rem;
-  background: rgba(14, 12, 10, 0.8);
-  text-align: center;
-  width: 100%;
-}
-.slide-4-deeplink {
-  font-family: 'Courier New', ui-monospace, monospace;
-  font-size: clamp(0.55rem, 0.7vw, 0.72rem);
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-  text-align: center;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.75;
-}
-.slide-4-col img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  height: auto;
-  object-fit: cover;
-  object-position: top;
-  border: 1px solid rgba(201, 169, 97, 0.35);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-}
-.slide-4-annotation {
-  font-family: 'Cinzel', serif;
-  font-weight: 500;
-  font-size: clamp(1rem, 2.5vw, 2rem);
-  color: var(--accent-gold);
-  text-align: center;
-  letter-spacing: 0.06em;
-  flex-shrink: 0;
-  line-height: 1.2;
-}
-.slide-4-identical {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(0.4rem, 1.5vw, 1.2rem);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-.slide-4-identical .ident-badge {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(0.72rem, 1.0vw, 0.9rem);
-  letter-spacing: 0.12em;
-  color: var(--text-muted);
-  border: 1px solid rgba(201, 169, 97, 0.2);
-  padding: 0.2rem 0.6rem;
-  font-variant: small-caps;
-}
-.slide-4-identical .ident-eq {
-  color: var(--accent-gold-bright);
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: clamp(1rem, 1.8vw, 1.5rem);
-}
-
-/* ===========================================
    SLIDE 7 REWORK — 2x2 grid
    =========================================== */
 .fail-grid-2x2 {
@@ -1572,7 +1530,7 @@ body {
    =========================================== */
 .carrots li, .refused li {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.75rem, 1.3vw, 1.4rem);
   text-decoration: none;
@@ -1664,28 +1622,6 @@ body {
      SLIDE 1 — TITLE
      ============================================================ -->
 <section class="slide" id="slide-1">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:7%;animation-duration:52s;animation-delay:0s;--mote-opacity:0.28;--mote-dx:30px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:22%;left:85%;animation-duration:44s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:-20px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:45%;left:15%;animation-duration:60s;animation-delay:12s;--mote-opacity:0.22;--mote-dx:50px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:65%;left:55%;animation-duration:48s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-100px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:80%;left:30%;animation-duration:55s;animation-delay:3s;--mote-opacity:0.3;--mote-dx:40px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:12%;left:60%;animation-duration:40s;animation-delay:9s;--mote-opacity:0.2;--mote-dx:20px;--mote-dy:-50px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:35%;left:90%;animation-duration:57s;animation-delay:15s;--mote-opacity:0.25;--mote-dx:-35px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:78%;animation-duration:43s;animation-delay:25s;--mote-opacity:0.15;--mote-dx:25px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.28rem;height:0.28rem;top:50%;left:40%;animation-duration:62s;animation-delay:30s;--mote-opacity:0.22;--mote-dx:-15px;--mote-dy:-110px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:90%;left:10%;animation-duration:46s;animation-delay:18s;--mote-opacity:0.28;--mote-dx:45px;--mote-dy:-75px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:5%;left:45%;animation-duration:50s;animation-delay:35s;--mote-opacity:0.2;--mote-dx:-10px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:55%;left:70%;animation-duration:38s;animation-delay:22s;--mote-opacity:0.17;--mote-dx:30px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:28%;left:25%;animation-duration:64s;animation-delay:8s;--mote-opacity:0.24;--mote-dx:-25px;--mote-dy:-55px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:85%;left:65%;animation-duration:41s;animation-delay:40s;--mote-opacity:0.19;--mote-dx:20px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:42%;left:3%;animation-duration:53s;animation-delay:14s;--mote-opacity:0.26;--mote-dx:55px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:18%;left:50%;animation-duration:47s;animation-delay:28s;--mote-opacity:0.21;--mote-dx:-40px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:60%;left:20%;animation-duration:59s;animation-delay:5s;--mote-opacity:0.18;--mote-dx:35px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:97%;animation-duration:45s;animation-delay:32s;--mote-opacity:0.16;--mote-dx:-50px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:75%;left:48%;animation-duration:56s;animation-delay:16s;--mote-opacity:0.23;--mote-dx:15px;--mote-dy:-100px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:95%;left:88%;animation-duration:42s;animation-delay:45s;--mote-opacity:0.2;--mote-dx:-30px;--mote-dy:-60px;"></div>
-  </div>
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--tr"></div>
   <div class="corner-ornament corner-ornament--bl"></div>
@@ -1718,28 +1654,6 @@ body {
      SLIDE 2 — HOOK
      ============================================================ -->
 <section class="slide" id="slide-2">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:10%;left:12%;animation-duration:55s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:35px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:30%;left:75%;animation-duration:48s;animation-delay:11s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:40%;animation-duration:61s;animation-delay:7s;--mote-opacity:0.25;--mote-dx:40px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:20%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.17;--mote-dx:20px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:85%;left:60%;animation-duration:57s;animation-delay:30s;--mote-opacity:0.28;--mote-dx:-30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:20%;left:50%;animation-duration:40s;animation-delay:4s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-75px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:45%;left:88%;animation-duration:52s;animation-delay:17s;--mote-opacity:0.18;--mote-dx:-45px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:65%;left:5%;animation-duration:46s;animation-delay:34s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:15%;left:35%;animation-duration:63s;animation-delay:13s;--mote-opacity:0.2;--mote-dx:-15px;--mote-dy:-55px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:92%;left:82%;animation-duration:41s;animation-delay:26s;--mote-opacity:0.16;--mote-dx:25px;--mote-dy:-100px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:38%;left:62%;animation-duration:50s;animation-delay:38s;--mote-opacity:0.24;--mote-dx:-20px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:78%;left:45%;animation-duration:58s;animation-delay:9s;--mote-opacity:0.2;--mote-dx:45px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:5%;left:90%;animation-duration:43s;animation-delay:42s;--mote-opacity:0.18;--mote-dx:-35px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:50%;left:28%;animation-duration:54s;animation-delay:20s;--mote-opacity:0.26;--mote-dx:55px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:95%;animation-duration:47s;animation-delay:6s;--mote-opacity:0.21;--mote-dx:-40px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:60%;left:70%;animation-duration:39s;animation-delay:29s;--mote-opacity:0.18;--mote-dx:30px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:42%;left:15%;animation-duration:60s;animation-delay:1s;--mote-opacity:0.23;--mote-dx:20px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:82%;left:33%;animation-duration:45s;animation-delay:37s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:18%;left:58%;animation-duration:56s;animation-delay:15s;--mote-opacity:0.22;--mote-dx:35px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:97%;left:22%;animation-duration:42s;animation-delay:44s;--mote-opacity:0.2;--mote-dx:15px;--mote-dy:-55px;"></div>
-  </div>
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="hook-sprite-corner" aria-hidden="true">
@@ -1764,157 +1678,82 @@ body {
      SLIDE 3 — SLOP MONTAGE
      ============================================================ -->
 <section class="slide" id="slide-3">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:7%;left:10%;animation-duration:51s;animation-delay:3s;--mote-opacity:0.24;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:25%;left:80%;animation-duration:46s;animation-delay:14s;--mote-opacity:0.2;--mote-dx:-20px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:50%;left:55%;animation-duration:58s;animation-delay:8s;--mote-opacity:0.22;--mote-dx:45px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:68%;left:25%;animation-duration:43s;animation-delay:21s;--mote-opacity:0.18;--mote-dx:25px;--mote-dy:-75px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:80%;left:70%;animation-duration:60s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-35px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:15%;left:45%;animation-duration:39s;animation-delay:5s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:40%;left:92%;animation-duration:54s;animation-delay:18s;--mote-opacity:0.16;--mote-dx:-45px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:8%;animation-duration:47s;animation-delay:36s;--mote-opacity:0.22;--mote-dx:20px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:20%;left:35%;animation-duration:64s;animation-delay:10s;--mote-opacity:0.2;--mote-dx:-15px;--mote-dy:-55px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:90%;left:85%;animation-duration:41s;animation-delay:28s;--mote-opacity:0.17;--mote-dx:30px;--mote-dy:-100px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:35%;left:60%;animation-duration:49s;animation-delay:40s;--mote-opacity:0.23;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:60%;left:18%;animation-duration:56s;animation-delay:7s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-88px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:65%;animation-duration:44s;animation-delay:43s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:48%;left:3%;animation-duration:53s;animation-delay:19s;--mote-opacity:0.25;--mote-dx:55px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:88%;left:42%;animation-duration:42s;animation-delay:33s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:28%;left:95%;animation-duration:48s;animation-delay:2s;--mote-opacity:0.21;--mote-dx:-50px;--mote-dy:-75px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:24s;--mote-opacity:0.23;--mote-dx:30px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:75%;left:52%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.18;--mote-dx:15px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:22%;animation-duration:57s;animation-delay:11s;--mote-opacity:0.24;--mote-dx:-20px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:15%;animation-duration:45s;animation-delay:46s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-55px;"></div>
-  </div>
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
-  <div class="slide-content" style="align-items: flex-start;">
-    <h2 class="slide-3-title reveal">Behold: the mock-exam ecosystem.</h2>
-    <p class="slide-3-subtitle reveal"><em>Four sites. One exam. Each promising "the real format."</em></p>
-    <div class="stack-wrapper">
-      <div class="stack-container reveal">
-        <div class="stack-card" data-stack-index="0">
-          <img src="assets/slop-montage/mock-claudecertifications.png" alt="claudecertifications.com practice questions">
-          <span class="brand-caption">claudecertifications.com / practice-questions</span>
-        </div>
-        <div class="stack-card" data-stack-index="1">
-          <img src="assets/slop-montage/mock-claudecertprep.png" alt="claudecertprep.com mock exam">
-          <span class="brand-caption">claudecertprep.com / mock</span>
-        </div>
-        <div class="stack-card" data-stack-index="2">
-          <img src="assets/slop-montage/mock-claudecert.png" alt="claudecert.com mock exam">
-          <span class="brand-caption">claudecert.com / mock-exam</span>
-        </div>
-        <div class="stack-card" data-stack-index="3">
-          <img src="assets/slop-montage/mock-claudecertification.png" alt="claudecertification.com mock exams">
-          <span class="brand-caption">claudecertification.com / exams</span>
-        </div>
-      </div>
-      <p class="punchline">Spot the difference?</p>
-    </div>
-    <p class="slide-3-hint reveal"><em>[click to reveal]</em></p>
-  </div>
-  <aside class="marginalia" aria-hidden="true"><em>marginalia: every one promises "real domain weights." Three sit behind a paywall.</em></aside>
-</section>
+  <div class="slide-content slide-3-layout">
+    <header class="slide-3-header">
+      <p class="chapter-marker reveal">Volume I</p>
+      <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">✦</span><span class="rule"></span></div>
+      <h2 class="slide-3-title reveal">I went looking<br>for CCA-F prep.</h2>
+      <p class="slide-3-subtitle reveal"><em>This is what came back.</em></p>
+      <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
+    </header>
 
-<!-- ============================================================
-     SLIDE 4 — SLOP PUNCHLINE (DEEP-LINK SAMENESS)
-     ============================================================ -->
-<section class="slide" id="slide-4">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:14%;animation-duration:53s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:35px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:78%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:52%;left:42%;animation-duration:59s;animation-delay:9s;--mote-opacity:0.24;--mote-dx:40px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:22%;animation-duration:44s;animation-delay:23s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.27;--mote-dx:-35px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:41s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-75px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:19s;--mote-opacity:0.18;--mote-dx:-40px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:6%;animation-duration:48s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:30px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:12%;left:33%;animation-duration:62s;animation-delay:11s;--mote-opacity:0.2;--mote-dx:-15px;--mote-dy:-55px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:91%;left:87%;animation-duration:40s;animation-delay:29s;--mote-opacity:0.16;--mote-dx:25px;--mote-dy:-100px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:64%;animation-duration:50s;animation-delay:42s;--mote-opacity:0.23;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:19%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:45px;--mote-dy:-88px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:6%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:47%;left:4%;animation-duration:54s;animation-delay:20s;--mote-opacity:0.25;--mote-dx:55px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:44%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.19;--mote-dx:-25px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:26%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.21;--mote-dx:-50px;--mote-dy:-75px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:56%;left:31%;animation-duration:60s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-95px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:54%;animation-duration:37s;animation-delay:16s;--mote-opacity:0.18;--mote-dx:15px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:33%;left:24%;animation-duration:58s;animation-delay:12s;--mote-opacity:0.24;--mote-dx:-20px;--mote-dy:-85px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:16%;animation-duration:46s;animation-delay:47s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-55px;"></div>
-  </div>
-  <div class="corner-ornament corner-ornament--tl"></div>
-  <div class="corner-ornament corner-ornament--br"></div>
-  <div class="slide-content">
-    <p class="slide-4-annotation reveal" style="text-align:center; margin-bottom: clamp(0.3rem,0.8vh,0.6rem);">Same heading. Same bullets. Same conclusion.</p>
-    <div class="slide-4-identical reveal" style="margin-bottom: clamp(0.3rem,0.8vh,0.6rem);">
-      <span class="ident-badge">claudecertifications.com</span>
-      <span class="ident-eq">↔</span>
-      <span class="ident-badge">claudecertprep.com</span>
-      <span class="ident-eq">↔</span>
-      <span class="ident-badge">claudecert.com</span>
-      <span class="ident-eq">↔</span>
-      <span class="ident-badge">claudecertification.com</span>
-    </div>
-    <div class="slide-4-comparison reveal" style="flex: 1; min-height: 0;">
-      <div class="slide-4-col">
-        <div class="slide-4-brand-tag">claudecertifications.com</div>
-        <div class="slide-4-deeplink">/&hellip;/domains/agentic-architecture</div>
-        <img src="assets/slop-montage/guide-claudecertifications.png" alt="claudecertifications.com — Agentic Architecture domain">
+    <div class="slide-3-body reveal">
+      <div class="stack-container" data-current-beat="0">
+        <!-- ghost cards (decorative depth — never cycle) -->
+        <div class="stack-card ghost-card" data-stack-pos="6" aria-hidden="true"></div>
+        <div class="stack-card ghost-card" data-stack-pos="5" aria-hidden="true"></div>
+        <div class="stack-card ghost-card" data-stack-pos="4" aria-hidden="true"></div>
+        <!-- content cards (cycle bottom-to-top on click) -->
+        <div class="stack-card content-card" data-stack-pos="3" data-beat="3">
+          <img src="assets/slop-montage/guide-claudecertification.png" alt="claudecertification.com — study guide">
+          <span class="brand-caption">claudecertification.com</span>
+        </div>
+        <div class="stack-card content-card" data-stack-pos="2" data-beat="2">
+          <img src="assets/slop-montage/guide-claudecert.png" alt="claudecert.com — Agentic Architecture">
+          <span class="brand-caption">claudecert.com</span>
+        </div>
+        <div class="stack-card content-card" data-stack-pos="1" data-beat="1">
+          <img src="assets/slop-montage/guide-claudecertprep.png" alt="claudecertprep.com — study guide">
+          <span class="brand-caption">claudecertprep.com</span>
+        </div>
+        <div class="stack-card content-card" data-stack-pos="0" data-beat="0">
+          <img src="assets/slop-montage/guide-claudecertifications.png" alt="claudecertifications.com — Agentic Architecture domain">
+          <span class="brand-caption">claudecertifications.com</span>
+        </div>
       </div>
-      <div class="slide-4-col">
-        <div class="slide-4-brand-tag">claudecertprep.com</div>
-        <div class="slide-4-deeplink">/study-guide/intro</div>
-        <img src="assets/slop-montage/guide-claudecertprep.png" alt="claudecertprep.com — study guide">
-      </div>
-      <div class="slide-4-col">
-        <div class="slide-4-brand-tag">claudecert.com</div>
-        <div class="slide-4-deeplink">/learn/1-agentic-architecture</div>
-        <img src="assets/slop-montage/guide-claudecert.png" alt="claudecert.com — Agentic Architecture">
-      </div>
-      <div class="slide-4-col">
-        <div class="slide-4-brand-tag">claudecertification.com</div>
-        <div class="slide-4-deeplink">/study-guide/1</div>
-        <img src="assets/slop-montage/guide-claudecertification.png" alt="claudecertification.com — Agentic Architecture &amp; Orchestration">
+
+      <div class="beat-column">
+        <div class="beat-caption reveal-blur is-active" data-beat="0">
+          <p class="beat-headline">Same design language.</p>
+          <p class="beat-subline"><em>Same information architecture. Same five-bullet domain page.</em></p>
+          <p class="beat-deeplink">claudecertifications.com<br><span class="beat-path">/domains/agentic-architecture</span></p>
+        </div>
+        <div class="beat-caption reveal-blur" data-beat="1" hidden>
+          <p class="beat-headline">Same offered functionality.</p>
+          <p class="beat-subline"><em>Study guide. Mock exam. Domain practice. The same three boxes.</em></p>
+          <p class="beat-deeplink">claudecertprep.com<br><span class="beat-path">/study-guide/intro</span></p>
+        </div>
+        <div class="beat-caption reveal-blur" data-beat="2" hidden>
+          <p class="beat-headline">Same problem to solve.</p>
+          <p class="beat-subline"><em>Anthropic's exam guide. Repeated, four ways.</em></p>
+          <p class="beat-deeplink">claudecert.com<br><span class="beat-path">/learn/1-agentic-architecture</span></p>
+        </div>
+        <div class="beat-caption reveal-blur" data-beat="3" hidden>
+          <p class="beat-headline">And I started here, too.</p>
+          <p class="beat-subline"><em>My notes used to look like this. Maybe yours do.</em></p>
+          <p class="beat-deeplink">claudecertification.com<br><span class="beat-path">/study-guide/1</span></p>
+        </div>
       </div>
     </div>
-    <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❖</span><span class="rule"></span></div>
-    <p class="slide-4-punchline reveal"><em>Four sites. Four URLs. One Domain page. Zero souls.</em></p>
+
+    <footer class="slide-3-footer">
+      <p class="slide-3-hint reveal"><em>[click to reveal the next]</em></p>
+      <p class="slide-3-punchline reveal"><em>It does the job. But twelve is a dozen.</em></p>
+    </footer>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>sidebar: I do not know if they trained on the same source. I suspect they share an LLM.</em></aside>
 </section>
 
 <!-- ============================================================
      SLIDE 5 — PIVOT
      ============================================================ -->
-<section class="slide" id="slide-5">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:11%;animation-duration:54s;animation-delay:4s;--mote-opacity:0.24;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:26%;left:76%;animation-duration:47s;animation-delay:14s;--mote-opacity:0.2;--mote-dx:-22px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:48%;left:44%;animation-duration:60s;animation-delay:9s;--mote-opacity:0.25;--mote-dx:42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:23%;animation-duration:43s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:22px;--mote-dy:-65px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:84%;left:63%;animation-duration:58s;animation-delay:32s;--mote-opacity:0.28;--mote-dx:-33px;--mote-dy:-88px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:17%;left:53%;animation-duration:41s;animation-delay:6s;--mote-opacity:0.21;--mote-dx:48px;--mote-dy:-76px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:42%;left:91%;animation-duration:56s;animation-delay:18s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:66%;left:7%;animation-duration:48s;animation-delay:38s;--mote-opacity:0.22;--mote-dx:28px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:14%;left:34%;animation-duration:63s;animation-delay:12s;--mote-opacity:0.2;--mote-dx:-14px;--mote-dy:-57px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:92%;left:86%;animation-duration:40s;animation-delay:28s;--mote-opacity:0.17;--mote-dx:26px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:36%;left:62%;animation-duration:51s;animation-delay:41s;--mote-opacity:0.23;--mote-dx:-12px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:59%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.21;--mote-dx:48px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:67%;animation-duration:44s;animation-delay:44s;--mote-opacity:0.18;--mote-dx:-28px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:5%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.26;--mote-dx:54px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:88%;left:43%;animation-duration:42s;animation-delay:35s;--mote-opacity:0.19;--mote-dx:-24px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:24%;left:97%;animation-duration:49s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:-48px;--mote-dy:-76px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:32%;animation-duration:62s;animation-delay:26s;--mote-opacity:0.23;--mote-dx:32px;--mote-dy:-96px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:77%;left:55%;animation-duration:38s;animation-delay:16s;--mote-opacity:0.18;--mote-dx:16px;--mote-dy:-66px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:31%;left:25%;animation-duration:58s;animation-delay:11s;--mote-opacity:0.24;--mote-dx:-22px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:97%;left:14%;animation-duration:46s;animation-delay:48s;--mote-opacity:0.2;--mote-dx:38px;--mote-dy:-57px;"></div>
-  </div>
+<section class="slide" id="slide-4">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
     <p class="chapter-marker reveal">Volume II</p>
-    <p class="garamond-italic reveal" style="font-size: clamp(0.9rem,1.8vw,1.3rem); color: var(--accent-gold); margin-bottom: 0.2rem;"><em>Enter the warlock.</em></p>
+    <p class="garamond-italic reveal" style="font-size: clamp(0.9rem,1.8vw,1.3rem); color: var(--accent-gold); margin-bottom: 0.2rem;"><em>Enter the dungeon.</em></p>
     <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">⚜</span><span class="rule"></span></div>
     <h2 class="pivot-headline reveal">So I built a<br>different one.</h2>
     <p class="pivot-subline reveal"><em>and gave it a name</em></p>
@@ -1946,29 +1785,7 @@ body {
 <!-- ============================================================
      SLIDE 6 — GAMIFICATION WORKS
      ============================================================ -->
-<section class="slide" id="slide-6">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:10%;left:9%;animation-duration:52s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:32px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:74%;animation-duration:46s;animation-delay:12s;--mote-opacity:0.2;--mote-dx:-24px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:61s;animation-delay:8s;--mote-opacity:0.24;--mote-dx:44px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:24s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:61%;animation-duration:57s;animation-delay:33s;--mote-opacity:0.26;--mote-dx:-36px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:19%;left:51%;animation-duration:40s;animation-delay:7s;--mote-opacity:0.2;--mote-dx:50px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:44%;left:89%;animation-duration:56s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-44px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:68%;left:4%;animation-duration:47s;animation-delay:36s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:36%;animation-duration:62s;animation-delay:11s;--mote-opacity:0.2;--mote-dx:-16px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:84%;animation-duration:41s;animation-delay:29s;--mote-opacity:0.17;--mote-dx:24px;--mote-dy:-104px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:38%;left:61%;animation-duration:50s;animation-delay:43s;--mote-opacity:0.23;--mote-dx:-12px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:57%;left:16%;animation-duration:58s;animation-delay:9s;--mote-opacity:0.21;--mote-dx:46px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:68%;animation-duration:43s;animation-delay:45s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:45%;left:3%;animation-duration:54s;animation-delay:21s;--mote-opacity:0.25;--mote-dx:56px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:86%;left:42%;animation-duration:42s;animation-delay:35s;--mote-opacity:0.19;--mote-dx:-26px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:23%;left:96%;animation-duration:48s;animation-delay:4s;--mote-opacity:0.22;--mote-dx:-50px;--mote-dy:-76px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:54%;left:30%;animation-duration:60s;animation-delay:27s;--mote-opacity:0.22;--mote-dx:32px;--mote-dy:-96px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:75%;left:53%;animation-duration:38s;animation-delay:17s;--mote-opacity:0.18;--mote-dx:16px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:26%;animation-duration:57s;animation-delay:13s;--mote-opacity:0.24;--mote-dx:-22px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:13%;animation-duration:45s;animation-delay:49s;--mote-opacity:0.2;--mote-dx:38px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-5">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
@@ -1998,29 +1815,7 @@ body {
 <!-- ============================================================
      SLIDE 7 — GAMIFICATION ALSO FAILS
      ============================================================ -->
-<section class="slide" id="slide-7">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:12%;animation-duration:53s;animation-delay:2s;--mote-opacity:0.2;--mote-dx:30px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:26%;left:77%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:50%;left:42%;animation-duration:60s;animation-delay:9s;--mote-opacity:0.22;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.16;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:62%;animation-duration:58s;animation-delay:32s;--mote-opacity:0.24;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:16%;left:52%;animation-duration:41s;animation-delay:6s;--mote-opacity:0.19;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:19s;--mote-opacity:0.16;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:6%;animation-duration:47s;animation-delay:38s;--mote-opacity:0.2;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:35%;animation-duration:63s;animation-delay:11s;--mote-opacity:0.18;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:92%;left:85%;animation-duration:40s;animation-delay:28s;--mote-opacity:0.15;--mote-dx:24px;--mote-dy:-100px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:42s;--mote-opacity:0.21;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:18%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.19;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:67%;animation-duration:44s;animation-delay:44s;--mote-opacity:0.16;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:4%;animation-duration:54s;animation-delay:20s;--mote-opacity:0.23;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.17;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:97%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:31%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.21;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:77%;left:54%;animation-duration:38s;animation-delay:16s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:25%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.22;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:15%;animation-duration:46s;animation-delay:47s;--mote-opacity:0.18;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-6">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <!-- Warlock: concerned, hue-shifted, top-right -->
@@ -2062,35 +1857,12 @@ body {
     </div>
     <p class="honest-gap reveal"><em>✶ Honest gap: no recent RCT on cert-prep specifically. Corporate-training literature is our proxy.</em></p>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>confession: I built two gamified studying apps before this one. Both failed at #1 and #4. I did not learn until I felt the burn.</em></aside>
 </section>
 
 <!-- ============================================================
      SLIDE 8 — REWARD SYSTEM SHOWDOWN
      ============================================================ -->
-<section class="slide" id="slide-8">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:11%;animation-duration:52s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:76%;animation-duration:45s;animation-delay:14s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.17;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.2;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:14%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:64%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:33%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-7">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
@@ -2192,29 +1964,7 @@ body {
 <!-- ============================================================
      SLIDE 9 — DEMO BREAK
      ============================================================ -->
-<section class="slide" id="slide-9">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:10%;animation-duration:54s;animation-delay:2s;--mote-opacity:0.24;--mote-dx:32px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:75%;animation-duration:47s;animation-delay:13s;--mote-opacity:0.2;--mote-dx:-24px;--mote-dy:-70px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:52%;left:43%;animation-duration:61s;animation-delay:8s;--mote-opacity:0.25;--mote-dx:44px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:72%;left:22%;animation-duration:44s;animation-delay:24s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:63%;animation-duration:57s;animation-delay:32s;--mote-opacity:0.28;--mote-dx:-34px;--mote-dy:-88px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:19%;left:52%;animation-duration:40s;animation-delay:7s;--mote-opacity:0.21;--mote-dx:50px;--mote-dy:-76px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:44%;left:90%;animation-duration:56s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-44px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:68%;left:5%;animation-duration:48s;animation-delay:38s;--mote-opacity:0.22;--mote-dx:28px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:35%;animation-duration:62s;animation-delay:11s;--mote-opacity:0.2;--mote-dx:-16px;--mote-dy:-58px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:86%;animation-duration:41s;animation-delay:29s;--mote-opacity:0.17;--mote-dx:26px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:38%;left:62%;animation-duration:51s;animation-delay:43s;--mote-opacity:0.24;--mote-dx:-12px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:59%;left:17%;animation-duration:58s;animation-delay:9s;--mote-opacity:0.21;--mote-dx:48px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:5%;left:67%;animation-duration:43s;animation-delay:45s;--mote-opacity:0.18;--mote-dx:-30px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:47%;left:4%;animation-duration:55s;animation-delay:21s;--mote-opacity:0.26;--mote-dx:56px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:88%;left:44%;animation-duration:42s;animation-delay:35s;--mote-opacity:0.19;--mote-dx:-26px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:24%;left:97%;animation-duration:49s;animation-delay:4s;--mote-opacity:0.22;--mote-dx:-50px;--mote-dy:-76px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:56%;left:31%;animation-duration:62s;animation-delay:26s;--mote-opacity:0.23;--mote-dx:32px;--mote-dy:-96px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:77%;left:55%;animation-duration:38s;animation-delay:17s;--mote-opacity:0.18;--mote-dx:16px;--mote-dy:-66px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:25%;animation-duration:58s;animation-delay:12s;--mote-opacity:0.24;--mote-dx:-22px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:96%;left:16%;animation-duration:46s;animation-delay:48s;--mote-opacity:0.2;--mote-dx:40px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-8">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content" style="align-items: center; text-align: center;">
@@ -2254,29 +2004,7 @@ body {
 <!-- ============================================================
      SLIDE 10 — TESTIMONIALS (PLACEHOLDER)
      ============================================================ -->
-<section class="slide" id="slide-10">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:12%;animation-duration:53s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:78%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-24px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:44%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:83%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:14%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:64%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:33%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-9">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
@@ -2308,29 +2036,7 @@ body {
 <!-- ============================================================
      SLIDE 11 — ACT III TRANSITION
      ============================================================ -->
-<section class="slide" id="slide-11">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:11%;animation-duration:52s;animation-delay:2s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:76%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:42%;animation-duration:60s;animation-delay:9s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:51%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:28s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-10">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
@@ -2349,29 +2055,7 @@ body {
 <!-- ============================================================
      SLIDE 12 — THE WORKFLOW LOOP
      ============================================================ -->
-<section class="slide" id="slide-12">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:8%;left:10%;animation-duration:53s;animation-delay:3s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:27%;left:77%;animation-duration:46s;animation-delay:14s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:50%;left:42%;animation-duration:61s;animation-delay:9s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:51%;animation-duration:40s;animation-delay:7s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:42s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-11">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
@@ -2412,29 +2096,7 @@ body {
 <!-- ============================================================
      SLIDE 13 — I'M NOT A GAME DEV
      ============================================================ -->
-<section class="slide" id="slide-13">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:12%;animation-duration:53s;animation-delay:1s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:78%;animation-duration:46s;animation-delay:13s;--mote-opacity:0.19;--mote-dx:-22px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.23;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:22%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.18;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.26;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:52%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.2;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.18;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.21;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.19;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.16;--mote-dx:24px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.22;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.2;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.17;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.24;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.18;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.2;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.22;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.17;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.23;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.19;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-12">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <!-- Warlock small at bottom, shrug-angle -->
@@ -2453,35 +2115,13 @@ body {
       <p class="big-line big-line--impact reveal">I shipped this anyway.</p>
     </div>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>epilogue: I'm a Senior Manager. I should not have had time for this. AI was the reason I did.</em></aside>
+  <aside class="marginalia" aria-hidden="true"><em>epilogue: I should not have had time for this. AI was the reason I did.</em></aside>
 </section>
 
 <!-- ============================================================
      SLIDE 14 — CLOSE
      ============================================================ -->
-<section class="slide" id="slide-14">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:8%;left:12%;animation-duration:54s;animation-delay:0s;--mote-opacity:0.28;--mote-dx:34px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:22%;left:80%;animation-duration:47s;animation-delay:10s;--mote-opacity:0.24;--mote-dx:-26px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:48%;left:45%;animation-duration:62s;animation-delay:5s;--mote-opacity:0.3;--mote-dx:46px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:70%;left:22%;animation-duration:45s;animation-delay:20s;--mote-opacity:0.2;--mote-dx:22px;--mote-dy:-66px;"></div>
-    <div class="dust-mote" style="width:0.28rem;height:0.28rem;top:85%;left:65%;animation-duration:58s;animation-delay:28s;--mote-opacity:0.32;--mote-dx:-36px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:16%;left:55%;animation-duration:41s;animation-delay:4s;--mote-opacity:0.25;--mote-dx:52px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:42%;left:92%;animation-duration:56s;animation-delay:16s;--mote-opacity:0.2;--mote-dx:-46px;--mote-dy:-96px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:66%;left:6%;animation-duration:48s;animation-delay:35s;--mote-opacity:0.26;--mote-dx:30px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:12%;left:36%;animation-duration:64s;animation-delay:9s;--mote-opacity:0.22;--mote-dx:-18px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:94%;left:88%;animation-duration:42s;animation-delay:26s;--mote-opacity:0.19;--mote-dx:28px;--mote-dy:-106px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:36%;left:66%;animation-duration:52s;animation-delay:40s;--mote-opacity:0.26;--mote-dx:-14px;--mote-dy:-76px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:57%;left:18%;animation-duration:59s;animation-delay:7s;--mote-opacity:0.24;--mote-dx:50px;--mote-dy:-88px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:70%;animation-duration:44s;animation-delay:43s;--mote-opacity:0.2;--mote-dx:-32px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.28rem;height:0.28rem;top:46%;left:4%;animation-duration:55s;animation-delay:18s;--mote-opacity:0.28;--mote-dx:58px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:88%;left:44%;animation-duration:43s;animation-delay:33s;--mote-opacity:0.22;--mote-dx:-28px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:24%;left:98%;animation-duration:50s;animation-delay:2s;--mote-opacity:0.24;--mote-dx:-52px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:54%;left:32%;animation-duration:62s;animation-delay:24s;--mote-opacity:0.26;--mote-dx:34px;--mote-dy:-98px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:77%;left:56%;animation-duration:39s;animation-delay:14s;--mote-opacity:0.2;--mote-dx:18px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:30%;left:26%;animation-duration:58s;animation-delay:11s;--mote-opacity:0.28;--mote-dx:-24px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:97%;left:16%;animation-duration:46s;animation-delay:46s;--mote-opacity:0.22;--mote-dx:42px;--mote-dy:-60px;"></div>
-  </div>
+<section class="slide" id="slide-13">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--tr"></div>
   <div class="corner-ornament corner-ornament--bl"></div>
@@ -2507,29 +2147,7 @@ body {
 <!-- ============================================================
      SLIDE 15 — REFERENCES + THANKS
      ============================================================ -->
-<section class="slide" id="slide-15">
-  <div class="dust-layer" aria-hidden="true">
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:9%;left:11%;animation-duration:52s;animation-delay:2s;--mote-opacity:0.2;--mote-dx:30px;--mote-dy:-80px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:28%;left:76%;animation-duration:46s;animation-delay:12s;--mote-opacity:0.17;--mote-dx:-22px;--mote-dy:-68px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:51%;left:43%;animation-duration:60s;animation-delay:8s;--mote-opacity:0.21;--mote-dx:42px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:71%;left:21%;animation-duration:44s;animation-delay:22s;--mote-opacity:0.16;--mote-dx:20px;--mote-dy:-62px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:82%;left:62%;animation-duration:57s;animation-delay:31s;--mote-opacity:0.24;--mote-dx:-34px;--mote-dy:-86px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:18%;left:51%;animation-duration:40s;animation-delay:6s;--mote-opacity:0.18;--mote-dx:48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:43%;left:90%;animation-duration:55s;animation-delay:20s;--mote-opacity:0.16;--mote-dx:-42px;--mote-dy:-92px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:67%;left:5%;animation-duration:47s;animation-delay:37s;--mote-opacity:0.19;--mote-dx:28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:13%;left:34%;animation-duration:62s;animation-delay:10s;--mote-opacity:0.17;--mote-dx:-14px;--mote-dy:-56px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:93%;left:85%;animation-duration:40s;animation-delay:27s;--mote-opacity:0.14;--mote-dx:24px;--mote-dy:-102px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:37%;left:63%;animation-duration:50s;animation-delay:41s;--mote-opacity:0.2;--mote-dx:-10px;--mote-dy:-72px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:58%;left:17%;animation-duration:57s;animation-delay:8s;--mote-opacity:0.18;--mote-dx:46px;--mote-dy:-84px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:4%;left:66%;animation-duration:43s;animation-delay:44s;--mote-opacity:0.15;--mote-dx:-28px;--mote-dy:-60px;"></div>
-    <div class="dust-mote" style="width:0.25rem;height:0.25rem;top:46%;left:3%;animation-duration:54s;animation-delay:19s;--mote-opacity:0.22;--mote-dx:54px;--mote-dy:-90px;"></div>
-    <div class="dust-mote" style="width:0.17rem;height:0.17rem;top:87%;left:43%;animation-duration:42s;animation-delay:34s;--mote-opacity:0.16;--mote-dx:-24px;--mote-dy:-78px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:25%;left:96%;animation-duration:49s;animation-delay:3s;--mote-opacity:0.18;--mote-dx:-48px;--mote-dy:-74px;"></div>
-    <div class="dust-mote" style="width:0.22rem;height:0.22rem;top:55%;left:30%;animation-duration:61s;animation-delay:25s;--mote-opacity:0.2;--mote-dx:30px;--mote-dy:-94px;"></div>
-    <div class="dust-mote" style="width:0.15rem;height:0.15rem;top:76%;left:53%;animation-duration:38s;animation-delay:15s;--mote-opacity:0.15;--mote-dx:14px;--mote-dy:-64px;"></div>
-    <div class="dust-mote" style="width:0.18rem;height:0.18rem;top:32%;left:24%;animation-duration:57s;animation-delay:12s;--mote-opacity:0.21;--mote-dx:-20px;--mote-dy:-82px;"></div>
-    <div class="dust-mote" style="width:0.2rem;height:0.2rem;top:95%;left:14%;animation-duration:45s;animation-delay:48s;--mote-opacity:0.17;--mote-dx:36px;--mote-dy:-56px;"></div>
-  </div>
+<section class="slide" id="slide-14">
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="slide-content">
@@ -2704,80 +2322,145 @@ if (document.readyState === 'loading') {
 
 <script>
 /* ===========================================
-   PHASE 4.1 — Slide 3 card-stack reveal hook
-   Click or Space/ArrowRight while slide 3 is active:
-   reveal next card (or punchline) in order.
-   When all 6 are revealed, further input advances to slide 4.
+   SLIDE 3 — Card-cycle hook (merged dozen-in-a-dozen layout)
+   Click anywhere inside slide 3 to advance the beat:
+   - rotates data-stack-pos values (the card at pos 1 surfaces to pos 0;
+     the old top wraps to pos 3)
+   - swaps active beat caption via a single @keyframes beat-swap-in
+     animation on the incoming caption (outgoing is hidden instantly)
+   - clamps at beat 3 (last); further clicks pulse the punchline
+   - persistent click hint matches existing slide-3 + slide-7 convention
+   See spec at docs/superpowers/specs/2026-05-26-slide-3-4-merge-design.md
    =========================================== */
-(function setupCardStackReveal() {
+(function setupSlide3CardCycle() {
   const slide = document.getElementById('slide-3');
   if (!slide) return;
 
-  // Build the reveal sequence: 5 cards in DOM order, then the punchline
-  const cards = Array.from(slide.querySelectorAll('.stack-card'));
-  const punchline = slide.querySelector('.punchline');
-  const sequence = punchline ? [...cards, punchline] : [...cards];
+  const stack = slide.querySelector('.stack-container');
+  const contentCards = Array.from(slide.querySelectorAll('.stack-card.content-card'));
+  const captions = Array.from(slide.querySelectorAll('.beat-caption'));
+  const punchline = slide.querySelector('.slide-3-punchline');
+  const TOTAL_BEATS = 4;
 
-  let nextIndex = 0;
-
-  // Maintain our own visibility flag — SlidePresentation's .visible class
-  // is set-once and never removed, so we can't rely on it to know when
-  // to stop intercepting input.
+  let currentBeat = 0;
   let slideIsVisible = false;
+
+  // Maintain own visibility flag (SlidePresentation's .visible class is set-once).
+  // Track whether the slide has ever been visible so we don't reset on the initial
+  // not-intersecting fire that IntersectionObserver dispatches on observe().
+  let hasBeenVisible = false;
   const resetObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       slideIsVisible = entry.isIntersecting;
-      if (!entry.isIntersecting) {
-        // Slide left viewport — reset for next entry so the reveal can replay
-        nextIndex = 0;
-        sequence.forEach(el => el.classList.remove('revealed'));
+      if (entry.isIntersecting) {
+        hasBeenVisible = true;
+        return;
       }
+      if (!hasBeenVisible) return; // first observe() fire — slide hasn't been seen yet
+      // Reset state so the cycle replays cleanly on re-entry.
+      // Use data-beat (the source of truth for each card's initial slot)
+      // instead of DOM index — the markup orders cards bottom-to-top in DOM
+      // so paint order works, but DOM index does NOT match data-stack-pos.
+      currentBeat = 0;
+      setActiveCaption(0);
+      contentCards.forEach(card => {
+        card.dataset.stackPos = card.dataset.beat;
+      });
     });
-  }, { threshold: 0.5 });  // match SlidePresentation's threshold so flag tracks the same trigger
+  }, { threshold: 0.5 });  // match SlidePresentation threshold so the flag tracks the same trigger
   resetObserver.observe(slide);
 
-  function isSlideActive() {
-    return slideIsVisible;
+  function setActiveCaption(beatIndex) {
+    captions.forEach(cap => {
+      const isTarget = Number(cap.dataset.beat) === beatIndex;
+      if (isTarget) {
+        cap.hidden = false;
+        cap.classList.add('is-active');
+        // Restart the beat-swap-in animation by toggling its class.
+        // CSS animations (unlike transitions) re-fire when animation-name
+        // changes — the reflow tick between remove/add forces the change.
+        cap.classList.remove('beat-swap-in');
+        void cap.offsetWidth;
+        cap.classList.add('beat-swap-in');
+      } else {
+        cap.hidden = true;
+        cap.classList.remove('is-active');
+        cap.classList.remove('beat-swap-in');
+      }
+    });
+    if (stack) stack.dataset.currentBeat = String(beatIndex);
   }
 
-  function revealNext() {
-    if (nextIndex >= sequence.length) return false;
-    sequence[nextIndex].classList.add('revealed');
-    nextIndex += 1;
+  function cycleStack() {
+    // Rotate data-stack-pos values by -1 modulo TOTAL_BEATS for content cards only.
+    // Card at pos 1 (beat N+1) advances to pos 0 (top); card at pos 0 wraps to pos 3 (bottom).
+    // This keeps top card's brand-caption synced with the active beat caption.
+    // Use (oldPos - 1 + TOTAL_BEATS) % TOTAL_BEATS so JS modulo handles negatives correctly.
+    contentCards.forEach(card => {
+      const oldPos = Number(card.dataset.stackPos);
+      const newPos = (oldPos - 1 + TOTAL_BEATS) % TOTAL_BEATS;
+      card.dataset.stackPos = String(newPos);
+    });
+  }
+
+  let pulseTimeout = null;
+  function advanceBeat() {
+    if (currentBeat >= TOTAL_BEATS - 1) {
+      // Already at last beat — pulse the punchline as a "you're done" cue.
+      // Cancel any pending pulse-remove so rapid clicks don't interleave class toggles.
+      if (punchline) {
+        if (pulseTimeout) clearTimeout(pulseTimeout);
+        punchline.classList.remove('pulse');
+        void punchline.offsetWidth;
+        punchline.classList.add('pulse');
+        pulseTimeout = setTimeout(() => {
+          punchline.classList.remove('pulse');
+          pulseTimeout = null;
+        }, 240);
+      }
+      return false;
+    }
+    currentBeat += 1;
+    cycleStack();
+    setActiveCaption(currentBeat);
     return true;
   }
 
-  // Click handler — only intercept while slide 3 is active and cards remain.
-  // Guard against nav-dot / chrome clicks that originate outside the slide.
+  // Capture-phase click handler — only intercept while slide 3 active and clicks
+  // originate inside the slide section. Mirrors the defensive pattern from
+  // commit 520a348 (slide-3 fan-reveal hook) and PR #17 slide-8 hook.
   document.addEventListener('click', (e) => {
-    if (!isSlideActive()) return;
-    if (!slide.contains(e.target)) return; // don't intercept nav-dot / chrome clicks
-    if (nextIndex < sequence.length) {
-      e.stopPropagation();
-      revealNext();
-    }
-  }, true /* capture phase so we run before any other click handlers */);
+    if (!slideIsVisible) return;
+    if (!slide.contains(e.target)) return;
+    e.stopPropagation();
+    advanceBeat();
+  }, true);
 
-  // Keyboard handler — Space / ArrowRight reveal next card while cards remain
+  // Keyboard handler — Space / ArrowRight advance one beat while beats remain.
+  // PageDown also works for clicker remotes.
   document.addEventListener('keydown', (e) => {
-    if (!isSlideActive()) return;
-    if (nextIndex >= sequence.length) return; // let SlidePresentation handle advance
+    if (!slideIsVisible) return;
+    if (currentBeat >= TOTAL_BEATS - 1) return; // let SlidePresentation handle advance to slide 4
     if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'PageDown') {
       e.stopPropagation();
       e.preventDefault();
-      revealNext();
+      advanceBeat();
     }
-  }, true /* capture phase — must run BEFORE the SlidePresentation keydown handler */);
+  }, true);
 })();
 
 /* ===========================================
-   PHASE 4.2 — Slide 8 achievement-pop hook
-   Click or Space/ArrowRight while slide 8 is active:
+   PHASE 4.2 — Slide 7 achievement-pop hook (was slide 8 pre-merge)
+   Click or Space/ArrowRight while slide 7 is active:
    pop next list item in DOM order (data-pop-index 0..9).
-   When all 10 are revealed, further input advances to slide 9.
+   When all 10 are revealed, further input advances to slide 8.
    =========================================== */
 (function setupAchievementPop() {
-  const slide = document.getElementById('slide-8');
+  // Hook attached to what used to be slide-8 (now slide-7 after the
+  // slide-3+4 merge renumbered downstream slides). The achievement-pop
+  // CSS classes (.slide-8-hint etc.) keep their pre-merge numbers per
+  // the merge spec — cosmetic rename is a separate Kaizen PR.
+  const slide = document.getElementById('slide-7');
   if (!slide) return;
 
   // Build sequence: all items with data-pop-index, sorted by index value
