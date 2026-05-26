@@ -8,6 +8,8 @@
 
 ## 1. AI-slop cert-prep candidates (Act I montage)
 
+> **Canonical roster** of all known copycat sites — including the live URLs used in the final Slides 3 + 4 captures and how to refresh them — lives in [2026-05-26-cca-f-slop-ecosystem.md](./2026-05-26-cca-f-slop-ecosystem.md). The section below is preserved as a record of the 2026-05-25 picks.
+
 CCA-F launched March 12, 2026. In ~10 weeks an entire slop ecosystem has appeared. All sites share: hero ("Pass the CCA-F!"), domain-weight table, $19-$49 question packs, AI-generated explanations, generic stock-illustration hero art. Deep-link versions show the same auto-generated *content* per domain, which is an even stronger punchline than identical homepages.
 
 **Homepage-level (from research agent):**

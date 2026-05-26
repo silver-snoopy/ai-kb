@@ -62,6 +62,60 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
     .grid { grid-template-columns: 1fr; }
 }
+
+/* ===========================================
+   PROJECTOR / LARGE SCREEN (1600px+ wide)
+   - Audience sits 15-25 ft from the screen.
+   - Body must be ~28-32px, titles 80-112px, smalls ~20-22px.
+   - Lifts caps on font sizes, paddings, content widths, and image heights.
+   =========================================== */
+@media (min-width: 1600px) {
+    :root {
+        --title-size: clamp(2.5rem, 5vw, 7rem);
+        --h2-size: clamp(1.9rem, 3.2vw, 4.5rem);
+        --h3-size: clamp(1.4rem, 2.1vw, 3rem);
+        --body-size: clamp(1.35rem, 1.5vw, 2rem);
+        --small-size: clamp(1rem, 0.95vw, 1.35rem);
+        --slide-padding: clamp(2rem, 4vw, 6rem);
+        --content-gap: clamp(1rem, 2vw, 2.75rem);
+        --element-gap: clamp(0.5rem, 1vw, 1.4rem);
+    }
+    .card, .container, .content-box { max-width: min(90vw, 1500px); max-height: min(80vh, 1000px); }
+    img, .image-container { max-height: min(60vh, 700px); }
+    .slide-3-title { font-size: clamp(1.4rem, 2.4vw, 2.8rem) !important; }
+    .punchline { font-size: clamp(2.2rem, 4vw, 4.5rem) !important; }
+    .slide-4-brand-tag { font-size: clamp(1rem, 1.2vw, 1.5rem) !important; }
+    .slide-4-deeplink { font-size: clamp(0.9rem, 1.0vw, 1.25rem) !important; }
+    .slide-4-identical .ident-badge { font-size: clamp(1rem, 1.3vw, 1.55rem) !important; }
+    .slide-4-identical .ident-eq { font-size: clamp(1.4rem, 2vw, 2.6rem) !important; }
+    .stack-container { width: clamp(900px, 78vw, 1700px) !important; height: clamp(540px, 60vh, 820px) !important; }
+    .stack-card img { height: clamp(460px, 50vh, 700px) !important; }
+    .brand-caption { font-size: clamp(1.1rem, 1.2vw, 1.55rem) !important; }
+    .marginalia { font-size: clamp(0.95rem, 1vw, 1.3rem) !important; }
+    .slide-1-title { font-size: clamp(7rem, 11vw, 14rem) !important; }
+    .slide-1-subline { font-size: clamp(1.8rem, 2.2vw, 2.8rem) !important; }
+    .slide-1-tagline { font-size: clamp(1.1rem, 1.1vw, 1.5rem) !important; }
+    .slide-1-for { font-size: clamp(1.1rem, 1.2vw, 1.6rem) !important; }
+    .slide-1-pretitle { font-size: clamp(1rem, 1.05vw, 1.4rem) !important; }
+    /* Slide 7 — center cell content vertically so 2x2 cards don't have huge empty bottoms;
+       and grow text so audience can actually read it. */
+    .fail-grid-2x2 .fail-col {
+      justify-content: center !important;
+      padding: clamp(2rem, 3vw, 4rem) !important;
+    }
+    .fail-col-sigil  { font-size: clamp(2rem, 2.6vw, 3.4rem) !important; }
+    .fail-col-title  { font-size: clamp(1.6rem, 2vw, 2.6rem) !important; }
+    .fail-col-body   { font-size: clamp(1.2rem, 1.4vw, 1.85rem) !important; line-height: 1.45 !important; }
+    .fail-col-source { font-size: clamp(0.95rem, 1.0vw, 1.3rem) !important; }
+    /* Slide 13 — center the three truths poem horizontally for projector impact. */
+    #slide-13 .slide-content { align-items: center !important; text-align: center !important; }
+    #slide-13 .big-lines { align-items: center !important; }
+    #slide-13 .big-line { font-size: clamp(3.5rem, 5.5vw, 7rem) !important; }
+    #slide-13 .big-line-ornament { font-size: clamp(1.6rem, 2.2vw, 2.4rem) !important; }
+    .slide-13-meta-pretitle { font-size: clamp(1.1rem, 1.3vw, 1.6rem) !important; }
+    .slide-13-preamble { font-size: clamp(1.5rem, 1.8vw, 2.4rem) !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
     html { scroll-behavior: auto; }
@@ -370,6 +424,17 @@ body {
     justify-content: center;
     padding-bottom: clamp(0.5rem, 2vh, 2rem);
 }
+@keyframes spriteIdleBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+}
+.slide-1-sprite .sprite-frame img {
+    animation: spriteIdleBob 2.4s ease-in-out infinite;
+    animation-delay: 1.2s;
+}
+@media (prefers-reduced-motion: reduce) {
+    .slide-1-sprite .sprite-frame img { animation: none; }
+}
 
 /* ===========================================
    SLIDE 2 — HOOK
@@ -440,8 +505,8 @@ body {
 }
 .stack-container {
     position: relative;
-    width: clamp(400px, 70vw, 900px);
-    height: clamp(280px, 55vh, 600px);
+    width: clamp(400px, 72vw, 1100px);
+    height: clamp(280px, 55vh, 620px);
     flex-shrink: 0;
 }
 .stack-card {
@@ -1365,23 +1430,26 @@ body {
 #slide-4 { background-color: var(--bg-base); }
 .slide-4-comparison {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.5rem, 1.2vw, 1rem);
   flex: 1;
   min-height: 0;
   align-items: stretch;
+}
+@media (min-width: 1100px) {
+  .slide-4-comparison { grid-template-columns: repeat(4, 1fr); }
 }
 .slide-4-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.3rem, 0.8vh, 0.6rem);
+  gap: clamp(0.2rem, 0.5vh, 0.4rem);
   position: relative;
 }
 .slide-4-brand-tag {
   font-family: 'Cinzel', serif;
-  font-size: clamp(0.65rem, 0.85vw, 0.82rem);
-  letter-spacing: 0.12em;
+  font-size: clamp(0.6rem, 0.78vw, 0.78rem);
+  letter-spacing: 0.1em;
   color: var(--accent-gold);
   border: 1px solid var(--border-rule);
   padding: 0.15rem 0.5rem;
@@ -1389,15 +1457,26 @@ body {
   text-align: center;
   width: 100%;
 }
+.slide-4-deeplink {
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-size: clamp(0.55rem, 0.7vw, 0.72rem);
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
 .slide-4-col img {
   width: 100%;
-  flex: 1;
-  min-height: 0;
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
   object-position: top;
   border: 1px solid rgba(201, 169, 97, 0.35);
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-  max-height: clamp(180px, 38vh, 360px);
 }
 .slide-4-annotation {
   font-family: 'Cinzel', serif;
@@ -1513,15 +1592,6 @@ body {
   color: var(--text-muted);
   margin-bottom: 0.1rem;
 }
-.slide-1-opener {
-  font-family: 'EB Garamond', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(0.78rem, 1.3vw, 1.1rem);
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin-top: 0.3rem;
-  max-width: 44ch;
-}
 .slide-1-for {
   font-family: 'EB Garamond', Georgia, serif;
   font-style: italic;
@@ -1593,8 +1663,7 @@ body {
         <h1 class="slide-1-title reveal">Slay<br>the<br>Cert</h1>
         <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❦</span><span class="rule"></span></div>
         <p class="slide-1-subline reveal">A warlock, a workflow,<br>and a force multiplier.</p>
-        <p class="slide-1-tagline reveal">A 15-min talk &middot; 2026-06-03</p>
-        <p class="slide-1-opener reveal"><em>Opened by: a senior manager who should not have had time for this.</em></p>
+        <p class="slide-1-tagline reveal">2026-06-03</p>
         <p class="slide-1-for reveal"><em>For the engineers who think they can't ship anymore — you can.</em></p>
       </div>
       <div class="slide-1-sprite reveal">
@@ -1684,41 +1753,33 @@ body {
   </div>
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
-  <!-- Warlock watching the stack cards from bottom-left -->
-  <div class="warlock-ambient" style="bottom: clamp(1rem,3vw,3rem); left: clamp(1rem,3vw,3rem);" aria-hidden="true">
-    <img src="assets/title-sprite.png" alt="" style="width: clamp(28px,3vw,44px); height:auto; transform: scaleX(-1); opacity: 0.55;">
-  </div>
   <div class="slide-content" style="align-items: flex-start;">
-    <h2 class="slide-3-title reveal"><em>Behold: the slop ecosystem.</em></h2>
-    <p class="slide-3-subtitle reveal"><em>AI cert prep, circa 2026</em></p>
+    <h2 class="slide-3-title reveal">Behold: the mock-exam ecosystem.</h2>
+    <p class="slide-3-subtitle reveal"><em>Four sites. One exam. Each promising "the real format."</em></p>
     <div class="stack-wrapper">
       <div class="stack-container reveal">
         <div class="stack-card" data-stack-index="0">
-          <img src="assets/slop-montage/02-claudecertifiedarchitects.png" alt="claudecertifiedarchitects.com">
-          <span class="brand-caption">claudecertifiedarchitects.com</span>
+          <img src="assets/slop-montage/mock-claudecertifications.png" alt="claudecertifications.com practice questions">
+          <span class="brand-caption">claudecertifications.com / practice-questions</span>
         </div>
         <div class="stack-card" data-stack-index="1">
-          <img src="assets/slop-montage/03-skillcertpro-ccaf.png" alt="skillcertpro CCA-F">
-          <span class="brand-caption">skillcertpro.com</span>
+          <img src="assets/slop-montage/mock-claudecertprep.png" alt="claudecertprep.com mock exam">
+          <span class="brand-caption">claudecertprep.com / mock</span>
         </div>
         <div class="stack-card" data-stack-index="2">
-          <img src="assets/slop-montage/07-claudecertificationguide-agentic-loops.png" alt="claudecertificationguide agentic loops">
-          <span class="brand-caption">claudecertificationguide.com</span>
+          <img src="assets/slop-montage/mock-claudecert.png" alt="claudecert.com mock exam">
+          <span class="brand-caption">claudecert.com / mock-exam</span>
         </div>
         <div class="stack-card" data-stack-index="3">
-          <img src="assets/slop-montage/08-claudecertifications-agentic-architecture.png" alt="claudecertifications agentic architecture">
-          <span class="brand-caption">claudecertifications.com</span>
-        </div>
-        <div class="stack-card" data-stack-index="4">
-          <img src="assets/slop-montage/01-claudecertifications.png" alt="claudecertifications DMCA takedown">
-          <span class="brand-caption">claudecertifications.com (taken down)</span>
+          <img src="assets/slop-montage/mock-claudecertification.png" alt="claudecertification.com mock exams">
+          <span class="brand-caption">claudecertification.com / exams</span>
         </div>
       </div>
       <p class="punchline">Spot the difference?</p>
     </div>
     <p class="slide-3-hint reveal"><em>[click to reveal]</em></p>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>marginalia: I checked all ten. Two were taken down for DMCA before I drafted this slide.</em></aside>
+  <aside class="marginalia" aria-hidden="true"><em>marginalia: every one promises "real domain weights." Three sit behind a paywall.</em></aside>
 </section>
 
 <!-- ============================================================
@@ -1752,28 +1813,38 @@ body {
   <div class="slide-content">
     <p class="slide-4-annotation reveal" style="text-align:center; margin-bottom: clamp(0.3rem,0.8vh,0.6rem);">Same heading. Same bullets. Same conclusion.</p>
     <div class="slide-4-identical reveal" style="margin-bottom: clamp(0.3rem,0.8vh,0.6rem);">
-      <span class="ident-badge">claudecertificationguide.com</span>
-      <span class="ident-eq">↔</span>
       <span class="ident-badge">claudecertifications.com</span>
       <span class="ident-eq">↔</span>
-      <span class="ident-badge">ccaf-pro.vercel.app</span>
+      <span class="ident-badge">claudecertprep.com</span>
+      <span class="ident-eq">↔</span>
+      <span class="ident-badge">claudecert.com</span>
+      <span class="ident-eq">↔</span>
+      <span class="ident-badge">claudecertification.com</span>
     </div>
     <div class="slide-4-comparison reveal" style="flex: 1; min-height: 0;">
       <div class="slide-4-col">
-        <div class="slide-4-brand-tag">claudecertificationguide.com</div>
-        <img src="assets/slop-montage/07-claudecertificationguide-agentic-loops.png" alt="claudecertificationguide agentic loops">
-      </div>
-      <div class="slide-4-col">
         <div class="slide-4-brand-tag">claudecertifications.com</div>
-        <img src="assets/slop-montage/08-claudecertifications-agentic-architecture.png" alt="claudecertifications agentic architecture">
+        <div class="slide-4-deeplink">/&hellip;/domains/agentic-architecture</div>
+        <img src="assets/slop-montage/guide-claudecertifications.png" alt="claudecertifications.com — Agentic Architecture domain">
       </div>
       <div class="slide-4-col">
-        <div class="slide-4-brand-tag">ccaf-pro.vercel.app</div>
-        <img src="assets/slop-montage/09-ccaf-pro-domain1.png" alt="ccaf-pro domain 1">
+        <div class="slide-4-brand-tag">claudecertprep.com</div>
+        <div class="slide-4-deeplink">/study-guide/intro</div>
+        <img src="assets/slop-montage/guide-claudecertprep.png" alt="claudecertprep.com — study guide">
+      </div>
+      <div class="slide-4-col">
+        <div class="slide-4-brand-tag">claudecert.com</div>
+        <div class="slide-4-deeplink">/learn/1-agentic-architecture</div>
+        <img src="assets/slop-montage/guide-claudecert.png" alt="claudecert.com — Agentic Architecture">
+      </div>
+      <div class="slide-4-col">
+        <div class="slide-4-brand-tag">claudecertification.com</div>
+        <div class="slide-4-deeplink">/study-guide/1</div>
+        <img src="assets/slop-montage/guide-claudecertification.png" alt="claudecertification.com — Agentic Architecture &amp; Orchestration">
       </div>
     </div>
     <div class="ornament-divider reveal"><span class="rule"></span><span class="ornament">❖</span><span class="rule"></span></div>
-    <p class="slide-4-punchline reveal"><em>Three sites. One Domain page. Zero souls.</em></p>
+    <p class="slide-4-punchline reveal"><em>Four sites. Four URLs. One Domain page. Zero souls.</em></p>
   </div>
   <aside class="marginalia" aria-hidden="true"><em>sidebar: I do not know if they trained on the same source. I suspect they share an LLM.</em></aside>
 </section>
