@@ -82,11 +82,6 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     }
     .card, .container, .content-box { max-width: min(90vw, 1500px); max-height: min(80vh, 1000px); }
     img, .image-container { max-height: min(60vh, 700px); }
-    .slide-3-title { font-size: clamp(1.4rem, 2.4vw, 2.8rem) !important; }
-    .punchline { font-size: clamp(2.2rem, 4vw, 4.5rem) !important; }
-    .stack-container { width: clamp(900px, 78vw, 1700px) !important; height: clamp(540px, 60vh, 820px) !important; }
-    .stack-card img { height: clamp(460px, 50vh, 700px) !important; }
-    .brand-caption { font-size: clamp(1.1rem, 1.2vw, 1.55rem) !important; }
     .marginalia { font-size: clamp(0.95rem, 1vw, 1.3rem) !important; }
     .slide-1-title { font-size: clamp(7rem, 11vw, 14rem) !important; }
     .slide-1-subline { font-size: clamp(1.8rem, 2.2vw, 2.8rem) !important; }
@@ -501,88 +496,6 @@ body {
     z-index: 2;
 }
 
-/* ===========================================
-   SLIDE 3 — SLOP MONTAGE
-   =========================================== */
-#slide-3 { background-color: var(--bg-base); }
-.slide-3-title {
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    font-size: clamp(0.9rem, 1.8vw, 1.3rem);
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-    text-align: left;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-.slide-3-subtitle {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-style: italic;
-    font-size: var(--body-size);
-    color: var(--text-muted);
-    text-align: left;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-.stack-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: clamp(0.75rem, 2vh, 1.5rem);
-    min-height: 0;
-}
-.stack-container {
-    position: relative;
-    width: clamp(400px, 72vw, 1100px);
-    height: clamp(280px, 55vh, 620px);
-    flex-shrink: 0;
-}
-.stack-card {
-    position: absolute;
-    background: #f5f0e8;
-    border: 3px solid var(--accent-gold);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 0 2px var(--accent-gold);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-.stack-card img {
-    width: 100%;
-    height: clamp(220px, 45vh, 520px);
-    object-fit: cover;
-    display: block;
-    max-height: none;
-}
-.brand-caption {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: clamp(0.85rem, 1vw, 1rem);
-    color: #5a4a30;
-    padding: 4px 8px;
-    background: #ede5d0;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-style: italic;
-}
-/* Final stack positions (used as --final-transform via nth-of-type) */
-.stack-card[data-stack-index="0"] { z-index: 1; }
-.stack-card[data-stack-index="1"] { z-index: 2; }
-.stack-card[data-stack-index="2"] { z-index: 3; }
-.stack-card[data-stack-index="3"] { z-index: 4; }
-.stack-card[data-stack-index="4"] { z-index: 5; }
-
-.punchline {
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    font-size: clamp(1.3rem, 2.8vw, 2.5rem);
-    color: var(--accent-gold-bright);
-    text-align: center;
-    letter-spacing: 0.05em;
-}
 .slide-3-hint {
     font-family: 'EB Garamond', Georgia, serif;
     font-style: italic;
@@ -591,38 +504,6 @@ body {
     text-align: center;
     flex-shrink: 0;
     opacity: 0.7;
-}
-
-/* === SLIDE 3 — Phase 4 click-driven reveal === */
-/* Cards start off-screen-right; .revealed deals them onto the pile */
-#slide-3 .stack-card {
-  opacity: 0;
-  transform: translateX(35vw) rotate(15deg);
-  pointer-events: none;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-}
-#slide-3 .stack-card.revealed {
-  opacity: 1;
-  pointer-events: auto;
-}
-/* Per-card landing positions (theatrical dealt stack) */
-#slide-3 .stack-card:nth-of-type(1).revealed { transform: translate(-22px, -15px) rotate(-7deg); }
-#slide-3 .stack-card:nth-of-type(2).revealed { transform: translate(14px, 8px) rotate(5deg); }
-#slide-3 .stack-card:nth-of-type(3).revealed { transform: translate(-10px, 18px) rotate(-4deg); }
-#slide-3 .stack-card:nth-of-type(4).revealed { transform: translate(20px, -8px) rotate(6deg); }
-#slide-3 .stack-card:nth-of-type(5).revealed { transform: translate(4px, 12px) rotate(-3deg); }
-
-/* Punchline: fade-in + scale-up */
-#slide-3 .punchline {
-  opacity: 0;
-  transform: scale(0.88);
-  pointer-events: none;
-  transition: opacity 0.5s ease 0.1s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
-}
-#slide-3 .punchline.revealed {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
 }
 
 /* ===========================================
@@ -1661,33 +1542,7 @@ body {
   </div>
   <div class="corner-ornament corner-ornament--tl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
-  <div class="slide-content" style="align-items: flex-start;">
-    <h2 class="slide-3-title reveal">Behold: the mock-exam ecosystem.</h2>
-    <p class="slide-3-subtitle reveal"><em>Four sites. One exam. Each promising "the real format."</em></p>
-    <div class="stack-wrapper">
-      <div class="stack-container reveal">
-        <div class="stack-card" data-stack-index="0">
-          <img src="assets/slop-montage/mock-claudecertifications.png" alt="claudecertifications.com practice questions">
-          <span class="brand-caption">claudecertifications.com / practice-questions</span>
-        </div>
-        <div class="stack-card" data-stack-index="1">
-          <img src="assets/slop-montage/mock-claudecertprep.png" alt="claudecertprep.com mock exam">
-          <span class="brand-caption">claudecertprep.com / mock</span>
-        </div>
-        <div class="stack-card" data-stack-index="2">
-          <img src="assets/slop-montage/mock-claudecert.png" alt="claudecert.com mock exam">
-          <span class="brand-caption">claudecert.com / mock-exam</span>
-        </div>
-        <div class="stack-card" data-stack-index="3">
-          <img src="assets/slop-montage/mock-claudecertification.png" alt="claudecertification.com mock exams">
-          <span class="brand-caption">claudecertification.com / exams</span>
-        </div>
-      </div>
-      <p class="punchline">Spot the difference?</p>
-    </div>
-    <p class="slide-3-hint reveal"><em>[click to reveal]</em></p>
-  </div>
-  <aside class="marginalia" aria-hidden="true"><em>marginalia: every one promises "real domain weights." Three sit behind a paywall.</em></aside>
+  <!-- new slide-3 content inserted in Task 7 -->
 </section>
 
 <!-- ============================================================
@@ -2509,73 +2364,6 @@ if (document.readyState === 'loading') {
 </script>
 
 <script>
-/* ===========================================
-   PHASE 4.1 — Slide 3 card-stack reveal hook
-   Click or Space/ArrowRight while slide 3 is active:
-   reveal next card (or punchline) in order.
-   When all 6 are revealed, further input advances to slide 4.
-   =========================================== */
-(function setupCardStackReveal() {
-  const slide = document.getElementById('slide-3');
-  if (!slide) return;
-
-  // Build the reveal sequence: 5 cards in DOM order, then the punchline
-  const cards = Array.from(slide.querySelectorAll('.stack-card'));
-  const punchline = slide.querySelector('.punchline');
-  const sequence = punchline ? [...cards, punchline] : [...cards];
-
-  let nextIndex = 0;
-
-  // Maintain our own visibility flag — SlidePresentation's .visible class
-  // is set-once and never removed, so we can't rely on it to know when
-  // to stop intercepting input.
-  let slideIsVisible = false;
-  const resetObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      slideIsVisible = entry.isIntersecting;
-      if (!entry.isIntersecting) {
-        // Slide left viewport — reset for next entry so the reveal can replay
-        nextIndex = 0;
-        sequence.forEach(el => el.classList.remove('revealed'));
-      }
-    });
-  }, { threshold: 0.5 });  // match SlidePresentation's threshold so flag tracks the same trigger
-  resetObserver.observe(slide);
-
-  function isSlideActive() {
-    return slideIsVisible;
-  }
-
-  function revealNext() {
-    if (nextIndex >= sequence.length) return false;
-    sequence[nextIndex].classList.add('revealed');
-    nextIndex += 1;
-    return true;
-  }
-
-  // Click handler — only intercept while slide 3 is active and cards remain.
-  // Guard against nav-dot / chrome clicks that originate outside the slide.
-  document.addEventListener('click', (e) => {
-    if (!isSlideActive()) return;
-    if (!slide.contains(e.target)) return; // don't intercept nav-dot / chrome clicks
-    if (nextIndex < sequence.length) {
-      e.stopPropagation();
-      revealNext();
-    }
-  }, true /* capture phase so we run before any other click handlers */);
-
-  // Keyboard handler — Space / ArrowRight reveal next card while cards remain
-  document.addEventListener('keydown', (e) => {
-    if (!isSlideActive()) return;
-    if (nextIndex >= sequence.length) return; // let SlidePresentation handle advance
-    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'PageDown') {
-      e.stopPropagation();
-      e.preventDefault();
-      revealNext();
-    }
-  }, true /* capture phase — must run BEFORE the SlidePresentation keydown handler */);
-})();
-
 /* ===========================================
    PHASE 4.2 — Slide 7 achievement-pop hook (was slide 8 pre-merge)
    Click or Space/ArrowRight while slide 7 is active:
