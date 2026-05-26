@@ -84,10 +84,6 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     img, .image-container { max-height: min(60vh, 700px); }
     .slide-3-title { font-size: clamp(1.4rem, 2.4vw, 2.8rem) !important; }
     .punchline { font-size: clamp(2.2rem, 4vw, 4.5rem) !important; }
-    .slide-4-brand-tag { font-size: clamp(1rem, 1.2vw, 1.5rem) !important; }
-    .slide-4-deeplink { font-size: clamp(0.9rem, 1.0vw, 1.25rem) !important; }
-    .slide-4-identical .ident-badge { font-size: clamp(1rem, 1.3vw, 1.55rem) !important; }
-    .slide-4-identical .ident-eq { font-size: clamp(1.4rem, 2vw, 2.6rem) !important; }
     .stack-container { width: clamp(900px, 78vw, 1700px) !important; height: clamp(540px, 60vh, 820px) !important; }
     .stack-card img { height: clamp(460px, 50vh, 700px) !important; }
     .brand-caption { font-size: clamp(1.1rem, 1.2vw, 1.55rem) !important; }
@@ -627,41 +623,6 @@ body {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
-}
-
-/* ===========================================
-   SLIDE 4 — DEEP-LINK SAMENESS
-   =========================================== */
-#slide-4 { background-color: var(--bg-base); }
-.slide-4-grid figure {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(0.3rem, 0.8vh, 0.75rem);
-    max-height: min(55vh, 450px);
-}
-.slide-4-grid figure img {
-    width: 100%;
-    height: clamp(100px, 28vh, 300px);
-    object-fit: cover;
-    border: 2px solid var(--border-rule);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    max-height: none;
-}
-.slide-4-grid figcaption {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-style: italic;
-    font-size: var(--small-size);
-    color: var(--text-muted);
-    text-align: center;
-}
-.slide-4-punchline {
-    font-family: 'EB Garamond', Georgia, serif;
-    font-style: italic;
-    font-size: var(--body-size);
-    color: var(--text-primary);
-    text-align: center;
-    flex-shrink: 0;
 }
 
 /* ===========================================
@@ -1457,94 +1418,6 @@ body {
 .warlock-ambient img {
   image-rendering: pixelated;
   display: block;
-}
-
-/* ===========================================
-   SLIDE 4 REWORK — vertical comparison
-   =========================================== */
-#slide-4 { background-color: var(--bg-base); }
-.slide-4-comparison {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(0.5rem, 1.2vw, 1rem);
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
-}
-@media (min-width: 1100px) {
-  .slide-4-comparison { grid-template-columns: repeat(4, 1fr); }
-}
-.slide-4-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(0.2rem, 0.5vh, 0.4rem);
-  position: relative;
-}
-.slide-4-brand-tag {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(0.6rem, 0.78vw, 0.78rem);
-  letter-spacing: 0.1em;
-  color: var(--accent-gold);
-  border: 1px solid var(--border-rule);
-  padding: 0.15rem 0.5rem;
-  background: rgba(14, 12, 10, 0.8);
-  text-align: center;
-  width: 100%;
-}
-.slide-4-deeplink {
-  font-family: 'Courier New', ui-monospace, monospace;
-  font-size: clamp(0.55rem, 0.7vw, 0.72rem);
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-  text-align: center;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.75;
-}
-.slide-4-col img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  height: auto;
-  object-fit: cover;
-  object-position: top;
-  border: 1px solid rgba(201, 169, 97, 0.35);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-}
-.slide-4-annotation {
-  font-family: 'Cinzel', serif;
-  font-weight: 500;
-  font-size: clamp(1rem, 2.5vw, 2rem);
-  color: var(--accent-gold);
-  text-align: center;
-  letter-spacing: 0.06em;
-  flex-shrink: 0;
-  line-height: 1.2;
-}
-.slide-4-identical {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(0.4rem, 1.5vw, 1.2rem);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-.slide-4-identical .ident-badge {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(0.72rem, 1.0vw, 0.9rem);
-  letter-spacing: 0.12em;
-  color: var(--text-muted);
-  border: 1px solid rgba(201, 169, 97, 0.2);
-  padding: 0.2rem 0.6rem;
-  font-variant: small-caps;
-}
-.slide-4-identical .ident-eq {
-  color: var(--accent-gold-bright);
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: clamp(1rem, 1.8vw, 1.5rem);
 }
 
 /* ===========================================
