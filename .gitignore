@@ -60,3 +60,6 @@ stc-*.png
 # company-branded variants + speaker notes stay local
 public/talks/**/branded/
 public/talks/**/notes.md
+
+# Talk decks — scratch verification screenshots (regenerable via scripts/snap-slides.mjs)
+public/talks/**/assets/_review/
