@@ -566,7 +566,7 @@ body {
     display: grid;
     grid-template-columns: 55% 45%;
     gap: clamp(1rem, 3vw, 3rem);
-    align-items: center;
+    align-items: stretch;
 }
 
 .stack-container {
@@ -620,28 +620,34 @@ body {
 }
 
 /* Resting-state transforms by data-stack-pos. Content cards 0..3
-   are the cycle; ghost cards 4..6 are decorative depth. */
-.stack-card[data-stack-pos="0"] { transform: scale(1.0) translateY(0)   translateX(0);   z-index: 7; }
-.stack-card[data-stack-pos="1"] { transform: scale(0.96) translateY(14px) translateX(4px);  z-index: 6; opacity: 0.85; }
-.stack-card[data-stack-pos="2"] { transform: scale(0.92) translateY(28px) translateX(8px);  z-index: 5; opacity: 0.65; }
-.stack-card[data-stack-pos="3"] { transform: scale(0.88) translateY(42px) translateX(12px); z-index: 4; opacity: 0.50; }
-.stack-card[data-stack-pos="4"] { transform: scale(0.84) translateY(56px) translateX(16px); z-index: 3; opacity: 0.18; }
-.stack-card[data-stack-pos="5"] { transform: scale(0.80) translateY(70px) translateX(20px); z-index: 2; opacity: 0.10; }
-.stack-card[data-stack-pos="6"] { transform: scale(0.76) translateY(84px) translateX(24px); z-index: 1; opacity: 0.05; }
+   are the cycle; ghost cards 4..6 are decorative depth.
+   Back cards tuck UP-and-to-the-right (negative translateY) so the stack
+   stays inside its container vertically — no fan-out below the body. */
+.stack-card[data-stack-pos="0"] { transform: scale(1.0)  translateY(0)    translateX(0);   z-index: 7; }
+.stack-card[data-stack-pos="1"] { transform: scale(0.96) translateY(-10px) translateX(6px);  z-index: 6; opacity: 0.85; }
+.stack-card[data-stack-pos="2"] { transform: scale(0.92) translateY(-20px) translateX(12px); z-index: 5; opacity: 0.65; }
+.stack-card[data-stack-pos="3"] { transform: scale(0.88) translateY(-30px) translateX(18px); z-index: 4; opacity: 0.50; }
+.stack-card[data-stack-pos="4"] { transform: scale(0.84) translateY(-38px) translateX(22px); z-index: 3; opacity: 0.18; }
+.stack-card[data-stack-pos="5"] { transform: scale(0.80) translateY(-46px) translateX(26px); z-index: 2; opacity: 0.10; }
+.stack-card[data-stack-pos="6"] { transform: scale(0.76) translateY(-54px) translateX(30px); z-index: 1; opacity: 0.05; }
 
-/* Caption column */
+/* Caption column — fills the grid row vertically and centers the
+   currently-visible beat. Only one .beat-caption is rendered at a time
+   (others have the [hidden] attribute, so display:none), so the active
+   caption flows naturally into the centered slot. */
 .beat-column {
-    position: relative;
-    min-height: 1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 0;
 }
 .beat-caption {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     gap: clamp(0.4rem, 1vh, 0.8rem);
-    position: absolute;
-    inset: 0;
     pointer-events: none;
+    width: 100%;
 }
 .beat-caption.is-active { pointer-events: auto; }
 .beat-caption[hidden] { display: none; }
@@ -1811,7 +1817,6 @@ body {
       <p class="slide-3-punchline reveal"><em>It does the job. But twelve is a dozen.</em></p>
     </footer>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>marginalia: I am one of these too — the vault used to read the same. The reframe came later.</em></aside>
 </section>
 
 <!-- ============================================================
