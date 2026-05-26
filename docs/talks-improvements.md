@@ -1,7 +1,7 @@
 # Slay the Cert — Projector Polish (Deferred Work)
 
 **Date:** 2026-05-26
-**Status:** Handoff — global projector breakpoint shipped, per-slide layout polish deferred for the next machine session.
+**Status:** Slides 5, 9, 11 polish + dust visibility shipped on branch `fix/talk-slide-polish-and-dust-2026-05-26` later the same day. Optional follow-ups below remain open.
 **Talk date:** 2026-06-03 (about a week out from this doc).
 **Related:** [Talk implementation plan](./superpowers/plans/2026-05-25-slay-the-cert-talk-implementation.md), [Slop ecosystem reference](./superpowers/research/2026-05-26-cca-f-slop-ecosystem.md).
 
@@ -21,36 +21,32 @@ Result at 2560×1440: every text element is now projector-grade (body ~32px, tit
 
 ---
 
-## What's deferred — Slides 5, 9, 11 visual balance
+## What was deferred — Slides 5, 9, 11 visual balance (now shipped)
 
-Each of these still feels visually unbalanced at 2K because the content is left-anchored against intentional right-side breathing room. On a 16:9 laptop the negative space reads as deliberate; on a 2K projector it reads as "empty."
+Each of these felt visually unbalanced at 2K because the content was left-anchored against intentional right-side breathing room. On a 16:9 laptop the negative space read as deliberate; on a 2K projector it read as "empty."
+
+Chosen approach for each (all option 1 — consistent with slide 13's centred-poem pattern):
 
 ### Slide 5 — "So I built a different one. / Slay the Cert."
 
-- **What's there:** chapter pretitle ("VOLUME II / Enter the warlock"), two-line announcement, decorative sprite + tower-floors info-box at the bottom-center.
-- **Problem at 2K:** title hangs in the upper-left third; the right half of the canvas is dead. The sprite + tower-floors panel is small and feels disconnected from the title.
-- **Options (pick one when continuing):**
-  1. Center the whole `.slide-content` horizontally on `≥1600px` — mirrors what we did for slide 13. Loses the left-anchored "chapter opening" composition; gains balance.
-  2. Pull the sprite + tower-floors panel up to the right of the title (two-column at 2K, stacked at laptop). Most narrative-rich option.
-  3. Bump the tower-floors panel size significantly (sprite ~3x, tower font ~2x) so the bottom row carries equal weight.
+Centred `.slide-content` horizontally + bumped pivot-headline / subline / tagline / boss-roster sizes. Sprite + tower-floors panel now sits centred under the announcement. Left-anchored composition swapped for projector-balanced one at `≥1600px` only; laptop unchanged.
 
 ### Slide 9 — Live demo card
 
-- **What's there:** "step out of the tome" pretitle, warlock HP bar, "← LIVE DEMO" framed card containing the dungeon canvas placeholder + caption.
-- **Problem at 2K:** the LIVE DEMO card and inner canvas are tiny relative to canvas. Most of the slide is black background. The card was sized for laptop.
-- **Options:**
-  1. Bump the demo-card max-width to ~1600px on `≥1600px` and grow the inner canvas placeholder height proportionally. **Recommended** — most direct fix.
-  2. Add side-panels with "controls" or "what to watch for" annotations. Risks distracting from the live demo itself.
-  3. Leave it — during the actual demo the live game will replace the placeholder anyway.
+Demo-frame card given `max-width: min(78vw, 1700px)` and `width: min(78vw, 1700px)` at projector, with inner GIF `max-width: clamp(800px, 64vw, 1400px)`. Demo arrow / game-UI bar / preamble / fallback-caption all sized up so the card carries the slide instead of swimming in it.
 
 ### Slide 11 — "How did one engineer ship this in weekends?"
 
-- **What's there:** "VOLUME III" chapter mark, title, ASCII folder-tree code block, pull-quote *"The answer isn't 10x productivity. It's a workflow."*
-- **Problem at 2K:** title and code block stay in the upper-left third; the pull-quote sits in the middle but doesn't anchor enough; right and bottom edges are empty.
-- **Options:**
-  1. Center the slide content horizontally (matches slide 13). Code block sits in the middle.
-  2. Widen the code block significantly + bump its font so it's the dominant visual element (it's the punchline — "this folder structure IS the answer").
-  3. Add a right-column showing a screenshot of an actual Claude Code session or the docs/superpowers folder.
+Centred `.slide-content` horizontally + bumped dir-tree font to `clamp(1.6rem, 2.5vw, 3.2rem)` with extra padding so the folder structure is the slide's punchline.
+
+## Dust visibility (also shipped in the same pass)
+
+User flagged "dust is not really working or I have not noticed it" — original handoff. Fix was a global CSS change in two places (not per-slide):
+- `.dust-mote` background swapped to `--accent-gold-bright` + `box-shadow` glow halo (5px gold + 1px bright-gold).
+- `@keyframes drift` opacity now `calc(var(--mote-opacity, 0.25) * 2.4)` — preserves per-mote variation but lifts ceiling from 0.30 to ~0.72.
+- At `≥1600px` only, the box-shadow grows to 8px gold + 2px bright-gold so motes still read from 15-25 ft.
+
+No need to touch the 300+ inline `--mote-opacity` values across slides; multiplier handles them all.
 
 ---
 
@@ -91,7 +87,7 @@ Each of these still feels visually unbalanced at 2K because the content is left-
 
 - The `slide-1-sprite img` idle-bob animation runs continuously; consider pausing it after ~10s if it gets distracting during a live talk.
 - Marginalia text uses `text-muted` (`#9d8f74`) on `#0e0c0a` — 5.2:1 contrast, WCAG-AA-ish but subdued. On a poorly-calibrated projector it may disappear. If that happens, bump opacity or use `text-primary` for marginalia at `≥1600px`.
-- The `_review/` directory is currently un-gitignored; it accumulates verification PNGs. Add `public/talks/**/assets/_review/` to `.gitignore` if it gets noisy.
+- ~~The `_review/` directory is currently un-gitignored~~ — fixed in PR #23 (added `public/talks/**/assets/_review/` to `.gitignore`).
 
 ## Files touched on 2026-05-26 (for context when reading the diff)
 
