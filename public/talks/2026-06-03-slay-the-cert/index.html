@@ -108,6 +108,21 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     #slide-3 .stack-card .brand-caption { font-size: clamp(0.95rem, 1.1vw, 1.3rem) !important; }
     #slide-3 .slide-3-punchline { font-size: clamp(1.4rem, 2vw, 2.4rem) !important; }
     #slide-3 .slide-3-hint { font-size: clamp(1rem, 1.1vw, 1.4rem) !important; }
+    /* Slide 7 — Carrots & Snares codex entries: scale icons + names + reasons so the columns read at projector distance. */
+    #slide-7 .reward-col-title { font-size: clamp(1.8rem, 2.6vw, 2.8rem) !important; }
+    #slide-7 .codex-icon { font-size: clamp(2.4rem, 3.4vw, 3.6rem) !important; }
+    #slide-7 .codex-name { font-size: clamp(1.2rem, 1.6vw, 1.8rem) !important; }
+    #slide-7 .codex-why  { font-size: clamp(1rem, 1.3vw, 1.45rem) !important; line-height: 1.45 !important; }
+    #slide-7 .reward-col-divider .v-medallion { font-size: clamp(1.8rem, 2.5vw, 2.6rem) !important; }
+    #slide-7 .slide-8-hint { font-size: clamp(1rem, 1.1vw, 1.4rem) !important; }
+    /* Slide 11 — Workflow loop boxes: scale step labels, skill names, and arrows so the four boxes are readable at projector. */
+    #slide-11 .workflow-box { padding: clamp(1rem, 2.2vw, 2rem) clamp(0.8rem, 1.6vw, 1.6rem) !important; gap: clamp(0.5rem, 1vh, 0.9rem) !important; }
+    #slide-11 .workflow-step-num { font-size: clamp(1rem, 1.2vw, 1.45rem) !important; }
+    #slide-11 .workflow-step-name { font-size: clamp(1.6rem, 2.4vw, 2.6rem) !important; }
+    #slide-11 .workflow-step-skill { font-size: clamp(1.05rem, 1.3vw, 1.5rem) !important; }
+    #slide-11 .workflow-arrow-symbol { font-size: clamp(1.8rem, 2.8vw, 3rem) !important; }
+    #slide-11 .feedback-loop { font-size: clamp(1.2rem, 1.5vw, 1.8rem) !important; }
+    #slide-11 .workflow-subcaption { font-size: clamp(1.2rem, 1.5vw, 1.8rem) !important; }
     /* Slide 13 — center the three truths poem horizontally for projector impact. */
     #slide-12 .slide-content { align-items: center !important; text-align: center !important; }
     #slide-12 .big-lines { align-items: center !important; }
@@ -973,6 +988,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: clamp(0.3rem, 0.7vh, 0.55rem);
+    /* Fill the parent reward-col vertically so the entries distribute the whole
+       column height rather than only their content height. */
+    flex: 1;
+    min-height: 0;
 }
 .carrots li, .refused li {
     font-family: 'EB Garamond', Georgia, serif;
@@ -980,6 +999,10 @@ body {
     line-height: 1.5;
     padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.75rem, 1.2vw, 1.2rem);
     border-radius: 1px;
+    /* Each entry takes an equal share of the list's height so the column
+       visually fills the slide regardless of how much text each entry has. */
+    flex: 1;
+    min-height: 0;
 }
 .carrots li {
     background: rgba(201, 169, 97, 0.09);
@@ -1509,7 +1532,7 @@ body {
    =========================================== */
 .carrots li, .refused li {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.75rem, 1.3vw, 1.4rem);
   text-decoration: none;
@@ -1969,7 +1992,6 @@ body {
     </div>
     <p class="honest-gap reveal"><em>✶ Honest gap: no recent RCT on cert-prep specifically. Corporate-training literature is our proxy.</em></p>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>confession: I built two gamified studying apps before this one. Both failed at #1 and #4. I did not learn until I felt the burn.</em></aside>
 </section>
 
 <!-- ============================================================
@@ -2360,7 +2382,7 @@ body {
       <p class="big-line big-line--impact reveal">I shipped this anyway.</p>
     </div>
   </div>
-  <aside class="marginalia" aria-hidden="true"><em>epilogue: I'm a Senior Manager. I should not have had time for this. AI was the reason I did.</em></aside>
+  <aside class="marginalia" aria-hidden="true"><em>epilogue: I should not have had time for this. AI was the reason I did.</em></aside>
 </section>
 
 <!-- ============================================================
