@@ -6,7 +6,7 @@
   <title>Slay the Cert — 2026-06-03</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
   <style>
 
 /* ===========================================
@@ -103,7 +103,7 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
        available height. */
     #slide-3 .slide-3-title { font-size: clamp(2.8rem, 4.2vw, 5.2rem) !important; line-height: 1.0 !important; }
     #slide-3 .slide-3-subtitle { font-size: clamp(1.2rem, 1.5vw, 1.85rem) !important; }
-    #slide-3 .slide-3-body { grid-template-columns: 56% 44% !important; gap: clamp(2rem, 4vw, 5rem) !important; }
+    #slide-3 .slide-3-body { grid-template-columns: minmax(0, 1.27fr) minmax(0, 1fr) !important; gap: clamp(2rem, 4vw, 5rem) !important; }
     #slide-3 .beat-headline { font-size: clamp(2rem, 3vw, 3.4rem) !important; }
     #slide-3 .beat-subline { font-size: clamp(1.2rem, 1.6vw, 1.85rem) !important; }
     #slide-3 .beat-deeplink { font-size: clamp(1rem, 1.3vw, 1.5rem) !important; }
@@ -113,10 +113,11 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     /* Slide 7 — Carrots & Snares codex entries: scale icons + names + reasons so the columns read at projector distance.
        Plus extra padding-bottom so the columns end above the marginalia zone (which sits ~5vh from the slide bottom). */
     #slide-7 .slide-content { padding-bottom: clamp(6rem, 12vh, 10rem) !important; }
-    #slide-7 .reward-col-title { font-size: clamp(1.8rem, 2.6vw, 2.8rem) !important; }
-    #slide-7 .codex-icon { font-size: clamp(2.4rem, 3.4vw, 3.6rem) !important; }
-    #slide-7 .codex-name { font-size: clamp(1.2rem, 1.6vw, 1.8rem) !important; }
-    #slide-7 .codex-why  { font-size: clamp(1rem, 1.3vw, 1.45rem) !important; line-height: 1.45 !important; }
+    #slide-7 .reward-col-title { font-size: clamp(1.5rem, 2.1vw, 2.3rem) !important; }
+    #slide-7 .codex-icon { font-size: clamp(1.6rem, 2.2vw, 2.4rem) !important; margin-top: 0 !important; }
+    #slide-7 .codex-name { font-size: clamp(1.05rem, 1.3vw, 1.42rem) !important; }
+    #slide-7 .codex-why  { font-size: clamp(0.9rem, 1.02vw, 1.15rem) !important; line-height: 1.3 !important; }
+    #slide-7 .carrots li, #slide-7 .refused li { padding: clamp(0.3rem, 0.6vh, 0.55rem) clamp(0.7rem, 1vw, 1.1rem) !important; gap: 0.55rem !important; }
     #slide-7 .reward-col-divider .v-medallion { font-size: clamp(1.8rem, 2.5vw, 2.6rem) !important; }
     #slide-7 .slide-8-hint { font-size: clamp(1rem, 1.1vw, 1.4rem) !important; }
     /* Slide 11 — Workflow loop boxes: scale step labels, skill names, and arrows so the four boxes are readable at projector. */
@@ -185,6 +186,7 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
     --accent-gold-bright: #e6c581;
     --impact-crimson: #8b1e1e;
     --border-rule: rgba(201, 169, 97, 0.3);
+    --glow-arcane: rgba(170, 110, 214, 0.34);
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --card-radius: clamp(4px, 0.6vw, 8px);
 }
@@ -194,7 +196,7 @@ img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fi
    =========================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-feature-settings: 'liga' 1, 'kern' 1, 'onum' 1;
     background: var(--bg-base);
     color: var(--text-primary);
@@ -214,12 +216,14 @@ body {
     opacity: 0.6;
 }
 
-/* Warm corner vignette */
+/* Torchlight wash (overhead warm light source) + corner vignette for depth */
 .slide::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at center, transparent 50%, rgba(20, 10, 0, 0.55) 100%);
+    background:
+        radial-gradient(80% 60% at 50% 6%, rgba(201, 169, 97, 0.12) 0%, rgba(201, 169, 97, 0.045) 30%, transparent 60%),
+        radial-gradient(ellipse at center, transparent 46%, rgba(16, 8, 0, 0.62) 100%);
     pointer-events: none;
     z-index: 0;
 }
@@ -366,7 +370,7 @@ body {
     bottom: clamp(8px, 2vh, 20px);
     left: 50%;
     transform: translateX(-50%);
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: var(--small-size);
     color: var(--text-muted);
     z-index: 1000;
@@ -379,7 +383,7 @@ body {
    CHAPTER MARKER
    =========================================== */
 .chapter-marker {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 500;
     font-size: clamp(0.85rem, 0.9vw, 0.95rem);
     letter-spacing: 0.18em;
@@ -394,7 +398,7 @@ body {
    SHARED TYPOGRAPHY — SLIDE TITLES
    =========================================== */
 .slide-title {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: var(--h2-size);
     letter-spacing: 0.04em;
@@ -403,15 +407,15 @@ body {
     flex-shrink: 0;
 }
 .slide-title--large {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     font-size: clamp(2rem, 7vw, 6rem);
     letter-spacing: 0.04em;
     color: var(--text-primary);
     line-height: 0.95;
 }
 .garamond-italic {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     color: var(--text-muted);
 }
@@ -436,6 +440,14 @@ body {
 /* ===========================================
    SLIDE 1 — TITLE
    =========================================== */
+/* Title torch "ignites" on load: the warm wash + vignette fade up. */
+@keyframes torchIgnite { from { opacity: 0; } to { opacity: 1; } }
+#slide-1::after { opacity: 0; }
+#slide-1.visible::after { animation: torchIgnite 1.8s var(--ease-out-expo) forwards; }
+/* Arcane glow behind the hero warlock portrait — game-native purple, used once. */
+#slide-1 .slide-1-sprite .sprite-frame {
+    box-shadow: inset 0 0 24px rgba(201, 169, 97, 0.08), 0 4px 20px rgba(0,0,0,0.5), 0 0 42px var(--glow-arcane);
+}
 #slide-1 {
     background-color: var(--bg-base);
 }
@@ -447,15 +459,15 @@ body {
 }
 .slide-1-text { flex: 1; display: flex; flex-direction: column; gap: clamp(0.35rem, 1vh, 0.75rem); }
 .slide-1-title {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     font-size: clamp(3rem, 11vw, 9rem);
     color: var(--text-primary);
     line-height: 0.9;
     letter-spacing: 0.04em;
 }
 .slide-1-subline {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-weight: 400;
     font-size: clamp(0.9rem, 2.2vw, 1.6rem);
@@ -463,7 +475,7 @@ body {
     line-height: 1.4;
 }
 .slide-1-tagline {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: var(--small-size);
     color: var(--text-muted);
     letter-spacing: 0.06em;
@@ -495,14 +507,14 @@ body {
     background-image: radial-gradient(ellipse at 70% 30%, rgba(139,30,30,0.12) 0%, transparent 60%);
 }
 .hook-preamble {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--body-size);
     color: var(--accent-gold);
     flex-shrink: 0;
 }
 .hook-headline {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(2rem, 7vw, 5.5rem);
     color: var(--text-primary);
@@ -510,7 +522,7 @@ body {
     letter-spacing: 0.04em;
 }
 .hook-subtext {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: clamp(1rem, 2.5vw, 1.75rem);
     color: var(--text-primary);
@@ -523,7 +535,7 @@ body {
 }
 
 .slide-3-hint {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -550,7 +562,7 @@ body {
 }
 .slide-3-header { text-align: center; }
 .slide-3-title {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(2rem, 5vw, 4.5rem);
     line-height: 1.05;
@@ -558,7 +570,7 @@ body {
     letter-spacing: 0.04em;
 }
 .slide-3-subtitle {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(0.95rem, 1.8vw, 1.4rem);
     color: var(--text-muted);
     margin-top: clamp(0.3rem, 0.8vh, 0.6rem);
@@ -568,7 +580,7 @@ body {
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: 55% 45%;
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
     gap: clamp(1rem, 3vw, 3rem);
     align-items: stretch;
 }
@@ -610,9 +622,10 @@ body {
     flex: 1;
     object-fit: cover;
     object-position: top center;
+    filter: brightness(1.05) contrast(1.03);
 }
 .stack-card .brand-caption {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(0.7rem, 0.95vw, 1rem);
     color: var(--text-primary);
     background: rgba(14, 12, 10, 0.85);
@@ -652,6 +665,7 @@ body {
     justify-content: center;
     align-items: flex-start;
     min-height: 0;
+    min-width: 0;
 }
 .beat-caption {
     display: flex;
@@ -675,7 +689,7 @@ body {
 }
 
 .beat-headline {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(1.4rem, 2.5vw, 2.4rem);
     line-height: 1.15;
@@ -683,21 +697,21 @@ body {
     letter-spacing: 0.03em;
 }
 .beat-subline {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: clamp(0.95rem, 1.4vw, 1.3rem);
     color: var(--text-primary);
     line-height: 1.5;
 }
 .beat-deeplink {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(0.8rem, 1.1vw, 1.1rem);
     color: var(--text-muted);
     letter-spacing: 0.08em;
     margin-top: clamp(0.4rem, 1.2vh, 0.9rem);
 }
 .beat-deeplink .beat-path {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: 0.85em;
     color: var(--text-muted);
@@ -713,7 +727,7 @@ body {
     flex-shrink: 0;
 }
 .slide-3-punchline {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: clamp(1rem, 1.8vw, 1.5rem);
     color: var(--accent-gold);
@@ -729,7 +743,7 @@ body {
     background-image: radial-gradient(ellipse at 30% 60%, rgba(139,30,30,0.10) 0%, transparent 55%);
 }
 .pivot-headline {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(2rem, 7vw, 5.5rem);
     color: var(--text-primary);
@@ -737,15 +751,15 @@ body {
     letter-spacing: 0.04em;
 }
 .pivot-tagline {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     font-size: clamp(1.5rem, 4.5vw, 3.5rem);
     color: var(--accent-gold-bright);
     letter-spacing: 0.06em;
     animation: candleFlicker 4s ease-in-out infinite;
 }
 .pivot-subline {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: clamp(0.9rem, 2vw, 1.4rem);
     color: var(--text-muted);
@@ -767,8 +781,8 @@ body {
     box-shadow: inset 0 0 20px rgba(201, 169, 97, 0.04);
 }
 .stat-number {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     font-size: clamp(1.75rem, 4.5vw, 3.5rem);
     color: var(--accent-gold-bright);
     line-height: 1;
@@ -776,14 +790,14 @@ body {
     animation: candleFlicker 4s ease-in-out infinite;
 }
 .stat-label {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: var(--small-size);
     color: var(--text-muted);
     line-height: 1.5;
     font-style: italic;
 }
 .slide-6-body {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: var(--body-size);
     color: var(--text-primary);
     line-height: 1.65;
@@ -793,7 +807,7 @@ body {
     flex-shrink: 0;
 }
 .citation {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -829,7 +843,7 @@ body {
     color: var(--impact-crimson);
 }
 .caution-banner .caution-text {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 500;
     font-size: clamp(0.75rem, 1.1vw, 0.95rem);
     letter-spacing: 0.18em;
@@ -870,7 +884,7 @@ body {
     opacity: 0.85;
 }
 .fail-col-title {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(1.1rem, 2.2vw, 1.65rem);
     color: var(--accent-gold);
@@ -878,13 +892,13 @@ body {
     letter-spacing: 0.04em;
 }
 .fail-col-body {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: var(--body-size);
     color: var(--text-primary);
     line-height: 1.7;
 }
 .fail-col-source {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -913,7 +927,7 @@ body {
     animation: candleFlicker 4s ease-in-out infinite;
 }
 .honest-gap {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: var(--small-size);
     color: var(--text-muted);
     text-align: center;
@@ -928,8 +942,12 @@ body {
    SLIDE 8 — REWARD SHOWDOWN
    =========================================== */
 #slide-7 { background-color: var(--bg-base); }
+/* Reserve bottom space at all widths so the reward columns clear the
+   bottom-right marginalia. (The ≥1600px projector rule sets its own
+   !important value and still wins there.) */
+#slide-7 .slide-content { padding-bottom: clamp(4.5rem, 12vh, 8rem); }
 .slide-8-section-title {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-style: italic;
     font-size: clamp(1.1rem, 2.2vw, 1.7rem);
@@ -969,7 +987,7 @@ body {
     background: rgba(139, 30, 30, 0.05);
 }
 .reward-col-title {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(1rem, 2vw, 1.5rem);
     letter-spacing: 0.05em;
@@ -1016,7 +1034,7 @@ body {
     min-height: 0;
 }
 .carrots li, .refused li {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(0.9rem, 1.4vw, 1.15rem);
     line-height: 1.5;
     padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.75rem, 1.2vw, 1.2rem);
@@ -1050,7 +1068,7 @@ body {
     display: inline-block;
 }
 .slide-8-hint {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -1062,8 +1080,8 @@ body {
 /* === SLIDE 8 — Phase 4.2 click-driven achievement-pop === */
 #slide-7 .carrots li,
 #slide-7 .refused li {
-  opacity: 0;
-  transform: scale(0.9);
+  opacity: 0.32;
+  transform: scale(0.97);
   transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: none;
 }
@@ -1099,7 +1117,7 @@ body {
 .demo-frame-corner--bl { bottom: -0.4em; left: 0.3em; }
 .demo-frame-corner--br { bottom: -0.4em; right: 0.3em; }
 .demo-preamble {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--body-size);
     color: var(--text-muted);
@@ -1107,8 +1125,8 @@ body {
     flex-shrink: 0;
 }
 .demo-arrow {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     font-size: clamp(2rem, 7vw, 6rem);
     color: var(--accent-gold-bright);
     text-align: center;
@@ -1120,7 +1138,7 @@ body {
     text-align: center;
 }
 .demo-fallback-caption {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -1138,7 +1156,7 @@ body {
     position: relative;
 }
 .testimonial-quote-mark {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(2.5rem, 5vw, 5rem);
     color: var(--accent-gold);
     opacity: 0.35;
@@ -1148,7 +1166,7 @@ body {
     animation: candleFlicker 4s ease-in-out infinite;
 }
 .testimonial p {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--body-size);
     color: var(--text-primary);
@@ -1157,7 +1175,7 @@ body {
 }
 .testimonial cite {
     display: block;
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -1165,7 +1183,7 @@ body {
     padding-left: clamp(1rem, 2vw, 2rem);
 }
 .testimonials-caption {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: var(--text-muted);
@@ -1178,7 +1196,7 @@ body {
    =========================================== */
 #slide-10 { background-color: var(--bg-base); }
 .dir-tree {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(0.85rem, 1.8vw, 1.35rem);
     color: var(--accent-gold);
     background: var(--bg-card);
@@ -1193,7 +1211,7 @@ body {
     font-style: italic;
 }
 .act3-caption {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--body-size);
     color: var(--text-muted);
@@ -1212,33 +1230,36 @@ body {
 .workflow-box {
     background: var(--bg-card);
     border: 1px solid var(--border-rule);
-    padding: clamp(0.5rem, 1.5vw, 1.25rem) clamp(0.4rem, 1vw, 1rem);
+    padding: clamp(1rem, 2vw, 1.75rem) clamp(0.85rem, 1.5vw, 1.5rem);
+    min-width: clamp(150px, 15vw, 240px);
+    min-height: clamp(155px, 22vh, 240px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(0.25rem, 0.6vh, 0.5rem);
+    justify-content: center;
+    gap: clamp(0.35rem, 1vh, 0.7rem);
     text-align: center;
     position: relative;
     box-shadow: inset 0 0 16px rgba(201, 169, 97, 0.04);
 }
 .workflow-step-num {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 500;
     font-size: var(--small-size);
     color: var(--text-muted);
     letter-spacing: 0.12em;
 }
 .workflow-step-name {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
-    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    font-size: clamp(1.25rem, 2.2vw, 1.9rem);
     color: var(--text-primary);
     letter-spacing: 0.04em;
 }
 .workflow-step-skill {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
-    font-size: clamp(0.85rem, 0.9vw, 0.95rem);
+    font-size: clamp(1rem, 1.15vw, 1.3rem);
     color: var(--text-muted);
     line-height: 1.4;
 }
@@ -1252,29 +1273,30 @@ body {
     flex-wrap: wrap;
 }
 .workflow-arrow-symbol {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(0.9rem, 2vw, 1.5rem);
+    font-family: 'Spectral', Georgia, serif;
+    font-size: clamp(1.5rem, 2.6vw, 2.4rem);
     color: var(--accent-gold);
     flex-shrink: 0;
 }
 .feedback-loop {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
-    font-size: var(--small-size);
+    font-size: clamp(1rem, 1.4vw, 1.4rem);
     color: var(--accent-gold);
     text-align: center;
     flex-shrink: 0;
+    margin-top: clamp(0.4rem, 1.2vh, 1rem);
 }
 .workflow-subcaption {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
-    font-size: var(--small-size);
+    font-size: clamp(1rem, 1.4vw, 1.4rem);
     color: var(--text-muted);
     text-align: center;
     flex-shrink: 0;
 }
 .workflow-handoff {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--small-size);
     color: rgba(157, 143, 116, 0.6);
@@ -1288,7 +1310,7 @@ body {
 #slide-12 { background-color: var(--bg-base); }
 .big-lines { display: flex; flex-direction: column; gap: clamp(0.5rem, 2vh, 1.5rem); }
 .big-line {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 700;
     font-size: clamp(1.6rem, 5vw, 4.5rem);
     color: var(--text-primary);
@@ -1296,8 +1318,8 @@ body {
     line-height: 1.05;
 }
 .big-line--impact {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     color: var(--accent-gold-bright);
     animation: candleFlicker 4s ease-in-out infinite;
 }
@@ -1310,7 +1332,7 @@ body {
     opacity: 0.7;
 }
 .slide-13-preamble {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: var(--body-size);
     color: var(--accent-gold);
@@ -1325,15 +1347,15 @@ body {
     background-image: radial-gradient(ellipse at 50% 50%, rgba(139,30,30,0.08) 0%, transparent 60%);
 }
 .close-headline {
-    font-family: 'Cinzel', serif;
-    font-weight: 900;
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 800;
     font-size: clamp(2rem, 7vw, 6rem);
     color: var(--text-primary);
     line-height: 1.0;
     letter-spacing: 0.04em;
 }
 .close-subline {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-style: italic;
     font-size: clamp(0.9rem, 2vw, 1.4rem);
     color: var(--text-primary);
@@ -1341,7 +1363,7 @@ body {
     max-width: 55ch;
 }
 .close-fin {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 500;
     font-size: var(--small-size);
     letter-spacing: 0.18em;
@@ -1349,7 +1371,7 @@ body {
     text-align: center;
     flex-shrink: 0;
     position: absolute;
-    bottom: clamp(1.5rem, 3vh, 3rem);
+    bottom: clamp(2.5rem, 4.5vh, 4rem);
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
@@ -1372,7 +1394,7 @@ body {
     gap: clamp(0.35rem, 1vh, 0.7rem);
 }
 .ref-list li {
-    font-family: 'EB Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: clamp(0.9rem, 1.3vw, 1.1rem);
     color: var(--text-muted);
     line-height: 1.5;
@@ -1387,7 +1409,7 @@ body {
 }
 .ref-list em { font-style: italic; color: var(--text-primary); }
 .thanks-line {
-    font-family: 'Cinzel', serif;
+    font-family: 'Spectral', Georgia, serif;
     font-weight: 500;
     font-size: clamp(0.8rem, 1.5vw, 1rem);
     color: var(--text-muted);
@@ -1402,14 +1424,16 @@ body {
    =========================================== */
 .marginalia {
   position: absolute;
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Spectral', Georgia, serif;
   font-style: italic;
   font-size: clamp(0.72rem, 1.0vw, 0.92rem);
   color: var(--text-muted);
   max-width: 22vw;
   line-height: 1.45;
-  padding: 0.45rem 0.75rem;
+  padding: 0.5rem 0.9rem;
   border-left: 1.5px solid var(--border-rule);
+  background: linear-gradient(90deg, rgba(14, 12, 10, 0.72), rgba(14, 12, 10, 0.4));
+  border-radius: 0 var(--card-radius) var(--card-radius) 0;
   z-index: 2;
   pointer-events: none;
 }
@@ -1430,7 +1454,7 @@ body {
   align-self: center;
 }
 .boss-roster-title {
-  font-family: 'Cinzel', serif;
+  font-family: 'Spectral', Georgia, serif;
   font-weight: 500;
   font-size: clamp(0.65rem, 0.9vw, 0.85rem);
   letter-spacing: 0.22em;
@@ -1447,7 +1471,7 @@ body {
   gap: 0.2rem;
 }
 .boss-roster ol li {
-  font-family: 'Cinzel', serif;
+  font-family: 'Spectral', Georgia, serif;
   font-variant: small-caps;
   font-size: clamp(0.75rem, 1.1vw, 1rem);
   color: var(--text-primary);
@@ -1463,7 +1487,7 @@ body {
    GAME-UI BAR — slide 9
    =========================================== */
 .game-ui-bar {
-  font-family: 'Cinzel', serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: clamp(0.7rem, 1.05vw, 0.9rem);
   color: var(--text-primary);
   background: rgba(14, 12, 10, 0.9);
@@ -1552,7 +1576,7 @@ body {
   gap: 0.1rem;
 }
 .codex-name {
-  font-family: 'Cinzel', serif;
+  font-family: 'Spectral', Georgia, serif;
   font-weight: 500;
   font-size: clamp(0.78rem, 1.2vw, 1rem);
   letter-spacing: 0.06em;
@@ -1565,7 +1589,7 @@ body {
   color: var(--text-muted);
 }
 .codex-why {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Spectral', Georgia, serif;
   font-style: italic;
   font-size: clamp(0.7rem, 1.1vw, 0.95rem);
   color: var(--text-muted);
@@ -1578,7 +1602,7 @@ body {
    SLIDE 1 — pre/post title voice
    =========================================== */
 .slide-1-pretitle {
-  font-family: 'Cinzel', serif;
+  font-family: 'Spectral', Georgia, serif;
   font-variant: small-caps;
   font-size: clamp(0.7rem, 0.9vw, 0.85rem);
   letter-spacing: 0.16em;
@@ -1586,7 +1610,7 @@ body {
   margin-bottom: 0.1rem;
 }
 .slide-1-for {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Spectral', Georgia, serif;
   font-style: italic;
   font-size: clamp(0.72rem, 1.1vw, 0.95rem);
   color: rgba(157, 143, 116, 0.7);
@@ -1598,7 +1622,7 @@ body {
    SLIDE 13 — pre-title
    =========================================== */
 .slide-13-meta-pretitle {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Spectral', Georgia, serif;
   font-style: italic;
   font-size: clamp(0.8rem, 1.2vw, 1.05rem);
   color: var(--text-muted);
@@ -1642,7 +1666,7 @@ body {
           <img
             src="assets/title-sprite.png"
             alt="warlock"
-            style="width: clamp(80px, 12vw, 160px); height: auto;"
+            style="width: clamp(130px, 15vw, 248px); height: auto;"
           >
         </div>
       </div>
@@ -2127,11 +2151,11 @@ body {
   <div class="corner-ornament corner-ornament--bl"></div>
   <div class="corner-ornament corner-ornament--br"></div>
   <div class="close-sprite-corner" aria-hidden="true">
-    <div class="sprite-frame" style="box-shadow: inset 0 0 24px rgba(201, 169, 97, 0.12), 0 4px 24px rgba(0,0,0,0.6);">
+    <div class="sprite-frame" style="box-shadow: inset 0 0 24px rgba(201, 169, 97, 0.1), 0 4px 24px rgba(0,0,0,0.6), 0 0 42px var(--glow-arcane);">
       <img
         src="assets/title-sprite.png"
         alt=""
-        style="width: clamp(48px, 7vw, 100px); height: auto; image-rendering: pixelated;"
+        style="width: clamp(90px, 12vw, 196px); height: auto; image-rendering: pixelated;"
       >
     </div>
   </div>
