@@ -194,14 +194,9 @@ export class BossFightScene extends Phaser.Scene {
     // before everything else so it sits at the bottom of the z-stack.
     renderBackdrop(this, this.boss.id);
 
-    // Boss name — sits just below the HUD bar (mounted later in create()).
-    this.add
-      .text(480, 66, this.boss.name, {
-        fontSize: '24px',
-        color: '#f5e4b3',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5);
+    // (Boss name now lives centered in the top HUD bar — see mountBossHud.
+    // The old top-center banner floated on the brick wall and clipped the top
+    // of the question scroll.)
 
     // --- Speech bubble (question area) ---
     // Filled rectangle body
@@ -241,12 +236,12 @@ export class BossFightScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
 
     // --- Hero sprite (left) ---
-    this.heroSprite = this.add.image(120, 330, 'hero').setScale(3);
+    this.heroSprite = this.add.image(85, 330, 'hero').setScale(3);
 
     // Hero HP hearts below sprite. Slightly smaller than before so the
     // label stack under the hero is a compact 2-line group.
     this.heroHpText = this.add
-      .text(120, 405, '', {
+      .text(85, 405, '', {
         fontSize: '12px',
         color: '#8bc34a',
         fontFamily: 'monospace',
@@ -256,7 +251,7 @@ export class BossFightScene extends Phaser.Scene {
     // Hero name label \u2014 intentionally tiny so it reads as a subtitle
     // rather than competing with the HP text above it.
     this.add
-      .text(120, 420, 'WARLOCK', {
+      .text(85, 420, 'WARLOCK', {
         fontSize: '9px',
         color: '#808090',
         fontFamily: 'monospace',
@@ -266,12 +261,19 @@ export class BossFightScene extends Phaser.Scene {
     // --- Boss sprite (right) ---
     const bossKey = `boss-${this.boss.id}`;
     const bossTexKey = this.textures.exists(bossKey) ? bossKey : 'hero';
-    this.bossSprite = this.add.image(840, 330, bossTexKey).setScale(4);
+    // Boss is scaled up (6 vs hero's 3) for presence; y nudged up so its feet
+    // ground on the same floor line as the hero rather than sinking lower.
+    this.bossSprite = this.add.image(875, 306, bossTexKey).setScale(6);
+
+    // (Boss name now lives centered in the top HUD bar — see mountBossHud /
+    // bossHud.ts. The bar is a themed strip above the brick wall and question
+    // scroll, so the name clips neither; a side/overhead plate in the scene
+    // body caught the near-full-width scroll's corner.)
 
     // Boss HP hearts below boss sprite \u2014 match the hero HP scale so both
     // sides read as symmetric status lines.
     this.bossHpText = this.add
-      .text(840, 405, '', {
+      .text(875, 405, '', {
         fontSize: '12px',
         color: '#ff6b6b',
         fontFamily: 'monospace',
@@ -280,12 +282,12 @@ export class BossFightScene extends Phaser.Scene {
 
     // Taunt text below boss
     this.tauntText = this.add
-      .text(840, 450, '', {
+      .text(875, 450, '', {
         fontSize: '12px',
         color: '#d0c090',
         fontFamily: 'monospace',
         fontStyle: 'italic',
-        wordWrap: { width: 260 },
+        wordWrap: { width: 160 },
         align: 'center',
       })
       .setOrigin(0.5, 0);
@@ -407,6 +409,7 @@ export class BossFightScene extends Phaser.Scene {
     // manager automatically.
     mountBossHud(this, {
       boss: this.boss,
+      bossName: this.boss.name,
       campaign: this.registry.get('campaign') as Campaign | undefined,
       onExit: () => this.exitToHub(),
       onBgmToggle: (muted) => {

@@ -39,6 +39,10 @@ export interface BossHudOptions {
   campaign: CampaignRunInfo | undefined;
   onExit: () => void;
   onBgmToggle: (muted: boolean) => void;
+  /** Boss name, rendered centered in the bar. Sitting on the themed strip
+   *  keeps it clear of the brick wall and the near-full-width question scroll
+   *  below, which a scene-body plate would clip. */
+  bossName?: string;
 }
 
 /**
@@ -48,7 +52,7 @@ export interface BossHudOptions {
  * behavior/persistence is unchanged.
  */
 export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
-  const { boss, campaign, onExit, onBgmToggle } = opts;
+  const { boss, campaign, onExit, onBgmToggle, bossName } = opts;
   const midY = BAR_HEIGHT / 2;
 
   // Themed bar fill + a slightly lighter bottom border so it frames cleanly.
@@ -69,6 +73,20 @@ export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
     })
     .setOrigin(0, 0.5)
     .setDepth(1000);
+
+  // Center: boss name, in amber (brand accent). Centered between the left run
+  // label and the right audio cluster, on the themed strip — clears both the
+  // brick wall and the question scroll that side/overhead plates would clip.
+  if (bossName) {
+    scene.add
+      .text(480, midY, bossName, {
+        fontSize: '18px',
+        color: '#ffca28',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+      .setDepth(1000);
+  }
 
   // Right: icon-only SFX/BGM, vertically centered in the bar.
   mountAudioToggles(scene, { iconOnly: true, y: midY, onBgmToggle });
