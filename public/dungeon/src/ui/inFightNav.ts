@@ -4,9 +4,10 @@ import type Phaser from 'phaser';
 const DOOR_FRAME = 45;
 
 /**
- * Mount a small door icon in the top-left of a boss fight that acts as a
- * back-to-menu control. Clicking it invokes onExit. Visuals only — the caller
- * decides what leaving does (see BossFightScene.exitToHub).
+ * Mount a small door icon that acts as a back-to-menu control (default
+ * top-left; the caller may reposition via `position` — the HUD bar centers it).
+ * Clicking it invokes onExit. Visuals only — the caller decides what leaving
+ * does (see BossFightScene.exitToHub).
  */
 export function mountMenuButton(
   scene: Phaser.Scene,

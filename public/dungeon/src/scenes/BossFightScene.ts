@@ -194,7 +194,7 @@ export class BossFightScene extends Phaser.Scene {
     // before everything else so it sits at the bottom of the z-stack.
     renderBackdrop(this, this.boss.id);
 
-    // Boss name — sits just below the HUD bar (bar occupies y 0–44).
+    // Boss name — sits just below the HUD bar (mounted later in create()).
     this.add
       .text(480, 66, this.boss.name, {
         fontSize: '24px',

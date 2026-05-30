@@ -1,10 +1,16 @@
 import type Phaser from 'phaser';
+import type { Campaign } from '../game/dungeon';
 import type { BossDefinition } from '../types';
 import { mountAudioToggles } from './audioToggles';
 import { mountMenuButton } from './inFightNav';
 
 const BAR_HEIGHT = 44;
-const BAR_DARKEN = 0.5; // bar fill = boss color × this; bottom border is lighter
+const BAR_DARKEN = 0.5; // bar fill = boss color × this factor (darker)
+const BAR_BORDER_DARKEN = 0.9; // bottom border = boss color × this; lighter than the fill
+
+// The only Campaign fields the HUD needs. A type-only Pick keeps this UI module
+// decoupled from game logic while still breaking if those fields ever rename.
+type CampaignRunInfo = Pick<Campaign, 'floorsCleared' | 'bossOrder'>;
 
 /**
  * Multiply each RGB channel of a hex color by `factor` (clamped to 0–255).
@@ -23,17 +29,14 @@ export function darken(color: number, factor: number): number {
  * Left-side HUD run label. With a campaign: "Floor <n>/<total> · <domain>"
  * (n is 1-indexed). Without one (isolated/debug fight): just the domain.
  */
-export function formatRunLabel(
-  campaign: { floorsCleared: number; bossOrder: string[] } | undefined,
-  domainShort: string,
-): string {
+export function formatRunLabel(campaign: CampaignRunInfo | undefined, domainShort: string): string {
   if (!campaign) return domainShort;
   return `Floor ${campaign.floorsCleared + 1}/${campaign.bossOrder.length} · ${domainShort}`;
 }
 
 export interface BossHudOptions {
   boss: BossDefinition;
-  campaign: { floorsCleared: number; bossOrder: string[] } | undefined;
+  campaign: CampaignRunInfo | undefined;
   onExit: () => void;
   onBgmToggle: (muted: boolean) => void;
 }
@@ -53,7 +56,7 @@ export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
     .rectangle(480, midY, 960, BAR_HEIGHT, darken(boss.environmentColor, BAR_DARKEN))
     .setDepth(900);
   scene.add
-    .rectangle(480, BAR_HEIGHT - 1, 960, 2, darken(boss.environmentColor, 0.9))
+    .rectangle(480, BAR_HEIGHT - 1, 960, 2, darken(boss.environmentColor, BAR_BORDER_DARKEN))
     .setDepth(901);
 
   // Left: door + run label.

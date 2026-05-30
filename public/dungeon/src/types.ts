@@ -37,11 +37,14 @@ export interface Bank {
 }
 
 // Boss types
+// Short display label for a domain, paired 1:1 with `domain`. Closed set of 5.
+export type DomainShort = 'Agentic' | 'Claude Code' | 'Prompting' | 'MCP' | 'Context';
+
 export interface BossDefinition {
   id: string;
   name: string;
   domain: string;
-  domainShort: string;
+  domainShort: DomainShort;
   theme: string;
   taunts: { correct: string[]; wrong: string[] };
   environmentColor: number; // hex for Phaser fillRect, etc.

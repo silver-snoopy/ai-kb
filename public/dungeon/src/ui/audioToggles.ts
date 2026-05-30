@@ -43,7 +43,10 @@ function savePreference(key: string, muted: boolean): void {
 
 interface MountOptions {
   onBgmToggle?: (muted: boolean) => void;
-  /** Render glyph-only buttons (no "BGM"/"SFX" text), vertically centered. */
+  /**
+   * Render glyph-only buttons (no "BGM"/"SFX" text), vertically centered and
+   * right-anchored tighter for a compact HUD bar (changes layout, not just text).
+   */
   iconOnly?: boolean;
   /** Vertical anchor for the buttons. Defaults to 18 (top-right corner). */
   y?: number;
