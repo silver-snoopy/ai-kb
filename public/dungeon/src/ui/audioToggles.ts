@@ -43,6 +43,10 @@ function savePreference(key: string, muted: boolean): void {
 
 interface MountOptions {
   onBgmToggle?: (muted: boolean) => void;
+  /** Render glyph-only buttons (no "BGM"/"SFX" text), vertically centered. */
+  iconOnly?: boolean;
+  /** Vertical anchor for the buttons. Defaults to 18 (top-right corner). */
+  y?: number;
 }
 
 /**
@@ -73,26 +77,34 @@ export function mountAudioToggles(
   // subsequent play() calls respect it.
   scene.sound.mute = sfxMuted();
 
+  const iconOnly = opts.iconOnly === true;
+  const y = opts.y ?? 18;
+
   const makeButton = (x: number, label: () => string): Phaser.GameObjects.Text => {
-    const t = scene.add.text(x, 18, label(), {
+    const t = scene.add.text(x, y, label(), {
       fontSize: '14px',
       color: '#c0c0d0',
       fontFamily: 'monospace',
       backgroundColor: '#1a1a2a',
-      padding: { x: 8, y: 4 },
+      padding: { x: iconOnly ? 5 : 8, y: 4 },
     });
-    t.setOrigin(1, 0);
+    t.setOrigin(1, iconOnly ? 0.5 : 0);
     t.setInteractive({ useHandCursor: true });
     t.setScrollFactor(0);
     t.setDepth(1000);
     return t;
   };
 
-  const bgmLabel = (): string => (bgmMuted() ? '\uD83D\uDD07 BGM' : '\uD83C\uDFB5 BGM');
-  const sfxLabel = (): string => (sfxMuted() ? '\uD83D\uDD07 SFX' : '\uD83D\uDD0A SFX');
+  // '\uD83D\uDD07' = \uD83D\uDD07 muted; '\uD83C\uDFB5' = \uD83C\uDFB5 BGM; '\uD83D\uDD0A' = \uD83D\uDD0A SFX.
+  const label = (icon: string, name: string, muted: boolean): string => {
+    const glyph = muted ? '\uD83D\uDD07' : icon;
+    return iconOnly ? glyph : `${glyph} ${name}`;
+  };
+  const bgmLabel = (): string => label('\uD83C\uDFB5', 'BGM', bgmMuted());
+  const sfxLabel = (): string => label('\uD83D\uDD0A', 'SFX', sfxMuted());
 
-  const bgm = makeButton(935, bgmLabel);
-  const sfx = makeButton(855, sfxLabel);
+  const bgm = makeButton(iconOnly ? 938 : 935, bgmLabel);
+  const sfx = makeButton(iconOnly ? 904 : 855, sfxLabel);
 
   bgm.on('pointerdown', () => {
     const next = !bgmMuted();
