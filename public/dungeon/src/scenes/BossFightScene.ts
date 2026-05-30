@@ -25,9 +25,9 @@ import type {
   SessionLog,
   SpellId,
 } from '../types';
-import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
+import { REGISTRY_BGM_MUTED } from '../ui/audioToggles';
+import { mountBossHud } from '../ui/bossHud';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
-import { mountMenuButton } from '../ui/inFightNav';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
@@ -194,9 +194,9 @@ export class BossFightScene extends Phaser.Scene {
     // before everything else so it sits at the bottom of the z-stack.
     renderBackdrop(this, this.boss.id);
 
-    // Boss name at top center
+    // Boss name — sits just below the HUD bar (bar occupies y 0–44).
     this.add
-      .text(480, 30, this.boss.name, {
+      .text(480, 66, this.boss.name, {
         fontSize: '24px',
         color: '#f5e4b3',
         fontFamily: 'monospace',
@@ -401,20 +401,19 @@ export class BossFightScene extends Phaser.Scene {
     this.events.once('shutdown', () => this.bgm.stop());
     this.events.once('destroy', () => this.bgm.stop());
 
-    // Mute toggles (top-right). onBgmToggle starts/stops our procedural
-    // BGM as the user flips the control; SFX mute flows through Phaser's
-    // sound manager automatically.
-    mountAudioToggles(this, {
+    // Top HUD bar: themed strip with the back-to-menu door + "Floor N/M ·
+    // <domain>" on the left and icon-only SFX/BGM on the right. onBgmToggle
+    // starts/stops our procedural BGM; SFX mute flows through Phaser's sound
+    // manager automatically.
+    mountBossHud(this, {
+      boss: this.boss,
+      campaign: this.registry.get('campaign') as Campaign | undefined,
+      onExit: () => this.exitToHub(),
       onBgmToggle: (muted) => {
         if (muted) this.bgm.stop();
         else this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
       },
     });
-
-    // Back-to-menu control (top-left). Leaving flushes a resumable mid-fight
-    // save, so the Hub offers "Continue (… mid-fight)". No-op save for
-    // isolated/demo runs — those just abandon the throwaway fight.
-    mountMenuButton(this, () => this.exitToHub());
 
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });
