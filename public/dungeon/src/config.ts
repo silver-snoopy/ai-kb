@@ -14,6 +14,18 @@ export const GAME_CONFIG = {
   SPELLBOOK_SIZE: 3, // loadout slots per run
 } as const;
 
+// Scripted-demo run (talk mode). DEMO_SEED is locked later after previewing
+// which questions it surfaces. DEMO_BOSS_ORDER fixes the campaign order so
+// the Tool-Smith fight is always the opener.
+export const DEMO_SEED = 1;
+export const DEMO_BOSS_ORDER = [
+  'the-tool-smith',
+  'the-orchestrator',
+  'the-compiler-king',
+  'the-grammarian',
+  'the-memory-kraken',
+] as const;
+
 export const BOSSES: BossDefinition[] = [
   {
     id: 'the-orchestrator',
