@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import { BOSSES } from '../config';
 import type { Bank, BossDefinition, MissedQuestion, Question, RunMode } from '../types';
 import { attachRectHover } from '../ui/buttonHover';
-import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import {
   paintOptionFeedback,
   resetOptionFeedback,
@@ -158,8 +157,6 @@ export class InterstitialScene extends Phaser.Scene {
     this.input.on('pointerdown', () => this.onPointer());
     this.input.keyboard?.on('keydown-SPACE', () => this.onPointer());
     this.input.keyboard?.on('keydown-ENTER', () => this.onPointer());
-
-    mountDemoBadgeIfActive(this);
 
     this.renderNarrative();
   }

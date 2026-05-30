@@ -27,7 +27,6 @@ import type {
 } from '../types';
 import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
-import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
@@ -414,8 +413,6 @@ export class BossFightScene extends Phaser.Scene {
       this.narratorDispatcher.destroy();
       this.narratorOverlay.destroy();
     });
-
-    mountDemoBadgeIfActive(this);
 
     this.events.emit('battle-start', { bossId: this.boss.id });
 
