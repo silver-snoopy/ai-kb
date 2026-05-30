@@ -36,6 +36,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-orchestrator',
     name: 'The Orchestrator',
     domain: 'domain-1-agentic',
+    domainShort: 'Agentic',
     theme: 'Throne hall with chess-piece attendants',
     taunts: {
       correct: [
@@ -51,6 +52,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-compiler-king',
     name: 'The Compiler-King',
     domain: 'domain-2-claude-code',
+    domainShort: 'Claude Code',
     theme: 'Iron workshop; command sigils',
     taunts: {
       correct: ['Your config compiles.', 'The build succeeds.', 'Compilation: 0 errors.'],
@@ -62,6 +64,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-grammarian',
     name: 'The Grammarian',
     domain: 'domain-3-prompt-engineering',
+    domainShort: 'Prompting',
     theme: 'Library of carved stone scrolls',
     taunts: {
       correct: ['Precise.', 'Your tags are sacred.', 'Structure holds.'],
@@ -73,6 +76,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-tool-smith',
     name: 'The Tool-Smith',
     domain: 'domain-4-mcp',
+    domainShort: 'MCP',
     theme: 'Forge surrounded by schemas-as-runes',
     taunts: {
       correct: ['The schema holds.', 'Well-forged.', 'Your tools cut true.'],
@@ -84,6 +88,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-memory-kraken',
     name: 'The Memory-Kraken',
     domain: 'domain-5-context',
+    domainShort: 'Context',
     theme: 'Flooded archive; sinking context-shelves',
     taunts: {
       correct: ['You remember.', 'The tide holds.', 'Context preserved.'],
