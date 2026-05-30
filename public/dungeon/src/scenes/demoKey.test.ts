@@ -31,7 +31,11 @@ function keyForFloor(bossId: string, floor: number): string {
   const boss = BOSSES.find((b) => b.id === bossId);
   if (!boss) throw new Error(`unknown boss ${bossId}`);
   const pool = questionsForDomain(bank, boss.domain);
-  const picks = pickQuestionsForFight(pool, FIRST_RUN_MAX_QUESTIONS, demoRngForFloor(DEMO_SEED, floor));
+  const picks = pickQuestionsForFight(
+    pool,
+    FIRST_RUN_MAX_QUESTIONS,
+    demoRngForFloor(DEMO_SEED, floor),
+  );
   return picks.map((q) => q.correct).join(' ');
 }
 

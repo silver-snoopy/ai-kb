@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { BOSSES } from '../config';
-import { advanceFloor, createCampaign, demoRngForFloor, isCampaignComplete, makeSeededRng } from './dungeon';
+import {
+  advanceFloor,
+  createCampaign,
+  demoRngForFloor,
+  isCampaignComplete,
+  makeSeededRng,
+} from './dungeon';
 
 describe('dungeon', () => {
   it('creates a campaign with 5 bosses in random order', () => {
