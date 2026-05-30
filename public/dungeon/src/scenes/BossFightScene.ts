@@ -5,7 +5,7 @@ import { pickQuestionsForFight, questionsForDomain } from '../data/questionLoade
 import { installFeelPack } from '../feel/install';
 import { initCombat, isBossDefeated, isHeroDead, resolveAnswer } from '../game/combat';
 import type { Campaign } from '../game/dungeon';
-import { advanceFloor, isCampaignComplete } from '../game/dungeon';
+import { advanceFloor, demoRngForFloor, isCampaignComplete } from '../game/dungeon';
 import {
   clearActiveRun,
   readActiveRun,
@@ -141,7 +141,19 @@ export class BossFightScene extends Phaser.Scene {
       this.state.questionHistory =
         restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
     } else {
-      this.questions = pickQuestionsForFight(domainPool, maxQuestions);
+      const demoRun = Boolean(this.registry.get('demoRun'));
+      const demoCampaign = this.registry.get('campaign') as Campaign | undefined;
+      const pickRng =
+        demoRun && demoCampaign
+          ? demoRngForFloor(demoCampaign.seed ?? 0, demoCampaign.floorsCleared)
+          : Math.random;
+      this.questions = pickQuestionsForFight(domainPool, maxQuestions, pickRng);
+      if (demoRun) {
+        // Answer key for the talk: the picked questions' correct letters in
+        // order. Printed once so it can be copied into the demo cheat sheet.
+        // eslint-disable-next-line no-console
+        console.log(`[demo] ${this.boss.id}: ${this.questions.map((q) => q.correct).join(' → ')}`);
+      }
       this.currentQuestionIdx = 0;
       const heroHpStart = this.registry.get('heroHp') ?? GAME_CONFIG.HERO_MAX_HP;
       this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: bossHp });
