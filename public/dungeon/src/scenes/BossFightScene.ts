@@ -27,6 +27,7 @@ import type {
 } from '../types';
 import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
+import { mountMenuButton } from '../ui/inFightNav';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
@@ -410,6 +411,11 @@ export class BossFightScene extends Phaser.Scene {
       },
     });
 
+    // Back-to-menu control (top-left). Leaving flushes a resumable mid-fight
+    // save, so the Hub offers "Continue (… mid-fight)". No-op save for
+    // isolated/demo runs — those just abandon the throwaway fight.
+    mountMenuButton(this, () => this.exitToHub());
+
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });
 
@@ -466,6 +472,14 @@ export class BossFightScene extends Phaser.Scene {
             questionHistoryIds: this.state.questionHistory.map((q) => q.id),
           },
     });
+  }
+
+  private exitToHub(): void {
+    // Persist the current fight so the Hub can resume it (no-op for
+    // isolated/demo). The scene's existing 'shutdown' handler stops the BGM
+    // on transition, so we don't stop it here.
+    this.writeSave();
+    fadeToScene(this, 'HubScene');
   }
 
   private refreshSpellUI(): void {
