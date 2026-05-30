@@ -1,3 +1,11 @@
+import type Phaser from 'phaser';
+import type { BossDefinition } from '../types';
+import { mountAudioToggles } from './audioToggles';
+import { mountMenuButton } from './inFightNav';
+
+const BAR_HEIGHT = 44;
+const BAR_DARKEN = 0.5; // bar fill = boss color × this; bottom border is lighter
+
 /**
  * Multiply each RGB channel of a hex color by `factor` (clamped to 0–255).
  * factor < 1 darkens; used to derive the HUD bar shade from a boss's
@@ -21,4 +29,44 @@ export function formatRunLabel(
 ): string {
   if (!campaign) return domainShort;
   return `Floor ${campaign.floorsCleared + 1}/${campaign.bossOrder.length} · ${domainShort}`;
+}
+
+export interface BossHudOptions {
+  boss: BossDefinition;
+  campaign: { floorsCleared: number; bossOrder: string[] } | undefined;
+  onExit: () => void;
+  onBgmToggle: (muted: boolean) => void;
+}
+
+/**
+ * Mount the boss-fight HUD: a themed top bar (darkened boss color) holding the
+ * back-to-menu door + "Floor N/M · <domain>" on the left and icon-only
+ * SFX/BGM on the right. Reuses mountMenuButton + mountAudioToggles so their
+ * behavior/persistence is unchanged.
+ */
+export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
+  const { boss, campaign, onExit, onBgmToggle } = opts;
+  const midY = BAR_HEIGHT / 2;
+
+  // Themed bar fill + a slightly lighter bottom border so it frames cleanly.
+  scene.add
+    .rectangle(480, midY, 960, BAR_HEIGHT, darken(boss.environmentColor, BAR_DARKEN))
+    .setDepth(900);
+  scene.add
+    .rectangle(480, BAR_HEIGHT - 1, 960, 2, darken(boss.environmentColor, 0.9))
+    .setDepth(901);
+
+  // Left: door + run label.
+  mountMenuButton(scene, onExit, { x: 28, y: midY });
+  scene.add
+    .text(64, midY, formatRunLabel(campaign, boss.domainShort), {
+      fontSize: '14px',
+      color: '#f5e4b3',
+      fontFamily: 'monospace',
+    })
+    .setOrigin(0, 0.5)
+    .setDepth(1000);
+
+  // Right: icon-only SFX/BGM, vertically centered in the bar.
+  mountAudioToggles(scene, { iconOnly: true, y: midY, onBgmToggle });
 }
