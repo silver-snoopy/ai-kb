@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BOSSES } from '../config';
-import { advanceFloor, createCampaign, isCampaignComplete } from './dungeon';
+import { advanceFloor, createCampaign, demoRngForFloor, isCampaignComplete, makeSeededRng } from './dungeon';
 
 describe('dungeon', () => {
   it('creates a campaign with 5 bosses in random order', () => {
@@ -28,5 +28,27 @@ describe('dungeon', () => {
     expect(isCampaignComplete(c)).toBe(false);
     for (let i = 0; i < 5; i++) advanceFloor(c);
     expect(isCampaignComplete(c)).toBe(true);
+  });
+});
+
+describe('makeSeededRng', () => {
+  it('is deterministic for the same seed', () => {
+    const a = makeSeededRng(99);
+    const b = makeSeededRng(99);
+    expect([a(), a(), a()]).toEqual([b(), b(), b()]);
+  });
+});
+
+describe('demoRngForFloor', () => {
+  it('equals makeSeededRng(seed + floor)', () => {
+    const direct = makeSeededRng(1234 + 3);
+    const helper = demoRngForFloor(1234, 3);
+    expect([helper(), helper()]).toEqual([direct(), direct()]);
+  });
+
+  it('produces a different stream per floor', () => {
+    const f0 = demoRngForFloor(1234, 0);
+    const f1 = demoRngForFloor(1234, 1);
+    expect(f0()).not.toEqual(f1());
   });
 });

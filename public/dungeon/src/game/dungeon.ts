@@ -29,10 +29,18 @@ export function isCampaignComplete(c: Campaign): boolean {
   return c.floorsCleared >= c.bossOrder.length;
 }
 
-function makeSeededRng(seed: number): () => number {
+export function makeSeededRng(seed: number): () => number {
   let s = seed || 1;
   return () => {
     s = (s * 16807) % 2147483647;
     return s / 2147483647;
   };
+}
+
+/**
+ * RNG for a demo fight: deterministic per (seed, floor) so each boss in a
+ * scripted demo draws a stable-but-distinct question set.
+ */
+export function demoRngForFloor(seed: number, floor: number): () => number {
+  return makeSeededRng(seed + floor);
 }
