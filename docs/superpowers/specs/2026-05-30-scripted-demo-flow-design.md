@@ -13,6 +13,14 @@ The **Tool-Smith** boss (domain-4-mcp) is the starter of the demo flow. The run 
 *representative*, not a flawless-win script: the presenter may deliberately miss a question
 for a teaching beat, so we need the full answer key available but do not need auto-pilot.
 
+The demo must be **full-fidelity**: it looks and behaves exactly like a normal run —
+lifelines (spells) work, every scene is identical, **no on-screen demo marker**. The only
+difference is determinism and the no-persist guard, both invisible to an audience.
+
+This feature **graduates and replaces** the previous fake-bank demo (the debug-mode
+"start demo campaign (fake questions)" button). On landing, that old path and its fake
+bank are deleted.
+
 ## Key insight
 
 The game is **already almost fully deterministic** from a seed:
@@ -66,14 +74,20 @@ swap):
   fixed demo order `['the-tool-smith', ...the other four boss ids]`. (createCampaign itself
   is left untouched; we just replace the field afterward.)
 - Set `demoRun = true` to **reuse the existing no-persist plumbing** — CampaignComplete
-  skips `recordCampaignVictory` ([CampaignCompleteScene.ts:23-25](../../../public/dungeon/src/scenes/CampaignCompleteScene.ts#L23-L25)),
-  Hub clears the active run on return. Do **not** set `realBank` (no bank swap), and confirm
-  the Hub return-cleanup tolerates `realBank` being absent (it already guards `if (real)`).
-- Standard campaign/spellbook/heroHp/sessionLog registry setup as `beginDemoCampaign` does,
-  then start `BossFightScene`.
+  skips `recordCampaignVictory` ([CampaignCompleteScene.ts:23-25](../../../public/dungeon/src/scenes/CampaignCompleteScene.ts#L23-L25)).
+  Do **not** set `realBank` (no bank swap).
+- **Full spellbook (lifelines).** `createSpellbook('first-run')`, then grant **all five**
+  `SpellId`s at count ≥1 (mirrors the old demo's grant loop, but over the full spell list
+  instead of `saveState.unlocked_spells`) so every lifeline — Echo, Study the Tome, Memorize,
+  Amplify, Doubleshot — is castable live regardless of real progression.
+- Standard campaign/heroHp/sessionLog registry setup, then start `BossFightScene`.
 
-The existing `(DEMO)` badge ([demoBadge.ts](../../../public/dungeon/src/ui/demoBadge.ts))
-shows automatically since it keys off `demoRun`.
+**No demo badge.** The run is visually identical to normal play. The old `(DEMO)` badge is
+deleted (see §6); demo mode is confirmed only via the `[demo]` console log.
+
+**Lifeline ↔ answer-key caveat:** spells that alter question flow (e.g. Echo = retake the
+previous question) reorder what's presented relative to the linear console key. Acceptable
+for a representative run; the presenter just reads the key in pick-order.
 
 ### 3. Deterministic question pick (the one real change to fight logic)
 
@@ -112,27 +126,61 @@ questions each surfaces, and lock the one that reads best for an audience (clear
 spread). Hardcode that as `DEMO_SEED`. The other four bosses use the same seed; their
 questions are not curated (fine for demo purposes).
 
+### 6. Retire the old fake-bank demo
+
+Graduating the new demo makes the old one dead. Remove:
+
+- `public/data/demo-questions.json` — the fake bank (only ref is the line being deleted).
+- The debug-layer demo button + label ([HubScene.ts:292-310](../../../public/dungeon/src/scenes/HubScene.ts#L292-L310))
+  and the `beginDemoCampaign()` method.
+- The `realBank` stash/swap and the Hub-return swap-back cleanup
+  ([HubScene.ts:59-68](../../../public/dungeon/src/scenes/HubScene.ts#L59-L68)). The return
+  cleanup simplifies to: if `demoRun`, remove the flag and `clearActiveRun()` — no bank swap.
+- `src/ui/demoBadge.ts` and its three call sites (BossFightScene, InterstitialScene,
+  CampaignCompleteScene) plus the now-unused imports (and `demoBadge.test.ts` if present).
+
+**Keep:** `isDebugEnabled` / `mountDebugToggle` and the rest of the debug layer (the demo
+button was only one element); the `demoRun` registry flag; the CampaignComplete no-persist
+check (now driven by the new demo).
+
 ## Scope / non-goals
 
-- **In:** `?demo` trigger, `beginScriptedDemo()`, seeded demo question pick, console answer
-  dump, one cheat-sheet markdown, a locked `DEMO_SEED`.
-- **Out:** auto-pilot / auto-answering, on-screen answer overlay, curated question-ID lists,
-  changing normal-play randomness, any new question data.
+- **In:** `?demo` trigger, `beginScriptedDemo()` (full spellbook), seeded demo question
+  pick, console answer dump, one cheat-sheet markdown, a locked `DEMO_SEED`; **retiring the
+  old fake-bank demo** (delete fake bank, debug button, `beginDemoCampaign`, bank-swap,
+  `demoBadge`).
+- **Out:** auto-pilot / auto-answering, on-screen answer overlay or demo badge, curated
+  question-ID lists, changing normal-play randomness, any new question data.
 
-## Files touched (estimate, ~30 LOC of logic)
+## Files touched (estimate, ~30 LOC of logic + deletions)
+
+**Add/modify:**
 
 - `src/ui/debugToggle.ts` (or a new sibling) — add `isScriptedDemo(search)`.
-- `src/scenes/HubScene.ts` — `beginScriptedDemo()`; auto-trigger in `create()`.
+- `src/scenes/HubScene.ts` — `beginScriptedDemo()` (full spellbook grant); auto-trigger in
+  `create()`; simplify the demo-return cleanup (no bank swap).
 - `src/game/dungeon.ts` — export `makeSeededRng` / add `demoRngForFloor`.
-- `src/scenes/BossFightScene.ts` — seeded pick + console dump under `demoRun`.
+- `src/scenes/BossFightScene.ts` — seeded pick + console dump under `demoRun`; drop
+  `demoBadge` import/call.
 - `src/config.ts` (or HubScene) — `DEMO_SEED` + `DEMO_BOSS_ORDER` constants.
 - `public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md` — generated once.
+
+**Delete (old fake demo):**
+
+- `public/data/demo-questions.json`
+- `src/ui/demoBadge.ts` (+ `demoBadge.test.ts` if present)
+- `beginDemoCampaign()` + debug demo button/label + `realBank` swap in `HubScene.ts`
+- `mountDemoBadgeIfActive` call sites in `InterstitialScene.ts` + `CampaignCompleteScene.ts`
+  (and `BossFightScene.ts`, covered above)
 
 ## Testing
 
 - Unit: `pickQuestionsForFight` with a fixed seeded rng returns a stable sequence (extends
   existing `questionLoader.test.ts` determinism coverage).
 - Unit: `isScriptedDemo` parses `?demo`, `?demo=123`, and absence correctly.
-- Manual: load `?demo`, confirm Tool-Smith starts, confirm console key matches the options
-  shown, confirm a second load reproduces identical questions, confirm a normal (no-`?demo`)
-  run is still randomized and does not persist demo state.
+- Manual: load `?demo`, confirm Tool-Smith starts; confirm the console key matches the
+  options shown; confirm a second load reproduces identical questions; **confirm every
+  lifeline/spell is present and castable**; **confirm no demo badge is visible**; confirm a
+  normal (no-`?demo`) run is still randomized, shows no badge, and does not persist demo state.
+- Regression: full `npm test` + `tsc` pass after deleting the old demo (no dangling
+  `demoBadge` / `demo-questions.json` references).
