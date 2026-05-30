@@ -14,6 +14,23 @@ export const GAME_CONFIG = {
   SPELLBOOK_SIZE: 3, // loadout slots per run
 } as const;
 
+// Scripted-demo run (talk mode). DEMO_SEED is locked at 1: its Tool-Smith
+// opener has the best answer-letter spread (B C A C C B A) and the clearest,
+// most varied MCP questions of the candidate seeds previewed. DEMO_BOSS_ORDER
+// fixes the campaign order so the Tool-Smith fight is always the opener.
+// The full answer key lives in
+// public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md and is pinned
+// against the live bank by src/scenes/demoKey.test.ts (a bank edit that shifts
+// the key fails that test — regenerate the cheat sheet + golden together).
+export const DEMO_SEED = 1;
+export const DEMO_BOSS_ORDER = [
+  'the-tool-smith',
+  'the-orchestrator',
+  'the-compiler-king',
+  'the-grammarian',
+  'the-memory-kraken',
+] as const;
+
 export const BOSSES: BossDefinition[] = [
   {
     id: 'the-orchestrator',

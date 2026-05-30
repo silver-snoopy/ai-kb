@@ -7,6 +7,24 @@ export function isDebugEnabled(search: string = window.location.search): boolean
   return params.has('debug');
 }
 
+/**
+ * True when the URL requests a scripted demo run (`?demo` or `?demo=<seed>`).
+ */
+export function isScriptedDemo(search: string = window.location.search): boolean {
+  return new URLSearchParams(search).has('demo');
+}
+
+/**
+ * The numeric seed from `?demo=<n>`, or null for bare `?demo` / non-numeric.
+ * Callers fall back to the hardcoded DEMO_SEED when this is null.
+ */
+export function scriptedDemoSeedOverride(search: string = window.location.search): number | null {
+  const raw = new URLSearchParams(search).get('demo');
+  if (raw == null || raw === '') return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
 export function loadDebugVisible(): boolean {
   try {
     return localStorage.getItem(LS_KEY) === '1';

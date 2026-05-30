@@ -5,7 +5,7 @@ import { pickQuestionsForFight, questionsForDomain } from '../data/questionLoade
 import { installFeelPack } from '../feel/install';
 import { initCombat, isBossDefeated, isHeroDead, resolveAnswer } from '../game/combat';
 import type { Campaign } from '../game/dungeon';
-import { advanceFloor, isCampaignComplete } from '../game/dungeon';
+import { advanceFloor, demoRngForFloor, isCampaignComplete } from '../game/dungeon';
 import {
   clearActiveRun,
   readActiveRun,
@@ -27,7 +27,6 @@ import type {
 } from '../types';
 import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
-import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
@@ -141,7 +140,27 @@ export class BossFightScene extends Phaser.Scene {
       this.state.questionHistory =
         restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
     } else {
-      this.questions = pickQuestionsForFight(domainPool, maxQuestions);
+      const demoRun = Boolean(this.registry.get('demoRun'));
+      let pickRng: () => number = Math.random;
+      if (demoRun) {
+        // Demo runs MUST be reproducible. A missing campaign here means the
+        // demo seed was lost — fail loud during prep rather than limp forward
+        // on a silent Math.random / wrong seed that only shows as a mismatched
+        // answer key live on stage.
+        const demoCampaign = this.registry.get('campaign') as Campaign | undefined;
+        if (!demoCampaign) {
+          throw new Error('[demo] demoRun set but no campaign in registry — demo seed lost');
+        }
+        pickRng = demoRngForFloor(demoCampaign.seed, demoCampaign.floorsCleared);
+      }
+      this.questions = pickQuestionsForFight(domainPool, maxQuestions, pickRng);
+      if (demoRun) {
+        // Answer key for the talk: this fight's picked questions' correct
+        // letters in order. Printed once per fight as it loads (skipped on
+        // save-restore) so it can be copied into the demo cheat sheet.
+        // eslint-disable-next-line no-console
+        console.log(`[demo] ${this.boss.id}: ${this.questions.map((q) => q.correct).join(' → ')}`);
+      }
       this.currentQuestionIdx = 0;
       const heroHpStart = this.registry.get('heroHp') ?? GAME_CONFIG.HERO_MAX_HP;
       this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: bossHp });
@@ -403,8 +422,6 @@ export class BossFightScene extends Phaser.Scene {
       this.narratorOverlay.destroy();
     });
 
-    mountDemoBadgeIfActive(this);
-
     this.events.emit('battle-start', { bossId: this.boss.id });
 
     // Boss-entry save (Write Point 1). If we restored from save, the
@@ -422,7 +439,10 @@ export class BossFightScene extends Phaser.Scene {
    * (with inBoss=null). No-op in isolated (debug) mode.
    */
   private writeSave(options: { endOfFight?: boolean } = {}): void {
-    if (this.isolated) return;
+    // Never persist isolated (debug) fights, and never persist a scripted demo
+    // run — a demo save would otherwise survive a page reload (the in-memory
+    // demoRun flag does not) and leak into normal play as a "Continue" offer.
+    if (this.isolated || this.registry.get('demoRun')) return;
     const campaign: Campaign | undefined = this.registry.get('campaign');
     if (!campaign) return;
     writeActiveRun({
