@@ -8,9 +8,13 @@ const DOOR_FRAME = 45;
  * back-to-menu control. Clicking it invokes onExit. Visuals only — the caller
  * decides what leaving does (see BossFightScene.exitToHub).
  */
-export function mountMenuButton(scene: Phaser.Scene, onExit: () => void): void {
+export function mountMenuButton(
+  scene: Phaser.Scene,
+  onExit: () => void,
+  position: { x: number; y: number } = { x: 28, y: 28 },
+): void {
   const door = scene.add
-    .image(28, 28, 'td-tiles', DOOR_FRAME)
+    .image(position.x, position.y, 'td-tiles', DOOR_FRAME)
     .setScale(2)
     .setDepth(1000)
     .setInteractive({ useHandCursor: true });
