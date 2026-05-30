@@ -439,7 +439,10 @@ export class BossFightScene extends Phaser.Scene {
    * (with inBoss=null). No-op in isolated (debug) mode.
    */
   private writeSave(options: { endOfFight?: boolean } = {}): void {
-    if (this.isolated) return;
+    // Never persist isolated (debug) fights, and never persist a scripted demo
+    // run — a demo save would otherwise survive a page reload (the in-memory
+    // demoRun flag does not) and leak into normal play as a "Continue" offer.
+    if (this.isolated || this.registry.get('demoRun')) return;
     const campaign: Campaign | undefined = this.registry.get('campaign');
     if (!campaign) return;
     writeActiveRun({

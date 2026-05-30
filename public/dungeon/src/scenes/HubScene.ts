@@ -127,13 +127,20 @@ export class HubScene extends Phaser.Scene {
         { fill: 0x2d7a4a, stroke: 0xb0e070 },
         3,
       );
-      this.add
+      const continueText = this.add
         .text(480, 210, continueLabel, {
           fontSize: '18px',
           color: '#e0e0ea',
           fontFamily: 'monospace',
         })
         .setOrigin(0.5);
+      // Long labels (e.g. "Continue (Floor 2 · The Compiler-King, approaching)")
+      // overrun the 500px button at 18px and clip the closing paren on the
+      // border. Scale the label down to fit the button's inner width.
+      const continueMaxWidth = 500 - 32; // button width minus side padding
+      if (continueText.width > continueMaxWidth) {
+        continueText.setScale(continueMaxWidth / continueText.width);
+      }
       continueBtn.on('pointerdown', () => this.resumeActiveRun(activeRun));
 
       const newBtn = this.add.rectangle(480, 286, 320, 44, 0x2d1b4e);
