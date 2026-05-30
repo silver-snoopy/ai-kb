@@ -1,15 +1,18 @@
 import Phaser from 'phaser';
-import { BOSSES } from '../config';
-import { loadBank } from '../data/questionLoader';
+import { BOSSES, DEMO_BOSS_ORDER, DEMO_SEED } from '../config';
 import { createCampaign } from '../game/dungeon';
 import type { Campaign } from '../game/dungeon';
 import { type RunSave, clearActiveRun, readActiveRun } from '../game/runSave';
 import { createSpellbook } from '../game/spellbook';
-import type { RunMode, SaveStateV1 } from '../types';
-import type { Bank } from '../types';
+import type { RunMode, SaveStateV1, SpellId } from '../types';
 import { mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover } from '../ui/buttonHover';
-import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
+import {
+  isDebugEnabled,
+  isScriptedDemo,
+  mountDebugToggle,
+  scriptedDemoSeedOverride,
+} from '../ui/debugToggle';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 
 function continueButtonLabel(save: RunSave): string {
@@ -54,20 +57,20 @@ export class HubScene extends Phaser.Scene {
   create(): void {
     fadeIn(this);
 
-    // If returning from a demo run, swap the real bank back in before
-    // anything else — otherwise a subsequent real-run start would inherit
-    // the demo bank. The demoRun flag was set in beginDemoCampaign; the
-    // real bank was stashed under realBank.
+    // Returning from a scripted demo: clear the no-persist flag and any
+    // active-run save so a subsequent real run starts clean. The demo uses
+    // the real bank, so there is no bank to swap back.
     if (this.registry.get('demoRun')) {
-      const real = this.registry.get('realBank') as Bank | undefined;
-      if (real) this.registry.set('bank', real);
-      this.registry.remove('realBank');
       this.registry.remove('demoRun');
-      // Also clear any lingering active-run save — demo saves reference
-      // demo question IDs that are no longer in the live bank, so they'd
-      // self-invalidate on resume anyway, but clearing proactively is
-      // cleaner for the Hub's save-present-vs-absent branching.
       clearActiveRun();
+    }
+
+    // Auto-launch the scripted demo when the URL requests it. Runs after the
+    // cleanup above so a self-restart (return to Hub with ?demo still set)
+    // re-enters cleanly.
+    if (isScriptedDemo()) {
+      this.beginScriptedDemo(scriptedDemoSeedOverride() ?? DEMO_SEED);
+      return;
     }
 
     const save: SaveStateV1 = this.registry.get('saveState');
@@ -284,31 +287,6 @@ export class HubScene extends Phaser.Scene {
       debugLayer.add(interBtn);
       debugLayer.add(interLabel);
 
-      // Demo-campaign button: loads a fake question bundle + runs a
-      // full first-run campaign without touching the real question pool
-      // or the NG+ progression. Placed below the preview-interstitial
-      // button with amber styling so it reads as a distinct "run the
-      // whole flow" affordance, not just a scene-preview.
-      const demoBtn = this.add.rectangle(480, 575, 360, 36, 0x4e3a1b);
-      demoBtn.setStrokeStyle(2, 0xffca28);
-      demoBtn.setInteractive({ useHandCursor: true });
-      attachRectHover(
-        demoBtn,
-        { fill: 0x4e3a1b, stroke: 0xffca28 },
-        { fill: 0x6a5028, stroke: 0xffe070 },
-      );
-      const demoLabel = this.add
-        .text(480, 575, '(debug) start demo campaign (fake questions)', {
-          fontSize: '12px',
-          color: '#ffe070',
-          fontFamily: 'monospace',
-          fontStyle: 'italic',
-        })
-        .setOrigin(0.5);
-      demoBtn.on('pointerdown', () => this.beginDemoCampaign());
-      debugLayer.add(demoBtn);
-      debugLayer.add(demoLabel);
-
       mountDebugToggle(this, (visible) => {
         debugLayer.setVisible(visible);
       });
@@ -459,35 +437,22 @@ export class HubScene extends Phaser.Scene {
     noBtn.on('pointerdown', dismiss);
   }
 
-  private async beginDemoCampaign(): Promise<void> {
-    // Fetch the demo bundle, stash the real bank, swap demo in, start a
-    // first-run campaign. Demo runs are locked to first-run mode (short
-    // 5-HP bosses) regardless of the player's actual NG+ progression.
-    let demoBank: Bank;
-    try {
-      demoBank = await loadBank('./data/demo-questions.json');
-    } catch (e: unknown) {
-      // eslint-disable-next-line no-console
-      console.warn('[demo] failed to load demo bank:', (e as Error).message);
-      return;
-    }
-
-    this.registry.set('realBank', this.registry.get('bank'));
-    this.registry.set('bank', demoBank);
-    this.registry.set('demoRun', true);
-    // Any prior real-run save would block the Hub's continue branch and
-    // its question IDs don't match the demo pool. Clear it for a clean
-    // demo start.
+  private beginScriptedDemo(seed: number): void {
+    // Scripted talk demo: real bank, fixed boss order (Tool-Smith first),
+    // fixed seed → fully reproducible questions. Locked to first-run mode
+    // (short 5-HP bosses). demoRun reuses the no-persist plumbing
+    // (CampaignCompleteScene skips recordCampaignVictory) without swapping
+    // the bank. Grants the full spellbook so every lifeline is demoable.
     clearActiveRun();
+    this.registry.set('demoRun', true);
 
-    const saveState: SaveStateV1 = this.registry.get('saveState');
     const mode: RunMode = 'first-run';
-    const seed = Date.now();
     const campaign: Campaign = createCampaign(mode, seed);
+    campaign.bossOrder = [...DEMO_BOSS_ORDER];
+
     const spellbook = createSpellbook(mode);
-    // Grant any extra unlocks the player has earned so demo exercises
-    // the spell UI realistically.
-    for (const spellId of saveState.unlocked_spells) {
+    const allSpells: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot'];
+    for (const spellId of allSpells) {
       if ((spellbook[spellId] ?? 0) === 0) spellbook[spellId] = 1;
     }
 
