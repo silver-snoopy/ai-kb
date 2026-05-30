@@ -41,6 +41,7 @@ export interface BossDefinition {
   id: string;
   name: string;
   domain: string;
+  domainShort: string;
   theme: string;
   taunts: { correct: string[]; wrong: string[] };
   environmentColor: number; // hex for Phaser fillRect, etc.

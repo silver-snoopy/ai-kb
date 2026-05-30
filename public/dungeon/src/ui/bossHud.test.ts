@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BOSSES } from '../config';
 import { darken, formatRunLabel } from './bossHud';
 
 describe('darken', () => {
@@ -25,5 +26,13 @@ describe('formatRunLabel', () => {
   });
   it('falls back to just the domain when there is no campaign (debug/isolated)', () => {
     expect(formatRunLabel(undefined, 'MCP')).toBe('MCP');
+  });
+});
+
+describe('boss domainShort', () => {
+  it('every boss declares a non-empty domainShort', () => {
+    for (const b of BOSSES) {
+      expect(b.domainShort.length).toBeGreaterThan(0);
+    }
   });
 });
