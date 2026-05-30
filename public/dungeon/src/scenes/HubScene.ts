@@ -440,9 +440,10 @@ export class HubScene extends Phaser.Scene {
   private beginScriptedDemo(seed: number): void {
     // Scripted talk demo: real bank, fixed boss order (Tool-Smith first),
     // fixed seed → fully reproducible questions. Locked to first-run mode
-    // (short 5-HP bosses). demoRun reuses the no-persist plumbing
-    // (CampaignCompleteScene skips recordCampaignVictory) without swapping
-    // the bank. Grants the full spellbook so every lifeline is demoable.
+    // (short 5-HP bosses). demoRun reuses the no-progression-persist plumbing
+    // (CampaignCompleteScene skips recordCampaignVictory, so the run never
+    // touches NG+ progression) without swapping the bank. Grants the full
+    // spellbook so every lifeline is demoable.
     clearActiveRun();
     this.registry.set('demoRun', true);
 
@@ -450,10 +451,12 @@ export class HubScene extends Phaser.Scene {
     const campaign: Campaign = createCampaign(mode, seed);
     campaign.bossOrder = [...DEMO_BOSS_ORDER];
 
+    // Grant every lifeline so all spells are demoable. createSpellbook returns
+    // a full Record<SpellId, number>, so iterating its keys covers the whole
+    // spell set automatically — no hardcoded list to drift from SpellId.
     const spellbook = createSpellbook(mode);
-    const allSpells: SpellId[] = ['echo', 'study-the-tome', 'memorize', 'amplify', 'doubleshot'];
-    for (const spellId of allSpells) {
-      if ((spellbook[spellId] ?? 0) === 0) spellbook[spellId] = 1;
+    for (const spellId of Object.keys(spellbook) as SpellId[]) {
+      if (spellbook[spellId] === 0) spellbook[spellId] = 1;
     }
 
     this.registry.set('campaign', campaign);

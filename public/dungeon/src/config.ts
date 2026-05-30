@@ -18,7 +18,10 @@ export const GAME_CONFIG = {
 // opener has the best answer-letter spread (B C A C C B A) and the clearest,
 // most varied MCP questions of the candidate seeds previewed. DEMO_BOSS_ORDER
 // fixes the campaign order so the Tool-Smith fight is always the opener.
-// Answer key lives in public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md.
+// The full answer key lives in
+// public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md and is pinned
+// against the live bank by src/scenes/demoKey.test.ts (a bank edit that shifts
+// the key fails that test — regenerate the cheat sheet + golden together).
 export const DEMO_SEED = 1;
 export const DEMO_BOSS_ORDER = [
   'the-tool-smith',

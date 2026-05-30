@@ -141,15 +141,23 @@ export class BossFightScene extends Phaser.Scene {
         restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
     } else {
       const demoRun = Boolean(this.registry.get('demoRun'));
-      const demoCampaign = this.registry.get('campaign') as Campaign | undefined;
-      const pickRng =
-        demoRun && demoCampaign
-          ? demoRngForFloor(demoCampaign.seed ?? 0, demoCampaign.floorsCleared)
-          : Math.random;
+      let pickRng: () => number = Math.random;
+      if (demoRun) {
+        // Demo runs MUST be reproducible. A missing campaign here means the
+        // demo seed was lost — fail loud during prep rather than limp forward
+        // on a silent Math.random / wrong seed that only shows as a mismatched
+        // answer key live on stage.
+        const demoCampaign = this.registry.get('campaign') as Campaign | undefined;
+        if (!demoCampaign) {
+          throw new Error('[demo] demoRun set but no campaign in registry — demo seed lost');
+        }
+        pickRng = demoRngForFloor(demoCampaign.seed, demoCampaign.floorsCleared);
+      }
       this.questions = pickQuestionsForFight(domainPool, maxQuestions, pickRng);
       if (demoRun) {
-        // Answer key for the talk: the picked questions' correct letters in
-        // order. Printed once so it can be copied into the demo cheat sheet.
+        // Answer key for the talk: this fight's picked questions' correct
+        // letters in order. Printed once per fight as it loads (skipped on
+        // save-restore) so it can be copied into the demo cheat sheet.
         // eslint-disable-next-line no-console
         console.log(`[demo] ${this.boss.id}: ${this.questions.map((q) => q.correct).join(' → ')}`);
       }
