@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isDebugEnabled } from './debugToggle';
+import { isDebugEnabled, isScriptedDemo, scriptedDemoSeedOverride } from './debugToggle';
 
 describe('isDebugEnabled', () => {
   it('returns true for ?debug=1', () => {
@@ -27,5 +27,27 @@ describe('isDebugEnabled', () => {
 
   it('returns true when debug is mixed with other params', () => {
     expect(isDebugEnabled('?src=foo.json&debug=1')).toBe(true);
+  });
+});
+
+describe('isScriptedDemo', () => {
+  it('is true for ?demo and ?demo=123', () => {
+    expect(isScriptedDemo('?demo')).toBe(true);
+    expect(isScriptedDemo('?demo=123')).toBe(true);
+  });
+  it('is false for no param or unrelated params', () => {
+    expect(isScriptedDemo('')).toBe(false);
+    expect(isScriptedDemo('?debug')).toBe(false);
+  });
+});
+
+describe('scriptedDemoSeedOverride', () => {
+  it('returns the numeric seed when ?demo=<n>', () => {
+    expect(scriptedDemoSeedOverride('?demo=123')).toBe(123);
+  });
+  it('returns null for bare ?demo or non-numeric', () => {
+    expect(scriptedDemoSeedOverride('?demo')).toBeNull();
+    expect(scriptedDemoSeedOverride('?demo=abc')).toBeNull();
+    expect(scriptedDemoSeedOverride('')).toBeNull();
   });
 });
