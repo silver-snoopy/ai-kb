@@ -408,7 +408,7 @@ export class BossFightScene extends Phaser.Scene {
     // <domain>" on the left and icon-only SFX/BGM on the right. onBgmToggle
     // starts/stops our procedural BGM; SFX mute flows through Phaser's sound
     // manager automatically.
-    mountBossHud(this, {
+    const { runLabel } = mountBossHud(this, {
       boss: this.boss,
       bossName: this.boss.name,
       campaign: this.registry.get('campaign') as Campaign | undefined,
@@ -419,11 +419,12 @@ export class BossFightScene extends Phaser.Scene {
       },
     });
 
-    // Decorative rune beside the boss banner — the second of two placements
-    // (Hub + here) being compared in the plan's manual A/B; one is pruned after
-    // local evaluation. No bucketing logic: both always render, inert unless in
-    // demo mode.
-    mountDecorativeSigil(this, 700, 30);
+    // Decorative rune anchored just past the "Floor N/M · domain" label on the
+    // left of the HUD bar (so it reads as part of the run/domain cluster, not
+    // stray chrome by the audio icons). Inert for normal players; armed in demo
+    // mode → launches the post-credit stinger. Positioned off the label's true
+    // right edge so it keeps a consistent gap for any domain-name length.
+    mountDecorativeSigil(this, runLabel.x + runLabel.width + 16, runLabel.y);
 
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });

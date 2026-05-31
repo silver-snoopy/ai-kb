@@ -51,7 +51,10 @@ export interface BossHudOptions {
  * SFX/BGM on the right. Reuses mountMenuButton + mountAudioToggles so their
  * behavior/persistence is unchanged.
  */
-export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
+export function mountBossHud(
+  scene: Phaser.Scene,
+  opts: BossHudOptions,
+): { runLabel: Phaser.GameObjects.Text } {
   const { boss, campaign, onExit, onBgmToggle, bossName } = opts;
   const midY = BAR_HEIGHT / 2;
 
@@ -65,7 +68,7 @@ export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
 
   // Left: door + run label.
   mountMenuButton(scene, onExit, { x: 28, y: midY });
-  scene.add
+  const runLabel = scene.add
     .text(64, midY, formatRunLabel(campaign, boss.domainShort), {
       fontSize: '14px',
       color: '#f5e4b3',
@@ -90,4 +93,9 @@ export function mountBossHud(scene: Phaser.Scene, opts: BossHudOptions): void {
 
   // Right: icon-only SFX/BGM, vertically centered in the bar.
   mountAudioToggles(scene, { iconOnly: true, y: midY, onBgmToggle });
+
+  // Return the run label so callers can anchor adjacent HUD chrome (e.g. the
+  // decorative stinger sigil) just past its right edge, regardless of domain
+  // name length.
+  return { runLabel };
 }
