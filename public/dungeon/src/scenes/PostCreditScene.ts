@@ -34,7 +34,9 @@ export class PostCreditScene extends Phaser.Scene {
 
     // Dim torch-lit floor: reuse a boss backdrop, then darken with an overlay.
     renderBackdrop(this, 'the-orchestrator');
-    const dim = this.add.rectangle(480, 360, 960, 720, 0x000000, 0.62).setDepth(5);
+    // Overall `alpha` (not `fillAlpha`) carries the dim level so Beat 6 can
+    // tween it reliably — Rectangle.fillAlpha is not a dependable tween target.
+    const dim = this.add.rectangle(480, 360, 960, 720, 0x000000).setAlpha(0.62).setDepth(5);
 
     const stopDust = installAmbientDust(this);
 
@@ -103,7 +105,7 @@ export class PostCreditScene extends Phaser.Scene {
 
     // BEAT 6 — fall to full black.
     this.time.delayedCall(8300, () => {
-      this.tweens.add({ targets: dim, fillAlpha: 1, duration: 900 });
+      this.tweens.add({ targets: dim, alpha: 1, duration: 900 });
     });
 
     // BEAT 7 — the promise + the rune.
