@@ -3,7 +3,6 @@ import { clearActiveRun } from '../game/runSave';
 import { recordCampaignVictory, saveSaveState } from '../game/saveState';
 import { downloadSessionLog } from '../game/sessionExport';
 import type { RunMode, SaveStateV1, SessionLog } from '../types';
-import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 
 export class CampaignCompleteScene extends Phaser.Scene {
@@ -31,8 +30,6 @@ export class CampaignCompleteScene extends Phaser.Scene {
     // last-floor branch; this guards against edge cases like direct scene
     // navigation during dev / tests).
     clearActiveRun();
-
-    mountDemoBadgeIfActive(this);
 
     this.add
       .text(480, 70, '\uD83D\uDCDC GOLDEN PARCHMENT', {

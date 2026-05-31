@@ -14,11 +14,29 @@ export const GAME_CONFIG = {
   SPELLBOOK_SIZE: 3, // loadout slots per run
 } as const;
 
+// Scripted-demo run (talk mode). DEMO_SEED is locked at 1: its Tool-Smith
+// opener has the best answer-letter spread (B C A C C B A) and the clearest,
+// most varied MCP questions of the candidate seeds previewed. DEMO_BOSS_ORDER
+// fixes the campaign order so the Tool-Smith fight is always the opener.
+// The full answer key lives in
+// public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md and is pinned
+// against the live bank by src/scenes/demoKey.test.ts (a bank edit that shifts
+// the key fails that test — regenerate the cheat sheet + golden together).
+export const DEMO_SEED = 1;
+export const DEMO_BOSS_ORDER = [
+  'the-tool-smith',
+  'the-orchestrator',
+  'the-compiler-king',
+  'the-grammarian',
+  'the-memory-kraken',
+] as const;
+
 export const BOSSES: BossDefinition[] = [
   {
     id: 'the-orchestrator',
     name: 'The Orchestrator',
     domain: 'domain-1-agentic',
+    domainShort: 'Agentic',
     theme: 'Throne hall with chess-piece attendants',
     taunts: {
       correct: [
@@ -34,6 +52,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-compiler-king',
     name: 'The Compiler-King',
     domain: 'domain-2-claude-code',
+    domainShort: 'Claude Code',
     theme: 'Iron workshop; command sigils',
     taunts: {
       correct: ['Your config compiles.', 'The build succeeds.', 'Compilation: 0 errors.'],
@@ -45,6 +64,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-grammarian',
     name: 'The Grammarian',
     domain: 'domain-3-prompt-engineering',
+    domainShort: 'Prompting',
     theme: 'Library of carved stone scrolls',
     taunts: {
       correct: ['Precise.', 'Your tags are sacred.', 'Structure holds.'],
@@ -56,6 +76,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-tool-smith',
     name: 'The Tool-Smith',
     domain: 'domain-4-mcp',
+    domainShort: 'MCP',
     theme: 'Forge surrounded by schemas-as-runes',
     taunts: {
       correct: ['The schema holds.', 'Well-forged.', 'Your tools cut true.'],
@@ -67,6 +88,7 @@ export const BOSSES: BossDefinition[] = [
     id: 'the-memory-kraken',
     name: 'The Memory-Kraken',
     domain: 'domain-5-context',
+    domainShort: 'Context',
     theme: 'Flooded archive; sinking context-shelves',
     taunts: {
       correct: ['You remember.', 'The tide holds.', 'Context preserved.'],

@@ -5,7 +5,7 @@ import { pickQuestionsForFight, questionsForDomain } from '../data/questionLoade
 import { installFeelPack } from '../feel/install';
 import { initCombat, isBossDefeated, isHeroDead, resolveAnswer } from '../game/combat';
 import type { Campaign } from '../game/dungeon';
-import { advanceFloor, isCampaignComplete } from '../game/dungeon';
+import { advanceFloor, demoRngForFloor, isCampaignComplete } from '../game/dungeon';
 import {
   clearActiveRun,
   readActiveRun,
@@ -25,10 +25,10 @@ import type {
   SessionLog,
   SpellId,
 } from '../types';
-import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
+import { REGISTRY_BGM_MUTED } from '../ui/audioToggles';
+import { mountBossHud } from '../ui/bossHud';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
 import { mountDecorativeSigil } from '../ui/decorativeSigil';
-import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
@@ -142,7 +142,27 @@ export class BossFightScene extends Phaser.Scene {
       this.state.questionHistory =
         restoreQuestionPool(save!.inBoss!.questionHistoryIds, domainPool) ?? [];
     } else {
-      this.questions = pickQuestionsForFight(domainPool, maxQuestions);
+      const demoRun = Boolean(this.registry.get('demoRun'));
+      let pickRng: () => number = Math.random;
+      if (demoRun) {
+        // Demo runs MUST be reproducible. A missing campaign here means the
+        // demo seed was lost — fail loud during prep rather than limp forward
+        // on a silent Math.random / wrong seed that only shows as a mismatched
+        // answer key live on stage.
+        const demoCampaign = this.registry.get('campaign') as Campaign | undefined;
+        if (!demoCampaign) {
+          throw new Error('[demo] demoRun set but no campaign in registry — demo seed lost');
+        }
+        pickRng = demoRngForFloor(demoCampaign.seed, demoCampaign.floorsCleared);
+      }
+      this.questions = pickQuestionsForFight(domainPool, maxQuestions, pickRng);
+      if (demoRun) {
+        // Answer key for the talk: this fight's picked questions' correct
+        // letters in order. Printed once per fight as it loads (skipped on
+        // save-restore) so it can be copied into the demo cheat sheet.
+        // eslint-disable-next-line no-console
+        console.log(`[demo] ${this.boss.id}: ${this.questions.map((q) => q.correct).join(' → ')}`);
+      }
       this.currentQuestionIdx = 0;
       const heroHpStart = this.registry.get('heroHp') ?? GAME_CONFIG.HERO_MAX_HP;
       this.state = initCombat({ heroMaxHp: GAME_CONFIG.HERO_MAX_HP, bossMaxHp: bossHp });
@@ -175,14 +195,9 @@ export class BossFightScene extends Phaser.Scene {
     // before everything else so it sits at the bottom of the z-stack.
     renderBackdrop(this, this.boss.id);
 
-    // Boss name at top center
-    this.add
-      .text(480, 30, this.boss.name, {
-        fontSize: '24px',
-        color: '#f5e4b3',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5);
+    // (Boss name now lives centered in the top HUD bar — see mountBossHud.
+    // The old top-center banner floated on the brick wall and clipped the top
+    // of the question scroll.)
 
     // --- Speech bubble (question area) ---
     // Filled rectangle body
@@ -222,12 +237,12 @@ export class BossFightScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
 
     // --- Hero sprite (left) ---
-    this.heroSprite = this.add.image(120, 330, 'hero').setScale(3);
+    this.heroSprite = this.add.image(85, 330, 'hero').setScale(3);
 
     // Hero HP hearts below sprite. Slightly smaller than before so the
     // label stack under the hero is a compact 2-line group.
     this.heroHpText = this.add
-      .text(120, 405, '', {
+      .text(85, 405, '', {
         fontSize: '12px',
         color: '#8bc34a',
         fontFamily: 'monospace',
@@ -237,7 +252,7 @@ export class BossFightScene extends Phaser.Scene {
     // Hero name label \u2014 intentionally tiny so it reads as a subtitle
     // rather than competing with the HP text above it.
     this.add
-      .text(120, 420, 'WARLOCK', {
+      .text(85, 420, 'WARLOCK', {
         fontSize: '9px',
         color: '#808090',
         fontFamily: 'monospace',
@@ -247,12 +262,19 @@ export class BossFightScene extends Phaser.Scene {
     // --- Boss sprite (right) ---
     const bossKey = `boss-${this.boss.id}`;
     const bossTexKey = this.textures.exists(bossKey) ? bossKey : 'hero';
-    this.bossSprite = this.add.image(840, 330, bossTexKey).setScale(4);
+    // Boss is scaled up (6 vs hero's 3) for presence; y nudged up so its feet
+    // ground on the same floor line as the hero rather than sinking lower.
+    this.bossSprite = this.add.image(875, 306, bossTexKey).setScale(6);
+
+    // (Boss name now lives centered in the top HUD bar — see mountBossHud /
+    // bossHud.ts. The bar is a themed strip above the brick wall and question
+    // scroll, so the name clips neither; a side/overhead plate in the scene
+    // body caught the near-full-width scroll's corner.)
 
     // Boss HP hearts below boss sprite \u2014 match the hero HP scale so both
     // sides read as symmetric status lines.
     this.bossHpText = this.add
-      .text(840, 405, '', {
+      .text(875, 405, '', {
         fontSize: '12px',
         color: '#ff6b6b',
         fontFamily: 'monospace',
@@ -261,12 +283,12 @@ export class BossFightScene extends Phaser.Scene {
 
     // Taunt text below boss
     this.tauntText = this.add
-      .text(840, 450, '', {
+      .text(875, 450, '', {
         fontSize: '12px',
         color: '#d0c090',
         fontFamily: 'monospace',
         fontStyle: 'italic',
-        wordWrap: { width: 260 },
+        wordWrap: { width: 160 },
         align: 'center',
       })
       .setOrigin(0.5, 0);
@@ -382,10 +404,15 @@ export class BossFightScene extends Phaser.Scene {
     this.events.once('shutdown', () => this.bgm.stop());
     this.events.once('destroy', () => this.bgm.stop());
 
-    // Mute toggles (top-right). onBgmToggle starts/stops our procedural
-    // BGM as the user flips the control; SFX mute flows through Phaser's
-    // sound manager automatically.
-    mountAudioToggles(this, {
+    // Top HUD bar: themed strip with the back-to-menu door + "Floor N/M ·
+    // <domain>" on the left and icon-only SFX/BGM on the right. onBgmToggle
+    // starts/stops our procedural BGM; SFX mute flows through Phaser's sound
+    // manager automatically.
+    mountBossHud(this, {
+      boss: this.boss,
+      bossName: this.boss.name,
+      campaign: this.registry.get('campaign') as Campaign | undefined,
+      onExit: () => this.exitToHub(),
       onBgmToggle: (muted) => {
         if (muted) this.bgm.stop();
         else this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
@@ -410,8 +437,6 @@ export class BossFightScene extends Phaser.Scene {
       this.narratorOverlay.destroy();
     });
 
-    mountDemoBadgeIfActive(this);
-
     this.events.emit('battle-start', { bossId: this.boss.id });
 
     // Boss-entry save (Write Point 1). If we restored from save, the
@@ -429,7 +454,10 @@ export class BossFightScene extends Phaser.Scene {
    * (with inBoss=null). No-op in isolated (debug) mode.
    */
   private writeSave(options: { endOfFight?: boolean } = {}): void {
-    if (this.isolated) return;
+    // Never persist isolated (debug) fights, and never persist a scripted demo
+    // run — a demo save would otherwise survive a page reload (the in-memory
+    // demoRun flag does not) and leak into normal play as a "Continue" offer.
+    if (this.isolated || this.registry.get('demoRun')) return;
     const campaign: Campaign | undefined = this.registry.get('campaign');
     if (!campaign) return;
     writeActiveRun({
@@ -453,6 +481,14 @@ export class BossFightScene extends Phaser.Scene {
             questionHistoryIds: this.state.questionHistory.map((q) => q.id),
           },
     });
+  }
+
+  private exitToHub(): void {
+    // Persist the current fight so the Hub can resume it (no-op for
+    // isolated/demo). The scene's existing 'shutdown' handler stops the BGM
+    // on transition, so we don't stop it here.
+    this.writeSave();
+    fadeToScene(this, 'HubScene');
   }
 
   private refreshSpellUI(): void {

@@ -50,6 +50,20 @@ describe('questionLoader', () => {
     const s2 = shuffleBossOrder(bosses, seeded(2));
     expect(s1.join('')).not.toBe(s2.join(''));
   });
+
+  it('is deterministic for the same seeded rng', () => {
+    const pool: Question[] = [
+      makeQ('e1', 'easy'),
+      makeQ('e2', 'easy'),
+      makeQ('m1', 'medium'),
+      makeQ('m2', 'medium'),
+      makeQ('h1', 'hard'),
+      makeQ('h2', 'hard'),
+    ];
+    const a = pickQuestionsForFight(pool, 5, seeded(7)).map((q) => q.id);
+    const b = pickQuestionsForFight(pool, 5, seeded(7)).map((q) => q.id);
+    expect(a).toEqual(b);
+  });
 });
 
 function seeded(seed: number): () => number {
