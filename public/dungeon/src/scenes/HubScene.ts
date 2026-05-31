@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { BOSSES, DEMO_BOSS_ORDER, DEMO_SEED } from '../config';
-import { createCampaign } from '../game/dungeon';
+import { campaignFromSave, createCampaign } from '../game/dungeon';
 import type { Campaign } from '../game/dungeon';
 import { type RunSave, clearActiveRun, readActiveRun } from '../game/runSave';
 import { createSpellbook } from '../game/spellbook';
@@ -332,13 +332,10 @@ export class HubScene extends Phaser.Scene {
     }
 
     // Restore the minimum registry state BossFightScene / InterstitialScene
-    // expect: campaign, spellbook, heroHp, sessionLog.
+    // expect: campaign, spellbook, heroHp, sessionLog. campaignFromSave carries
+    // the seed through so a resumed demo's next fight re-picks identically.
     const saveState: SaveStateV1 = this.registry.get('saveState');
-    this.registry.set('campaign', {
-      mode: save.campaign.mode,
-      bossOrder: [...save.campaign.bossOrder],
-      floorsCleared: save.campaign.floorsCleared,
-    });
+    this.registry.set('campaign', campaignFromSave(save));
     this.registry.set('spellbook', { ...save.spellbook });
     this.registry.set('heroHp', save.heroHpCarryover);
     this.registry.set('sessionLog', {

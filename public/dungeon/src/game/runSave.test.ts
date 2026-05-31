@@ -12,7 +12,7 @@ function makeSave(overrides: Partial<RunSave> = {}): RunSave {
   return {
     version: 1,
     savedAt: new Date().toISOString(),
-    campaign: { bossOrder: ['a', 'b', 'c', 'd', 'e'], floorsCleared: 2, mode: 'first-run' },
+    campaign: { bossOrder: ['a', 'b', 'c', 'd', 'e'], floorsCleared: 2, mode: 'first-run', seed: 4242 },
     spellbook: { echo: 1, 'study-the-tome': 1, memorize: 0, amplify: 0, doubleshot: 0 },
     heroHpCarryover: 2,
     inBoss: {
@@ -69,6 +69,47 @@ describe('runSave — storage layer', () => {
       inBoss: makeSave().inBoss,
     });
     expect(readActiveRun()?.journeyMode).toBeUndefined();
+  });
+
+  it('round-trips the campaign seed so a resumed demo re-picks identically', () => {
+    writeActiveRun({
+      version: 1,
+      journeyMode: 'demo',
+      campaign: { bossOrder: ['a', 'b'], floorsCleared: 1, mode: 'first-run', seed: 4242 },
+      spellbook: makeSave().spellbook,
+      heroHpCarryover: 2,
+      inBoss: null,
+    });
+    expect(readActiveRun()?.campaign.seed).toBe(4242);
+  });
+
+  it('still loads a legacy save with no seed (back-compat — live players keep their run)', () => {
+    const legacy = {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      campaign: { bossOrder: ['a', 'b', 'c', 'd', 'e'], floorsCleared: 2, mode: 'first-run' },
+      spellbook: makeSave().spellbook,
+      heroHpCarryover: 2,
+      inBoss: null,
+    };
+    localStorage.setItem('stc:active-run', JSON.stringify(legacy));
+    const read = readActiveRun();
+    expect(read?.campaign.floorsCleared).toBe(2);
+    expect(read?.campaign.seed).toBeUndefined();
+  });
+
+  it('rejects a demo save that lost its seed (determinism corruption tripwire)', () => {
+    const corrupt = {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      journeyMode: 'demo',
+      campaign: { bossOrder: ['a', 'b'], floorsCleared: 1, mode: 'first-run' }, // no seed
+      spellbook: makeSave().spellbook,
+      heroHpCarryover: 2,
+      inBoss: null,
+    };
+    localStorage.setItem('stc:active-run', JSON.stringify(corrupt));
+    expect(readActiveRun()).toBeNull();
   });
 
   it('returns null when no save exists', () => {

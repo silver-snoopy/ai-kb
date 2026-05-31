@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { BOSSES, DEMO_BOSS_ORDER, DEMO_SEED } from '../config';
 import { pickQuestionsForFight, questionsForDomain } from '../data/questionLoader';
-import { demoRngForFloor } from '../game/dungeon';
+import { campaignFromSave, demoRngForFloor } from '../game/dungeon';
+import { readActiveRun, writeActiveRun } from '../game/runSave';
 import type { Bank } from '../types';
 
 // Golden answer-key guard for the scripted ?demo run. This pins the exact
@@ -51,5 +52,40 @@ describe('scripted demo answer key', () => {
         `${bossId}: ${EXPECTED_KEYS[bossId]}`,
       );
     });
+  });
+
+  // Regression: a between-boss demo save resumed from the Hub re-picks the next
+  // fight's questions from campaignFromSave(save).seed. If the seed does not
+  // survive the save round-trip, demoRngForFloor(undefined, floor) collapses to
+  // a constant seed and floors > 0 silently diverge from the cheat sheet. Floor 1
+  // is the first floor that would catch this (floor 0's seed coincides with the
+  // collapsed value), so it is the meaningful guard.
+  it('a resumed between-boss demo re-picks the SAME key on floor 1 (seed survives the save)', () => {
+    const RESUME_FLOOR = 1; // literal index → narrow boss id, not string | undefined
+    localStorage.clear();
+    writeActiveRun({
+      version: 1,
+      journeyMode: 'demo',
+      campaign: {
+        bossOrder: [...DEMO_BOSS_ORDER],
+        floorsCleared: RESUME_FLOOR,
+        mode: 'first-run',
+        seed: DEMO_SEED,
+      },
+      spellbook: { echo: 1, 'study-the-tome': 1, memorize: 1, amplify: 1, doubleshot: 1 },
+      heroHpCarryover: 3,
+      inBoss: null,
+    });
+    const resumed = campaignFromSave(readActiveRun()!);
+    const bossId = DEMO_BOSS_ORDER[RESUME_FLOOR];
+    const boss = BOSSES.find((b) => b.id === bossId)!;
+    const picks = pickQuestionsForFight(
+      questionsForDomain(bank, boss.domain),
+      FIRST_RUN_MAX_QUESTIONS,
+      demoRngForFloor(resumed.seed, resumed.floorsCleared),
+    );
+    expect(`${bossId}: ${picks.map((q) => q.correct).join(' ')}`).toBe(
+      `${bossId}: ${EXPECTED_KEYS[bossId]}`,
+    );
   });
 });

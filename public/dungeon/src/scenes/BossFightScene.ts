@@ -468,6 +468,9 @@ export class BossFightScene extends Phaser.Scene {
         bossOrder: [...campaign.bossOrder],
         floorsCleared: campaign.floorsCleared,
         mode: campaign.mode,
+        // Persist the seed so a between-boss demo resume re-picks the same
+        // questions (demoRngForFloor keys on it). Normal runs ignore it.
+        seed: campaign.seed,
       },
       spellbook: { ...this.spellbook },
       heroHpCarryover: this.state.heroHp,
