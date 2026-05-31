@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BOSSES } from '../config';
-import { darken, formatRunLabel } from './bossHud';
+import { darken, formatFloorLabel } from './bossHud';
 
 describe('darken', () => {
   it('multiplies each channel and rounds', () => {
@@ -15,17 +15,17 @@ describe('darken', () => {
   });
 });
 
-describe('formatRunLabel', () => {
-  it('shows floor (1-indexed) / total and domain when a campaign exists', () => {
+describe('formatFloorLabel', () => {
+  it('shows floor (1-indexed) / total when a campaign exists', () => {
     const campaign = { floorsCleared: 0, bossOrder: ['a', 'b', 'c', 'd', 'e'] };
-    expect(formatRunLabel(campaign, 'MCP')).toBe('Floor 1/5 · MCP');
+    expect(formatFloorLabel(campaign)).toBe('Floor 1/5');
   });
   it('uses the later floor number as the run advances', () => {
     const campaign = { floorsCleared: 3, bossOrder: ['a', 'b', 'c', 'd', 'e'] };
-    expect(formatRunLabel(campaign, 'Context')).toBe('Floor 4/5 · Context');
+    expect(formatFloorLabel(campaign)).toBe('Floor 4/5');
   });
-  it('falls back to just the domain when there is no campaign (debug/isolated)', () => {
-    expect(formatRunLabel(undefined, 'MCP')).toBe('MCP');
+  it('is empty when there is no campaign (debug/isolated) — domain shown alone', () => {
+    expect(formatFloorLabel(undefined)).toBe('');
   });
 });
 

@@ -26,12 +26,14 @@ export function darken(color: number, factor: number): number {
 }
 
 /**
- * Left-side HUD run label. With a campaign: "Floor <n>/<total> · <domain>"
- * (n is 1-indexed). Without one (isolated/debug fight): just the domain.
+ * Left-side HUD floor label: "Floor <n>/<total>" (n is 1-indexed). Empty string
+ * for an isolated/debug fight with no campaign (the bar then shows just the
+ * domain). The domain is rendered as its own label so the decorative sigil can
+ * sit between the two as the separator.
  */
-export function formatRunLabel(campaign: CampaignRunInfo | undefined, domainShort: string): string {
-  if (!campaign) return domainShort;
-  return `Floor ${campaign.floorsCleared + 1}/${campaign.bossOrder.length} · ${domainShort}`;
+export function formatFloorLabel(campaign: CampaignRunInfo | undefined): string {
+  if (!campaign) return '';
+  return `Floor ${campaign.floorsCleared + 1}/${campaign.bossOrder.length}`;
 }
 
 export interface BossHudOptions {
@@ -54,7 +56,7 @@ export interface BossHudOptions {
 export function mountBossHud(
   scene: Phaser.Scene,
   opts: BossHudOptions,
-): { runLabel: Phaser.GameObjects.Text } {
+): { separatorX: number; separatorY: number } {
   const { boss, campaign, onExit, onBgmToggle, bossName } = opts;
   const midY = BAR_HEIGHT / 2;
 
@@ -66,16 +68,29 @@ export function mountBossHud(
     .rectangle(480, BAR_HEIGHT - 1, 960, 2, darken(boss.environmentColor, BAR_BORDER_DARKEN))
     .setDepth(901);
 
-  // Left: door + run label.
+  // Left cluster: door, then "Floor N/M  ◈  <domain>". The decorative stinger
+  // sigil stands in for the separator between floor and domain (the old "·" is
+  // dropped). We lay out floor → reserved separator slot → domain left-to-right
+  // and return the slot's centre so the caller mounts the actual sigil there —
+  // keeping the demo-arm/trigger logic in decorativeSigil, not in the HUD.
   mountMenuButton(scene, onExit, { x: 28, y: midY });
-  const runLabel = scene.add
-    .text(64, midY, formatRunLabel(campaign, boss.domainShort), {
-      fontSize: '14px',
-      color: '#f5e4b3',
-      fontFamily: 'monospace',
-    })
-    .setOrigin(0, 0.5)
-    .setDepth(1000);
+
+  const labelStyle = { fontSize: '14px', color: '#f5e4b3', fontFamily: 'monospace' };
+  const SEP_HALF = 12; // half the width reserved for the separator sigil slot
+  const GAP = 4; // breathing space between each label and the separator slot
+
+  let cursor = 64;
+  const floorStr = formatFloorLabel(campaign);
+  if (floorStr) {
+    const floorText = scene.add
+      .text(cursor, midY, floorStr, labelStyle)
+      .setOrigin(0, 0.5)
+      .setDepth(1000);
+    cursor = floorText.x + floorText.width + GAP;
+  }
+  const separatorX = cursor + SEP_HALF;
+  cursor = separatorX + SEP_HALF + GAP;
+  scene.add.text(cursor, midY, boss.domainShort, labelStyle).setOrigin(0, 0.5).setDepth(1000);
 
   // Center: boss name, in amber (brand accent). Centered between the left run
   // label and the right audio cluster, on the themed strip — clears both the
@@ -94,8 +109,7 @@ export function mountBossHud(
   // Right: icon-only SFX/BGM, vertically centered in the bar.
   mountAudioToggles(scene, { iconOnly: true, y: midY, onBgmToggle });
 
-  // Return the run label so callers can anchor adjacent HUD chrome (e.g. the
-  // decorative stinger sigil) just past its right edge, regardless of domain
-  // name length.
-  return { runLabel };
+  // Return the separator slot's centre so the caller mounts the decorative
+  // stinger sigil exactly between the floor and domain labels.
+  return { separatorX, separatorY: midY };
 }
