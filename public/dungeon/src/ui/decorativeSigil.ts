@@ -9,10 +9,30 @@ import { fadeToScene } from './transitions';
 export const SIGIL_GLYPH = '◈';
 
 /**
- * Mount the permanent decorative rune at (x, y). Visible for ALL players as
- * inert HUD chrome. Only in demo mode (the scripted ?demo run) does it become
- * interactive and, on click, launch the post-credit stinger. No hand-cursor, so
- * it never reads as a button to a normal player.
+ * If the scripted ?demo run is active, make `target` the post-credit stinger
+ * launcher — a click fades to the PostCreditScene. No hand-cursor, so it stays
+ * camouflaged; inert (left untouched) for every normal player. Shared by the
+ * boss-HUD sigil and the Hub's castle title so both arm identically.
+ */
+export function armStingerTriggerIfDemo(
+  scene: Phaser.Scene,
+  target: Phaser.GameObjects.GameObject,
+): void {
+  if (!isScriptedDemo()) return;
+  target.setInteractive({ useHandCursor: false });
+  target.on(
+    'pointerdown',
+    (_p: unknown, _x: number, _y: number, event?: Phaser.Types.Input.EventData) => {
+      event?.stopPropagation?.();
+      fadeToScene(scene, 'PostCreditScene');
+    },
+  );
+}
+
+/**
+ * Mount the decorative rune at (x, y) — used as the boss-HUD Floor/domain
+ * separator. Visible for ALL players as inert chrome; armed as the stinger
+ * trigger only during the scripted ?demo run.
  *
  * Returns the created text object (for repositioning / tests).
  */
@@ -31,18 +51,6 @@ export function mountDecorativeSigil(
     .setScrollFactor(0)
     .setDepth(1000);
 
-  // Armed only during the scripted ?demo run — the single source of truth for
-  // "in demo mode". Inert (no handler, no hand-cursor) for every normal player.
-  if (isScriptedDemo()) {
-    sigil.setInteractive({ useHandCursor: false });
-    sigil.on(
-      'pointerdown',
-      (_p: unknown, _x: number, _y: number, event?: Phaser.Types.Input.EventData) => {
-        event?.stopPropagation?.();
-        fadeToScene(scene, 'PostCreditScene');
-      },
-    );
-  }
-
+  armStingerTriggerIfDemo(scene, sigil);
   return sigil;
 }

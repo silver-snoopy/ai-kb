@@ -13,7 +13,7 @@ import {
   mountDebugToggle,
   scriptedDemoSeedOverride,
 } from '../ui/debugToggle';
-import { mountDecorativeSigil } from '../ui/decorativeSigil';
+import { armStingerTriggerIfDemo } from '../ui/decorativeSigil';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 
 function continueButtonLabel(save: RunSave): string {
@@ -84,17 +84,18 @@ export class HubScene extends Phaser.Scene {
     // functionally relevant here, but the BGM toggle is still shown so
     // the user can pre-mute before entering a boss fight.
     mountAudioToggles(this);
-    // Decorative rune beside the gate title. Inert chrome for normal players;
-    // in demo mode it is the one-click launch for the post-credit stinger.
-    mountDecorativeSigil(this, 720, 50);
 
-    this.add
+    // The castle-gate title doubles as the camouflaged post-credit trigger: in
+    // demo mode (?demo) clicking it launches the stinger; for normal players it
+    // is just the title (inert, no hand-cursor).
+    const title = this.add
       .text(480, 50, '\uD83C\uDFF0 Gates of the Archive', {
         fontSize: '36px',
         color: '#e0e0ea',
         fontFamily: 'monospace',
       })
       .setOrigin(0.5);
+    armStingerTriggerIfDemo(this, title);
 
     if (save.title_earned) {
       this.add

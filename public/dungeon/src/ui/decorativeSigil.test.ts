@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SIGIL_GLYPH, mountDecorativeSigil } from './decorativeSigil';
+import { SIGIL_GLYPH, armStingerTriggerIfDemo, mountDecorativeSigil } from './decorativeSigil';
 
 function makeFakeText() {
   const t = {} as Record<string, ReturnType<typeof vi.fn>>;
@@ -50,5 +50,30 @@ describe('mountDecorativeSigil', () => {
     mountDecorativeSigil(scene, 720, 50);
     expect(text.setInteractive).toHaveBeenCalledWith({ useHandCursor: false });
     expect(text.on).toHaveBeenCalledWith('pointerdown', expect.any(Function));
+  });
+});
+
+describe('armStingerTriggerIfDemo', () => {
+  function makeTarget() {
+    const t = {} as Record<string, ReturnType<typeof vi.fn>>;
+    t.setInteractive = vi.fn().mockReturnValue(t);
+    t.on = vi.fn().mockReturnValue(t);
+    return t;
+  }
+
+  it('leaves the target untouched in normal mode (no ?demo)', () => {
+    setSearch('');
+    const target = makeTarget();
+    armStingerTriggerIfDemo({} as Phaser.Scene, target as unknown as Phaser.GameObjects.GameObject);
+    expect(target.setInteractive).not.toHaveBeenCalled();
+    expect(target.on).not.toHaveBeenCalled();
+  });
+
+  it('arms an interactive pointerdown launcher in demo mode (?demo)', () => {
+    setSearch('?demo=1');
+    const target = makeTarget();
+    armStingerTriggerIfDemo({} as Phaser.Scene, target as unknown as Phaser.GameObjects.GameObject);
+    expect(target.setInteractive).toHaveBeenCalledWith({ useHandCursor: false });
+    expect(target.on).toHaveBeenCalledWith('pointerdown', expect.any(Function));
   });
 });
