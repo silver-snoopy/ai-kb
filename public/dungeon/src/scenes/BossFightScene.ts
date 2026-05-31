@@ -27,6 +27,7 @@ import type {
 } from '../types';
 import { REGISTRY_BGM_MUTED, mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
+import { mountDecorativeSigil } from '../ui/decorativeSigil';
 import { mountDemoBadgeIfActive } from '../ui/demoBadge';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
@@ -390,6 +391,10 @@ export class BossFightScene extends Phaser.Scene {
         else this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
       },
     });
+
+    // Decorative rune beside the boss banner — second A/B mount of the stinger
+    // trigger; inert unless in demo mode.
+    mountDecorativeSigil(this, 700, 30);
 
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });

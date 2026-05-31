@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BOSSES } from '../config';
 import { loadBank } from '../data/questionLoader';
+import { enableDemoMode } from '../game/demoMode';
 import { createCampaign } from '../game/dungeon';
 import type { Campaign } from '../game/dungeon';
 import { type RunSave, clearActiveRun, readActiveRun } from '../game/runSave';
@@ -10,6 +11,7 @@ import type { Bank } from '../types';
 import { mountAudioToggles } from '../ui/audioToggles';
 import { attachRectHover } from '../ui/buttonHover';
 import { isDebugEnabled, mountDebugToggle } from '../ui/debugToggle';
+import { mountDecorativeSigil } from '../ui/decorativeSigil';
 import { fadeIn, fadeToScene } from '../ui/transitions';
 
 function continueButtonLabel(save: RunSave): string {
@@ -76,6 +78,9 @@ export class HubScene extends Phaser.Scene {
     // functionally relevant here, but the BGM toggle is still shown so
     // the user can pre-mute before entering a boss fight.
     mountAudioToggles(this);
+    // Decorative rune beside the gate title. Inert chrome for normal players;
+    // in demo mode it is the one-click launch for the post-credit stinger.
+    mountDecorativeSigil(this, 720, 50);
 
     this.add
       .text(480, 50, '\uD83C\uDFF0 Gates of the Archive', {
@@ -475,6 +480,7 @@ export class HubScene extends Phaser.Scene {
     this.registry.set('realBank', this.registry.get('bank'));
     this.registry.set('bank', demoBank);
     this.registry.set('demoRun', true);
+    enableDemoMode(this);
     // Any prior real-run save would block the Hub's continue branch and
     // its question IDs don't match the demo pool. Clear it for a clean
     // demo start.
