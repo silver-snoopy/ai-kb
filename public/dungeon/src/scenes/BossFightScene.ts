@@ -28,6 +28,7 @@ import type {
 import { REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { mountBossHud } from '../ui/bossHud';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
+import { mountDecorativeSigil } from '../ui/decorativeSigil';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
 import { LinePool } from '../ui/narrator/linePool';
@@ -407,7 +408,7 @@ export class BossFightScene extends Phaser.Scene {
     // <domain>" on the left and icon-only SFX/BGM on the right. onBgmToggle
     // starts/stops our procedural BGM; SFX mute flows through Phaser's sound
     // manager automatically.
-    mountBossHud(this, {
+    const { separatorX, separatorY } = mountBossHud(this, {
       boss: this.boss,
       bossName: this.boss.name,
       campaign: this.registry.get('campaign') as Campaign | undefined,
@@ -417,6 +418,11 @@ export class BossFightScene extends Phaser.Scene {
         else this.bgm.start(this.boss.id, this.sound as unknown as { context?: AudioContext });
       },
     });
+
+    // The decorative rune is the SEPARATOR between the floor and domain labels
+    // ("Floor N/M ◈ domain") — permanent chrome for normal players, and the
+    // one-click launch for the post-credit stinger when in demo mode.
+    mountDecorativeSigil(this, separatorX, separatorY);
 
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.
     installFeelPack(this, { heroSprite: this.heroSprite, bossSprite: this.bossSprite });
@@ -447,18 +453,24 @@ export class BossFightScene extends Phaser.Scene {
    * (with inBoss=null). No-op in isolated (debug) mode.
    */
   private writeSave(options: { endOfFight?: boolean } = {}): void {
-    // Never persist isolated (debug) fights, and never persist a scripted demo
-    // run — a demo save would otherwise survive a page reload (the in-memory
-    // demoRun flag does not) and leak into normal play as a "Continue" offer.
-    if (this.isolated || this.registry.get('demoRun')) return;
+    // Never persist isolated (debug) fights. Scripted demo runs ARE persisted
+    // (tagged demo:true) so the Hub's Continue can resume them mid-run, but the
+    // Hub only honors a demo save while in demo mode and discards it in normal
+    // play — so it can't leak in as a stray "Continue" offer.
+    if (this.isolated) return;
+    const journeyMode = this.registry.get('demoRun') ? 'demo' : 'normal';
     const campaign: Campaign | undefined = this.registry.get('campaign');
     if (!campaign) return;
     writeActiveRun({
       version: 1,
+      journeyMode,
       campaign: {
         bossOrder: [...campaign.bossOrder],
         floorsCleared: campaign.floorsCleared,
         mode: campaign.mode,
+        // Persist the seed so a between-boss demo resume re-picks the same
+        // questions (demoRngForFloor keys on it). Normal runs ignore it.
+        seed: campaign.seed,
       },
       spellbook: { ...this.spellbook },
       heroHpCarryover: this.state.heroHp,
@@ -481,6 +493,9 @@ export class BossFightScene extends Phaser.Scene {
     // isolated/demo). The scene's existing 'shutdown' handler stops the BGM
     // on transition, so we don't stop it here.
     this.writeSave();
+    // Stay in demo mode: the door persists the demo run (writeSave above) and
+    // returns to the Hub. The Hub no longer auto-relaunches mid-session, so it
+    // renders with a Continue button that resumes this demo run.
     fadeToScene(this, 'HubScene');
   }
 

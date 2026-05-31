@@ -3,10 +3,24 @@ import type { RunMode, SpellId } from '../types';
 const LS_KEY = 'stc:active-run';
 const STALE_MS = 48 * 60 * 60 * 1000; // 48 hours
 
+/**
+ * Which kind of journey a run belongs to. `demo` runs are the scripted ?demo
+ * talk flow; the Hub resumes a `demo` save only while in demo mode and discards
+ * it otherwise, so a demo run never leaks into normal play. Absent on legacy
+ * saves → treated as `normal`.
+ */
+export type JourneyMode = 'normal' | 'demo';
+
 export interface RunSave {
   version: 1;
   savedAt: string;
-  campaign: { bossOrder: string[]; floorsCleared: number; mode: RunMode };
+  journeyMode?: JourneyMode;
+  // `seed` reproduces a demo's question picks on resume (demoRngForFloor keys on
+  // it). Optional for back-compat: saves written before this field lack it, and
+  // normal runs ignore it (they pick with Math.random). A `demo` save MUST carry
+  // it — isRunSave rejects a demo save without a seed so a lost seed can never
+  // silently desync the live answer key.
+  campaign: { bossOrder: string[]; floorsCleared: number; mode: RunMode; seed?: number };
   spellbook: Record<SpellId, number>;
   heroHpCarryover: number;
   inBoss: {
@@ -104,6 +118,10 @@ function isRunSave(v: unknown): v is RunSave {
     return false;
   if (typeof cc['floorsCleared'] !== 'number') return false;
   if (typeof cc['mode'] !== 'string') return false;
+  // seed: optional for legacy/normal saves, but a demo save without a finite
+  // seed is corrupt — it could not reproduce the scripted answer key.
+  if (cc['seed'] !== undefined && typeof cc['seed'] !== 'number') return false;
+  if (o['journeyMode'] === 'demo' && typeof cc['seed'] !== 'number') return false;
   const sb = o['spellbook'];
   if (!sb || typeof sb !== 'object') return false;
   if (o['inBoss'] !== null) {

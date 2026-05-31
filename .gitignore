@@ -40,7 +40,6 @@ desktop.ini
 
 # Plugin skill caches
 .agents/
-.claude/skills/
 skills-lock.json
 
 # Slay the Cert — raw asset ZIPs staged for extraction (Session 4)
