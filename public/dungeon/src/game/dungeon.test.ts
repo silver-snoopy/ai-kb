@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { BOSSES } from '../config';
-import type { RunSave } from './runSave';
 import {
   advanceFloor,
   campaignFromSave,
@@ -9,6 +8,7 @@ import {
   isCampaignComplete,
   makeSeededRng,
 } from './dungeon';
+import type { RunSave } from './runSave';
 
 function makeRunSave(campaign: Partial<RunSave['campaign']> = {}): RunSave {
   return {

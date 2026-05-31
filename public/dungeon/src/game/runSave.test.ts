@@ -12,7 +12,12 @@ function makeSave(overrides: Partial<RunSave> = {}): RunSave {
   return {
     version: 1,
     savedAt: new Date().toISOString(),
-    campaign: { bossOrder: ['a', 'b', 'c', 'd', 'e'], floorsCleared: 2, mode: 'first-run', seed: 4242 },
+    campaign: {
+      bossOrder: ['a', 'b', 'c', 'd', 'e'],
+      floorsCleared: 2,
+      mode: 'first-run',
+      seed: 4242,
+    },
     spellbook: { echo: 1, 'study-the-tome': 1, memorize: 0, amplify: 0, doubleshot: 0 },
     heroHpCarryover: 2,
     inBoss: {
