@@ -54,3 +54,40 @@ describe('enableDemoMode', () => {
     expect(localStorage.getItem('stc:demoMode')).toBe('true');
   });
 });
+
+describe('isDemoMode resilience + cross-source composition', () => {
+  it('stays false across repeated calls when no source is active (no leak)', () => {
+    const scene = fakeScene(undefined);
+    expect(isDemoMode(scene, '')).toBe(false);
+    expect(isDemoMode(scene, '')).toBe(false);
+  });
+
+  it('registry flag wins even when the param is unrelated and storage is empty', () => {
+    expect(isDemoMode(fakeScene(true), '?nope')).toBe(true);
+  });
+
+  it('falls back to registry/param when localStorage.getItem throws (private mode)', () => {
+    const spy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('localStorage blocked');
+    });
+    try {
+      expect(isDemoMode(fakeScene(undefined), '?demo=1')).toBe(true); // param path, never reads storage
+      expect(isDemoMode(fakeScene(undefined), '')).toBe(false); // storage dead → not persisted
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('enableDemoMode still sets the registry flag when localStorage.setItem throws', () => {
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('localStorage blocked');
+    });
+    try {
+      const scene = fakeScene(undefined);
+      expect(() => enableDemoMode(scene)).not.toThrow();
+      expect(scene.registry.set).toHaveBeenCalledWith('demoMode', true);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});

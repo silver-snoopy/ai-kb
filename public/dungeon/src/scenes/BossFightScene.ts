@@ -392,8 +392,10 @@ export class BossFightScene extends Phaser.Scene {
       },
     });
 
-    // Decorative rune beside the boss banner — second A/B mount of the stinger
-    // trigger; inert unless in demo mode.
+    // Decorative rune beside the boss banner — the second of two placements
+    // (Hub + here) being compared in the plan's manual A/B; one is pruned after
+    // local evaluation. No bucketing logic: both always render, inert unless in
+    // demo mode.
     mountDecorativeSigil(this, 700, 30);
 
     // Install Feel Pack — hit-stop, shake grading, squash-stretch, stagger-back, ambient dust.

@@ -12,6 +12,7 @@ function localStorageDemo(): boolean {
   try {
     return localStorage.getItem(LS_KEY) === 'true';
   } catch {
+    // localStorage blocked (file://, privacy mode) — fall back to "not persisted"
     return false;
   }
 }

@@ -166,6 +166,9 @@ export class PostCreditScene extends Phaser.Scene {
   private leave(): void {
     if (this.leaving) return;
     this.leaving = true;
+    // Cancel any pending beats/failsafe so the decision can't fire twice even
+    // if leave() is later changed to do work before setting the guard.
+    this.time.removeAllEvents();
     fadeToScene(this, 'HubScene');
   }
 

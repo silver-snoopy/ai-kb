@@ -25,6 +25,16 @@ export function fadeToScene(
 ): void {
   scene.cameras.main.fadeOut(FADE_OUT_MS, 0, 0, 0);
   scene.cameras.main.once('camerafadeoutcomplete', () => {
+    // Guard against an unknown/unregistered scene key: Phaser's scene.start
+    // only console.warns and no-ops on a bad key, which would otherwise strand
+    // the player on a faded-to-black screen (invisible on a projector). Restore
+    // from black and surface a real error instead of failing silently.
+    if (!scene.scene.get(key)) {
+      // eslint-disable-next-line no-console
+      console.error(`[transitions] fadeToScene: unknown scene key "${key}"; restoring view`);
+      scene.cameras.main.fadeIn(FADE_IN_MS, 0, 0, 0);
+      return;
+    }
     scene.scene.start(key, data);
   });
 }

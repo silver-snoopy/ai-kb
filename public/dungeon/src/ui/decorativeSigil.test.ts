@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SIGIL_GLYPH, mountDecorativeSigil } from './decorativeSigil';
 
 function makeFakeText() {
-  const t: Record<string, ReturnType<typeof vi.fn>> = {};
+  const t = {} as Record<string, ReturnType<typeof vi.fn>>;
   for (const m of ['setScrollFactor', 'setDepth', 'setOrigin', 'setInteractive', 'on']) {
-    t[m] = vi.fn(() => t);
+    // mockReturnValue (not an inline closure) keeps the mock's signature type
+    // assignable to ReturnType<typeof vi.fn> under strict tsc.
+    t[m] = vi.fn().mockReturnValue(t);
   }
   return t;
 }
