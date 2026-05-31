@@ -76,8 +76,8 @@ export function mountBossHud(
   mountMenuButton(scene, onExit, { x: 28, y: midY });
 
   const labelStyle = { fontSize: '14px', color: '#f5e4b3', fontFamily: 'monospace' };
-  const SEP_HALF = 12; // half the width reserved for the separator sigil slot
-  const GAP = 4; // breathing space between each label and the separator slot
+  const SEP_HALF = 7; // half the width reserved for the separator sigil slot (14px glyph)
+  const GAP = 5; // breathing space between each label and the separator slot
 
   let cursor = 64;
   const floorStr = formatFloorLabel(campaign);

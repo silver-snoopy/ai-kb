@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SIGIL_GLYPH, mountDecorativeSigil } from './decorativeSigil';
 
 function makeFakeText() {
@@ -12,26 +12,23 @@ function makeFakeText() {
   return t;
 }
 
-function makeFakeScene(demo: boolean) {
+function makeFakeScene() {
   const text = makeFakeText();
-  const scene = {
-    add: { text: vi.fn(() => text) },
-    registry: { get: vi.fn((k: string) => (k === 'demoMode' ? demo : undefined)) },
-  } as unknown as Phaser.Scene;
+  const scene = { add: { text: vi.fn(() => text) } } as unknown as Phaser.Scene;
   return { scene, text };
 }
 
-beforeEach(() => {
-  try {
-    localStorage.clear();
-  } catch {
-    /* jsdom always has localStorage */
-  }
-});
+// The sigil arms on isScriptedDemo(), which reads window.location.search.
+function setSearch(search: string) {
+  window.history.replaceState({}, '', `/${search}`);
+}
+
+afterEach(() => setSearch(''));
 
 describe('mountDecorativeSigil', () => {
   it('renders the sigil glyph at the given position for all players', () => {
-    const { scene, text } = makeFakeScene(false);
+    setSearch('');
+    const { scene, text } = makeFakeScene();
     mountDecorativeSigil(scene, 720, 50);
     expect(
       (scene as unknown as { add: { text: ReturnType<typeof vi.fn> } }).add.text,
@@ -39,15 +36,17 @@ describe('mountDecorativeSigil', () => {
     expect(text.setDepth).toHaveBeenCalledWith(1000);
   });
 
-  it('is INERT when not in demo mode (no interactivity, no handler)', () => {
-    const { scene, text } = makeFakeScene(false);
+  it('is INERT in normal mode (no ?demo): no interactivity, no handler', () => {
+    setSearch('');
+    const { scene, text } = makeFakeScene();
     mountDecorativeSigil(scene, 720, 50);
     expect(text.setInteractive).not.toHaveBeenCalled();
     expect(text.on).not.toHaveBeenCalled();
   });
 
-  it('is ARMED in demo mode (interactive + pointerdown handler)', () => {
-    const { scene, text } = makeFakeScene(true);
+  it('is ARMED in demo mode (?demo): interactive + pointerdown handler', () => {
+    setSearch('?demo=1');
+    const { scene, text } = makeFakeScene();
     mountDecorativeSigil(scene, 720, 50);
     expect(text.setInteractive).toHaveBeenCalledWith({ useHandCursor: false });
     expect(text.on).toHaveBeenCalledWith('pointerdown', expect.any(Function));

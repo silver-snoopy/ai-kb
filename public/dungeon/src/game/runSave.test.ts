@@ -48,6 +48,29 @@ describe('runSave — storage layer', () => {
     expect(read?.inBoss?.questionIds).toEqual(['q1', 'q2', 'q3']);
   });
 
+  it('round-trips the journeyMode tag (demo) and omits it for legacy/normal saves', () => {
+    writeActiveRun({
+      version: 1,
+      journeyMode: 'demo',
+      campaign: makeSave().campaign,
+      spellbook: makeSave().spellbook,
+      heroHpCarryover: 2,
+      inBoss: makeSave().inBoss,
+    });
+    expect(readActiveRun()?.journeyMode).toBe('demo');
+
+    // A save written without journeyMode reads back as undefined — callers treat
+    // that as 'normal', so legacy saves keep working.
+    writeActiveRun({
+      version: 1,
+      campaign: makeSave().campaign,
+      spellbook: makeSave().spellbook,
+      heroHpCarryover: 2,
+      inBoss: makeSave().inBoss,
+    });
+    expect(readActiveRun()?.journeyMode).toBeUndefined();
+  });
+
   it('returns null when no save exists', () => {
     expect(readActiveRun()).toBeNull();
   });

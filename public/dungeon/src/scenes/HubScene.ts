@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { BOSSES, DEMO_BOSS_ORDER, DEMO_SEED } from '../config';
-import { enableDemoMode } from '../game/demoMode';
 import { createCampaign } from '../game/dungeon';
 import type { Campaign } from '../game/dungeon';
 import { type RunSave, clearActiveRun, readActiveRun } from '../game/runSave';
@@ -59,20 +58,24 @@ export class HubScene extends Phaser.Scene {
   create(): void {
     fadeIn(this);
 
-    // Returning from a scripted demo: clear the no-persist flag and any
-    // active-run save so a subsequent real run starts clean. The demo uses
-    // the real bank, so there is no bank to swap back.
-    if (this.registry.get('demoRun')) {
-      this.registry.remove('demoRun');
-      clearActiveRun();
-    }
+    const demoMode = isScriptedDemo();
+    // The Hub is demo-neutral; clear the in-session demo flag (resumeActiveRun
+    // re-arms it from the save's journeyMode when resuming a demo run). We always
+    // LAND on the Hub — the demo flow is started from here via the begin button,
+    // never auto-launched.
+    this.registry.remove('demoRun');
 
-    // Auto-launch the scripted demo when the URL requests it. Runs after the
-    // cleanup above so a self-restart (return to Hub with ?demo still set)
-    // re-enters cleanly.
-    if (isScriptedDemo()) {
-      this.beginScriptedDemo(scriptedDemoSeedOverride() ?? DEMO_SEED);
-      return;
+    // Journey-reset rules — keep the saved run consistent with the mode the user
+    // is now in, and wipe it once the post-credit stinger has played:
+    //   • the post-credit cutscene has played                  → reset
+    //   • a demo run, but reloaded without ?demo                → reset
+    //   • a normal run, but now switched into demo mode         → reset
+    const run = readActiveRun();
+    const postCreditPlayed = this.registry.get('postCreditPlayed') === true;
+    this.registry.remove('postCreditPlayed');
+    const runIsDemo = run?.journeyMode === 'demo';
+    if (postCreditPlayed || (run && runIsDemo !== demoMode)) {
+      clearActiveRun();
     }
 
     const save: SaveStateV1 = this.registry.get('saveState');
@@ -115,7 +118,8 @@ export class HubScene extends Phaser.Scene {
     const mode = nextModeFor(save);
     // Eternal Dungeon (NG+++) tier retired 2026-04-20 with Focus removal;
     // nextModeFor tops out at ng-plus-plus, so `beginLabel` is always the
-    // generic Begin Quest form now.
+    // generic Begin Quest form now. (Label is identical in demo mode; only the
+    // button's behaviour differs — it starts the scripted demo.)
     const beginLabel = `Begin Quest (${modeLabel(mode)})`;
 
     const activeRun = readActiveRun();
@@ -183,7 +187,7 @@ export class HubScene extends Phaser.Scene {
           fontFamily: 'monospace',
         })
         .setOrigin(0.5);
-      newBtn.on('pointerdown', () => this.beginCampaign(mode));
+      newBtn.on('pointerdown', () => this.startNewRun(mode));
     }
 
     // Archmage's Codex — opens the spell reference scene. Replaces the
@@ -319,6 +323,13 @@ export class HubScene extends Phaser.Scene {
       return;
     }
 
+    // Resuming a scripted-demo run: re-arm the no-progression-persist flag so the
+    // resumed fight stays a demo, and subsequent saves keep journeyMode 'demo'.
+    // (The sigil itself arms off the ?demo URL param, not this flag.)
+    if (save.journeyMode === 'demo') {
+      this.registry.set('demoRun', true);
+    }
+
     // Restore the minimum registry state BossFightScene / InterstitialScene
     // expect: campaign, spellbook, heroHp, sessionLog.
     const saveState: SaveStateV1 = this.registry.get('saveState');
@@ -444,9 +455,23 @@ export class HubScene extends Phaser.Scene {
     yesBtn.on('pointerdown', () => {
       clearActiveRun();
       dismiss();
-      this.beginCampaign(mode);
+      this.startNewRun(mode);
     });
     noBtn.on('pointerdown', dismiss);
+  }
+
+  /**
+   * Start a fresh run appropriate to the current journey: the scripted demo
+   * when in demo mode (?demo), otherwise a real campaign. This is what every
+   * "begin / new game / abandon-and-restart" button routes through, so flow 2
+   * (begin → demo) and flow 4 (abandon demo → new demo) share one path.
+   */
+  private startNewRun(mode: RunMode): void {
+    if (isScriptedDemo()) {
+      this.beginScriptedDemo(scriptedDemoSeedOverride() ?? DEMO_SEED);
+    } else {
+      this.beginCampaign(mode);
+    }
   }
 
   private beginScriptedDemo(seed: number): void {
@@ -458,11 +483,6 @@ export class HubScene extends Phaser.Scene {
     // spellbook so every lifeline is demoable.
     clearActiveRun();
     this.registry.set('demoRun', true);
-    // Arm the post-credit stinger's decorative sigil for the rest of the
-    // session (and persist it) once a demo begins — independent of demoRun,
-    // which is cleared on Hub return. The sigil is also armed directly by the
-    // ?demo URL param via isDemoMode.
-    enableDemoMode(this);
 
     const mode: RunMode = 'first-run';
     const campaign: Campaign = createCampaign(mode, seed);

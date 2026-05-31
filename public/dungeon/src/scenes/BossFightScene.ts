@@ -28,7 +28,6 @@ import type {
 import { REGISTRY_BGM_MUTED } from '../ui/audioToggles';
 import { mountBossHud } from '../ui/bossHud';
 import { attachRectHover, attachTextHover } from '../ui/buttonHover';
-import { isScriptedDemo } from '../ui/debugToggle';
 import { mountDecorativeSigil } from '../ui/decorativeSigil';
 import { NarratorDispatcher } from '../ui/narrator/NarratorDispatcher';
 import { NarratorOverlay } from '../ui/narrator/NarratorOverlay';
@@ -454,14 +453,17 @@ export class BossFightScene extends Phaser.Scene {
    * (with inBoss=null). No-op in isolated (debug) mode.
    */
   private writeSave(options: { endOfFight?: boolean } = {}): void {
-    // Never persist isolated (debug) fights, and never persist a scripted demo
-    // run — a demo save would otherwise survive a page reload (the in-memory
-    // demoRun flag does not) and leak into normal play as a "Continue" offer.
-    if (this.isolated || this.registry.get('demoRun')) return;
+    // Never persist isolated (debug) fights. Scripted demo runs ARE persisted
+    // (tagged demo:true) so the Hub's Continue can resume them mid-run, but the
+    // Hub only honors a demo save while in demo mode and discards it in normal
+    // play — so it can't leak in as a stray "Continue" offer.
+    if (this.isolated) return;
+    const journeyMode = this.registry.get('demoRun') ? 'demo' : 'normal';
     const campaign: Campaign | undefined = this.registry.get('campaign');
     if (!campaign) return;
     writeActiveRun({
       version: 1,
+      journeyMode,
       campaign: {
         bossOrder: [...campaign.bossOrder],
         floorsCleared: campaign.floorsCleared,
@@ -488,15 +490,9 @@ export class BossFightScene extends Phaser.Scene {
     // isolated/demo). The scene's existing 'shutdown' handler stops the BGM
     // on transition, so we don't stop it here.
     this.writeSave();
-    // The door is an explicit "leave". During a scripted ?demo run the Hub
-    // auto-relaunches the demo whenever ?demo is present (HubScene.create), so
-    // it would bounce us straight back. Strip the ?demo param first so the
-    // door actually lands on the Hub. (The demo seed lives in this same param.)
-    if (isScriptedDemo()) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('demo');
-      window.history.replaceState(null, '', url.toString());
-    }
+    // Stay in demo mode: the door persists the demo run (writeSave above) and
+    // returns to the Hub. The Hub no longer auto-relaunches mid-session, so it
+    // renders with a Continue button that resumes this demo run.
     fadeToScene(this, 'HubScene');
   }
 

@@ -3,9 +3,18 @@ import type { RunMode, SpellId } from '../types';
 const LS_KEY = 'stc:active-run';
 const STALE_MS = 48 * 60 * 60 * 1000; // 48 hours
 
+/**
+ * Which kind of journey a run belongs to. `demo` runs are the scripted ?demo
+ * talk flow; the Hub resumes a `demo` save only while in demo mode and discards
+ * it otherwise, so a demo run never leaks into normal play. Absent on legacy
+ * saves → treated as `normal`.
+ */
+export type JourneyMode = 'normal' | 'demo';
+
 export interface RunSave {
   version: 1;
   savedAt: string;
+  journeyMode?: JourneyMode;
   campaign: { bossOrder: string[]; floorsCleared: number; mode: RunMode };
   spellbook: Record<SpellId, number>;
   heroHpCarryover: number;

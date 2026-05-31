@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { isDemoMode } from '../game/demoMode';
+import { isScriptedDemo } from './debugToggle';
 import { fadeToScene } from './transitions';
 
 /**
@@ -10,9 +10,9 @@ export const SIGIL_GLYPH = '◈';
 
 /**
  * Mount the permanent decorative rune at (x, y). Visible for ALL players as
- * inert HUD chrome. Only in demo mode does it become interactive and, on click,
- * launch the post-credit stinger. No hand-cursor, so it never reads as a button
- * to a normal player.
+ * inert HUD chrome. Only in demo mode (the scripted ?demo run) does it become
+ * interactive and, on click, launch the post-credit stinger. No hand-cursor, so
+ * it never reads as a button to a normal player.
  *
  * Returns the created text object (for repositioning / tests).
  */
@@ -23,16 +23,17 @@ export function mountDecorativeSigil(
 ): Phaser.GameObjects.Text {
   const sigil = scene.add
     .text(x, y, SIGIL_GLYPH, {
-      fontSize: '16px',
+      fontSize: '14px',
       color: '#6a6a7a',
       fontFamily: 'monospace',
-      padding: { x: 6, y: 3 },
     })
     .setOrigin(0.5)
     .setScrollFactor(0)
     .setDepth(1000);
 
-  if (isDemoMode(scene)) {
+  // Armed only during the scripted ?demo run — the single source of truth for
+  // "in demo mode". Inert (no handler, no hand-cursor) for every normal player.
+  if (isScriptedDemo()) {
     sigil.setInteractive({ useHandCursor: false });
     sigil.on(
       'pointerdown',

@@ -169,6 +169,9 @@ export class PostCreditScene extends Phaser.Scene {
     // Cancel any pending beats/failsafe so the decision can't fire twice even
     // if leave() is later changed to do work before setting the guard.
     this.time.removeAllEvents();
+    // Signal the Hub to reset the journey: once the post-credit stinger has
+    // played, the in-progress run is wiped so the next begin starts fresh.
+    this.registry.set('postCreditPlayed', true);
     fadeToScene(this, 'HubScene');
   }
 
