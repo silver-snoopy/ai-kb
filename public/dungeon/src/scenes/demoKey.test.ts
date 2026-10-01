@@ -12,7 +12,7 @@ import type { Bank } from '../types';
 // (demoRngForFloor(seed, floor) → pickQuestionsForFight). If a bank edit shifts
 // the picks, this FAILS — that is the intended tripwire: regenerate both this
 // golden and the cheat sheet
-// (public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md) together.
+// (public/talks/slay-the-cert/prep/demo-cheat-sheet.md) together.
 //
 // The expected values below MUST match that cheat sheet and the DEMO_SEED
 // rationale comment in config.ts.

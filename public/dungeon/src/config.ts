@@ -19,7 +19,7 @@ export const GAME_CONFIG = {
 // most varied MCP questions of the candidate seeds previewed. DEMO_BOSS_ORDER
 // fixes the campaign order so the Tool-Smith fight is always the opener.
 // The full answer key lives in
-// public/talks/2026-06-03-slay-the-cert/prep/demo-cheat-sheet.md and is pinned
+// public/talks/slay-the-cert/prep/demo-cheat-sheet.md and is pinned
 // against the live bank by src/scenes/demoKey.test.ts (a bank edit that shifts
 // the key fails that test — regenerate the cheat sheet + golden together).
 export const DEMO_SEED = 1;
